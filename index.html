@@ -43,7 +43,7 @@
 
 <script type="module">
 import DB from './include/DB.js'
-import {Markup, Preview} from './include/bey.js'
+import {Bey, Markup, Preview} from './include/bey.js'
 import {Part} from './include/part.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
 let CACHE;
@@ -69,32 +69,36 @@ Q('[type=search]').oninput = ev => {
             beys = beys.map(([code]) => code);
             let max = new O([...new Set(beys.map(code => code.split('-')[0]))]
                 .map(line => [line, beys.find(code => new RegExp(`^${line}-`).test(code))?.match(/\d+/)[0]]));
-            CACHE = {links, max};
+            Bey.CACHE = CACHE = {links, max};
             return Promise.all(parts.flatMap(([, parts]) => parts.map(p => new Part(p).revise())));
         })
         .then(parts => CACHE.parts = parts.map(p => p.push({all: [...p].flat()})) )
     ).then(() => {
-        let search = Markup.replace(ev.target.value, 'search').trim();
-        Q('#search .parts').replaceChildren(...new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
-            .search({$or: [
-                {abbr: search}, {$and: search.split(/(?=\W)/).map(t => ({all: t}) )}
-            ]})
-            .map(({item}) => E(`li>button.${item.comp}.${item.line || item.group}`, 
+        Bey.CACHE = CACHE;   
+        let results = new Bey(Markup.replace(ev.target.value, 'search').trim());
+        Q('#search .parts').replaceChildren(...results
+            .sort((p1, p2) => p1 instanceof Part && !(p2 instanceof Part) ? -1 : p2 instanceof Part && !(p1 instanceof Part) ? 1 : 0)
+            .flatMap(s => s instanceof Part ? {item: s} :
+                new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
+                .search({$or: [{abbr: s}, {$and: s.split(/(?=\W)/).map(t => ({all: t}))}] })
+                .slice(0, results.length > 1 ? 5 : Infinity)
+            ).map(({item}) => E(`li>button.${item.comp}.${item.line || item.group}`, 
                 Markup('cell', item.names?.chi || item.abbr),
                 {onclick: () => new Preview(['tile', 'cell'], item.path)}
             ))
         );
+        results = results.join('');
         Q('#search .links').replaceChildren(...new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
-            .search(search).slice(0, 5)
+            .search(results).slice(0, 5)
             .map(({item}) => E('li>a', item.text, {
                 classList: /(?<=parts\/\?).+?(?=[=#])/.exec(item.href)?.[0] || '',
                 href: item.href, target: item.href.startsWith('//') ? '_blank' : ''
             }))
         );
-        Q('#search .beys').replaceChildren(/^[a-z]x[a-z]?-?\d{2,3}$/i.test(search) 
-            && (search = search.toUpperCase().replace(/([A-Z]+)(\d+)/, '$1-$2'))
-            && (([line, no]) => parseInt(no) <= parseInt(CACHE.max[line]))(search.split('-')) ? 
-            E('li>button', search, {onclick: () => new Preview(['cell', 'image'], search)}) : ''
+        Q('#search .beys').replaceChildren(/^[a-z]x[a-z]?-?\d{2,3}$/i.test(results) 
+            && (results = results.toUpperCase().replace(/([A-Z]+)(\d+)/, '$1-$2'))
+            && (([line, no]) => parseInt(no) <= parseInt(CACHE.max[line]))(results.split('-')) ? 
+            E('li>button', results, {onclick: () => new Preview(['cell', 'image'], results)}) : ''
         );
     })
 }

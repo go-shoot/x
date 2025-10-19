@@ -26,7 +26,7 @@ class Shohin {
         let content = [desc ?? []].flat().reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), imgs)
             .map(srcORtext => /^(https?:)?\/\//.test(srcORtext) ? 
                 E('figure', [E('a', '🖼️', {href: srcORtext.src}), E('img', {src: srcORtext})]) : 
-                E('p', {innerHTML: Markup.spacing(srcORtext).replaceAll('-', '‑')})
+                E('p', {innerHTML: Markup.spacing(srcORtext)})
             );
         return E('div', [
             E('h5', [type ? E(`ruby.below.${type}`, [
@@ -63,7 +63,7 @@ class Shohin {
 }
 class Keihin {
     constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
-        let names = new Bey([, , bey]);   
+        let names = new Bey(bey);   
         return E(`article.keihin-${type}`, [
             E('em', Keihin.type[type]), 
             E('p', link ? E('a', {href: link}, note) : parseInt(style?.width) > 300 ? E('a', {href: src}, note) : note),

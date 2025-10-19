@@ -7,7 +7,7 @@ let META, PARTS;
 class Part {
     static import = (meta, parts) => ([META, PARTS] = [meta, parts]) && Bey.import(meta, parts);
     #path;
-    constructor(json = {}) {
+    constructor(json = {names: {}}) {
         this.push({...new O(json)});
         return this.constructor.name == 'Part' ? new Part[this.comp](json) : this;
     }

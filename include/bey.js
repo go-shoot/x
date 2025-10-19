@@ -7,11 +7,13 @@ let META, PARTS;
 
 class Bey {
     static import = (meta, parts) => [META, PARTS] = [meta, parts];
-    constructor([code, type, abbr, ...others]) {
-        if (code == 'BH') return new Text();
-        this.abbr = abbr;
+    constructor(content) {
+        return typeof content == 'string' ? 
+            location.href.includes('prize') ? this.for.prize(content) : this.for.index(content) : 
+            this.for.product(content);
+    }
+    abbr = {to: {parts: abbr => {
         let [blade, ratchet, bit] = abbr.split(' ');
-        
         this.line = META.blade.delimiter.find(([, char]) => 
             (blade = (Array.isArray(blade) ? blade[0] : blade).split(char)).length > 1
         )?.[0];
@@ -20,22 +22,39 @@ class Bey {
             PARTS.blade[blade[0]] ?? new Part.blade();
         this.ratchet = PARTS.ratchet[ratchet] ?? new Part.ratchet();
         this.bit = PARTS.bit[bit] ?? new Part.bit();
-        return location.href.includes('prize') ? this.fullnames() : new Row(this, code, type, others);
-    }
-    fullnames = () => {
-        let names = {
-            chi: [...new O({...['', '']}).append(...
-                [this.blade].flat().map(b => Markup.remove(b?.names.chi ?? b?.abbr)?.replace(/^(?!.* )(.*)$/, '$1 $1').split(' '))
-            ).values()].filter(n => n).join('⬧'),
-            jap: Array.isArray(this.blade) ? 
-                    this.blade.map((b, i, ar) => ar[0] && ar[1] && i == 2 ? b.abbr : b?.names.jap) : this.blade.names.jap,
-        };
+        return this.parts;
+    }}}
+    name = {to: {parts: name => {
+        let bey = name.toUpperCase().match(/^(.{1,4}?|.{5,})(.-\d+)?(\w*)$/)?.slice(1, 4) ?? [];
+        bey = bey.length > 1 ? [
+            ...bey[0].match(/^(.*?)([一-龢]{1,2})(\w)?$/)?.slice(1, 4).map((b, i) => PARTS.blade.CX[Part.blade.sub[i]][b] ?? b) ?? [],
+            ...['ratchet', 'bit'].map((comp, i) => Bey.CACHE.parts.find(p => p.abbr == bey[i + 1] && p.comp == comp) ?? bey[i + 1]),
+        ].filter(_ => _) : [name]; console.log(bey);
+        return bey;
+    }}}
+    parts = {to: {name: () => {
+        let names = {};
+        names.chi = [...new O({...['', '']}).append(...
+            [this.blade].flat().map(b => Markup.remove(b?.names.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' '))
+        ).values()].filter(n => n).join('⬧'),
         names.chi &&= [names.chi, ' ', this.ratchet.abbr, this.bit.abbr].join('').replace('-', '‑');
+
+        names.jap = Array.isArray(this.blade) ? 
+            this.blade.map((b, i, ar) => ar[0] && ar[1] && i == 2 ? b.abbr : b?.names.jap) : this.blade.names.jap,
         names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
+        
         let single = parts => parts.length === 1 && META.jap.at(parts[0].path.slice(0, -1))?._;
         return {...names, only: single([this.blade, this.ratchet, this.bit].flat().filter(p => p?.abbr))};
+    }}}
+    for = {
+        index: name => this.name.to.parts(name),
+        prize: abbr => this.abbr.to.parts(abbr).to.name(),
+        product: ([code, type, abbr, ...others]) => {
+            if (code == 'BH') return new Text();
+            this.abbr.to.parts(this.abbr = abbr);
+            return new Row(this, code, type, others);
+        },
     }
-    static RB = 0;
 }
 class Row {
     constructor(bey, code, type, others) {
@@ -232,7 +251,7 @@ Object.assign(Markup, {
     stat: new O([
         [/([A-Z ]+)([一-龢]+)/, ([, $1, $2]) => [$1, String.fromCharCode(10), $2]],
         [/(.+)([+=-])/, ([, $1, $2]) => [$1, E('sup', {'+':'+','=':'≈','-':'−'}[$2])]],
-        [/(.+)>(.+)/, ([, $1, $2]) => [$1, E('small', '→'), $2]],
+        [/(.+?)(<>|>)(.+)/, ([, $1, $2, $3]) => [$1, E('small', {'<>': '↔', '>': '→'}[$2]), $3]],
     ]),
     image: [
         [/(.*)\$\{(.+)\}(.*)/, ([, $1, $2, $3], values) => [$1, values[$2], $3].join('')],
