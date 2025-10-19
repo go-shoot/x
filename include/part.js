@@ -1,6 +1,7 @@
 
 import DB from '../include/DB.js'
-import { Bey, Preview, Markup } from './bey.js';
+import { Bey, Preview } from './bey.js';
+import { Markup } from './utilities.js';
 import Table from '../products/products.js';
 
 let META, PARTS;

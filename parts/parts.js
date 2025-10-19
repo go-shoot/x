@@ -1,7 +1,6 @@
 import DB from '../include/DB.js'
 import { Part } from '../include/part.js';
-import { Markup } from '../include/bey.js';
-import { Glossary } from '../include/utilities.js';
+import { Glossary, Markup } from '../include/utilities.js';
 
 let META, PARTS;
 let [comp, line] = [...new URLSearchParams(location.search)][0] ?? [];

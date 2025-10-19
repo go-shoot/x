@@ -1,5 +1,5 @@
 import DB from "./DB.js";
-import { Bey, Preview, Markup } from "./bey.js";
+import { Bey, Preview } from "./bey.js";
 
 class FilterLED {
     constructor(classes, targets, custom) {
@@ -128,4 +128,60 @@ Object.assign(Glossary, {
         }, 3000);
     },
 });
-export {FilterLED, Shohin, Keihin, Glossary}
+
+const Markup = (where, string, span = true) => {
+    if (!string) return [];
+    string = string.split(Markup.split);
+    if (where == 'cell')
+        return (string.length == 2 ? [string[0], '⬧', string[1]] : string)
+            .map(s => s.replace(...Markup.cell)).flatMap(s => Markup.replace(s, 'mode'));
+    if (where == 'tile')
+        return string.map(s => Markup.replace(s, 'mode')).map(s => span ? Markup.replace(s, 'tile') : s);
+    if (where == 'stat')
+        return Markup.replace(string, 'stat');
+    return string;
+}
+Object.assign(Markup, {
+    split: /(?<=.+?) (?=[一-龢].+)/,
+    cell: [/[/\\]/g, ''],
+    tile: new O([ //mode first so that _mode won't be sticking to span
+        [/(.+)\\(.+)/, ([, $1, $2]) => [$1, E('span', $2)]],
+        [/(.+)\/(.+)/, ([, $1, $2]) => [E('span', $1), $2]],
+        [/(.+?) ?([A-Z].+)/, ([, $1, $2]) => [E('span', $1), $2]],
+        [/^([一-龢]{2})([一-龢]{2,})/, ([, $1, $2]) => [E('span', $1), $2]],
+    ]),
+    mode: new O([
+        [/(.+)_([一-龢]{4,})/, ([, $1, $2]) => [$1, E('sub.long', $2)]],
+        [/(.+)_(.+)/, ([, $1, $2]) => [$1, E('sub', $2)]]
+    ]),
+    stat: new O([
+        [/([A-Z ]+)([一-龢]+)/, ([, $1, $2]) => [$1, String.fromCharCode(10), $2]],
+        [/(.+)([+=-])/, ([, $1, $2]) => [$1, E('sup', {'+':'+','=':'≈','-':'−'}[$2])]],
+        [/(.+?)(<>|>)(.+)/, ([, $1, $2, $3]) => [$1, E('small', {'<>': '↔', '>': '→'}[$2]), $3]],
+    ]),
+    image: [
+        [/(.*)\$\{(.+)\}(.*)/, ([, $1, $2, $3], values) => [$1, values[$2], $3].join('')],
+        [/(.*)\((.+)\)(.*)/, ([, $1, $2, $3]) => $2.split('|').map(s => [$1, s, $3].join(''))],
+    ],
+    search: [
+        [/攻擊?/, 'att'], [/防禦?/, 'def'], [/平衡?/, 'bal'], [/持久?/, 'sta'],
+        ['左', 'left'], ['右', 'right'],
+        [/軸心?/, 'bit'], ['固鎖', 'ratchet'], [/上蓋|面|戰刃/, 'blade'],
+    ],
+    replace (string, which, values) {
+        if (string instanceof Array) 
+            return string.flatMap(s => Markup.replace(s, which));
+        if (string instanceof HTMLElement) 
+            return string;
+        if (Markup[which] instanceof Array)
+            return Markup[which].reduce((str, [r, f]) => 
+                typeof f == 'string' ? str.replace(r, `${f} `) : 
+                r.test(str) ? f(r.exec(str), values) : str
+            , string);
+        let [r, f] = Markup[which].find(([r]) => r.test(string)) ?? [];
+        return f?.(r.exec(string), values) ?? string;
+    },
+    remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? '',
+    spacing: text => text?.replace(/(?<=\w)(?=[一-龢])/g, ' ').replace(/(?<=[一-龢])(?=\w)/g, ' ') ?? ''
+});
+export {FilterLED, Shohin, Keihin, Glossary, Markup}
