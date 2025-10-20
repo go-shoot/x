@@ -25,12 +25,11 @@ class Bey {
         return this.parts;
     }}}
     name = {to: {parts: name => {
-        let bey = name.toUpperCase().match(/^(.*?\w?)(.-?\d+)?(\w*)$/)?.slice(1, 4) ?? [];console.log(bey);
-        bey = bey.length > 1 ? [
+        let bey = name.toUpperCase().match(/^(.*?(?:(?<=[A-z])\D)?)(\w-?\d+)?(\w*)$/)?.slice(1, 4) ?? [];
+        return bey[0] ? [
             ...bey[0].match(/^(.*?)([一-龢]{1,2})(\w)?$/)?.slice(1, 4).map((b, i) => PARTS.blade.CX[Part.blade.sub[i]][b] ?? b) ?? [],
             ...['ratchet', 'bit'].map((comp, i) => Bey.CACHE.parts.find(p => p.abbr == bey[i + 1] && p.comp == comp) ?? bey[i + 1]),
-        ].filter(_ => _) : [name]; console.log(bey);
-        return bey;
+        ].filter(_ => _) : [name];
     }}}
     parts = {to: {name: () => {
         let names = {};
