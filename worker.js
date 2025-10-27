@@ -33,7 +33,7 @@ const actions = {
 
 const is = {
     internal: url => ['aeoq.github.io', new URL(location.href).host].includes(new URL(url).host),
-    cacheable: url => is.internal(url) && !/\.json$/.test(new URL(url).pathname),
+    cacheable: url => (is.internal(url) || /cdn\.?js/.test(url)) && !/\.json$/.test(new URL(url).pathname),
     volatile: url => /\.(?:css|js|json)$/.test(new URL(url).pathname),
     image: url => /\.(?:ico|svg|jpeg|jpg|png)$/.test(new URL(url).pathname),
     part: url => /img\/.+?\/.+?\.png$/.test(new URL(url).pathname),
@@ -66,15 +66,14 @@ const Head = {
     <meta name=viewport content='width=device-width,initial-scale=1'>
     <meta name=theme-color content='#b0ff50'>
     <link rel=icon href="https://${location.host}/x/img/blade/CX/motif/VL.png" type="image/png">
-    <link rel=stylesheet href=/x/include/common.css>
     <link rel=manifest href='data:application/manifest+json,{
       "name":"非官方資訊站",
       "display":"standalone",
       "start_url":"https://${location.host}/x/",
-      "theme_color":"rgb(181,251,92)",
-      "background_color":"black",
-      "icons":[{"src":"https://${location.host}/x/img/blade/CX/motif/VL.png","type":"image/png","sizes":"192x192"},{"src":"https://${location.host}/x/img/blade/CX/motif/VL.png","type":"image/png","sizes":"512x512","purpose":"maskable"}]
+      "theme_color":"%23b0ff50",
+      "icons":[{"src":"https://${location.host}/x/img/blade/CX/motif/VL.png","type":"image/png","sizes":"512x512"}]
     }'>
+    <link rel=stylesheet href=/x/include/common.css>
     <script type=module>import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'; Object.assign(window, {A,E,O,Q});</script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MJMB14RTQP"></script>
     <script>

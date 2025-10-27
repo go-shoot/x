@@ -143,11 +143,11 @@
         position: absolute; top: -.7em;
     }
 }
-.r code::after,label:has(#r)::after {
+.r code::after,label:has([value=r])::after {
     content: "\e01e";
     right: -1.2em;
 }
-.l code::before,label:has(#l)::after {
+.l code::before,label:has([value=l])::after {
     content: "\e01d";
     left: -1.2em;
 }

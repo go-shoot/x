@@ -13,15 +13,16 @@ class Bey {
             this.for.product(content);
     }
     abbr = {to: {parts: abbr => {
-        let [blade, ratchet, bit] = abbr.split(' ');
+        abbr = new O(abbr.split(' ').map((a, i) => [i == 0 ? 'blade' : i == 1 ? 'ratchet' : 'bit', a]));
+        ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp]());
+
         this.line = META.blade.delimiter.find(([, char]) => 
-            (blade = (Array.isArray(blade) ? blade[0] : blade).split(char)).length > 1
+            (abbr.blade = [abbr.blade].flat()[0].split(char)).length > 1
         )?.[0];
-        this.blade = blade.length > 1 ? 
-            blade.map((b, i) => PARTS.blade[this.line][Part.blade.sub[i]][b]) ?? new Part.blade() : 
-            PARTS.blade[blade[0]] ?? new Part.blade();
-        this.ratchet = PARTS.ratchet[ratchet] ?? new Part.ratchet();
-        this.bit = PARTS.bit[bit] ?? new Part.bit();
+        this.blade = abbr.blade.length > 1 ? 
+            abbr.blade.map((b, i) => PARTS.blade[this.line][Part.blade.sub[i]][b]) ?? new Part.blade() : 
+            PARTS.blade[abbr.blade[0]] ?? new Part.blade();
+        this.line ??= this.blade.group ?? '';
         return this.parts;
     }}}
     name = {to: {parts: name => {
@@ -43,7 +44,10 @@ class Bey {
         names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
         
         let single = parts => parts.length === 1 && META.jap.at(parts[0].path.slice(0, -1))?._;
-        return {...names, only: single([this.blade, this.ratchet, this.bit].flat().filter(p => p?.abbr))};
+        return {
+            ...names, line: this.line,
+            only: single([this.blade, this.ratchet, this.bit].flat().filter(p => p?.abbr))
+        };
     }}}
     for = {
         index: name => this.name.to.parts(name),
@@ -62,7 +66,7 @@ class Row {
             this.cell(code, video), 
             ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
         ].flat(9), {
-            classList: [bey.line ?? bey.blade.group ?? 'BX', type],
+            classList: [bey.line || 'BX', type],
             dataset: {abbr: bey.abbr}
         });
         this.extra(extra ?? {});

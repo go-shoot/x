@@ -84,7 +84,7 @@
                         "multi": {"label": "\ue01c", "checked": true}
                     },
                     "title": "軸心⬧Bit",
-                    "variety": {"\ue047":".H,.L,.U","\ue04a":".M,.R","\ue049":".B,.F,.T","\ue048":".G","\ue04b":".D,.W"}
+                    "variety": {"H,L,U":"\ue047","M,R":"\ue04a","B,F,T":"\ue049","G":"\ue048","D,W":"\ue04b"}
                 },
                 "filters": ["type","prefix"]
             }

@@ -18,13 +18,13 @@ class Part {
     push (json) {return Object.assign(this, json);}
     get path () {return this.#path ??= [this.constructor.name.toLowerCase(), this.abbr];}
 
-    async tile () {
+    async tile ({hidden} = {}) {
         let {path, stat} = this;
         !stat && this.push(await (
             path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
-        return new Tile(this);
+        return new Tile(this, {hidden});
     }
     cell () {return new Cell(this);}
 
@@ -78,7 +78,7 @@ class Bit extends Part {
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
 class Tile extends HTMLElement {
-    constructor(Part) {
+    constructor(Part, {hidden} = {}) {
         super();
         let {path, group, attr} = Part;
         this.Part = Part;
@@ -90,6 +90,7 @@ class Tile extends HTMLElement {
             id: path.at(-1),
             classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
             style: {opacity: 0},
+            hidden,
             onclick: Tile.#onclick
         });
     }

@@ -32,10 +32,9 @@ Object.assign(DB, {
 
             return (fresh ? DB.setup(ev).then(DB.transfer.in) : Promise.resolve())
                 .then(() => DB.fetch.updates({fresh, index})).then(DB.cache)
-                .then(() => DB.plugins.followup?.())
                 .catch(er => `${er}`.includes('Failed to fetch') ? 
                     DB.indicator.setAttribute('state', 'offline') : console.error(er)
-                );
+                ).then(() => DB.plugins.followup?.());
         })
     ,
     setup (ev) {

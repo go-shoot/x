@@ -17,6 +17,7 @@
         <li><a href='#launchers'>發射器</a>
         <li><a href='#others'>其他</a>
     </menu>
+    <form class="LED"></form>
 </nav>
 
 <main class=groups>
@@ -49,10 +50,10 @@
 <script type="module">
 import DB from '../include/DB.js';
 import {Bey, Preview} from '../include/bey.js';
-import {FilterLED, Markup} from '../include/utilities.js';
+import {FilterForm, Markup} from '../include/utilities.js';
 
-const filter = new FilterLED(['l','r'], '.boards li');
-Q('nav').append(filter);
+const filter = new FilterForm.fieldset(new O({'l':'', 'r':''}));
+Q('nav form').append(filter);
 
 class Group {
     constructor({eng, jap, desc, colors}) {
@@ -69,8 +70,9 @@ class Group {
             E('ol.boards')
         ]);
         details.Q('summary').addEventListener('click', () => {
-            filter.onreset();
             details.Q('ol').append(...colors.map(item => new Board(item)));
+            FilterForm.event(Q('.boards li'));
+            document.forms[0].onreset();
         }, {once: true});
         return details;
     }

@@ -1,6 +1,6 @@
 import DB from '../include/DB.js'
 import { Part } from '../include/part.js';
-import { Glossary, Markup } from '../include/utilities.js';
+import { Glossary, Markup, FilterForm } from '../include/utilities.js';
 
 let META, PARTS;
 let [comp, line] = [...new URLSearchParams(location.search)][0] ?? [];
@@ -20,12 +20,19 @@ Object.assign(Parts, {
         Parts.place = Q('section');
         Magnifier();
     },
-    before: () => Filter(),
+    before () {
+        Filter(); Sorter();
+        new MutationObserver(() => {
+            Parts.count();
+            Parts.place.Q('x-part:not([hidden])', tile => tile.fill());
+        }).observe(Parts.place, {childList: true, subtree: true, attributeFilter: ['hidden']});
+    },
     display: () => DB.get.parts(/^.X$/.test(line) ? line : comp)
-        .then(parts => Promise.all(parts.map(json => new Part(json).tile())))
+        .then(parts => Promise.all(parts.map(json => new Part(json).tile({hidden: true}))))
         .then(parts => Parts.place.replaceChildren(...parts)),
 
     after () {
+        FilterForm.event([...Parts.place.children]);
         let hash = decodeURI(location.hash.substring(1));
         Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
         Q(`#${Storage('pref')?.sort || 'name'}`).click();
@@ -35,9 +42,9 @@ Object.assign(Parts, {
     switch (groupORpart) {
         let [group, part] = typeof groupORpart == 'string' ? [groupORpart] : [, groupORpart.Part];
         group ??= part.path[2] ?? part.group;
-        group && Q(`dl#group input`, input => input.checked = input.value == `.${group}`);
-        group ||= Q('dl#group input:checked').value?.substring(1);
-        Filter.filter();
+        group && Q(`#group input`, input => input.checked = input.value == group);
+        group ||= Q('#group input:checked').value;
+        FilterForm.trigger();
         Parts.info(group);
         typeof groupORpart == 'object' && Parts.focus(groupORpart);
         Glossary(Parts.place);
@@ -77,73 +84,46 @@ Object.assign(Magnifier, {
 
 const Filter = function(type) {
     return this instanceof Filter ? 
-        this.create(type).events().dl :
-        Q('nav menu').after(...['group', ...META.filters ?? []].map(f => new Filter(f)), Sorter());
+        this.create(type).events().fieldset :
+        E(Q('nav form')).set({classList: comp}, ['group', ...META.filters ?? []].map(f => new Filter(f)));
 };
 Object.assign(Filter.prototype, {
     create (type) {
         this.type = type;
-        let dl = new O(Filter.dl[type]()).map(([_, inputs]) => [_, 
-            E.checkboxes(inputs.map(({label, value, checked}) => new A(label, {value: value.replace(/^(?=\w)/, '.'), checked}) ))
-        ]);
-        this.dl = E.dl(dl, {id: type, classList: [`part-filter`, type == 'group' ? comp : '']});
-        this.inputs = [this.dl.Q('input')].flat();
-        type != 'group' && this.inputs.forEach(input => input.checked = true);
+        this.fieldset = new FilterForm.fieldset(...Filter.content[type](), {name: type});
         return this;
     },
     events () {
-        this.dl.Q('dt').onclick = () => {
+        this.fieldset.Q('legend').onclick = () => {
             if (this.type == 'group' && META.multiple === false) return;
-            this.inputs.forEach(input => input.checked = true);
-            Filter.filter(this.type == 'group');
+            [...this.fieldset.elements].forEach(input => input.checked = true);
+            FilterForm.trigger();
         }
-        this.dl.onchange = ({target: input}) => {
-            this.inputs.forEach(i => i.checked = i == input);
-            this.type == 'group' ? Parts.switch(input.value.substring(1)) : Filter.filter(this.type == 'group');
-        };
+        FilterForm.actions.group = ev => Parts.switch(ev.target.value);
         return this;
     }
 });
 Object.assign(Filter, {
-    dl: {
-        group: () => ({[line]: META.group.flatMap(([value, {label, checked}]) => ({value, label, checked})) }),
-        type:  () => ({類型: META.types.map(t => ({value: t, label: E('img', {src: `../img/types.svg#${t}`})}) )}),
-        spin:  () => ({迴轉: ['left','right'].map((s, i) => ({value: s, label: ['\ue01d','\ue01e'][i]}) )}),
-        prefix:() => ({變化: [{value: Filter.unprefix(), label: '–'}, ...META.variety.flatMap(([label, value]) => ({value, label}))] }),
-    },
-    filter () {
-        let query = Q('.part-filter[id]:not([hidden])', []).reduce((obj, dl) => ({
-            ...obj, [dl.id]: [...dl.Q(':checked', []).map(i => i.value)].join()
-        }), {});
-        query.type += `,${Filter.untype()}`;
-        [...Parts.place.children].forEach(tile => 
-            !(tile.hidden = Object.values(query).some(classes => !tile.matches(classes))) && tile.fill()
-        );
-        Parts.count();
-    },
-    untype: () => `:not(.${META.types.join(',.')})`,
-    unprefix: () => `:not(${Object.values(META.variety)})`
+    content: {
+        group:  () => [new O(META.group), {legend: line, checked: false}],
+        type:   () => [new O(META.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
+        spin:   () => [new O({left: '\ue01d', right: '\ue01e'}), {legend: '迴轉'}],
+        prefix: () => [new O({'¬': '–', ...META.variety}), {legend: '變化'}],
+    }
 });
 
 const Sorter = () => {
-    let inputs = new O({name: '\ue034', weight: '\ue036', time: '\ue035'});
-    let dl = E.dl({
-        排序: E.radios([...inputs].map(([id, icon]) => new A(icon, { name: 'sort', id })))
-    }, {
-        classList: `part-sorter`, 
-        onchange ({target: input}) {
-            let sorted = [...Parts.place.children].map(tile => tile.Part).sort(Sorter.sort[input.id]);
-            Parts.place.append(...[...Parts.place.children]
-                .sort((a, b) => sorted.indexOf(a.Part) - sorted.indexOf(b.Part)));
-            input.checked && Storage('pref', {sort: input.id});
-        }
-    });
     Sorter.getSchedule(comp);
-    return dl;
+    Q('nav').append(new FilterForm.fieldset(Sorter.icons, {legend: '排序', onchange: ev => Sorter.sort(ev)}));
 }
 Object.assign(Sorter, {
+    sort ({target: input}) {
+        let sorted = [...Parts.place.children].map(tile => tile.Part).sort(Sorter.functions[input.id]);
+        Parts.place.append(...[...Parts.place.children].sort((a, b) => sorted.indexOf(a.Part) - sorted.indexOf(b.Part)));
+        input.checked && Storage('pref', {sort: input.id});
+    },
     compare: (u, v, f = p => p) => +(f(u) > f(v)) || -(f(u) < f(v)),
-    sort: {
+    functions: {
         name: (p, q) =>
             [p.group, q.group].includes('remake') && Sorter.compare(p, q, p => p.group)
             || Sorter.compare(p, q, p => parseInt(p.abbr))
@@ -164,6 +144,7 @@ Object.assign(Sorter, {
         full: {blade: 0, ratchet: 1, bit: 2},
         blade: {motif: 0, upper: 1, lower: 2}
     },
-    weight: {'+': .2, '=': 0, '-': -.2}
+    weight: {'+': .2, '=': 0, '-': -.2},
+    icons: new O({name: '\ue034', weight: '\ue036', time: '\ue035'})
 });
 export default Parts

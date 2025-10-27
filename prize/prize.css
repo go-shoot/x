@@ -1,29 +1,34 @@
-nav>a {display: none;}
-.LED a {
-    font-size: .9em;
+nav {
+    grid-template-columns: 3em auto 1fr auto;
 }
-.LED a img {
-    width: 3em;
-    vertical-align: bottom;
-}
-.LED a span {
-    width: 2.5em; display: inline-block;
-    line-height: 1.1em; letter-spacing: .1em;
+nav>a {
+    grid-area: 1/2/3/3; align-self: center;
+    font-size: .9em; line-height: 1.1;
+    width: 3em; height: 3em;
+    background: url(https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news_stickerlist_12.png) center / cover;
+
+    &::before {
+        content: attr(title); color: white;
+        width: 2em; display: inline-block; 
+        vertical-align: -1.6em;
+    }
 }
 label {
     color: var(--type);
     font-size: 1.2em; line-height: 1.2;
 
     &::before {line-height: .7rem;}
+
+    img {width: 1.5em;}
 }
-label:has(#keihin-t),.keihin-t {--type: olive;}
-label:has(#keihin-d),.keihin-d {--type: lightslategray;}
-label:has(#keihin-g),.keihin-g {--type: steelblue;}
-label:has(#keihin-m),.keihin-m {--type: indianred;}
-label:has(#keihin-t)::after,.keihin-t em::before {content: '\e031';}
-label:has(#keihin-d)::after,.keihin-d em::before {content: '\e02f';}
-label:has(#keihin-g)::after,.keihin-g em::before {content: '\e002';}
-label:has(#keihin-m)::after,.keihin-m em::before {content: '\e001';}
+label:has([value=keihin-t]),.keihin-t {--type: olive;}
+label:has([value=keihin-d]),.keihin-d {--type: lightslategray;}
+label:has([value=keihin-g]),.keihin-g {--type: steelblue;}
+label:has([value=keihin-m]),.keihin-m {--type: indianred;}
+.keihin-t em::before {content: '\e031';}
+.keihin-d em::before {content: '\e02f';}
+.keihin-g em::before {content: '\e002';}
+.keihin-m em::before {content: '\e001';}
 
 diamond-grid {
     font-size: .8em;

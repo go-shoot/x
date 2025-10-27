@@ -1,25 +1,46 @@
 import DB from "./DB.js";
 import { Bey, Preview } from "./bey.js";
 
-class FilterLED {
-    constructor(classes, targets, custom) {
-        let form = E('form.LED');
-        E(form).set(E.checkboxes(classes.map(c => ({id: c, checked: true}) )), {
-            onchange: () => this.filter(form, typeof targets == 'string' ? Q(targets) : targets),
-            onreset: () => this.reset(form, typeof targets == 'string' ? Q(targets) : targets)
-        });
-        custom?.(form);
-        return form;
-    }
-    filter (form, targets) {
-        let show = [...form.elements].filter(i => i.checked).map(i => `.${i.id}`).join(',');
-        targets?.forEach(el => el.hidden = !el.matches(show));
-    }
-    reset (form, targets) {
-        [...form.elements].forEach(input => input.checked = true);
-        targets?.forEach(el => el.hidden = false);
-    }
+const FilterForm = {
+    event (targets) {
+        let form = Object.assign(document.forms[0], {
+            onchange: ev => {
+                if (this.actions[ev?.target.name]) return this.actions[ev?.target.name](ev);
+                let inputs = form[ev?.target.name];
+                inputs && inputs[0].Q('legend') && inputs.forEach(i => i.checked = i == ev.target);
+
+                let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
+                    [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
+                }), {});
+                query = [...new O(query).map(([n, v]) => [n, v.join().replace(/^(?!:)|(?<=[(,])/g, '.')]).values()];
+                targets.forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
+            },
+            onreset: () => {
+                [...form.elements].forEach(input => input.checked = true);
+                targets.forEach(el => el.hidden = false);
+            }
+        })
+    },
+    fieldset: class {
+        constructor(inputs, ...others) {
+            let {legend, negate, checked, name} = Object.assign(others[0] ?? {}, others[1] ?? {});
+            return E(`fieldset.${legend == '排序' ? 'sorter' : 'filter'}#${name ?? ''}`, [
+                legend ? E('legend', legend) : '', 
+                ...legend == '排序' ?
+                    E.radios(inputs.flatMap(([id, label]) => new A(label, {name: 'sort', id}))) :
+                    [
+                        negate ? E('input', {type: 'hidden', name, value: '¬'}) : '', 
+                        ...E.checkboxes(inputs.flatMap(([value, label]) => new A(label.label ?? label, {
+                            value, name, checked: checked ?? true, ...typeof label == 'object' ? label : '',
+                        })))
+                    ]
+            ])
+        }
+    },
+    trigger: () => document.forms[0].onchange(),
+    actions: {}
 }
+
 class Shohin {
     constructor({code: header, name, imgs, desc, type}) {
         imgs ??= [];
@@ -45,7 +66,7 @@ class Shohin {
         [/Random/i, 'RB'],
         [/Booster/i, 'B'],
         [/.XG?-/, 'others'],
-    ])
+    ]);
     static after = () => Q('.scroller:has(h4)', []).forEach(div => {
         let header = div.Q('h5').innerText;
         if (!/XG?-\d+/.test(header)) return;
@@ -58,24 +79,23 @@ class Shohin {
             div.Q('h5'), div.Q('h4'), 
             ...div.Q('p', []).reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), figures)
         );
-    })
-    
+    });   
 }
 class Keihin {
     constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
-        let names = new Bey(bey);   
-        return E(`article.keihin-${type}`, [
+        let {line, jap, chi, only} = new Bey(bey);   
+        return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 
             E('p', link ? E('a', {href: link}, note) : parseInt(style?.width) > 300 ? E('a', {href: src}, note) : note),
             E('div', [
                 E('figure>img', {src, style}), 
                 E('h4', {lang: 'ja'}, [
                     E('code', code || ''), 
-                    E('span', names.jap), 
-                    E('small', {innerHTML: [ver?.[0] ?? '', names.only ? `（${names.only}）` : ''].filter(t => t).join('<br>')})
+                    E('span', jap), 
+                    E('small', {innerHTML: [ver?.[0] ?? '', only ? `（${only}）` : ''].filter(t => t).join('<br>')})
                 ]),
             ]),
-            E('h4', {lang: 'zh'}, [names.chi, E('small', [ver?.[1] ?? ''].filter(t => t).join(' '))]),
+            E('h4', {lang: 'zh'}, [chi, E('small', [ver?.[1] ?? ''].filter(t => t).join(' '))]),
             E('time', date.replace('-','‒'))
         ]);
     }
@@ -184,4 +204,4 @@ Object.assign(Markup, {
     remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? '',
     spacing: text => text?.replace(/(?<=\w)(?=[一-龢])/g, ' ').replace(/(?<=[一-龢])(?=\w)/g, ' ') ?? ''
 });
-export {FilterLED, Shohin, Keihin, Glossary, Markup}
+export {FilterForm, Shohin, Keihin, Glossary, Markup}
