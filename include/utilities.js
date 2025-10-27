@@ -1,46 +1,6 @@
 import DB from "./DB.js";
 import { Bey, Preview } from "./bey.js";
 
-const FilterForm = {
-    event (targets) {
-        let form = Object.assign(document.forms[0], {
-            onchange: ev => {
-                if (this.actions[ev?.target.name]) return this.actions[ev?.target.name](ev);
-                let inputs = form[ev?.target.name];
-                inputs && inputs[0].Q('legend') && inputs.forEach(i => i.checked = i == ev.target);
-
-                let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
-                    [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
-                }), {});
-                query = [...new O(query).map(([n, v]) => [n, v.join().replace(/^(?!:)|(?<=[(,])/g, '.')]).values()];
-                targets.forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
-            },
-            onreset: () => {
-                [...form.elements].forEach(input => input.checked = true);
-                targets.forEach(el => el.hidden = false);
-            }
-        })
-    },
-    fieldset: class {
-        constructor(inputs, ...others) {
-            let {legend, negate, checked, name} = Object.assign(others[0] ?? {}, others[1] ?? {});
-            return E(`fieldset.${legend == '排序' ? 'sorter' : 'filter'}#${name ?? ''}`, [
-                legend ? E('legend', legend) : '', 
-                ...legend == '排序' ?
-                    E.radios(inputs.flatMap(([id, label]) => new A(label, {name: 'sort', id}))) :
-                    [
-                        negate ? E('input', {type: 'hidden', name, value: '¬'}) : '', 
-                        ...E.checkboxes(inputs.flatMap(([value, label]) => new A(label.label ?? label, {
-                            value, name, checked: checked ?? true, ...typeof label == 'object' ? label : '',
-                        })))
-                    ]
-            ])
-        }
-    },
-    trigger: () => document.forms[0].onchange(),
-    actions: {}
-}
-
 class Shohin {
     constructor({code: header, name, imgs, desc, type}) {
         imgs ??= [];
@@ -100,6 +60,43 @@ class Keihin {
         ]);
     }
     static type = new O({t: '比賽', d: '抽獎', m: '限定商品', g: '贈品'})
+}
+
+const FilterForm = {
+    event (targets) {
+        let form = Object.assign(document.forms[0], {
+            onchange: ev => {
+                if (this.actions[ev?.target.name]) return this.actions[ev?.target.name](ev);
+                let inputs = form[ev?.target.name];
+                inputs && inputs[0].Q('legend') && inputs.forEach(i => i.checked = i == ev.target);
+
+                let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
+                    [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
+                }), {});
+                query = [...new O(query).map(([n, v]) => [n, v.join().replace(/^(?!:)|(?<=[(,])/g, '.')]).values()];
+                targets.forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
+            },
+            onreset: () => {
+                [...form.elements].forEach(input => input.checked = true);
+                targets.forEach(el => el.hidden = false);
+            }
+        })
+    },
+    fieldset: class {
+        constructor(inputs, ...others) {
+            let {legend, negate, checked, name} = Object.assign(others[0] ?? {}, others[1] ?? {});
+            return E(`fieldset.${legend == '排序' ? 'sorter' : 'filter'}#${name ?? ''}`, [
+                legend ? E('legend', legend) : '', 
+                ...legend == '排序' ?
+                    E.radios(inputs.flatMap(([id, label]) => new A(label, {name: 'sort', id}))) :
+                    E.checkboxes(inputs.flatMap(([value, label]) => new A(label.label ?? label, {
+                        value, name, checked: checked ?? true, ...typeof label == 'object' ? label : '',
+                    }))).toSpliced(0, 0, negate ? E('input', {type: 'hidden', name, value: '¬'}) : '')
+            ])
+        }
+    },
+    trigger: () => document.forms[0].onchange(),
+    actions: {}
 }
 
 const Glossary = async (where = document) => {
