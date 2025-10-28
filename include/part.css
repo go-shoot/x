@@ -44,7 +44,6 @@
 :host svg {filter: drop-shadow(0 0 .2em var(--type));}
 
 :host {
-    ::slotted(a) {grid-area: 1/1/2/2 !important;}
     h4 {grid-area: 4/2/6/3;}
     .chi:nth-of-type(1) {grid-area: 4/2/5/4;}
     .chi:nth-of-type(2) {grid-area: 5/2/6/4;}
@@ -57,7 +56,8 @@
     dl {grid-area: 2/2/-1/-1;}
     strong {grid-area: 2/4/3/5;}
     ul {grid-area: 4/1/-1/-1;}
-    a {grid-area: 2/2/3/3;}
+    ::slotted(a) {grid-area: 1/1/2/2;}
+    ::slotted(a:not(:empty)) {grid-area: 2/2/3/3;}
 }
 :host(.ratchet) h4 {grid-area: 4/1/6/3;}
 
@@ -158,16 +158,16 @@
     filter: saturate(0) brightness(99);
 }
 
-:host a {
-    font-size: .8em; color: var(--theme);
+::slotted(a:not(:empty)) {
+    font-size: .8em;
     margin: 0 0 -.6em -.3em;
     place-self: end start;
 
-    &::before {
-        content: '\e03c';
-        font-size: 1.45em;
-        transform: translate(.4em,-.4em); display: inline-block;
-    }
+}
+::slotted(a:not(:empty))::before {
+    content: '\e03c';
+    font-size: 1.45em;
+    transform: translate(.4em,-.4em); display: inline-block;
 }
 
 :host h4 {

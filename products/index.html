@@ -11,18 +11,19 @@
         <li><a href='equipment.html#launchers'>發射器</a>
         <li><a href='equipment.html#others'>其他</a>
     </menu>
-    <fieldset class="LED">
-        <label>中<input name=lang type=radio id=chi></label>
-        <label>A<input name=lang type=radio id=eng></label>
-        <label>ア<input name=lang type=radio id=jap></label>
-    </fieldset>
-
-    <label for=free>部件檢索</label>
-    <search>
-        <input type="search" id="free" placeholder=騎士/HN/low>
-    </search>
-    <output class=prod-result></output>
-    <button>&#xe029; 重設</button>
+    <form>
+        <fieldset class="LED">
+            <label>中<input name=lang type=radio id=chi></label>
+            <label>A<input name=lang type=radio id=eng></label>
+            <label>ア<input name=lang type=radio id=jap></label>
+        </fieldset>
+        <label>
+            <span>部件檢索</span>
+            <input type="search" placeholder=騎士/HN/low>
+        </label>
+        <output></output>
+        <input type="reset" value="&#xe029; 重設">
+    </form>
 </nav>
 
 <main>

@@ -7,7 +7,6 @@ let [comp, line] = [...new URLSearchParams(location.search)][0] ?? [];
 
 const Parts = () => Parts.firstly().then(Parts.before).then(Parts.display).then(Parts.after).then(Parts.finally);
 Object.assign(Parts, {
-    count: () => Q('.part-result').value = Q('x-part:not([id^="+"]):not([hidden])', []).length,
     async firstly () {
         [META, PARTS] = await DB.get.essentials();
         Part.import(META.general, PARTS);
@@ -20,15 +19,9 @@ Object.assign(Parts, {
         Parts.place = Q('section');
         Magnifier();
     },
-    before () {
-        Filter(); Sorter();
-        new MutationObserver(() => {
-            Parts.count();
-            Parts.place.Q('x-part:not([hidden])', tile => tile.fill());
-        }).observe(Parts.place, {childList: true, subtree: true, attributeFilter: ['hidden']});
-    },
+    before: () => [Filter(), Sorter()],
     display: () => DB.get.parts(/^.X$/.test(line) ? line : comp)
-        .then(parts => Promise.all(parts.map(json => new Part(json).tile({hidden: true}))))
+        .then(parts => Promise.all(parts.map(json => new Part(json).tile())))
         .then(parts => Parts.place.replaceChildren(...parts)),
 
     after () {
@@ -62,30 +55,13 @@ Object.assign(Parts, {
 });
 onhashchange = () => Parts.after();
 
-const Magnifier = () => {
-    Q('nav output').before(Magnifier.create());
-    Q(`#${Storage('pref')?.button || 'mag2'}`).checked = true;
-    Magnifier.events();
-};
-Object.assign(Magnifier, {
-    create: () => E(`div.part-mag`, [
-        E('continuous-knob', {min: .75, max: 2, value: Storage('pref')?.knob || 1}, E('i.center', '')),
-        ...E.radios([.54, .81, 1.6].map((value, i) => ({id: `mag${i}`, name: 'mag', value}) ))
-    ]),
-    events () {
-        Q('.part-mag').oninput = ({target}) => {
-            E(Parts.place).set({'--font': target.value});
-            Storage('pref', target instanceof HTMLInputElement ? {button: target.id} : {knob: target.value});
-        }
-        setTimeout(onresize = Magnifier.switch);
-    },
-    switch: () => E(Parts.place).set({'--font': (innerWidth > 630 ? Q('continuous-knob') : Q('[name=mag]:checked')).value})
-});
-
 const Filter = function(type) {
     return this instanceof Filter ? 
         this.create(type).events().fieldset :
-        E(Q('nav form')).set({classList: comp}, ['group', ...META.filters ?? []].map(f => new Filter(f)));
+        E(Q('nav form')).set({classList: comp}, [
+            E('output', {name: 'count'}),
+            ...['group', ...META.filters ?? []].map(f => new Filter(f))
+        ]);
 };
 Object.assign(Filter.prototype, {
     create (type) {
@@ -112,12 +88,32 @@ Object.assign(Filter, {
     }
 });
 
+const Magnifier = () => {
+    Q('nav').append(E(`div.magnifier`, [
+        E('continuous-knob', {min: .75, max: 2, value: Storage('pref')?.knob || 1}, E('i.center', '')),
+        ...E.radios([.54, .81, 1.6].map((value, i) => ({id: `mag${i}`, name: 'mag', value}) ))
+    ]));
+    Q(`#${Storage('pref')?.button || 'mag1'}`).checked = true;
+    Magnifier.events();
+};
+Object.assign(Magnifier, {
+    events () {
+        Q('.magnifier').oninput = ({target}) => {
+            E(Parts.place).set({'--font': target.value});
+            Storage('pref', target instanceof HTMLInputElement ? {button: target.id} : {knob: target.value});
+        }
+        setTimeout(onresize = Magnifier.switch);
+    },
+    switch: () => E(Parts.place).set({'--font': (innerWidth > 630 ? Q('continuous-knob') : Q('[name=mag]:checked')).value})
+});
+
 const Sorter = () => {
+    Q('nav').append(new FilterForm.fieldset(Sorter.icons, {legend: '排序'}));
+    Sorter.events();
     Sorter.getSchedule(comp);
-    Q('nav').append(new FilterForm.fieldset(Sorter.icons, {legend: '排序', onchange: ev => Sorter.sort(ev)}));
 }
 Object.assign(Sorter, {
-    sort ({target: input}) {
+    events: () => Q('.sorter').onchange = ({target: input}) => {
         let sorted = [...Parts.place.children].map(tile => tile.Part).sort(Sorter.functions[input.id]);
         Parts.place.append(...[...Parts.place.children].sort((a, b) => sorted.indexOf(a.Part) - sorted.indexOf(b.Part)));
         input.checked && Storage('pref', {sort: input.id});

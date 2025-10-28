@@ -18,13 +18,13 @@ class Part {
     push (json) {return Object.assign(this, json);}
     get path () {return this.#path ??= [this.constructor.name.toLowerCase(), this.abbr];}
 
-    async tile ({hidden} = {}) {
+    async tile () {
         let {path, stat} = this;
         !stat && this.push(await (
             path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
-        return new Tile(this, {hidden});
+        return new Tile(this);
     }
     cell () {return new Cell(this);}
 
@@ -78,7 +78,7 @@ class Bit extends Part {
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
 class Tile extends HTMLElement {
-    constructor(Part, {hidden} = {}) {
+    constructor(Part) {
         super();
         let {path, group, attr} = Part;
         this.Part = Part;
@@ -88,15 +88,19 @@ class Tile extends HTMLElement {
         );
         E(this).set({
             id: path.at(-1),
-            classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
+            classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a))],
             style: {opacity: 0},
-            hidden,
+            hidden: true,
             onclick: Tile.#onclick
         });
     }
-    fill = href => {
+    static observedAttributes = ['hidden']
+    attributeChangedCallback() {
+        !this.hidden && this.fill();
+    }
+    fill = () => {
+        this.hidden &&= false;
         !this.shadowRoot.Q('object') && this.html();
-        href && this.append(E('a', {href: this.href()}));
         return this;
     };
     html () {
@@ -113,15 +117,15 @@ class Tile extends HTMLElement {
             ...this.html.stat(),
             ...this.html.names(),
             E('div', META.types.map(t => E(`svg.${t}`, {viewBox: '-10 -10 20 10'}, E('use', {href: '#triangle'})))),
-            from ? E('a', from, {
-                href: `#${from}`, 
-                onclick: ev => location.pathname.includes('part') && ev.stopPropagation()
-            }) : '',
+        );
+        this.append(
+            from ? E('a', from, {href: this.href(from)}) : '',
+            location.pathname.includes('parts') ? '' : E('a', {href: this.href()}),
         );
     }
-    href () {
+    href (from) {
         let {path} = this.Part;
-        return `/x/parts/?${path[0]}${path[2] ? `=${path[1]}` : ''}#${path.at(-1)}`
+        return `/x/parts/?${path[0]}${path[2] ? `=${path[1]}` : ''}#${from ?? path.at(-1)}`
     }
     static named = path => path[0] == 'blade' && !path[2] || ['motif', 'upper', 'hasbro'].includes(path[2]);
     static #onclick = ev => location.pathname.includes('parts') ? new Preview('cell', ev.target.Part.path) : 

@@ -1,4 +1,56 @@
-:is(form,#filter) summary {
+nav {
+    output {
+        grid-area: 2/4/2/5; place-self: end;
+        line-height: .8;
+        font-size: 3rem; 
+        
+        &:not(:empty)&::after {
+            content: '結果';
+            font-size: .7rem;
+            margin-left: .1em;
+        }
+    }
+    label:has(input[type=search]) {
+        display: contents;
+
+        span {
+            font-size: .7rem; line-height: 1.1;
+            grid-area: 1/4/2/5; place-self: end;
+            width: 2em;
+        }
+        &::after {
+            content: '\e00a'; font-size: 1.1rem;
+            grid-area: 1/5/1/6;
+            width: 1.7rem;
+            line-height: 1.65;
+            border-radius: 5em;
+        }
+    }   
+    input[type=search] {
+        grid-area: 1/5/1/6;
+        padding: 0 .3em 0 1.7em;
+        background: none; outline: none;
+        font-size: 1em; color: var(--on);
+
+        &::-webkit-search-cancel-button {display: none;}
+        &::placeholder {font-size: .8em;}
+    }
+    input[type=reset] {
+        grid-area: 2/5/2/6;
+        font-size: .8em;
+    }
+    input[type=search],input[type=reset] {
+        place-self: center;
+        width: 7rem;
+        border: .1rem solid var(--theme); border-radius: 3em;
+        height: 1.4rem;
+    }
+    label::after,input[type=reset] {
+        background: var(--theme);    
+        color: var(--overlay1);
+    }
+}
+#filter summary {
     list-style: revert;
 }
 ::-webkit-details-marker {
@@ -100,7 +152,7 @@ tfoot {
 .note .tablesorter-header-inner {
     font-size: 0.75em;
 }
-input::placeholder,#filter {
+#filter {
     font-size: 0.8em;
 }
 caption,caption button,#filter button,#filter label {

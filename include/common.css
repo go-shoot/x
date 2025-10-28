@@ -1,4 +1,4 @@
-h1,h2,h3,h4,h5,h6,code,a,u,b,em,button {
+h1,h2,h3,h4,h5,h6,code,u,b,em,button {
     all: unset;
 }
 i {
@@ -14,7 +14,7 @@ summary:focus {
 :root,input,input::placeholder,button,db-state {
     font-family: IBM Plex Sans JP,COND,sans-serif;
 }
-#search,nav,fieldset,summary,thead,
+#search,nav,fieldset,summary,thead,input[type=reset],
 h4,h5,em,dfn,p dt,.links {
     font-weight: 500;
 }
@@ -57,7 +57,8 @@ ruby {
 label,button,summary,[onclick],a[href] {
     transition: filter .3s,background-color .3s;
 }
-button:not([disabled]),label:has(input:not([disabled])),a[href]:not(.disabled),summary,[onclick]:hover {
+button:not([disabled]),label:has(input:not([disabled])),input[type=reset],
+a[href]:not(.disabled),summary,[onclick]:hover {
     cursor: pointer;
 }
 a[href]:not(.disabled):hover {
@@ -149,6 +150,7 @@ db-state:not([hidden])~main {
 }
 a[href],a[onclick],nav,form summary,caption label,:is(caption,#filter) button,#filter summary {
     color: var(--theme);
+    text-decoration: none;
 }
 .loading,output,#filter:has(input:not(:checked)) summary {
     color: var(--theme-alt);
@@ -230,86 +232,6 @@ nav {
         }
         li.PI-selected a {background: var(--theme); color: black;}
     }
-    .part-result {
-        grid-area: 1/4/2/5; justify-self: end;
-        line-height: .9;
-        font-size: 2em;
-
-        &:not(:empty)::after {
-            content: '款';
-            font-size: .9rem;
-            margin-left: .1em;
-            vertical-align: .05em;
-        }
-    }
-    .prod-result {
-        grid-area: 2/4/2/5; place-self: end;
-        line-height: .8;
-        font-size: 3rem; 
-        
-        &:not(:empty)&::after {
-            content: '結果';
-            font-size: .7rem;
-            margin-left: .1em;
-        }
-    }
-    label[for=free] {
-        font-size: .7rem; line-height: 1.1;
-        grid-area: 1/4/2/5; place-self: end;
-        width: 2em;
-        position: relative;
-
-        &::after {
-            content: '\e00a';
-            position: absolute; right: -1.8em; bottom: 0;
-        }
-    }
-    search {
-        grid-area: 1/5/2/6; align-self: center; 
-
-        input {
-            padding: 0 .3em 0 1.7em;
-            background: none; outline: none;
-            font-size: 1em; color: var(--on);
-            vertical-align: middle;
-
-            &::-webkit-search-cancel-button {display: none;}
-        }
-    }
-    search input,button {
-        width: 7rem;
-        border: .1rem solid var(--theme);border-radius: 3em;
-        height: 1.4rem;
-    }
-    button {
-        grid-area: 2/5/3/6; align-self: center;
-        font-size: .8em;
-    }
-    label[for=free]::after,button {
-        background: var(--theme);    
-        color: var(--overlay1);
-    }
-    label[for=free]::after,
-    .part-mag label,.part-mag::before,.part-mag::after {
-        display: inline-block; width: 1.7rem; height: 1.7rem;
-        line-height: 1.65; font-size: 1.1rem;
-        border-radius: 5em;
-    }
-    .part-mag label,.part-mag::before,.part-mag::after {
-        background: hsl(var(--h),var(--s),80%);
-        color: hsl(var(--h),var(--s),50%);
-    }
-    .part-mag {
-        grid-area: 2/4/3/5; justify-self: flex-end;
-
-        label {display: none;}
-        continuous-knob {
-            margin-top: .15em; 
-            font-size: .9em;
-
-            &::part(output) {color: transparent;}
-        }
-    }
     .LED {
         grid-area: 1/3/3/4; align-self: center;
         display: flex; 
@@ -346,8 +268,6 @@ menu {
 }
 @media (min-width:631px) {
     nav {grid-template-columns: 3em min-content 1fr auto auto;}
-    nav .part-mag {width: auto;grid-area: 1/5/3/6;}
-    nav .part-result {grid-area: 1/4/2/5;}
 }
 label:has(:is([type=radio],[type=checkbox]):not(:is(:checked,[name=mag]))):not(.toggle) {
     filter: saturate(0);
@@ -383,7 +303,7 @@ continuous-knob {
     border: none;
     padding: 1em 0;
 
-    a:not([href*=youtu])::before {
+    a:not([href*=youtu]):empty::before {
         content: '\e024';
         font-size: 1.2rem;
     }

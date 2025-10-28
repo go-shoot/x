@@ -75,6 +75,7 @@ const FilterForm = {
                 }), {});
                 query = [...new O(query).map(([n, v]) => [n, v.join().replace(/^(?!:)|(?<=[(,])/g, '.')]).values()];
                 targets.forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
+                form.count && (form.count.value = targets.filter(el => !el.hidden).length);
             },
             onreset: () => {
                 [...form.elements].forEach(input => input.checked = true);

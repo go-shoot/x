@@ -121,7 +121,7 @@ class Search {
         match: (target, {abbr, names = {}}) => Array.isArray(target) ?
             target.some(t => this.#search.match(t, {abbr, names})) :
             target.toLowerCase() == abbr.toLowerCase() ||
-            !/^[^一-龥]{1,2}$/.test(target) && names.values?.().some(n => new RegExp(target, 'i').test(Markup.remove(n))),
+            !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.remove(n))),
         code: (target, code) => Array.isArray(target) ?
             target.some(t => this.#search.code(t, code)) : new RegExp(target.replace('-', ''), 'i').test(code.replace('-', ''))
     }
@@ -132,7 +132,7 @@ class Search {
             let single = q.blade instanceof A ? [...q.blade] : typeof q.blade == 'string' ? q.blade : null;
             let divided = q.blade instanceof A ? {...q.blade} : typeof q.blade == 'object' ? q.blade : null;
             single?.length && this.regexp.push(new RegExp(`^${Search.#or(single)} .+$`, 'u'));
-            divided && META.blade.delimiter.each(([line, char]) => divided[line]?.size &&
+            divided && META.blade.delimiter.each(([line, char]) => new O(divided[line]).size &&
                 this.regexp.push(new RegExp(`^${Part.blade.sub.map(sub => Search.#or(divided[line][sub])).join(`\\${char}`)} .+$`, 'u'))
             );
         }
@@ -167,7 +167,7 @@ class Preview {
         })
     )).then(() => Cell.fill('chi'))
 
-    tile = path => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill(true)))
+    tile = path => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
     image (tdORcode) {
         let dataset = typeof tdORcode == 'object' ? tdORcode.dataset : {code: tdORcode};
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);

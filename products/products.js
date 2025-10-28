@@ -6,7 +6,7 @@ let META, PARTS;
 
 const Table = () => Table.before().then(Table.display).then(Table.after);
 Object.assign(Table, {
-    count: () => Q('.prod-result').value = Q('tbody tr:not(.hidden):not([hidden])', []).length,
+    count: () => Q('output').value = Q('tbody tr:not(.hidden):not([hidden])', []).length,
     async before () {
         Filter();
         Table.events();
@@ -22,9 +22,10 @@ Object.assign(Table, {
     },
     
     events () {
-        E(Q('nav')).set({
+        E(Q('nav form')).set({
+            onkeydown: ev => ev.key != 'Enter',
+            onreset: ev => ev.preventDefault() || Table.reset(),
             onchange: ev => ev.target.type == 'radio' && Cell.fill(ev.target.id) || '',
-            onclick: ev => ev.target.type == 'submit' && Table.reset() || '',
             oninput: ev => {
                 if (ev.target.type != 'search') return;
                 clearTimeout(Table.timer);
@@ -36,7 +37,7 @@ Object.assign(Table, {
     },
     reset () {
         location.search && history.replaceState('', '', './');
-        Q('search input').value = '';
+        Q('input[type=search]').value = '';
         Q('tbody tr', tr => tr.classList.toggle('hidden', tr.hidden = false));
         Filter.reset();
         Q('a[href*=obake]').href = 'http://obakeblader.com/?s=入手法';
