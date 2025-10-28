@@ -87,7 +87,7 @@ const FilterForm = {
         constructor(inputs, ...attr) {
             let {legend, negate, checked, name, ...rest} = attr.reduce((obj, a) => ({...obj, ...a}), {});
             return E(`fieldset.${legend == '排序' ? 'sorter' : 'filter'}#${name ?? ''}`, [
-                legend ? E('legend', legend) : '', ...legend == '排序' ?
+                legend ? E('legend', {title: legend}) : '', ...legend == '排序' ?
                 E.radios(inputs.flatMap(([id, label]) => new A(label, {name: 'sort', id}))) :
                 E.checkboxes(inputs.flatMap(([value, label]) => new A(label.label ?? label, {
                     value, name, checked: checked ?? true, ...typeof label == 'object' ? label : '',

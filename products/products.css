@@ -50,9 +50,6 @@ nav {
         color: var(--overlay1);
     }
 }
-#filter summary {
-    list-style: revert;
-}
 ::-webkit-details-marker {
     display: initial;
 }
@@ -92,6 +89,7 @@ main {
     user-select: none; -webkit-user-select: none;
 
     summary {
+        list-style: revert;
         text-align: left;
         padding: .2em 0; margin-bottom: .2em;
     }

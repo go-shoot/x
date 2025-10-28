@@ -88,7 +88,7 @@ class Tile extends HTMLElement {
         );
         E(this).set({
             id: path.at(-1),
-            classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a))],
+            classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
             style: {opacity: 0},
             hidden: true,
             onclick: Tile.#onclick
@@ -98,7 +98,7 @@ class Tile extends HTMLElement {
     attributeChangedCallback() {
         !this.hidden && this.fill();
     }
-    fill = () => {
+    fill () {
         this.hidden &&= false;
         !this.shadowRoot.Q('object') && this.html();
         return this;
@@ -120,7 +120,7 @@ class Tile extends HTMLElement {
         );
         this.append(
             from ? E('a', from, {href: this.href(from)}) : '',
-            location.pathname.includes('parts') ? '' : E('a', {href: this.href()}),
+            location.pathname.includes('parts') ? '' : E('a', {href: this.href()})
         );
     }
     href (from) {

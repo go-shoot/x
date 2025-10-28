@@ -103,10 +103,10 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
     --img: url(/x/img/bit/B.png);
 }
 .bit.fusion {--hue: 200;}
-.att,label:has([value=att]) {--type: #0081e3;}
-.def,label:has([value=def]) {--type: #009f48;}
-.sta,label:has([value=sta]) {--type: #f08200;}
-.bal,label:has([value=bal]) {--type: #de0010;}
+.att,label:has([value$=att]) {--type: #0081e3;}
+.def,label:has([value$=def]) {--type: #009f48;}
+.sta,label:has([value$=sta]) {--type: #f08200;}
+.bal,label:has([value$=bal]) {--type: #de0010;}
 .BX,a[href$=BX] {--line: #71bce9; --img-line: url(/x/img/lines.svg#BX);}
 .UX,a[href$=UX] {--line: #ee7800; --img-line: url(/x/img/lines.svg#UX);}
 .CX,a[href*=CX] {--line: #e4007f; --img-line: url(/x/img/lines.svg#CX);}

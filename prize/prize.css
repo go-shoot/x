@@ -21,10 +21,10 @@ label {
 
     img {width: 1.5em;}
 }
-label:has([value=keihin-t]),.keihin-t {--type: olive;}
-label:has([value=keihin-d]),.keihin-d {--type: lightslategray;}
-label:has([value=keihin-g]),.keihin-g {--type: steelblue;}
-label:has([value=keihin-m]),.keihin-m {--type: indianred;}
+label:has([value$=keihin-t]),.keihin-t {--type: olive;}
+label:has([value$=keihin-d]),.keihin-d {--type: lightslategray;}
+label:has([value$=keihin-g]),.keihin-g {--type: steelblue;}
+label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
 .keihin-t em::before {content: '\e031';}
 .keihin-d em::before {content: '\e02f';}
 .keihin-g em::before {content: '\e002';}
