@@ -63,23 +63,31 @@ class Keihin {
 }
 
 const FilterForm = {
-    event (targets) {
-        let form = Object.assign(document.forms[0], {
+    event (targets, {legend, single} = {}, form = document.forms[0]) {
+        this.targets = targets;
+        this.form = Object.assign(form, {
             onchange: ev => {
-                if (this.actions[ev?.target.name]) return this.actions[ev?.target.name](ev);
-                let inputs = form[ev?.target.name];
-                inputs && inputs[0].Q('legend') && inputs.forEach(i => i.checked = i == ev.target);
+                if (this.actions[ev?.target.name]) 
+                    return this.actions[ev?.target.name](ev);
+                (single === true || single?.[ev?.target.name]) 
+                    && form[ev?.target.name]?.forEach(i => i.checked = i == ev.target);
 
                 let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
                     [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
                 }), {});
-                query = [...new O(query).map(([n, v]) => [n, v.join().replace(/^(?!:)|(?<=[(,])/g, '.')]).values()];
-                targets.forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
-                form.count && (form.count.value = targets.filter(el => !el.hidden).length);
+                query = [...new O(query).map(([n, v]) => [n, v.join()]).values()];
+                [...targets].forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
+                form.count && this.count();
             },
             onreset: () => {
                 [...form.elements].forEach(input => input.checked = true);
-                targets.forEach(el => el.hidden = false);
+                [...targets].forEach(el => el.hidden = false);
+                form.count && this.count();
+            },
+            onclick: ({target}) => {
+                if (target.tagName != 'LEGEND' || legend?.[target.parentElement.id]?.click === false) return;
+                [...target.parentElement.elements].forEach(input => input.checked = true);
+                form.onchange();
             }
         })
     },
@@ -87,15 +95,20 @@ const FilterForm = {
         constructor(inputs, ...attr) {
             let {legend, negate, checked, name, ...rest} = attr.reduce((obj, a) => ({...obj, ...a}), {});
             return E(`fieldset.${legend == '排序' ? 'sorter' : 'filter'}#${name ?? ''}`, [
-                legend ? E('legend', {title: legend}) : '', ...legend == '排序' ?
-                E.radios(inputs.flatMap(([id, label]) => new A(label, {name: 'sort', id}))) :
-                E.checkboxes(inputs.flatMap(([value, label]) => new A(label.label ?? label, {
-                    value, name, checked: checked ?? true, ...typeof label == 'object' ? label : '',
-                }))).toSpliced(0, 0, negate ? E('input', {type: 'hidden', name, value: '¬'}) : '')
+                legend ? E('legend', location.pathname.includes('parts') ? {title: legend} : legend) : '', 
+                ...legend == '排序' ?
+                    E.radios(inputs.flatMap(([id, label]) => ({label, name: 'sort', id}))) :
+                    E.checkboxes(inputs.flatMap(([value, label]) => ({
+                        label: label.label ?? label, 
+                        name, 
+                        value: value.replace(/^(?=\w)|(?<=[(,])|\s/g, '.'), 
+                        checked: name == 'group' ? label.checked : true, 
+                    }))).toSpliced(0, 0, negate ? E('input', {type: 'hidden', name, value: '¬'}) : '')
             ], rest)
         }
     },
-    trigger: () => document.forms[0].onchange(),
+    count () {this.form.count.value = [...this.targets].filter(el => !el.matches('.hidden,[hidden]')).length},
+    trigger () {this.form.onchange()},
     actions: {}
 }
 

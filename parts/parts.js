@@ -25,7 +25,6 @@ Object.assign(Parts, {
         .then(parts => Parts.place.replaceChildren(...parts)),
 
     after () {
-        FilterForm.event([...Parts.place.children]);
         let hash = decodeURI(location.hash.substring(1));
         Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
         Q(`#${Storage('pref')?.sort || 'name'}`).click();
@@ -35,8 +34,8 @@ Object.assign(Parts, {
     switch (groupORpart) {
         let [group, part] = typeof groupORpart == 'string' ? [groupORpart] : [, groupORpart.Part];
         group ??= part.path[2] ?? part.group;
-        group && Q(`#group input`, input => input.checked = input.value == group);
-        group ||= Q('#group input:checked').value;
+        group && Q(`#group input`, input => input.checked = input.value == `.${group}`);
+        group ||= Q('#group input:checked').value?.substring(1);
         FilterForm.trigger();
         Parts.info(group);
         typeof groupORpart == 'object' && Parts.focus(groupORpart);
@@ -56,30 +55,20 @@ Object.assign(Parts, {
 onhashchange = () => Parts.after();
 
 const Filter = function(type) {
-    return this instanceof Filter ? 
-        this.create(type).events().fieldset :
-        E(Q('nav form')).set({classList: comp}, [
-            E('output', {name: 'count'}),
-            ...['group', ...META.filters ?? []].map(f => new Filter(f))
-        ]);
+    if (this instanceof Filter) 
+        return new FilterForm.fieldset(...Filter.content[type](), {name: type});
+    document.forms[0].classList.add(comp);
+    document.forms[0].append(...['group', ...META.filters ?? []].map(f => new Filter(f)));
+    Filter.events();
 };
-Object.assign(Filter.prototype, {
-    create (type) {
-        this.type = type;
-        this.fieldset = new FilterForm.fieldset(...Filter.content[type](), {name: type});
-        return this;
-    },
-    events () {
-        this.fieldset.Q('legend').onclick = () => {
-            if (this.type == 'group' && META.multiple === false) return;
-            [...this.fieldset.elements].forEach(input => input.checked = true);
-            FilterForm.trigger();
-        }
-        FilterForm.actions.group = ev => Parts.switch(ev.target.value);
-        return this;
-    }
-});
 Object.assign(Filter, {
+    events () {
+        FilterForm.event(Parts.place.children, {
+            legend: {group: {click: META.multiple}},
+            single: true
+        });
+        FilterForm.actions.group = ev => Parts.switch(ev.target.value.substring(1));
+    },
     content: {
         group:  () => [new O(META.group), {legend: line, checked: false}],
         type:   () => [new O(META.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],

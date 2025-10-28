@@ -84,9 +84,10 @@ main {
     }
 }
 
-#filter {
+details:has(#filter) {
     padding: 0 .5rem; margin-bottom: 2em;
     user-select: none; -webkit-user-select: none;
+    font-size: .8em;
 
     summary {
         list-style: revert;
@@ -102,34 +103,37 @@ main {
     }
     legend {
         text-align: left;
-        margin-bottom: .2em; 
+        margin-bottom: .2em;
+        cursor: pointer;
+        
+        span {
+            pointer-events: none;
+            font-size: .8em;
+            margin-left: .5em;
+            color: var(--theme);
+        }
     }
     label {
         position: relative;
+        font-size: .9em;
 
         &:not(:has(img))::before {line-height: .4rem;}
     }
-    fieldset:not(.system) label::after {
+    fieldset:not(#line) label::after {
         content: '';
         position: absolute; inset: .7em -.5em .2em -.5em;;
         background: var(--light);
         transform: skew(-20deg);
         z-index: -1;
     }
-    fieldset.system {
+    fieldset#line {
         gap: 1em;
 
         img {height: 2em;}
     }
-    button {margin-left: .5em;}
 }
 
-#filter button, caption button {
-    padding: 0 .5em;
-    background: none;
-    border: .1em solid; border-radius: 5em;
-}
-.searching caption,.loading>*,.loading~* {
+.loading>*,.loading~* {
     display: none !important;
 }
 
@@ -146,16 +150,6 @@ th:not([data-sortedby])::before {
 tfoot {
     visibility: hidden;
 }
-
 .note .tablesorter-header-inner {
     font-size: 0.75em;
-}
-#filter {
-    font-size: 0.8em;
-}
-caption,caption button,#filter button,#filter label {
-    font-size: 0.9em;
-}
-caption span {
-    font-size: 1.4em;
 }

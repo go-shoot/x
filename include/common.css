@@ -148,11 +148,11 @@ main {
 db-state:not([hidden])~main {
     margin-top: 1em;
 }
-a[href],a[onclick],nav,form summary,caption label,:is(caption,#filter) button,#filter summary {
+a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filter)) button,details:has(#filter) summary {
     color: var(--theme);
     text-decoration: none;
 }
-.loading,output,#filter:has(input:not(:checked)) summary {
+.loading,output,details:has(#filter):has(input:not(:checked)) summary {
     color: var(--theme-alt);
 }
 

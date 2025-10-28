@@ -52,7 +52,7 @@ nav {
         &#spin,&#prefix {grid-area: 2/3/2/4;}
     }
     output {
-        grid-area: 1/4/2/5; place-self: anchor-center end;
+        grid-area: 1/4/2/5; place-self: center end;
         font-size: 2em;
 
         &:not(:empty)::after {

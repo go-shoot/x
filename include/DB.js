@@ -125,11 +125,12 @@ Object.assign(DB, {
         }
         error(er) {
             console.error(...[er].flat());
-            this.setAttribute('state', 'error');
+            this?.setAttribute('state', 'error');
+            Q('.loading') && (Q('.loading').innerText = er);
         }
         static observedAttributes = ['state'];
         #css = `
-            :host(:not([progress]):not([state]))::before {color:white;}
+            :host(:not([progress]):not([state]))::before {display:none;}
             :host {
                 position:relative;
                 background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%);

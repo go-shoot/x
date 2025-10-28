@@ -1,12 +1,12 @@
 import DB from '../include/DB.js'
 import { Part, Tile, Cell } from '../include/part.js';
 import { Bey, Preview, Search } from '../include/bey.js';
+import { FilterForm } from '../include/utilities.js';
 
 let META, PARTS;
 
 const Table = () => Table.before().then(Table.display).then(Table.after);
 Object.assign(Table, {
-    count: () => Q('output').value = Q('tbody tr:not(.hidden):not([hidden])', []).length,
     async before () {
         Filter();
         Table.events();
@@ -18,7 +18,7 @@ Object.assign(Table, {
         Q('.loading').classList.remove('loading');
         Q('#chi').click();
         $(Q('table')).tablesorter();
-        location.search && Table.filter(decodeURI(location.search.substring(1)).split(/-(?=.+\=)|=/));
+        location.search ? Table.search(decodeURI(location.search.substring(1)).split(/-(?=.+\=)|=/)) : FilterForm.count();
     },
     
     events () {
@@ -29,29 +29,30 @@ Object.assign(Table, {
             oninput: ev => {
                 if (ev.target.type != 'search') return;
                 clearTimeout(Table.timer);
-                Table.timer = setTimeout(() => Table.filter(ev.target.value), 500);
+                Table.timer = setTimeout(() => Table.search(ev.target.value), 500);
             }
         });
         Q('tbody').onclick = Preview.for.table;
-        new MutationObserver(Table.count).observe(Q('tbody'), {childList: true, subtree: true, attributeFilter: ['hidden', 'class']});
     },
     reset () {
         location.search && history.replaceState('', '', './');
         Q('input[type=search]').value = '';
         Q('tbody tr', tr => tr.classList.toggle('hidden', tr.hidden = false));
-        Filter.reset();
+        Filter.form.onreset();
         Q('a[href*=obake]').href = 'http://obakeblader.com/?s=入手法';
         Q('a[href*=kyoganken]').href = '//kyoganken.web.fc2.com/beyx/#parts1';
     },
-    async filter (search) {
+    async search (search) {
+        Filter.form.onreset();
         search[0] == 'search' && (search = search[1]);
         typeof search == 'string' && (search = search.trim());
         if (!search) return Table.reset();
-        Q('tbody tr', tr => tr.hidden = true);
+        Q('tbody tr', tr => tr.classList.add('hidden'));
         await new Search(search).then(({beys, href}) => {
-            beys.forEach(tr => tr.hidden = false);
+            beys.forEach(tr => tr.classList.remove('hidden'));
             href && setTimeout(() => Table.links(search)) && history.replaceState('', '', `?${href}`);
         });
+        FilterForm.count();
     },
     links (query) {
         let target = PARTS.at(query);
@@ -59,37 +60,44 @@ Object.assign(Table, {
         let comp = target.path[2] != 'motif' && META.jap.at(target.path.slice(0, -1))._;
         let name = Tile.named(target.path) ? target.names.jap : target.abbr;
         Q('a[href*=obake]').href = 'http://obakeblader.com/' + (comp && Q('output').value > 1 ? `${comp}-${name}/#toc2` : `?s=入手法`);
-        Q('a[href*=kyoganken]').href = `//kyoganken.web.fc2.com/beyx/color0${['blade', 'ratchet', 'bit'].indexOf(target.path[0]) + 1}.htm`;
+        Q('a[href*=kyoganken]').href = `//kyoganken.web.fc2.com/beyx/color0${['', 'blade', 'ratchet', 'bit'].indexOf(target.path[0])}.htm`;
     }
 });
 
 const Filter = () => {
-    Q('#filter label', label => label.append(E('input', {value: `.${label.className.replaceAll(' ', '.')}`, type: 'checkbox'})));
-    [Filter.inputs, Filter.systems] = [Q('#filter input'), Q('.system input')];
-    Filter.reset();
+    Filter.form.append(...Filter.items.map(([main, ...rest]) =>
+        new FilterForm.fieldset(main.map(([cl, {label}]) => [cl, {label: label.push({classList: cl.match(/\w+/)[0]})}]), ...rest)
+    ));
     Filter.events();
 }
 Object.assign(Filter, {
-    filter () {
-        let hide = this.inputs.filter(i => !i.checked).map(i => i.value);
-        Q('tbody tr').forEach(tr => tr.classList.toggle('hidden',
-            hide.length && tr.matches(hide) || this.systems.some(i => !i.checked) && tr.matches('[data-abbr^="/"]'))
-        );
-        Table.count();
-    },
+    form: document.forms[1],
     events () {
-        E(Q('#filter')).set({
-            onclick: ev => ev.target.tagName == 'BUTTON' && 
-                this.systems.forEach(i => !i.checked && i.dispatchEvent(new InputEvent('change', {bubbles: true}))) || '',
-            onchange: ev => {
-                ev.target.value.endsWith('X') && this.systems.forEach(i => i.checked = !ev.isTrusted || ev.target == i);
-                this.filter();
-            },
-            onmouseover: ({target}) => target.matches('label[title]') && 
-                (Q('#filter summary i').innerText = `｛${target.innerText || target.classList}｝：${target.title}`)
-        });
+        FilterForm.event(Q('tbody').children, {single: {line: true}}, Filter.form);
+        Filter.form.onmouseover = ({target}) => target.matches('label[title]') && 
+            (Q('summary i').innerText = `｛${target.innerText || target.classList}｝：${target.title}`);
     },
-    reset: () => Filter.inputs.forEach(input => input.checked = true)
+    items: [
+        [new O({
+            'S:not(H)' : {label: new A('Starter', {title: '附發射器的單陀螺'})},
+            'B:not(H)' : {label: new A('Booster', {title: '單陀螺'})},
+            'St:not(H)': {label: new A('Set', {title: '至少包含兩陀螺'})},
+            'SS:not(H)': {label: new A('Stadium Set', {title: '含對戰盤及陀螺'})},
+            'RB:not(H)': {label: new A('Random Booster', {title: '單陀螺抽包'})}
+        }), {name: 'type'}],
+        [new O({
+            'S H' : {label: new A('Starter')},
+            'B H' : {label: new A('Booster')},
+            'St H': {label: new A('Set')},
+            'SS H': {label: new A('Stadium Set')},
+            'RB H': {label: new A('Random Booster')}
+        }), {name: 'type', legend: '\ue02a 異色版／再推出版'}],
+        [new O({ 
+            CX: {label: new A(E('img', {src: `../img/lines.svg#CX`}), {title: 'Custom Line'})},
+            UX: {label: new A(E('img', {src: `../img/lines.svg#UX`}), {title: 'Unique Line'})},
+            BX: {label: new A(E('img', {src: `../img/lines.svg#BX`}), {title: 'Basic Line'})},
+        }), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
+    ]
 });
 
 export default Table

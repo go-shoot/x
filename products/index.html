@@ -21,7 +21,7 @@
             <span>部件檢索</span>
             <input type="search" placeholder=騎士/HN/low>
         </label>
-        <output></output>
+        <output form="filter" name="count"></output>
         <input type="reset" value="&#xe029; 重設">
     </form>
 </nav>
@@ -31,35 +31,13 @@
         <a href="//kyoganken.web.fc2.com/beyx/index.htm#parts1" target=_blank>競</a>
         <a href="http://obakeblader.com/?s=入手法" target=_blank>お</a>
     </div>
-    <details id="filter">
+    <details>
         <summary>&#xe027; 分類<i></i></summary>
-        <fieldset class="LED">
-            <label class=S title=附發射器的單陀螺>Starter</label>
-            <label class=B title=單陀螺>Booster</label>
-            <label class=St title=至少包含兩陀螺>Set</label>
-            <label class=SS title=含對戰盤及陀螺>Stadium Set</label>
-            <label class=RB title=單陀螺抽包>Random Booster</label>
-        </fieldset>
-        <fieldset class="LED">
-            <legend>&#xe02a; 異色版／再推出版</legend>
-            <label class='S H'>Starter</label>
-            <label class='B H'>Booster</label>
-            <label class='St H'>Set</label>
-            <label class='SS H'>Stadium Set</label>
-            <label class='RB H'>Random Booster</label>
-        </fieldset>
-        <fieldset class="LED system">
-            <legend>&#xe02b; LINE<button>全部</button></legend>
-            <label class=CX title="Custom Line"><img src=../img/lines.svg#CX alt=CX></label>
-            <label class=UX title="Unique Line"><img src=../img/lines.svg#UX alt=UX></label>
-            <label class=BX title="Basic Line"> <img src=../img/lines.svg#BX alt=BX></label>
-        </fieldset>
+        <form id="filter" class="LED"></form>
     </details>
 
     <table>
-        <caption class=loading>
-            <button hidden>顯示全部</button>
-        </caption>
+        <caption class=loading></caption>
         <thead>
             <tr>
                 <th class="LED">Code</th>
