@@ -48,8 +48,8 @@ Object.assign(DB, {
         })
     ,
     setup (ev) {
-        ['product','meta','user'].forEach(s => DB.db.createObjectStore(s));
-        DB.stores.map(s => DB.db.objectStoreNames.contains(s) || 
+        ['product','meta','user'].forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
+        DB.stores.map(s => DB.db.objectStoreNames.contains(s.toUpperCase()) || 
             DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
         return new Promise(res => ev.target.transaction.oncomplete = res);
     },
