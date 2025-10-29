@@ -63,14 +63,13 @@ class Keihin {
 }
 
 const FilterForm = {
-    event (targets, {legend, single} = {}, form = document.forms[0]) {
+    event (targets, {legend, single, action} = {}, form = document.forms[0]) {
         this.targets = targets;
         this.form = Object.assign(form, {
             onchange: ev => {
-                if (this.actions[ev?.target.name]) 
-                    return this.actions[ev?.target.name](ev);
                 (single === true || single?.[ev?.target.name]) 
                     && form[ev?.target.name]?.forEach(i => i.checked = i == ev.target);
+                action[ev?.target.name]?.(ev);
 
                 let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
                     [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
@@ -93,23 +92,25 @@ const FilterForm = {
     },
     fieldset: class {
         constructor(inputs, ...attr) {
-            let {legend, negate, checked, name, ...rest} = attr.reduce((obj, a) => ({...obj, ...a}), {});
+            let {legend, negate, name, ...rest} = attr.reduce((obj, a) => ({...obj, ...a}), {});
             return E(`fieldset.${legend == '排序' ? 'sorter' : 'filter'}#${name ?? ''}`, [
-                legend ? E('legend', location.pathname.includes('parts') ? {title: legend} : legend) : '', 
-                ...legend == '排序' ?
-                    E.radios(inputs.flatMap(([id, label]) => ({label, name: 'sort', id}))) :
-                    E.checkboxes(inputs.flatMap(([value, label]) => ({
-                        label: label.label ?? label, 
-                        name, 
-                        value: value.replace(/^(?=\w)|(?<=[(,])|\s/g, '.'), 
-                        checked: name == 'group' ? label.checked : true, 
-                    }))).toSpliced(0, 0, negate ? E('input', {type: 'hidden', name, value: '¬'}) : '')
+                legend ? this.legend(legend) : '', 
+                ...legend == '排序' ? this.radios(inputs) : this.checkboxes(inputs, name, negate)
             ], rest)
         }
+        legend = el => E('legend', location.pathname.includes('parts') ? {title: el} : el)
+        radios = inputs => E.radios(inputs.flatMap(([id, label]) => ({label, name: 'sort', id})))
+        checkboxes = (inputs, name, negate) => [
+            negate ? E('input', {type: 'hidden', name, value: '¬'}) : '',
+            ...E.checkboxes(inputs.flatMap(([value, label]) => ({
+                label: label.label ?? label, 
+                name, 
+                value: value.replace(/^(?=\w)|(?<=[(,])|\s/g, '.'), 
+                checked: name == 'group' ? label.checked : true, 
+            })))
+        ]
     },
     count () {this.form.count.value = [...this.targets].filter(el => !el.matches('.hidden,[hidden]')).length},
-    trigger () {this.form.onchange()},
-    actions: {}
 }
 
 const Glossary = async (where = document) => {

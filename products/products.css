@@ -78,7 +78,7 @@ main {
             position: absolute; left: 50%; top: 50%; transform: translate(-50%,-45%);
             z-index: -1;
             background: conic-gradient(salmon,orange,yellow,yellowgreen,springgreen ,cyan,dodgerblue,mediumslateblue,violet,salmon);
-            -webkit-background-clip: text; color: transparent;
+            background-clip: text; color: transparent;
             font-size: 1.5em;
         }
     }

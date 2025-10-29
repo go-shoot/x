@@ -28,6 +28,7 @@ Object.assign(Parts, {
         let hash = decodeURI(location.hash.substring(1));
         Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
         Q(`#${Storage('pref')?.sort || 'name'}`).click();
+        Filter.form.onchange();
     },
     finally: () => Q('.loading').classList.remove('loading'),
     
@@ -36,7 +37,6 @@ Object.assign(Parts, {
         group ??= part.path[2] ?? part.group;
         group && Q(`#group input`, input => input.checked = input.value == `.${group}`);
         group ||= Q('#group input:checked').value?.substring(1);
-        FilterForm.trigger();
         Parts.info(group);
         typeof groupORpart == 'object' && Parts.focus(groupORpart);
         Glossary(Parts.place);
@@ -57,17 +57,18 @@ onhashchange = () => Parts.after();
 const Filter = function(type) {
     if (this instanceof Filter) 
         return new FilterForm.fieldset(...Filter.content[type](), {name: type});
-    document.forms[0].classList.add(comp);
-    document.forms[0].append(...['group', ...META.filters ?? []].map(f => new Filter(f)));
+    Filter.form.classList.add(comp);
+    Filter.form.append(...['group', ...META.filters ?? []].map(f => new Filter(f)));
     Filter.events();
 };
 Object.assign(Filter, {
+    form: document.forms[0],
     events () {
         FilterForm.event(Parts.place.children, {
             legend: {group: {click: META.multiple}},
+            action: {group: ev => [location.hash = '', Parts.switch(ev.target.value.substring(1))]},
             single: true
         });
-        FilterForm.actions.group = ev => Parts.switch(ev.target.value.substring(1));
     },
     content: {
         group:  () => [new O(META.group), {legend: line, checked: false}],

@@ -52,8 +52,8 @@ import DB from '../include/DB.js';
 import {Bey, Preview} from '../include/bey.js';
 import {FilterForm, Markup} from '../include/utilities.js';
 
-const filter = new FilterForm.fieldset(new O({'l':'', 'r':''}));
-Q('nav form').append(filter);
+const Filter = new FilterForm.fieldset(new O({'l':'', 'r':''}));
+Q('nav form').append(Filter);
 
 class Group {
     constructor({eng, jap, desc, colors}) {
@@ -104,7 +104,7 @@ Q('main').prepend(DB().then(() => {
     DB.get('meta', 'parts').then(meta => Bey.import(meta.general));
     (onhashchange = () => {
         let place = Q(`#${location.hash.substring(1)}`);
-        filter.hidden = place.id == 'others';
+        Filter.hidden = place.id == 'others';
         if (place.Q(`details`)) return;
         DB.get('product', place.id).then(groups => groups.reverse().forEach(({eng, ...rest}) => 
             place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
