@@ -13,7 +13,6 @@
 -->
 <nav>
     <menu>
-        <li><a href="?blade=CX" class="blade"></a>
         <li><a href="?blade" class="blade"></a>
         <li><a href="?ratchet" class="ratchet"></a>
         <li><a href="?bit" class="bit"></a>
@@ -56,7 +55,10 @@
 import DB from '../include/DB.js'
 import Parts from './parts.js'
 Q('main').prepend(DB().then(location.search && Parts));
-
+Q('menu').prepend(...[...new O(Storage('line'))]
+    .filter(([_, {divided}]) => divided)
+    .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
+);
 import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js'
 PointerInteraction.events({
     summary: {

@@ -43,7 +43,7 @@ Object.assign(Prize, {
         onhashchange = () => Q(`[id='${location.hash.substring(1)}']`)?.scrollIntoView();
     },
     icons: new O({'keihin-m': '\ue001', 'keihin-g': '\ue002', 'keihin-d': '\ue02f', 'keihin-t': '\ue031'}),
-    lines: new O(['CX','UX','BX'].map(line => [line, E('img', {src: `../img/lines.svg#${line}`})])),
+    lines: [...new O(Storage('line')).keys()].map(line => [line, E('img', {src: `../img/lines.svg#${line}`})]),
 });
 Q('main').prepend(DB().then(Prize));
 </script>

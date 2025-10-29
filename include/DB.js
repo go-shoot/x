@@ -21,13 +21,23 @@ Object.assign(DB, {
         out: () => DB.get.all('user').then(data => sessionStorage.setItem('user', JSON.stringify(data))).catch(() => {}),
         in: () => DB.put('user', JSON.parse(sessionStorage.getItem('user') ?? '[]').map((item, i) => ({[`sheet-${i+1}`] : item})))
     },
-    stores: ['bit','ratchet','blade','blade-CX'],
-
+    stores: [
+        'bit', 'ratchet', 'blade',
+        ...[...new O(Storage('line'))].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade-${line}`)
+    ],
     open: (name = DB.current) => name == DB.db?.name ? Promise.resolve(DB.db) : 
-        new Promise(res => Object.assign(indexedDB.open(name, 1), {onsuccess: res, onupgradeneeded: res}))
+        new Promise(res => indexedDB.open(name).onsuccess = res)
         .then(ev => {
             DB.db = ev.target.result;
             if (DB.db.name != DB.current) return;
+            let missing = DB.stores.filter(s => ![...DB.db.objectStoreNames].includes(s.toUpperCase()));
+            if (!missing.length)
+                return Promise.resolve(ev);
+            DB.db.close();
+            let ver = (DB.db.version || 0) + 1;
+            return new Promise(res => Object.assign(indexedDB.open(DB.db.name, ver), {onsuccess: res, onupgradeneeded: res}));
+        }).then(ev => {
+            DB.db = ev.target.result;
             let [index, fresh] = [location.pathname == '/x/', ev.type != 'success'];
 
             return (fresh ? DB.setup(ev).then(DB.transfer.in) : Promise.resolve())
@@ -39,7 +49,8 @@ Object.assign(DB, {
     ,
     setup (ev) {
         ['product','meta','user'].forEach(s => DB.db.createObjectStore(s));
-        DB.stores.map(s => DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
+        DB.stores.map(s => DB.db.objectStoreNames.contains(s) || 
+            DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
         return new Promise(res => ev.target.transaction.oncomplete = res);
     },
     fetch: {

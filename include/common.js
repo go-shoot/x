@@ -1,6 +1,12 @@
 const Storage = (key, obj) => !obj ? 
     JSON.parse(localStorage[key] ?? 'null') : 
     localStorage[key] = typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
+
+Storage('line', {
+    CX: {color: "#71bce9", title: "Custom Line", divided: true},
+    UX: {color: "#ee7800", title: "Unique Line"},
+    BX: {color: "#e4007f", title: "Basic Line"}
+});
     
 const unsupported = document.createElement('style');
 unsupported.textContent = `
@@ -48,4 +54,7 @@ addEventListener('DOMContentLoaded', () => {
         import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
         PointerInteraction.events(Menu.drag)`, {type: 'module'})
     );
+    (Q('style') ?? Q('head').appendChild(E('style'))).innerText += new O(Storage('line')).flatMap(([line, {color}]) => 
+        `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
+    ).join('');
 });

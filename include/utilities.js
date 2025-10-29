@@ -69,7 +69,7 @@ const FilterForm = {
             onchange: ev => {
                 (single === true || single?.[ev?.target.name]) 
                     && form[ev?.target.name]?.forEach(i => i.checked = i == ev.target);
-                action[ev?.target.name]?.(ev);
+                action?.[ev?.target.name]?.(ev);
 
                 let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
                     [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]

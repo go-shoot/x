@@ -107,9 +107,6 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 .def,label:has([value$=def]) {--type: #009f48;}
 .sta,label:has([value$=sta]) {--type: #f08200;}
 .bal,label:has([value$=bal]) {--type: #de0010;}
-.BX,a[href$=BX] {--line: #71bce9; --img-line: url(/x/img/lines.svg#BX);}
-.UX,a[href$=UX] {--line: #ee7800; --img-line: url(/x/img/lines.svg#UX);}
-.CX,a[href*=CX] {--line: #e4007f; --img-line: url(/x/img/lines.svg#CX);}
 
 .RB {--sat: 0%; --b-adj: 5%;}
 .B  {--hue: 10;}

@@ -92,11 +92,9 @@ Object.assign(Filter, {
             'SS H': {label: new A('Stadium Set')},
             'RB H': {label: new A('Random Booster')}
         }), {name: 'type', legend: '\ue02a 異色版／再推出版'}],
-        [new O({ 
-            CX: {label: new A(E('img', {src: `../img/lines.svg#CX`}), {title: 'Custom Line'})},
-            UX: {label: new A(E('img', {src: `../img/lines.svg#UX`}), {title: 'Unique Line'})},
-            BX: {label: new A(E('img', {src: `../img/lines.svg#BX`}), {title: 'Basic Line'})},
-        }), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
+        [new O(Storage('line')).map(([line, {title}]) => 
+            [line,  {label: new A(E('img', {src: `../img/lines.svg#${line}`}), {title})}]
+        ), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
     ]
 });
 
