@@ -4,11 +4,11 @@ nav {
         text-align:right;
 
         &:first-of-type {
-            grid-area:1/4/2/5;
+            grid-area:1/4;
             align-self:end;
         }
         &:last-of-type {
-            grid-area:2/4/3/5;
+            grid-area:2/4;
         }
     }
     small {color:var(--on);}

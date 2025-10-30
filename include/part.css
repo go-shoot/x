@@ -49,15 +49,15 @@
     .chi:nth-of-type(2) {grid-area: 5/2/6/4;}
     .chi:nth-of-type(1):not(:has(+.chi)) {grid-area: 4/2/6/3;}
     .jap {grid-area: 1/1/3/2;}
-    .eng {grid-area: 2/1/3/2;}
+    .eng {grid-area: 2/1;}
     figure {grid-area: 2/1/3/-1;}
     div {grid-area: 2/1/3/-1;}
     p {grid-area: 1/3/-1/-1;}
     dl {grid-area: 2/2/-1/-1;}
-    strong {grid-area: 2/4/3/5;}
+    strong {grid-area: 2/4;}
     ul {grid-area: 4/1/-1/-1;}
-    ::slotted(a) {grid-area: 1/1/2/2;}
-    ::slotted(a:not(:empty)) {grid-area: 2/2/3/3;}
+    ::slotted(a) {grid-area: 1/1;}
+    ::slotted(a:not(:empty)) {grid-area: 2/2;}
 }
 :host(.ratchet) h4 {grid-area: 4/1/6/3;}
 
