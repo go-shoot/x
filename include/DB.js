@@ -1,7 +1,7 @@
 import { Part } from "./part.js";
 import { Glossary } from "./utilities.js";
 
-const DB = (plugins = {}) => Object.assign(DB, {indicator: new DB.indicator(), plugins});
+const DB = (plugins = {}) => Object.assign(DB, {indicator: new DB.indicator, plugins});
 Object.assign(DB, {
     current: 'V4',
     replace: (before, after) => indexedDB.databases()
@@ -58,6 +58,7 @@ Object.assign(DB, {
             fetch(`/x/db/-update.json`).then(resp => resp.json())
             .then(({news, ...files}) => {
                 index && DB.plugins.announce(news);
+                Storage('updated', Math.round(new Date / 1000));
                 //!DB.plugins.include && (DB.plugins.exclude = ['prod-keihin', 'prod-equipment']);
                 return fresh || DB.cache.filter(files);
             })
@@ -69,7 +70,7 @@ Object.assign(DB, {
                 .then(resp => Promise.allSettled([file, resp.json(), file == 'part-blade-collab' && DB.clear('blade','hasbro') ]))
             )).then(arr => arr.map(([{value: file}, {value: json}]) => //in one transaction
                 (DB.cache.actions[file] || DB.put.parts)(json, file)
-                .then(() => console.log(`Updated '${file}'`) ?? Storage('DB', {[file]: Math.round(new Date() / 1000)} ))
+                .then(() => Storage('DB', {[file]: Math.round(new Date / 1000)} ))
                 .catch(er => console.error(file, er))
             ))
     },
@@ -210,7 +211,7 @@ Object.assign(DB.get, {
         .then(([meta, parts]) => [new O(meta), parts])
 });
 DB.transform = parts => {
-    let OBJ = new O();
+    let OBJ = new O;
     parts.forEach(([comp, parts]) => comp.includes('-') ?
         OBJ.blade[comp.split('-')[1]] = new O(parts.reduce((obj, {group, abbr, names}) => ({...obj, 
             [group]: {...obj[group], [abbr]: new Part.blade({abbr, names, group, line: comp.split('-')[1]})}

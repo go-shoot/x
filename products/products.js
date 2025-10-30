@@ -16,16 +16,17 @@ Object.assign(Table, {
     display: () => DB.get('product', 'beys').then(beys => Q('tbody').append(...beys.map(bey => new Bey(bey)))),
     after () {
         Q('.loading').classList.remove('loading');
-        Q('#chi').click();
         $(Q('table')).tablesorter();
+        Table.form.onchange();
         location.search ? Table.search(decodeURI(location.search.substring(1)).split(/-(?=.+\=)|=/)) : FilterForm.count();
     },
     
+    form: document.forms[0],
     events () {
-        E(Q('nav form')).set({
+        E(Table.form).set({
             onkeydown: ev => ev.key != 'Enter',
-            onreset: ev => ev.preventDefault() || Table.reset(),
-            onchange: ev => ev.target.type == 'radio' && Cell.fill(ev.target.id) || '',
+            onreset: Table.reset,
+            onchange: ev => (!ev || ev.target.type == 'radio') && Cell.fill(Table.form.lang.value),
             oninput: ev => {
                 if (ev.target.type != 'search') return;
                 clearTimeout(Table.timer);
@@ -59,7 +60,7 @@ Object.assign(Table, {
         if (!target) return;
         let comp = target.path[2] != 'motif' && META.jap.at(target.path.slice(0, -1))._;
         let name = Tile.named(target.path) ? target.names.jap : target.abbr;
-        Q('a[href*=obake]').href = 'http://obakeblader.com/' + (comp && Q('output').value > 1 ? `${comp}-${name}/#toc2` : `?s=入手法`);
+        Q('a[href*=obake]').href = 'http://obakeblader.com/' + (comp && Filter.form.count.value > 1 ? `${comp}-${name}/#toc2` : `?s=入手法`);
         Q('a[href*=kyoganken]').href = `//kyoganken.web.fc2.com/beyx/color0${['', 'blade', 'ratchet', 'bit'].indexOf(target.path[0])}.htm`;
     }
 });

@@ -43,7 +43,7 @@ const MAIN = {
 const loadIMG = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
 let IMG;
 Q('input[type=file]').onchange = ev => {
-    const reader = new FileReader();
+    const reader = new FileReader;
     reader.readAsDataURL(ev.target.files[0]);
     reader.onload = () => loadIMG(reader.result).then(img => {
         MAIN.setSide(Math.max(img.naturalWidth, img.naturalHeight));

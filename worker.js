@@ -34,7 +34,7 @@ const actions = {
 const is = {
     internal: url => ['aeoq.github.io', new URL(location.href).host].includes(new URL(url).host),
     cacheable: url => (is.internal(url) || /cdn\.?js/.test(url)) && !/\.json$/.test(new URL(url).pathname),
-    volatile: url => /\.(?:css|js|json)$/.test(new URL(url).pathname),
+    volatile: url => /\.(?:css|js|json)$|head\.html$/.test(new URL(url).pathname),
     image: url => /\.(?:ico|svg|jpeg|jpg|png)$/.test(new URL(url).pathname),
     part: url => /img\/.+?\/.+?\.png$/.test(new URL(url).pathname),
     html: url => /(?:\/|\.html)$/.test(new URL(url).pathname)
@@ -57,42 +57,22 @@ fetch.cache = res => res.url ? caches.open(is.part(res.url) ? 'parts' : 'V4')
 
 const Head = {
     url: '/x/include/head.html',
-    aeoq: [
-        'https://aeoq.github.io/diamond-grid/style.css',
-        'https://aeoq.github.io/drag-knob/style.css'
-    ],
-    code: `<!DOCTYPE HTML>
-    <meta charset='UTF-8'>
-    <meta name=viewport content='width=device-width,initial-scale=1'>
-    <meta name=theme-color content='#b0ff50'>
-    <link rel=icon href="https://${location.host}/x/img/blade/CX/motif/VL.png" type="image/png">
-    <link rel=manifest href='data:application/manifest+json,{
-      "name":"非官方資訊站",
-      "display":"standalone",
-      "start_url":"https://${location.host}/x/",
-      "theme_color":"%23b0ff50",
-      "icons":[{"src":"https://${location.host}/x/img/blade/CX/motif/VL.png","type":"image/png","sizes":"512x512"}]
-    }'>
-    <link rel=stylesheet href=/x/include/common.css>
-    <script type=module>import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'; Object.assign(window, {A,E,O,Q});</script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MJMB14RTQP"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MJMB14RTQP');
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=IBM+Plex+Sans+JP:wght@400;500&family=Kaisei+Decol:wght@500&display=swap" rel="stylesheet">
-    `,
-    cache: () => caches.open('V4').then(cache => Promise.all([
-        cache.put(Head.url, new Response(Head.code)), ...Head.aeoq.map(url => cache.add(url)),
-        cache.add('/x/bg.mp4')
-    ])),
+    manifest: {
+        name: "非官方資訊站",
+        display: "standalone",
+        start_url: `https://${location.host}/x/`,
+        theme_color: "%23b0ff50",
+        icons: [{src: `https://${location.host}/x/img/blade/CX/motif/VL.png`, type: "image/png", sizes: "512x512"}]
+    },
+    code: () => `
+<link rel="icon" href="https://${location.host}/x/img/blade/CX/motif/VL.png" type="image/png">
+<link rel="manifest" href='data:application/manifest+json,${JSON.stringify(Head.manifest)}'>`,
+
+    cache: () => caches.open('V4').then(cache => Promise.all([cache.add(Head.url), cache.add('/x/bg.mp4')])),
+
     fetch: () => caches.match(Head.url).then(resp => resp.text()),
 
-    add: async resp => new Response(await Head.fetch() + await resp.text(), Head.response(resp)),
+    add: async resp => new Response(await Head.fetch() + Head.code() + await resp.text(), Head.response(resp)),
             
     response: ({status, statusText, headers}) => ({status, statusText, headers})
 }

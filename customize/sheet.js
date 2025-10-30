@@ -50,7 +50,7 @@ Object.assign(App, {
     import (ev) {
         App.loading(true);
         Layers.solo(false);
-        let reader = new FileReader();
+        let reader = new FileReader;
         reader.readAsText(ev.target.files[0]);
         reader.onload = () => Layers.put(JSON.parse(reader.result)).then(App.loading);
         gtag('event', 'import-json');
@@ -106,8 +106,8 @@ Object.assign(App, {
             onclick: ev => {
                 if (!ev.target.popoverTargetElement) return;
                 ev.preventDefault();
-                Q('aside img') || App.picker();
-                Q('aside').showPopover();
+                Q('#picker img') || App.picker();
+                Q('#picker').showPopover();
             }
         });
         Q('#control-color').oninput = Controls.get;
@@ -152,7 +152,7 @@ const Controls = {
     image (ev) {
         Layers.fieldset.disabled = true;
         App.loading(true);
-        const reader = new FileReader();
+        const reader = new FileReader;
         reader.readAsDataURL(ev.target.files[0]);
         reader.onload = () => E.img(reader.result).then(img => {
             Layers.selected.Q('img').replaceWith(Layers.selected.img = img);

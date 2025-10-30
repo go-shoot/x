@@ -133,7 +133,7 @@ Object.assign(Glossary, {
         while (node = walker.nextNode()) {
             const texts = node.nodeValue.split(/(\w[\w ]*\w)/);
             if (texts.length <= 1) continue;
-            const fragment = new DocumentFragment();
+            const fragment = new DocumentFragment;
             fragment.append(...texts.map(text => text in glossary ? E('u', text) : new Text(text)));
             node.replaceWith(fragment);
         }

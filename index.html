@@ -140,7 +140,7 @@ Q('header').after(DB(plugins).then(() => {
     });
 }));
 
-(new Date - Storage('cached'))/1000/60/60/24 > 30 && fetch('sw/?delete=parts');
+(new Date/1000 - Storage('updated'))/60/60/24 > 30 && fetch('sw/?delete=parts');
 
 Q('body>input').onkeypress = ev => {
     if ((ev.keyCode || ev.which) != 13) return;

@@ -98,7 +98,7 @@ Q('main').prepend(DB().then(App));
 
 App.picker = () => {
     let show = image => picker.append(E('img', {src: `//beyblade.takaratomy.co.jp/anime/character/_image/chara${image}`}));
-    let picker = Q('[popover]'), 
+    let picker = Q('#picker'), 
         main = ['tenka','multi','bird','ekusu'], 
         mobu = ['ryu','yoko','dokuga','iwao','reiyu','roji','omega','ginro','karura','kuromu','shieru','shiguru','quinn','rex','yuni','zonamos','burn','kadovar','toguro','pan','manju','meiko'],
         team = ['missreader','gordias','zodiac','goldia','pend','cl','pakunchanel','yggdrasil','b4','zoo','persona'];

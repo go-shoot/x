@@ -14,14 +14,14 @@ class Bey {
     }
     abbr = {to: {parts: abbr => {
         abbr = new O(abbr.split(' ').map((a, i) => [i == 0 ? 'blade' : i == 1 ? 'ratchet' : 'bit', a]));
-        ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp]());
+        ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp]);
 
         this.line = META.blade.delimiter.find(([, char]) => 
             (abbr.blade = [abbr.blade].flat()[0].split(char)).length > 1
         )?.[0];
         this.blade = abbr.blade.length > 1 ? 
-            abbr.blade.map((b, i) => PARTS.blade[this.line][Part.blade.sub[i]][b]) ?? new Part.blade() : 
-            PARTS.blade[abbr.blade[0]] ?? new Part.blade();
+            abbr.blade.map((b, i) => PARTS.blade[this.line][Part.blade.sub[i]][b]) ?? new Part.blade : 
+            PARTS.blade[abbr.blade[0]] ?? new Part.blade;
         this.line ??= this.blade.group ?? '';
         return this.parts;
     }}}
@@ -53,7 +53,7 @@ class Bey {
         index: name => this.name.to.parts(name),
         prize: abbr => this.abbr.to.parts(abbr).to.name(),
         product: ([code, type, abbr, ...others]) => {
-            if (code == 'BH') return new Text();
+            if (code == 'BH') return new Text;
             this.abbr.to.parts(this.abbr = abbr);
             return new Row(this, code, type, others);
         },
