@@ -9,9 +9,8 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
     if (/sw\/$/.test(new URL(ev.request.url).pathname)) {
         let [[field, value]] = new URLSearchParams(new URL(ev.request.url).search);
         return (actions[field]?.[value] ?? actions[field]?._)?.(value)
-                .then(() => new Response('', {status: 200}))
-                .catch(er => console.error(er) ?? new Response('', {status: 400}))
-            ?? new Response('', {status: 404});
+            .then(() => new Response('', {status: 200}))
+            .catch(er => console.error(er) ?? new Response('', {status: 400})) ?? new Response('', {status: 404});
     }
     return (is.internal(ev.request.url) ? caches.match(ev.request.url, {ignoreSearch: true}) : Promise.resolve())
         .then(cached => {
@@ -25,6 +24,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
 const actions = {
     delete: {
         parts: () => fetch('db/-update.json').then(() => caches.delete('parts')),
+        head: () => caches.open('V4').then(cache => cache.add(Head.url)),
         _: extension => fetch('db/-update.json')
             .then(() => caches.open('V4'))
             .then(cache => cache.keys().then(reqs => reqs.forEach(req => new RegExp(`\\.${extension}$`).test(req.url) && cache.delete(req))))

@@ -7,7 +7,7 @@ Storage('line', {
     UX: {color: "#ee7800", title: "Unique Line"},
     BX: {color: "#e4007f", title: "Basic Line"}
 });
-   
+
 (() => {
     const unsupported = document.head.appendChild(document.createElement('style'));
     unsupported.textContent = `
@@ -32,12 +32,17 @@ html::before {
 const Menu = () => {
     let menu = Q('nav menu');
     if (!menu) return;
-    menu.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
+    Menu.config(menu);
     Menu.script();
     Menu.current();
     addEventListener('hashchange', Menu.current);
 }
 Object.assign(Menu, {
+    config (menu) {
+        menu.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
+        menu.parentElement.classList.toggle('bottom', Storage('pref').bottom);
+        menu.parentElement.classList.toggle('right', Storage('pref').right);
+    },
     current () {
         Q('menu .current')?.classList.remove('current');
         Q('menu li a')?.find(a => new URL(a.href, document.baseURI).href == location.href)?.classList.add('current');
@@ -45,8 +50,11 @@ Object.assign(Menu, {
     drag: {
         'nav menu': {
             drag: PI => {
-                PI.drag.to.translate({ x: false, y: { max: Q('nav menu').offsetTop * -1 - 4 } });
-                PI.drag.to.select({ y: 0 }, [...PI.target.children].filter(child => !child.matches(':has(.current),:last-child')));
+                PI.drag.to.translate({x: false, y: Q('nav.bottom') ? 
+                    {min: PI.target.parentElement.offsetHeight - PI.target.offsetTop - PI.target.offsetHeight + 4} : 
+                    {max: PI.target.offsetTop * -1 - 4} 
+                });
+                PI.drag.to.select({y: Q('nav.bottom') ? innerHeight : 0}, [...PI.target.children].filter(child => !child.matches(':has(.current),:last-child')));
             },
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
         }

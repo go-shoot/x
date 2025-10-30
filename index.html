@@ -31,7 +31,14 @@
 
 <section id=reboot>
     如在本網遇上問題<div><i id=reset>&#xe010;</i><span>重設儲存</span><i></i></div>
-    <a href="../"><img src="../25th.png"></a>
+    <form>
+        功能列
+        <fieldset>上<label class="toggle bilateral vertical"><input type="checkbox" name="bottom"></label>下</fieldset>
+        ｜
+        <fieldset>左<label class="toggle bilateral"><input type="checkbox" name="right"></label>右</fieldset>
+        連結
+        <a href="../"><img src="../25th.png"></a>
+    </form>
 </section>
 
 <footer>
@@ -142,6 +149,8 @@ Q('header').after(DB(plugins).then(() => {
 
 (new Date/1000 - Storage('updated'))/60/60/24 > 30 && fetch('sw/?delete=parts');
 
+Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
+Q('#reboot form').onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
 Q('body>input').onkeypress = ev => {
     if ((ev.keyCode || ev.which) != 13) return;
     ev.target.value = ev.target.value.trim();
