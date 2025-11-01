@@ -27,6 +27,12 @@ label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
 .keihin-g em::before {content: '\e002';}
 .keihin-m em::before {content: '\e001';}
 
+.target {
+    animation: highlight 1s .5s ease 3;
+    scroll-margin-top: 5rem;
+}
+@keyframes highlight {from {filter:brightness(300%);} }
+
 diamond-grid {
     font-size: .8em;
     --side: 20em; --gap: .5em;

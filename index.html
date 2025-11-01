@@ -51,7 +51,7 @@
 <script type="module">
 import DB from './include/DB.js'
 import {Bey, Preview} from './include/bey.js'
-import {Markup} from './include/utilities.js'
+import {Markup, Keihin} from './include/utilities.js'
 import {Part} from './include/part.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
 let CACHE;
@@ -65,8 +65,8 @@ Q('[type=search]').oninput = ev => {
         text: (label || title).match(/[一-龥]+⬧?[一-龥]+/)?.[0] || label || title
     });
     (CACHE ? Promise.resolve() : 
-        Promise.all([DB.get.essentials(false), DB.get('meta', 'search'), DB.get('product', 'beys')])
-        .then(([[meta, parts], links, beys]) => {            
+        Promise.all([DB.get.essentials(false), DB.get('meta', 'search'), DB.get('product', 'beys'), DB.get('product', 'keihins')])
+        .then(([[meta, parts], links, beys, prizes]) => {            
             links.push(...[...meta.grouped].map(([comp, obj]) => [
                 link([comp], (obj.所有 ?? obj.一體).title),
                 [...obj].filter(([, obj]) => obj.group).map(([line, obj]) => line.endsWith('X') ? 
@@ -74,16 +74,20 @@ Q('[type=search]').oninput = ev => {
                     [...obj.group].map(([group, {label}]) => link([comp, , group], obj.title, label))
                 )
             ]).flat(9));
+            prizes = prizes.map(({bey, ver}) => ({
+                id: Keihin.id(bey, ver), 
+                name: Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
+            })).filter(({name}) => name);
             beys = beys.map(([code]) => code);
             let max = new O([...new Set(beys.map(code => code.split('-')[0]))]
                 .map(line => [line, beys.find(code => new RegExp(`^${line}-`).test(code))?.match(/\d+/)[0]]));
-            Bey.CACHE = CACHE = {links, max};
+            Bey.CACHE = CACHE = {links, max, prizes};
             return Promise.all(parts.flatMap(([, parts]) => parts.map(p => new Part(p).revise())));
         })
         .then(parts => CACHE.parts = parts.map(p => p.push({all: [...p].flat()})) )
     ).then(() => {
         Bey.CACHE = CACHE;   
-        let results = new Bey(Markup.replace(ev.target.value, 'search').trim());
+        let results = new Bey(Markup.replace(ev.target.value, 'search').trim(), {for: 'index'});
         Q('#search .parts').replaceChildren(...results
             .sort((p1, p2) => p1 instanceof Part && !(p2 instanceof Part) ? -1 : p2 instanceof Part && !(p1 instanceof Part) ? 1 : 0)
             .flatMap(s => s instanceof Part ? {item: s} :
@@ -93,7 +97,7 @@ Q('[type=search]').oninput = ev => {
             ).map(({item}) => E(`li>button.${item.comp}.${item.line || item.group}`, 
                 Markup('cell', item.names?.chi || item.abbr),
                 {onclick: () => new Preview(['tile', 'cell'], item.path)}
-            ))
+            )),
         );
         results = results.join('');
         Q('#search .links').replaceChildren(...new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
@@ -101,6 +105,10 @@ Q('[type=search]').oninput = ev => {
             .map(({item}) => E('li>a', item.text, {
                 classList: /(?<=parts\/\?).+?(?=[=#])/.exec(item.href)?.[0] || '',
                 href: item.href, target: item.href.startsWith('//') ? '_blank' : ''
+            })),
+            ...new Fuse(CACHE.prizes, {keys: ['name'], threshold: .51}).search(results)
+            .map(({item}) => E('li>a.prize', item.name, {
+                href: `./prize/#${item.id}`
             }))
         );
         Q('#search .beys').replaceChildren(/^[a-z]x[a-z]?-?\d{2,3}$/i.test(results) 

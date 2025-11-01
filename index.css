@@ -78,18 +78,17 @@ section {
         button {
             color: var(--theme);
         }
-        a::before {
-            content: '\e024';
-        }
         &.beys button::before {
             content: '\e001';
         }
-        a[href^='//'] {
-            color: var(--theme-alt);
-
-            &::before {content: '\e023';}
+        a {
+            -webkit-user-drag: none;
+            &::before {content: '\e024';}
+            &.prize::before {content: '\e002';}
+            &[href^='//'] {color: var(--theme-alt);}
+            &[href^='//']::before {content: '\e023';}
         }
-        &.parts button::before, &.links a:not([class=''])::before {
+        &.parts button::before, &.links a:not([class='']):not(.prize)::before {
             content: '';
             width: 1.4em; height: 1.4em; display: inline-block;
             vertical-align: text-top;

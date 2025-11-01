@@ -153,7 +153,7 @@ a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filte
     color: var(--theme);
     text-decoration: none;
 }
-.loading,output,details:has(#filter):has(input:not(:checked)) summary {
+.loading,output,details:has(#filter):has([type=checkbox]:not(:checked)) summary {
     color: var(--theme-alt);
 }
 
@@ -179,14 +179,12 @@ nav {
     
     &:not(:has(a[href='/x/'])) {display: none;}
     &:not(.bottom) {
-        top: 0; transition: top .5s;
+        top: 0; 
         border-bottom: 0.15rem solid;
-        @starting-style {top: -4.15rem;}
     }
     &.bottom {
-        bottom: 0; transition: bottom .5s;
+        bottom: 0;
         border-top: 0.15rem solid;
-        @starting-style {bottom: -4.15rem;}
     }
     &.right {padding-left: 0;}
     menu {

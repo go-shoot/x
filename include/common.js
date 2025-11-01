@@ -40,8 +40,8 @@ const Menu = () => {
 Object.assign(Menu, {
     config (menu) {
         menu.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
-        menu.parentElement.classList.toggle('bottom', !!Storage('pref').bottom);
-        menu.parentElement.classList.toggle('right', !!Storage('pref').right);
+        menu.parentElement.classList.toggle('bottom', !!Storage('pref')?.bottom);
+        menu.parentElement.classList.toggle('right', !!Storage('pref')?.right);
     },
     current () {
         Q('menu .current')?.classList.remove('current');

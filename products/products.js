@@ -67,7 +67,7 @@ Object.assign(Table, {
 
 const Filter = () => {
     Filter.form.append(...Filter.items.map(([main, ...rest]) =>
-        new FilterForm.fieldset(main.map(([cl, {label}]) => [cl, {label: label.push({classList: cl.match(/\w+/)[0]})}]), ...rest)
+        new FilterForm.fieldset(main.map(([cl, {label}]) => [cl, {label: label.push({classList: cl.match(/\w+/)?.[0]})}]), ...rest)
     ));
     Filter.events();
 }
@@ -93,9 +93,9 @@ Object.assign(Filter, {
             'SS H': {label: new A('Stadium Set')},
             'RB H': {label: new A('Random Booster')}
         }), {name: 'type', legend: '\ue02a 異色版／再推出版'}],
-        [new O(Storage('line')).map(([line, {title}]) => 
+        [new O({'¬': {label: new A('')}}, new O(Storage('line')).map(([line, {title}]) => 
             [line,  {label: new A(E('img', {src: `../img/lines.svg#${line}`}), {title})}]
-        ), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
+        )), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
     ]
 });
 

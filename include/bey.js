@@ -7,10 +7,8 @@ let META, PARTS;
 
 class Bey {
     static import = (meta, parts) => [META, PARTS] = [meta, parts];
-    constructor(content) {
-        return typeof content == 'string' ? 
-            location.href.includes('prize') ? this.for.prize(content) : this.for.index(content) : 
-            this.for.product(content);
+    constructor(content, {for: FOR} = {}) {
+        return typeof content == 'string' ? this.for[FOR](content) : this.for.product(content);
     }
     abbr = {to: {parts: abbr => {
         abbr = new O(abbr.split(' ').map((a, i) => [i == 0 ? 'blade' : i == 1 ? 'ratchet' : 'bit', a]));
@@ -66,7 +64,7 @@ class Row {
             this.cell(code, video), 
             ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
         ].flat(9), {
-            classList: [bey.line || 'BX', type],
+            classList: [bey.line || bey.blade.abbr && 'BX', type],
             dataset: {abbr: bey.abbr}
         });
         this.extra(extra ?? {});

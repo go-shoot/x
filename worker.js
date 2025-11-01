@@ -14,7 +14,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
     }
     return (is.internal(ev.request.url) ? caches.match(ev.request.url, {ignoreSearch: true}) : Promise.resolve())
         .then(cached => {
-            if (cached && is.part(ev.request.url))
+            if (cached && (is.part(ev.request.url) || is.stable(ev.request.url)))
                 return cached;
             let fetching = fetch.net(ev.request);
             return cached ? is.html(ev.request.url) ? Head.add(cached) : cached : fetching;
@@ -34,14 +34,17 @@ const actions = {
 const is = {
     internal: url => ['aeoq.github.io', new URL(location.href).host].includes(new URL(url).host),
     cacheable: url => (is.internal(url) || /cdn\.?js/.test(url)) && !/\.json$/.test(new URL(url).pathname),
+    stable: url => /bg.mp4$/.test(new URL(url).pathname),
     volatile: url => /\.(?:css|js|json)$|head\.html$/.test(new URL(url).pathname),
     image: url => /\.(?:ico|svg|jpeg|jpg|png)$/.test(new URL(url).pathname),
     part: url => /img\/.+?\/.+?\.png$/.test(new URL(url).pathname),
-    html: url => /(?:\/|\.html)$/.test(new URL(url).pathname)
+    html: url => /(?:\/|\.html)$/.test(new URL(url).pathname),
+    opaque: url => /takaratomy/.test(url) ? {mode: 'no-cors'} : 
+        /aeoq\.github\.io.+\.css/.test(url) ? {mode: 'cors', credentials: 'omit'} : null
 }
 fetch.net = req => {
     is.internal(req.url) && is.volatile(req.url) && (req = new Request(`${req.url}?${Math.random()}`, req));
-    return fetch(req, req.url.includes('takaratomy') ? {mode: 'no-cors'} : null).then(res => 
+    return fetch(req, is.opaque(req.url)).then(res => 
         (res.status < 400 && is.cacheable(req.url) ? fetch.cache(res) : Promise.resolve(res))
         .then(res => is.html(req.url) ? Head.add(res) : res)
     ).catch(er => {

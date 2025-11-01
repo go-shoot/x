@@ -147,7 +147,7 @@ Object.assign(DB, {
                 position:relative;
                 background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%);
                 background-clip:text; -webkit-background-clip:text;
-                display:block; min-height:5rem;
+                display:block;
             }
             :host([style*='--hue']) {
                 background:var(--hue);

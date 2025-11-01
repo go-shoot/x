@@ -116,7 +116,8 @@ details:has(#filter) {
     label {
         position: relative;
         font-size: .9em;
-
+        
+        &:has([value='¬']) {display: none;}
         &:not(:has(img))::before {line-height: .4rem;}
     }
     fieldset:not(#line) label::after {

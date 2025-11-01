@@ -43,7 +43,7 @@ class Shohin {
 }
 class Keihin {
     constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
-        let {line, jap, chi, only} = new Bey(bey);   
+        let {line, jap, chi, only} = new Bey(bey, {for: 'prize'});   
         return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 
             E('p', link ? E('a', {href: link}, note) : parseInt(style?.width) > 300 ? E('a', {href: src}, note) : note),
@@ -57,8 +57,9 @@ class Keihin {
             ]),
             E('h4', {lang: 'zh'}, [chi, E('small', [ver?.[1] ?? ''].filter(t => t).join(' '))]),
             E('time', date.replace('-','‒'))
-        ]);
+        ], {id: Keihin.id(bey, ver)});
     }
+    static id = (bey, ver) => `${bey.split(' ')[0]}${ver ? `–${ver[1].match(/\w+(?!.*:)|\w+$/)?.[0]}` : ''}`
     static type = new O({t: '比賽', d: '抽獎', m: '限定商品', g: '贈品'})
 }
 
