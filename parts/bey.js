@@ -1,6 +1,6 @@
-import DB from './DB.js';
+import DB from '../include/DB.js';
 import { Part, Cell } from './part.js';
-import { Glossary, Markup } from './utilities.js';
+import { Glossary, Markup } from '../include/utilities.js';
 import Maps from '../products/maps.js';
 
 let META, PARTS;

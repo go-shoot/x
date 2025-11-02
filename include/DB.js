@@ -1,9 +1,9 @@
-import { Part } from "./part.js";
+import { Part } from "../parts/part.js";
 import { Glossary } from "./utilities.js";
 
 const DB = (plugins = {}) => Object.assign(DB, {indicator: new DB.indicator, plugins});
 Object.assign(DB, {
-    current: 'V4',
+    current: 'X',
     replace: (before, after) => indexedDB.databases()
         .then(dbs => dbs.find(db => db.name == before) && DB.open(before).then(DB.discard))
         .then(() => DB.open(after))
@@ -23,7 +23,7 @@ Object.assign(DB, {
     },
     stores: [
         'bit', 'ratchet', 'blade',
-        ...[...new O(Storage('line'))].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade-${line}`)
+        ...[...new O(LINES)].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade-${line}`)
     ],
     open: (name = DB.current) => name == DB.db?.name ? Promise.resolve(DB.db) : 
         new Promise(res => indexedDB.open(name).onsuccess = res)

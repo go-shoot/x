@@ -23,10 +23,10 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
 
 const actions = {
     delete: {
-        parts: () => fetch('db/-update.json').then(() => caches.delete('parts')),
-        head: () => caches.open('V4').then(cache => cache.add(Head.url)),
+        parts: () => fetch('db/-update.json').then(() => caches.delete('X/parts')),
+        head: () => caches.open('X').then(cache => cache.add(Head.url)),
         _: extension => fetch('db/-update.json')
-            .then(() => caches.open('V4'))
+            .then(() => caches.open('X'))
             .then(cache => cache.keys().then(reqs => reqs.forEach(req => new RegExp(`\\.${extension}$`).test(req.url) && cache.delete(req))))
     }
 }
@@ -54,7 +54,7 @@ fetch.net = req => {
         new URL(req.url).pathname == '/' && self.registration.unregister();
     });
 }
-fetch.cache = res => res.url ? caches.open(is.part(res.url) ? 'parts' : 'V4')
+fetch.cache = res => res.url ? caches.open(is.part(res.url) ? 'X/parts' : 'X')
     .then(cache => cache.put(res.url.replace(/[?#].*$/, ''), res.clone()))
     .then(() => res) : Promise.resolve(res);
 
@@ -71,7 +71,7 @@ const Head = {
 <link rel="icon" href="https://${location.host}/x/img/blade/CX/motif/VL.png" type="image/png">
 <link rel="manifest" href='data:application/manifest+json,${JSON.stringify(Head.manifest)}'>`,
 
-    cache: () => caches.open('V4').then(cache => Promise.all([cache.add(Head.url), cache.add('/x/bg.mp4')])),
+    cache: () => caches.open('X').then(cache => Promise.all([cache.add(Head.url), cache.add('/x/bg.mp4')])),
 
     fetch: () => caches.match(Head.url).then(resp => resp.text()),
 

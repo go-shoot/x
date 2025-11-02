@@ -1,5 +1,5 @@
 import DB from '../include/DB.js'
-import { Part } from '../include/part.js';
+import { Part } from '../parts/part.js';
 import { Glossary, Markup, FilterForm } from '../include/utilities.js';
 
 let META, PARTS;

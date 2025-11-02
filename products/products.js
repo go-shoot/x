@@ -1,6 +1,6 @@
 import DB from '../include/DB.js'
-import { Part, Tile, Cell } from '../include/part.js';
-import { Bey, Preview, Search } from '../include/bey.js';
+import { Part, Tile, Cell } from '../parts/part.js';
+import { Bey, Preview, Search } from '../parts/bey.js';
 import { FilterForm } from '../include/utilities.js';
 
 let META, PARTS;
@@ -93,7 +93,7 @@ Object.assign(Filter, {
             'SS H': {label: new A('Stadium Set')},
             'RB H': {label: new A('Random Booster')}
         }), {name: 'type', legend: '\ue02a 異色版／再推出版'}],
-        [new O({'¬': {label: new A('')}}, new O(Storage('line')).map(([line, {title}]) => 
+        [new O({'¬': {label: new A('')}}, new O(LINES).map(([line, {title}]) => 
             [line,  {label: new A(E('img', {src: `../img/lines.svg#${line}`}), {title})}]
         )), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
     ]

@@ -2,7 +2,7 @@
 <script defer src=../include/common.js></script>
 <script type=module src=https://aeoq.github.io/drag-knob/script.js></script>
 <link rel=stylesheet href=parts.css>
-<link rel=stylesheet href=../include/part.css>
+<link rel=stylesheet href=../parts/part.css>
 <script>!location.search && !location.hash && (location.href = '?blade=CX')</script>
 <!--ps: Get-ChildItem -Filter *.png | ForEach-Object {
     $f = $_.Name
@@ -54,7 +54,7 @@
 import DB from '../include/DB.js'
 import Parts from './parts.js'
 Q('main').prepend(DB().then(location.search && Parts));
-Q('menu').prepend(...[...new O(Storage('line'))]
+Q('menu').prepend(...[...new O(LINES)]
     .filter(([_, {divided}]) => divided)
     .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
 );

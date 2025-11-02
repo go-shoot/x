@@ -22,6 +22,7 @@
         <a href="customize/sheet.html"> 設計器</a>
         <input type="search">
     </search>
+    <ol class="history"></ol>
     <ol class="parts"></ol>
     <ol class="beys"></ol>
     <ol class="links"></ol>
@@ -46,19 +47,16 @@
     <br>Developed and Designed by V Man (MKK). 2023–.
 </footer>
 
-<link rel="stylesheet" href="include/part.css">
+<link rel="stylesheet" href="parts/part.css">
 
 <script type="module">
 import DB from './include/DB.js'
-import {Bey, Preview} from './include/bey.js'
+import {Bey, Preview} from './parts/bey.js'
+import {Part} from './parts/part.js'
 import {Markup, Keihin} from './include/utilities.js'
-import {Part} from './include/part.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
 let CACHE;
-Q('[type=search]').oninput = ev => {
-    Preview.reset();
-    if (!ev.target.value.trim()) return;
-
+const Search = () => {
     const link = ([comp, line, group], title, label) => ({                        
         keywords: ["零件","部件","組件","圖鑑", ...title.split(/[【⬧】]/)],
         href: `parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
@@ -87,7 +85,7 @@ Q('[type=search]').oninput = ev => {
         .then(parts => CACHE.parts = parts.map(p => p.push({all: [...p].flat()})) )
     ).then(() => {
         Bey.CACHE = CACHE;   
-        let results = new Bey(Markup.replace(ev.target.value, 'search').trim(), {for: 'index'});
+        let results = new Bey(Markup.replace(Search.field.value, 'search').trim(), {for: 'index'});
         Q('#search .parts').replaceChildren(...results
             .sort((p1, p2) => p1 instanceof Part && !(p2 instanceof Part) ? -1 : p2 instanceof Part && !(p1 instanceof Part) ? 1 : 0)
             .flatMap(s => s instanceof Part ? {item: s} :
@@ -118,6 +116,28 @@ Q('[type=search]').oninput = ev => {
         );
     })
 }
+Object.assign(Search, {
+    field: Q('[type=search]'),
+    history: items => Q('#search .history').replaceChildren(...items.map(item => 
+        E('button', item, {onclick: () => (Search.field.value = item) && Search()})
+    )),
+    events () {
+        Search.history(Storage('history') || []);
+        Search.field.oninput = ev => {
+            clearTimeout(Search.timer);
+            Search.field.value.trim() && (Search.timer = setTimeout(Search, 500));
+            Preview.reset();
+        }
+        Q('#search').onclick = ev => {
+            if (!ev.target.matches('ol:not(.history) *')) return;
+            let history = Storage('history') || [];
+            history = [...new Set(history.toSpliced(0, 0, Search.field.value.trim()))].slice(0, 10);
+            Search.history(history);
+            Storage('history', history);
+        }
+    }
+});
+Search.events();
 
 import {Shohin} from './include/utilities.js'
 import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
@@ -136,7 +156,7 @@ Q('header').after(DB(plugins).then(() => {
     Q('header,section,time,.scroller', el => observer.observe(el));
     const reset = message => Promise.all([
         DB.discard(ev => message.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
-        caches.delete('V4'), caches.delete('parts'),
+        caches.delete('X'), caches.delete('X/parts'),
         localStorage.clear(),
         navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
     ]);

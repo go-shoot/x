@@ -1,5 +1,5 @@
 import DB from "./DB.js";
-import { Bey, Preview } from "./bey.js";
+import { Bey, Preview } from "../parts/bey.js";
 
 class Shohin {
     constructor({code: header, name, imgs, desc, type}) {

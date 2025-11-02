@@ -1,7 +1,7 @@
 
 import DB from '../include/DB.js'
 import { Bey, Preview } from './bey.js';
-import { Markup } from './utilities.js';
+import { Markup } from '../include/utilities.js';
 import Table from '../products/products.js';
 
 let META, PARTS;
@@ -84,7 +84,7 @@ class Tile extends HTMLElement {
         this.Part = Part;
         this.attachShadow({mode: 'open'}).append(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
-            E('link', {rel: 'stylesheet', href: '/x/include/part.css'}),
+            E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
         );
         E(this).set({
             id: path.at(-1),

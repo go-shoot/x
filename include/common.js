@@ -1,12 +1,12 @@
 const Storage = (key, obj) => !obj ? 
     JSON.parse(localStorage[key] ?? 'null') : 
-    localStorage[key] = typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
+    localStorage[key] = Array.isArray(obj) ? JSON.stringify(obj) : typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
 
-Storage('line', {
+const LINES = {
     CX: {color: "#71bce9", title: "Custom Line", divided: true},
     UX: {color: "#ee7800", title: "Unique Line"},
     BX: {color: "#e4007f", title: "Basic Line"}
-});
+};
 
 (() => {
     const unsupported = document.head.appendChild(document.createElement('style'));
@@ -30,22 +30,21 @@ html::before {
 })();
 
 const Menu = () => {
-    let menu = Q('nav menu');
-    if (!menu) return;
-    Menu.config(menu);
+    if (!Q('nav')) return;
+    Menu.config();
     Menu.script();
     Menu.current();
     addEventListener('hashchange', Menu.current);
 }
 Object.assign(Menu, {
-    config (menu) {
-        menu.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
-        menu.parentElement.classList.toggle('bottom', !!Storage('pref')?.bottom);
-        menu.parentElement.classList.toggle('right', !!Storage('pref')?.right);
+    config () {
+        Q('nav').classList.toggle('bottom', !!Storage('pref')?.bottom);
+        Q('nav').classList.toggle('right', !!Storage('pref')?.right);
+        Q('nav menu')?.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
     },
     current () {
-        Q('menu .current')?.classList.remove('current');
-        Q('menu li a')?.find(a => new URL(a.href, document.baseURI).href == location.href)?.classList.add('current');
+        Q('nav .current')?.classList.remove('current');
+        Q('nav menu a')?.find(a => new URL(a.href, document.baseURI).href == location.href)?.classList.add('current');
     },
     drag: {
         'nav menu': {
@@ -54,7 +53,10 @@ Object.assign(Menu, {
                     {min: PI.target.parentElement.offsetHeight - PI.target.offsetTop - PI.target.offsetHeight + 4} : 
                     {max: PI.target.offsetTop * -1 - 4} 
                 });
-                PI.drag.to.select({y: Q('nav.bottom') ? innerHeight : 0}, [...PI.target.children].filter(child => !child.matches(':has(.current),:last-child')));
+                PI.drag.to.select(
+                    {y: Q('nav.bottom') ? innerHeight : 0}, 
+                    [...PI.target.children].filter(child => !child.matches(':has(.current),:last-child'))
+                );
             },
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
         }
@@ -68,7 +70,7 @@ PointerInteraction.events(Menu.drag)`
 addEventListener('DOMContentLoaded', () => {
     Menu();
     Q('[popover=auto]')?.addEventListener('click', ev => ev.currentTarget.hidePopover());
-    (Q('style') ?? Q('head').appendChild(E('style'))).innerText += new O(Storage('line')).flatMap(([line, {color}]) => 
+    (Q('style') ?? Q('head').appendChild(E('style'))).innerText += new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('');
 });
