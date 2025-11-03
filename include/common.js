@@ -3,9 +3,9 @@ const Storage = (key, obj) => !obj ?
     localStorage[key] = Array.isArray(obj) ? JSON.stringify(obj) : typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
 
 const LINES = {
-    CX: {color: "#71bce9", title: "Custom Line", divided: true},
+    CX: {color: "#e4007f", title: "Custom Line", divided: true},
     UX: {color: "#ee7800", title: "Unique Line"},
-    BX: {color: "#e4007f", title: "Basic Line"}
+    BX: {color: "#71bce9", title: "Basic Line"}
 };
 
 (() => {
