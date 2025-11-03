@@ -166,7 +166,7 @@ const Markup = (where, string, span = true) => {
     string = string.split(Markup.split);
     if (where == 'cell')
         return (string.length == 2 ? [string[0], '⬧', string[1]] : string)
-            .map(s => s.replace(...Markup.cell)).flatMap(s => Markup.replace(s, 'mode'));
+            .map(s => Markup.replace(s, 'cell')).flatMap(s => Markup.replace(s, 'mode'));
     if (where == 'tile')
         return string.map(s => Markup.replace(s, 'mode')).map(s => span ? Markup.replace(s, 'tile') : s);
     if (where == 'stat')
@@ -175,7 +175,7 @@ const Markup = (where, string, span = true) => {
 }
 Object.assign(Markup, {
     split: /(?<=.+?) (?=[一-龢].+)/,
-    cell: [/[/\\]/g, ''],
+    cell: [[/[/\\]/g, ''], [/(?<=[a-z])(?=[A-Z])/, ' ']],
     tile: new O([ //mode first so that _mode won't be sticking to span
         [/(.+)\\(.+)/, ([, $1, $2]) => [$1, E('span', $2)]],
         [/(.+)\/(.+)/, ([, $1, $2]) => [E('span', $1), $2]],
@@ -196,9 +196,9 @@ Object.assign(Markup, {
         [/(.*)\((.+)\)(.*)/, ([, $1, $2, $3]) => $2.split('|').map(s => [$1, s, $3].join(''))],
     ],
     search: [
-        [/攻擊?/, 'att'], [/防禦?/, 'def'], [/平衡?/, 'bal'], [/持久?/, 'sta'],
-        ['左', 'left'], ['右', 'right'],
-        [/軸心?/, 'bit'], ['固鎖', 'ratchet'], [/上蓋|面|戰刃/, 'blade'],
+        [/攻擊?/, 'att '], [/防禦?/, 'def' ], [/平衡?/, 'bal '], [/持久?/, 'sta '],
+        ['左', 'left '], ['右', 'right '],
+        [/軸心?/, 'bit '], ['固鎖', 'ratchet '], [/上蓋|面|戰刃/, 'blade '],
     ],
     replace (string, which, values) {
         if (string instanceof Array) 
@@ -207,7 +207,7 @@ Object.assign(Markup, {
             return string;
         if (Markup[which] instanceof Array)
             return Markup[which].reduce((str, [r, f]) => 
-                typeof f == 'string' ? str.replace(r, `${f} `) : 
+                typeof f == 'string' ? str.replace(r, f) : 
                 r.test(str) ? f(r.exec(str), values) : str
             , string);
         let [r, f] = Markup[which].find(([r]) => r.test(string)) ?? [];

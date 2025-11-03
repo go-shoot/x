@@ -24,7 +24,7 @@
     </search>
     <ol class="history"></ol>
     <ol class="parts"></ol>
-    <ol class="beys"></ol>
+    <ol class="products"></ol>
     <ol class="links"></ol>
 </section>
 
@@ -48,137 +48,8 @@
 </footer>
 
 <link rel="stylesheet" href="parts/part.css">
-
+<script type="module" src="index.js"></script>
 <script type="module">
-import DB from './include/DB.js'
-import {Bey, Preview} from './parts/bey.js'
-import {Part} from './parts/part.js'
-import {Markup, Keihin} from './include/utilities.js'
-import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
-let CACHE;
-const Search = () => {
-    const link = ([comp, line, group], title, label) => ({                        
-        keywords: ["零件","部件","組件","圖鑑", ...title.split(/[【⬧】]/)],
-        href: `parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
-        text: (label || title).match(/[一-龥]+⬧?[一-龥]+/)?.[0] || label || title
-    });
-    (CACHE ? Promise.resolve() : 
-        Promise.all([DB.get.essentials(false), DB.get('meta', 'search'), DB.get('product', 'beys'), DB.get('product', 'keihins')])
-        .then(([[meta, parts], links, beys, prizes]) => {            
-            links.push(...[...meta.grouped].map(([comp, obj]) => [
-                link([comp], (obj.所有 ?? obj.一體).title),
-                [...obj].filter(([, obj]) => obj.group).map(([line, obj]) => line.endsWith('X') ? 
-                    [...obj.title].map(([group, title]) => link([comp, line, group], title)) : 
-                    [...obj.group].map(([group, {label}]) => link([comp, , group], obj.title, label))
-                )
-            ]).flat(9));
-            prizes = prizes.map(({bey, ver}) => ({
-                id: Keihin.id(bey, ver), 
-                name: Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
-            })).filter(({name}) => name);
-            beys = beys.map(([code]) => code);
-            let max = new O([...new Set(beys.map(code => code.split('-')[0]))]
-                .map(line => [line, beys.find(code => new RegExp(`^${line}-`).test(code))?.match(/\d+/)[0]]));
-            Bey.CACHE = CACHE = {links, max, prizes};
-            return Promise.all(parts.flatMap(([, parts]) => parts.map(p => new Part(p).revise())));
-        })
-        .then(parts => CACHE.parts = parts.map(p => p.push({all: [...p].flat()})) )
-    ).then(() => {
-        Bey.CACHE = CACHE;   
-        let results = new Bey(Markup.replace(Search.field.value, 'search').trim(), {for: 'index'});
-        Q('#search .parts').replaceChildren(...results
-            .sort((p1, p2) => p1 instanceof Part && !(p2 instanceof Part) ? -1 : p2 instanceof Part && !(p1 instanceof Part) ? 1 : 0)
-            .flatMap(s => s instanceof Part ? {item: s} :
-                new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
-                .search({$or: [{abbr: s}, {$and: s.split(/(?=\W)/).map(t => ({all: t}))}] })
-                .slice(0, results.length > 1 ? 5 : Infinity)
-            ).map(({item}) => E(`li>button.${item.comp}.${item.line || item.group}`, 
-                Markup('cell', item.names?.chi || item.abbr),
-                {onclick: () => new Preview(['tile', 'cell'], item.path)}
-            )),
-        );
-        results = results.join('');
-        Q('#search .links').replaceChildren(...new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
-            .search(results).slice(0, 5)
-            .map(({item}) => E('li>a', item.text, {
-                classList: /(?<=parts\/\?).+?(?=[=#])/.exec(item.href)?.[0] || '',
-                href: item.href, target: item.href.startsWith('//') ? '_blank' : ''
-            })),
-            ...new Fuse(CACHE.prizes, {keys: ['name'], threshold: .51}).search(results)
-            .map(({item}) => E('li>a.prize', item.name, {
-                href: `./prize/#${item.id}`
-            }))
-        );
-        Q('#search .beys').replaceChildren(/^[a-z]x[a-z]?-?\d{2,3}$/i.test(results) 
-            && (results = results.toUpperCase().replace(/([A-Z]+)(\d+)/, '$1-$2'))
-            && (([line, no]) => parseInt(no) <= parseInt(CACHE.max[line]))(results.split('-')) ? 
-            E('li>button', results, {onclick: () => new Preview(['cell', 'image'], results)}) : ''
-        );
-    })
-}
-Object.assign(Search, {
-    field: Q('[type=search]'),
-    history: items => Q('#search .history').replaceChildren(...items.map(item => 
-        E('button', item, {onclick: () => (Search.field.value = item) && Search()})
-    )),
-    events () {
-        Search.history(Storage('history') || []);
-        Search.field.oninput = ev => {
-            clearTimeout(Search.timer);
-            Search.field.value.trim() && (Search.timer = setTimeout(Search, 500));
-            Preview.reset();
-        }
-        Q('#search').onclick = ev => {
-            if (!ev.target.matches('ol:not(.history) *')) return;
-            let history = Storage('history') || [];
-            history = [...new Set(history.toSpliced(0, 0, Search.field.value.trim()))].slice(0, 10);
-            Search.history(history);
-            Storage('history', history);
-        }
-    }
-});
-Search.events();
-
-import {Shohin} from './include/utilities.js'
-import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
-const plugins = {
-    announce: news => new O(news).each(([date, beys]) => 
-        Q('#products').append(E('time', {title: date}), ...beys.map(bey => new Shohin(bey)))
-    ),
-    followup: () => DB.get.essentials()
-        .then(([meta, parts]) => Part.import(meta.general, parts))
-        .then(() => Shohin.after())
-};
-Q('header').after(DB(plugins).then(() => {
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => 
-        entry.target.classList.toggle('seeing', entry.isIntersecting)
-    ));
-    Q('header,section,time,.scroller', el => observer.observe(el));
-    const reset = message => Promise.all([
-        DB.discard(ev => message.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
-        caches.delete('X'), caches.delete('X/parts'),
-        localStorage.clear(),
-        navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
-    ]);
-    PointerInteraction.events({
-        '.scroller,#search ol': {scroll: {x: true}},
-        '#reset': {
-            drop: {goal: 'i:last-child'},
-            drag: PI => PI.drag.to.translate({x: {
-                min: 0, max: Q('#reboot div').clientWidth - Q('#reset').clientWidth
-            }, y: false}),
-            lift: PI => PI.goal && reset(PI.target.nextElementSibling).then(() => {
-                onbeforeunload = () => scrollTo(0, 0);
-                location.reload();
-            }).catch(er => console.error(er)),
-        }
-    });
-}));
-
-(new Date/1000 - Storage('updated'))/60/60/24 > 30 && fetch('sw/?delete=parts');
-
-Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
-Q('#reboot form').onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
 Q('body>input').onkeypress = ev => {
     if ((ev.keyCode || ev.which) != 13) return;
     ev.target.value = ev.target.value.trim();
@@ -194,18 +65,4 @@ Q('body>input').onkeypress = ev => {
         return location.href = `https://www.threads.net/search?q=${/(?<=\?).+/.exec(ev.target.value.replace('#', '%23'))}`;
     return location.href = `https://${ev.target.value}`;
 }
-
-let swapped, sec = 1;
-Q('video', video => E(video).set({
-    '--crossfade': sec,
-    ontimeupdate: ev => {
-        if (swapped || ev.target.duration - ev.target.currentTime > sec) return;
-        let next = ev.target.autoplay ? ev.target.nextElementSibling : ev.target.previousElementSibling;
-        next.play();
-        next.style.opacity = 1;
-        ev.target.style.opacity = 0;
-        swapped = true;
-        setTimeout(() => swapped = false, 1000 * sec);
-    }
-}));
 </script>

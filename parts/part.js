@@ -227,7 +227,7 @@ class Cell {
         if (!names) return [];
         let limit = Cell.#limit[lang]?.at(part.path.slice(0, -1));
         let content = [...Markup('cell', names[lang] || names.eng), mode ? E('sub', mode[lang] || mode.eng) : ''];
-        return names[lang]?.length >= (typeof limit == 'number' ? limit : 99) ? [E('small', content)] : content;
+        return names[lang]?.length >= (typeof limit == 'number' ? limit : 99) ? E('small', content) : content;
     }
     static #limit = {jap: new O({blade: {CX: {lower: 5}}, bit: 7})};
 }
