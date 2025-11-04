@@ -3,8 +3,8 @@ import { Glossary } from "./utilities.js";
 
 const DB = (plugins = {}) => Object.assign(DB, {indicator: new DB.indicator, plugins});
 Object.assign(DB, {
-    current: 'X',
-    replace: (before, after) => indexedDB.databases()
+    outdate: 'V', current: 'X',
+    replace: (before = DB.outdate, after = DB.current) => indexedDB.databases()
         .then(dbs => dbs.find(db => db.name == before) && DB.open(before).then(DB.discard))
         .then(() => DB.open(after))
     ,
@@ -18,8 +18,8 @@ Object.assign(DB, {
         }))
     ,
     transfer: {
-        out: () => DB.get.all('user').then(data => sessionStorage.setItem('user', JSON.stringify(data))).catch(() => {}),
-        in: () => DB.put('user', JSON.parse(sessionStorage.getItem('user') ?? '[]').map((item, i) => ({[`sheet-${i+1}`] : item})))
+        out: () => DB.get.all('user').then(data => sessionStorage.user = JSON.stringify(data)).catch(() => {}),
+        in: () => DB.put('user', JSON.parse(sessionStorage.user ?? '[]').map((item, i) => ({[`sheet-${i+1}`] : item})))
     },
     stores: [
         'bit', 'ratchet', 'blade',
@@ -39,13 +39,10 @@ Object.assign(DB, {
         }).then(ev => {
             DB.db = ev.target.result;
             let [index, fresh] = [location.pathname == '/x/', ev.type != 'success'];
-
-            return (fresh ? DB.setup(ev).then(DB.transfer.in) : Promise.resolve())
-                .then(() => DB.fetch.updates({fresh, index})).then(DB.cache)
-                .catch(er => `${er}`.includes('Failed to fetch') ? 
-                    DB.indicator.setAttribute('state', 'offline') : console.error(er)
-                ).then(() => DB.plugins.followup?.());
-        })
+            return (fresh ? DB.setup(ev).then(DB.transfer.in) : Promise.resolve()).then(() => DB.fetch.updates({fresh, index}));
+        }).then(DB.cache)
+        .catch(er => `${er}`.includes('Failed to fetch') ? DB.indicator.classList = 'offline' : console.error(er))
+        .then(() => DB.plugins.followup?.())
     ,
     setup (ev) {
         ['product','meta','user'].forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
@@ -67,7 +64,7 @@ Object.assign(DB, {
                 (DB.plugins.include?.includes(file) ?? true) && !DB.plugins.exclude?.includes(file)
             ).map(file => 
                 fetch(`/x/db/${file}.json`)
-                .then(resp => Promise.allSettled([file, resp.json(), file == 'part-blade-collab' && DB.clear('blade','hasbro') ]))
+                .then(resp => Promise.allSettled([file, resp.json(), file == 'part-blade-collab' && DB.clear('blade','hasbro')]))
             )).then(arr => arr.map(([{value: file}, {value: json}]) => //in one transaction
                 (DB.cache.actions[file] || DB.put.parts)(json, file)
                 .then(() => Storage('DB', {[file]: Math.round(new Date / 1000)} ))
@@ -131,40 +128,39 @@ Object.assign(DB, {
         }
         update(finish) {
             finish || ++this.progress == this.total ?
-                this.setAttribute('state', 'success') : 
+                this.classList = 'success' : 
                 E(this).set({'--p': 40 - 225 * this.progress / this.total + '%'});
             this.setAttribute('progress', this.progress);
         }
         error(er) {
             console.error(...[er].flat());
-            this?.setAttribute('state', 'error');
             Q('.loading') && (Q('.loading').innerText = er);
+            this.classList = 'error';
         }
-        static observedAttributes = ['state'];
+        static observedAttributes = ['class'];
         #css = `
-            :host(:not([progress]):not([state]))::before {display:none;}
-            :host {
-                position:relative;
-                background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%);
-                background-clip:text; -webkit-background-clip:text;
-                display:block;
-            }
-            :host([style*='--hue']) {
-                background:var(--hue);
-                background-clip:text; -webkit-background-clip:text;
-            }
-            :host([title])::after {
-                content:attr(title) ' ' attr(progress);
-                position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-                color:var(--on); font-size:.9em;
-                width:4.7rem;
-            }
-            :host::before {
-                font-size:5rem; color:transparent;
-                content:'\\e006';
-            }
-            :host([state=offline])::before {content:'\\e007';}
-        `
+        :host(:not([progress]):not([class]))::before {display:none;}
+        :host {
+            position:relative;
+            background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%);
+            background-clip:text; -webkit-background-clip:text;
+            display:block;
+        }
+        :host([style*='--hue']) {
+            background:var(--hue);
+            background-clip:text; -webkit-background-clip:text;
+        }
+        :host([title])::after {
+            content:attr(title) ' ' attr(progress);
+            position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+            color:var(--on); font-size:.9em;
+            width:4.7rem;
+        }
+        :host::before {
+            font-size:5rem; color:transparent;
+            content:'\\e006';
+        }
+        :host(.offline)::before {content:'\\e007';}`
     },
 });
 Object.assign(DB.cache, {
