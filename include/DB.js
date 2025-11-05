@@ -39,8 +39,9 @@ Object.assign(DB, {
         }).then(ev => {
             DB.db = ev.target.result;
             let [index, fresh] = [location.pathname == '/x/', ev.type != 'success'];
-            return (fresh ? DB.setup(ev).then(DB.transfer.in) : Promise.resolve()).then(() => DB.fetch.updates({fresh, index}));
-        }).then(DB.cache)
+            return (fresh ? DB.setup(ev) : Promise.resolve()).then(() => ({fresh, index}));
+        })
+        .then(DB.fetch.updates).then(DB.cache)
         .catch(er => `${er}`.includes('Failed to fetch') ? DB.indicator.classList = 'offline' : console.error(er))
         .then(() => DB.plugins.followup?.())
     ,
@@ -48,7 +49,8 @@ Object.assign(DB, {
         ['product','meta','user'].forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
         DB.stores.map(s => DB.db.objectStoreNames.contains(s.toUpperCase()) || 
             DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
-        return new Promise(res => ev.target.transaction.oncomplete = res);
+        DB._tx = Object.assign(ev.target.transaction, {oncomplete: () => DB._tx = null});
+        return DB.transfer.in();
     },
     fetch: {
         updates: ({fresh, index}) => fresh && !index ||
@@ -80,9 +82,9 @@ Object.assign(DB, {
     },
     store (...stores) {
         stores = DB.store.format(stores);
-        stores.every(s => DB._tr?.objectStoreNames.contains(s)) ||
-            (DB._tr = Object.assign(DB.db.transaction(stores, 'readwrite'), {oncomplete: () => DB._tr = null}));
-        return DB._tr.objectStore(stores[0]);
+        stores.every(s => DB._tx?.objectStoreNames.contains(s)) ||
+            (DB._tx = Object.assign(DB.db.transaction(stores, 'readwrite'), {oncomplete: () => DB._tx = null}));
+        return DB._tx.objectStore(stores[0]);
     },
     get (store, key) {
         !key && ([store, key] = store.split('.').reverse());
