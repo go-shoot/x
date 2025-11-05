@@ -78,23 +78,22 @@ Object.assign(DB, {
         files = Object.keys(DB.cache.actions).filter(f => files === true ? true : files.includes(f));
         return DB.fetch.files(files).then(() => DB.indicator.update(true));
     },
-    trans: store => DB.tr = Object.assign(DB.db.transaction(DB.store.format(store), 'readwrite')),
-
-    store: store => (s => DB.trans(s).objectStore(s))(DB.store.format(store)),
-
+    store (...stores) {
+        stores = DB.store.format(stores);
+        stores.every(s => DB._tr?.objectStoreNames.contains(s)) ||
+            (DB._tr = Object.assign(DB.db.transaction(stores, 'readwrite'), {oncomplete: () => DB._tr = null}));
+        return DB._tr.objectStore(stores[0]);
+    },
     get (store, key) {
         !key && ([store, key] = store.split('.').reverse());
         /^.X$/.test(store) && (store = `blade-${store}`);
-        store == 'user' && (DB.tr = null);
         return new Promise(res => DB.store(store).get(key).onsuccess = ({target: {result}}) => res(result?.abbr ?
             {...result, comp: store.split('-')[0], ...store.includes('-') ? {line: store.split('-')[1]} : {}} : result
         ));
     },
     put: (store, items, callback) => items && new Promise(res => {
-        store == 'meta' && (DB.tr = null);
         if (!Array.isArray(items))
             return DB.store(store).put(...items.abbr ? [items] : Object.entries(items)[0].reverse()).onsuccess = () => res(callback?.());
-        DB.trans(store);
         return Promise.all(items.map(item => DB.put(store, item, callback))).then(res).catch(er => console.error(store, er));
     }),
     clear (store, value) {
@@ -111,7 +110,7 @@ Object.assign(DB, {
         }
         connectedCallback() {
             [this.progress, this.total] = [0, Storage('DB')?.count || 100];
-            Q('link[href$="common.css"]') && DB.replace('V', DB.current).then(this.callback).catch(this.error).then(Glossary);
+            Q('link[href$="common.css"]') && DB.replace().then(this.callback).catch(er => this.error(er)).then(Glossary);
         }
         attributeChangedCallback(_, __, state) {
             if (state == 'success') {
@@ -197,7 +196,6 @@ Object.assign(DB.get, {
     parts (comps) {
         let transform = comps === true;
         comps = [typeof comps == 'string' ? comps : DB.stores].flat().map(c => /^.X$/.test(c) ? `blade-${c}` : c);
-        DB.trans(comps);
         return comps.length === 1 ? 
             DB.get.all(comps[0]) : 
             Promise.all(comps.map(c => DB.get.all(c).then(parts => [c, parts])))
