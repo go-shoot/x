@@ -21,7 +21,7 @@ class Part {
     async tile () {
         let {path, stat} = this;
         !stat && this.push(await (
-            console.log(path)||path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
+            path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);

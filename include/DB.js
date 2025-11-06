@@ -109,7 +109,7 @@ Object.assign(DB, {
                 return DB.open(DB.db.version + 1);
             }
             ev.type == 'upgradeneeded' && DB.setup(ev);
-            return DB.fetch.updates({fresh: ev.oldVersion === 0, index: location.pathname == '/x/'}).then(DB.cache)
+            return DB.fetch.updates({fresh: ev.oldVersion === 0, index: location.pathname == '/x/'}).then(DB.cache.files)
                 .catch(er => `${er}`.includes('Failed to fetch') ? DB.indicator.classList = 'offline' : console.error(er))
                 .then(() => DB.plugins.followup?.())
         })
@@ -122,29 +122,40 @@ Object.assign(DB, {
         return DB.transfer.in();
     },
     fetch: {
-        updates: ({fresh, index}) => fresh && !index ||
+        updates: ({fresh, index}) => !fresh || index ? 
             fetch(`/x/db/-update.json`).then(resp => resp.json())
             .then(({news, ...files}) => {
                 index && DB.plugins.announce(news);
                 Storage('updated', Math.round(new Date / 1000));
-                return fresh || DB.cache.filter(files);
-            })
+                return fresh || DB.fetch.filter(files);
+            }) : Promise.resolve(true)
         ,
-        files: files => Promise.all(files.map(file => 
-                fetch(`/x/db/${file}.json`)
-                .then(resp => Promise.allSettled([file, resp.json(), file == 'part-blade-collab' && DB.store.clear('blade','hasbro')]))
-            )).then(arr => arr.map(([{value: file}, {value: json}]) => //in one transaction
-                (DB.cache.actions[file] || DB.put.parts)(json, file)
-                .then(() => Storage('DB', {[file]: Math.round(new Date / 1000)} ))
-                .catch(er => console.error(file, er))
-            ))
+        filter: files => [...new O(files).filter(([file, time]) => new Date(time) / 1000 > (Storage('DB')?.[file] || 0)).keys()],
+        files: files => Promise.all(files.map(DB.fetch.file))
+            .then(arr => arr.map(([{value: file}, {value: json}]) => DB.cache.file(file, json)))
+        ,
+        file: file => fetch(`/x/db/${file}.json`)
+            .then(resp => Promise.allSettled([file, resp.json(), file == 'part-blade-collab' && DB.store.clear('blade','hasbro')]))
     },
-    cache (files) {
-        if (Array.isArray(files) && !files.length) 
-            return DB.indicator.hidden = true;
-        DB.indicator.init(files);
-        files = Object.keys(DB.cache.actions).filter(f => files === true ? true : files.includes(f));
-        return DB.fetch.files(files).then(() => DB.indicator.update(true));
+    cache: {
+        actions: {
+            'part-blade': '', 'part-ratchet': '', 'part-bit': '', 'part-blade-collab': json => DB.put.parts(json, 'blade'),
+            'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(parts, `blade-${line}`))),
+            'meta': json => DB.put('meta', json),
+            'prod-equipment': json => DB.put('product', json),
+            'prod-keihin': beys => DB.put('product', {keihins: beys}),
+            'prod-beys': beys => DB.put('product', {beys: beys.map(Transform.to.RB)}),
+        },
+        files (files) {
+            if (Array.isArray(files) && !files.length) 
+                return DB.indicator.hidden = true;
+            DB.indicator.init(files);
+            files = Object.keys(DB.cache.actions).filter(f => files === true ? true : files.includes(f));
+            return DB.fetch.files(files).then(() => DB.indicator.update(true));
+        },
+        file: (file, json) => (DB.cache.actions[file] || DB.put.parts)(json, file)
+            .then(() => Storage('DB', {[file]: Math.round(new Date / 1000)} ))
+            .catch(er => console.error(file, er))
     },
     store (store) {
         store = DB.format.store(store);
@@ -160,17 +171,6 @@ Object.assign(DB, {
         Promise.all(items.map(item => DB.put(store, item, callback))) :
         items && new Promise(res => DB.store(store).put(...items.abbr ? [items] : Object.entries(items)[0].reverse())
             .onsuccess = () => res(callback?.()))
-});
-Object.assign(DB.cache, {
-    actions: {
-        'part-blade': '', 'part-ratchet': '', 'part-bit': '', 'part-blade-collab': json => DB.put.parts(json, 'blade'),
-        'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(parts, `blade-${line}`))),
-        'meta': json => DB.put('meta', json),
-        'prod-equipment': json => DB.put('product', json),
-        'prod-keihin': beys => DB.put('product', {keihins: beys}),
-        'prod-beys': beys => DB.put('product', {beys: beys.map(Transform.to.RB)}),
-    },
-    filter: files => [...new O(files).filter(([file, time]) => new Date(time) / 1000 > (Storage('DB')?.[file] || 0)).keys()],
 });
 Object.assign(DB.store, {
     clear (store, value) {

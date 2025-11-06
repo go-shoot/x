@@ -105,7 +105,9 @@ const plugins = {
     announce: news => new O(news).each(([date, beys]) => 
         Q('#products').append(E('time', {title: date}), ...beys.map(bey => new Shohin(bey)))
     ),
-    followup: () => DB.get('meta', 'parts').then(meta => Part.import(new O(meta.general)) && Shohin.after())
+    followup: () => DB.get.essentials()
+        .then(([meta, parts]) => Part.import(meta.general, parts)) //parts for search use
+        .then(() => Shohin.after())
 };
 Q('header').after(DB(plugins).then(() => {
     const observer = new IntersectionObserver(entries => entries.forEach(entry => 
