@@ -20,9 +20,10 @@ Object.assign(Parts, {
         Magnifier();
     },
     before: () => [Filter(), Sorter()],
-    display: () => DB.get.parts(/^.X$/.test(line) ? line : comp)
-        .then(parts => Promise.all(parts.map(json => new Part(json).tile())))
-        .then(parts => Parts.place.replaceChildren(...parts)),
+    display: () => Promise.all([...
+            /^.X$/.test(line) ? PARTS.blade[line].flatten(([_, abbr]) => [abbr]).values() : PARTS[comp].values()
+        ].map(part => part.tile?.()))
+        .then(parts => Parts.place.replaceChildren(...parts.filter(p => p))),
 
     after () {
         let hash = decodeURI(location.hash.substring(1));

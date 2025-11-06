@@ -49,10 +49,9 @@ Object.assign(Table, {
         typeof search == 'string' && (search = search.trim());
         if (!search) return Table.reset();
         Q('tbody tr', tr => tr.classList.add('hidden'));
-        await new Search(search).then(({beys, href}) => {
-            beys.forEach(tr => tr.classList.remove('hidden'));
-            href && setTimeout(() => Table.links(search)) && history.replaceState('', '', `?${href}`);
-        });
+        let {beys, href} = await new Search(search);
+        beys.forEach(tr => tr.classList.remove('hidden'));
+        href && setTimeout(() => Table.links(search)) && history.replaceState('', '', `?${href}`);
         FilterForm.count();
     },
     links (query) {

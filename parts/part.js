@@ -21,7 +21,7 @@ class Part {
     async tile () {
         let {path, stat} = this;
         !stat && this.push(await (
-            path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
+            console.log(path)||path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
@@ -216,11 +216,10 @@ class Cell {
     static #named = path => path[0] == 'ratchet' || Tile.named(path);
     static #onclick = ev => '';
 
-    static fill = (lang, td) => [td ?? Q('td[abbr]:not([headers=ratchet])')].flat().forEach(td => {
+    static fill = (lang, td) => [td ?? Q('td[abbr]:not([headers=ratchet])')].flat().forEach(async td => {
         if (!td) return;
         let next = td.nextElementSibling;
-        Cell.#html(lang, td.Part, JSON.parse(td.dataset.mode ?? '""'))
-            .then(name => (!next.headers ? next : td).replaceChildren(...name));
+        (next.headers ? td : next).replaceChildren(...await Cell.#html(lang, td.Part, JSON.parse(td.dataset.mode ?? null)));
     })
     static async #html (lang, part, mode) {
         let names = part.names ?? (part.path[0] == 'bit' && await part.revise('cell')).names;
