@@ -98,6 +98,7 @@ diamond-grid {
         }
         small {scale: .95 1;}
         small,span {letter-spacing: -.05em;}
+        small.tight {letter-spacing: -.15em;}
     }
     h4:lang(zh) {
         grid-area: name;

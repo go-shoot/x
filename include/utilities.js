@@ -52,7 +52,10 @@ class Keihin {
                 E('h4', {lang: 'ja'}, [
                     E('code', code || ''), 
                     E('span', jap), 
-                    E('small', {innerHTML: [ver?.[0] ?? '', only ? `（${only}）` : ''].filter(t => t).join('<br>')})
+                    E('small', {
+                        classList: ver?.[0].length > 12 ? 'tight' : '',
+                        innerHTML: [ver?.[0] ?? '', only ? `（${only}）` : ''].filter(t => t).join('<br>')
+                    })
                 ]),
             ]),
             E('h4', {lang: 'zh'}, [chi, E('small', [ver?.[1] ?? ''].filter(t => t).join(' '))]),

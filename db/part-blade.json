@@ -1,23 +1,23 @@
 {
-    "WyHv": {
+   "OrCl": {
         "group": "UX",
         "names": {
-            "jap": "ワイバーンホバー",
-            "eng": "WyvernHover",
+            "jap": "オロチクラスタ",
+            "eng": "OrochiCluster",
             "chi": ""
         },
-        "stat": ["35="],
+        "stat": [""],
         "desc": "",
-        "attr": ["def","right","UX"]
+        "attr": ["att","right"]
     },
-    "ClMr": {
+   "ClMr": {
         "group": "UX",
         "names": {
             "jap": "クロックミラージュ",
             "eng": "ClockMirage",
-            "chi": ""
+            "chi": "時鐘幽景 時鐘幻象"
         },
-        "stat": [""],
+        "stat": ["38-"],
         "desc": "產生驚異持久力的圓盤形狀六十枚刃，特化於長時間持續迴轉。",
         "attr": ["sta","right","mfb","simple"]
     },
@@ -28,7 +28,7 @@
             "eng": "SamuraiCalibur",
             "chi": "武士聖劍 武士魂斬"
         },
-        "stat": ["36="],
+        "stat": ["36-"],
         "desc": "一併擁有角度不同的大型刃及小型刃，在水平時發揮防禦、傾斜時發揮攻擊性能。",
         "attr": ["bal","right"]
     },
@@ -39,7 +39,7 @@
             "eng": "SharkScale",
             "chi": "烈鯊鱗甲 鮫鯊狂鱗"
         },
-        "stat": ["38-"],
+        "stat": ["37+"],
         "desc": "備有複數打擊部位的大型兩枚刃，特化於從低位置的強烈Upper攻擊。",
         "attr": ["att","right"]
     },
@@ -261,7 +261,7 @@
         },
         "stat": ["35+"],
         "desc": "外重心又大徑幅的五枚刃形狀，特化於産生離心力。",
-        "attr": ["sta","right","hall"]
+        "attr": ["sta","right"]
     },
     "HlHm": {
         "group": "UX",
@@ -555,7 +555,7 @@
         },
         "stat": ["36="],
         "desc": "具重量的三枚刃擅長強力地撞走對手。",
-        "attr": ["att","right","BX"],
+        "attr": ["att","right"],
         "from": "PhWn"
     },
     "TrSp": {
@@ -567,7 +567,7 @@
         },
         "stat": ["30-"],
         "desc": "",
-        "attr": ["def","right","BX"],
+        "attr": ["def","right"],
         "from": "SpCw"
     },
     "GtTc": {
@@ -575,11 +575,34 @@
         "names": {
             "jap": "ゴートタックル",
             "eng": "GoatTackle",
-            "chi": ""
+            "chi": "凶羊截擊 戰羊阻截"
         },
         "stat": ["32-"],
         "desc": "向下的八枚刃擅於抵禦從低位置而來的攻擊。",
-        "attr": ["def","right","BX"],
+        "attr": ["def","right"],
         "from": "BlSh"
+    },
+    "ShGl": {
+        "group": "BX",
+        "names": {
+            "jap": "シャークギル",
+            "eng": "SharkGill",
+            "chi": "烈鯊鰓刃"
+        },
+        "stat": ["30="],
+        "desc": "滑順圓形兩枚刃卸開對手攻擊，提高持久力。",
+        "attr": ["sta","right"],
+        "from": "ShDr"
+    },
+    "WyHv": {
+        "group": "UX",
+        "names": {
+            "jap": "ワイバーンホバー",
+            "eng": "WyvernHover",
+            "chi": ""
+        },
+        "stat": ["35="],
+        "desc": " (暫只於Hasbro產品及日本抽籤商品中出現)",
+        "attr": ["def","right"]
     }
 }
