@@ -48,7 +48,7 @@ fetch.net = req => {
         (res.status < 400 && is.cacheable(req.url) ? fetch.cache(res) : Promise.resolve(res))
         .then(res => is.html(req.url) ? Head.add(res) : res)
     ).catch(er => {
-        if (`${er}`.includes('Failed to fetch')) return;
+        if (`${er}`.includes('Failed to fetch') || req.url.includes('mp4')) return;
         console.error(req.url);
         console.error(er);
         new URL(req.url).pathname == '/' && self.registration.unregister();
@@ -71,7 +71,7 @@ const Head = {
 <link rel="icon" href="https://${location.host}/x/img/blade/CX/motif/VL.png" type="image/png">
 <link rel="manifest" href='data:application/manifest+json,${JSON.stringify(Head.manifest)}'>`,
 
-    cache: () => caches.open('X').then(cache => Promise.all([cache.add(Head.url), cache.add('/x/bg.mp4')])),
+    cache: () => caches.open('X').then(cache => Promise.all([cache.add(Head.url), cache.add('/x/parts/bg.svg')])),
 
     fetch: () => caches.match(Head.url).then(resp => resp.text()),
 
