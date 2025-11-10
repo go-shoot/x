@@ -40,13 +40,11 @@ class Indicator extends HTMLElement {
     :host(:not([progress]):not([class]))::before {display:none;}
     :host {
         position:relative;
-        background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%);
-        background-clip:text; -webkit-background-clip:text;
+        background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%) text;
         display:block;
     }
     :host([style*='--hue']) {
-        background:var(--hue);
-        background-clip:text; -webkit-background-clip:text;
+        background:var(--hue) text;
     }
     :host([title])::after {
         content:attr(title) ' ' attr(progress);
@@ -153,11 +151,10 @@ Object.assign(DB, {
         ,
         file: (file, json) => (DB.cache.actions[file] || DB.put.parts)(json, file)
             .then(() => Storage('DB', {[file]: Math.round(new Date / 1000)} ))
-            .catch(er => console.error(file, er))
     },
     store (store) {
         store = DB.format.store(store);
-        DB._tx?.objectStoreNames.contains(store) || (DB._tx = new Transaction(store, 'readwrite'));
+        DB._tx?.objectStoreNames.contains(store) || (DB._tx = new Transaction(store));
         return DB._tx.objectStore(store);
     },
     delete (store, value) {
@@ -170,13 +167,14 @@ Object.assign(DB, {
         return new Promise(res => DB.store(store).get(key)
             .onsuccess = ({target: {result}}) => res(result?.abbr ? DB.format.part(result, store) : result));
     },
-    put: (store, items, callback) => Array.isArray(items) ?
-        Promise.all(items.map(item => DB.put(store, item, callback))) :
+    put: (store, items) => Array.isArray(items) ?
+        Promise.all(items.map(item => DB.put(store, item))) :
         items && new Promise(res => DB.store(store).put(...items.abbr ? [items] : Object.entries(items)[0].reverse())
-            .onsuccess = () => res(callback?.()))
+            .onsuccess = () => res(DB.put.success()))
 });
 Object.assign(DB.put, {
-    parts: (parts, file) => DB.put(file, [...new O(parts)].map(([abbr, part]) => ({...part, abbr})), () => DB.indicator.update()),
+    parts: (parts, file) => DB.put(file, [...new O(parts)].map(([abbr, part]) => ({...part, abbr}))),
+    success: () => DB.indicator.update()
 });
 Object.assign(DB.get, {
     all: store => new Promise(res => DB.store(store).getAll()
@@ -192,7 +190,7 @@ Object.assign(DB.get, {
 const Transaction = function(txORstore) {
     return this instanceof Transaction ? 
         Transaction(DB.db.transaction(txORstore, 'readwrite')) : 
-        Object.assign(txORstore, {oncomplete: () => DB._tx = null});
+        Object.assign(txORstore, {oncomplete: () => DB._tx = null, onabort: () => DB._tx = null, onerror: () => DB._tx = null});
 };
 const Transform = {
     to: {
@@ -208,9 +206,10 @@ const Transform = {
             return OBJ;
         },
         RB ([code, type, ...rest]) {
-            type.split(' ')[0] == 'RB' ? code == DB.current ? DB.RB++ : DB.RB = 1 : DB.RB = 0;
-            DB.current = code;
-            return [DB.RB ? code + `_0${DB.RB}` : code, type, ...rest];
+            let RB = 0, current;
+            type.split(' ')[0] == 'RB' ? code == current ? RB++ : RB = 1 : RB = 0;
+            current = code;
+            return [RB ? code + `_0${RB}` : code, type, ...rest];
         }
     },
     truncate: ({comp, line, group, abbr, names}) => ({abbr,

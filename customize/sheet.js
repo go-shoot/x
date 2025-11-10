@@ -86,7 +86,7 @@ Object.assign(App, {
             gtag('event', 'export-pdf');
             open(URL.createObjectURL(new Blob([doc], { type: 'application/pdf' })))
             App.switch(location.hash);
-        }).catch(document.body.append);
+        }).catch(er => document.body.append(er) ?? console.error(er));
     },
     events () {
         PointerInteraction.events({
@@ -179,7 +179,7 @@ const Layers = {
         Layers.solo(false);
     },
     label (dataset, img) {
-        let label = E('label', dataset ? {dataset} : {}, [E('input', {type: 'radio', name: 'layer'})]);
+        let label = E.radio({label: dataset ? {dataset} : {}, name: 'layer'});
         dataset?.type == 'image' && (label.img = label.appendChild(img ?? E('img')));
         label.can = new OffscreenCanvas(MAIN.W, MAIN.H);
         label.con = label.can.getContext('2d');
@@ -221,6 +221,7 @@ const Layers = {
         (go || !Q('.solo')) && Draw();
     },
     async put (layers) {
+        DB._tx = null;
         const labels = await Promise.all(layers.map(({image, ...others}) => image ?
             E.img(image).then(img => Layers.label(others, img)) : Layers.label(others)
         ));

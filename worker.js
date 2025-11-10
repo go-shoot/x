@@ -71,7 +71,9 @@ const Head = {
 <link rel="icon" href="https://${location.host}/x/img/blade/CX/motif/VL.png" type="image/png">
 <link rel="manifest" href='data:application/manifest+json,${JSON.stringify(Head.manifest)}'>`,
 
-    cache: () => caches.open('X').then(cache => Promise.all([cache.add(Head.url), cache.add('/x/parts/bg.svg')])),
+    cache: () => caches.open('X').then(cache => Promise.all([
+        cache.add(Head.url), cache.add('/x/parts/bg.svg'), cache.add('/x/bg.mp4')
+    ])),
 
     fetch: () => caches.match(Head.url).then(resp => resp.text()),
 
