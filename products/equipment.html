@@ -84,7 +84,7 @@ class Group {
 class Board {
     constructor([classList, code, src, style]) {
         return E('li', [
-            E('code', {innerHTML: code}, {onclick: () => new Preview('image', code.split('/')[0])}),
+            E('code', {innerHTML: code, onclick: ev => new Preview('image', {code: code.split('/')[0]}, ev)}),
             E('figure>img', {
                 src: Board.src(src), alt: code, 
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
@@ -100,7 +100,8 @@ class Board {
         /^[A-Z]X[A-Z]?\d/i.test(src) ? `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/${src}.png` : 
         /^\w\//.test(src) ? `//takaratomymall.jp/img/goods/${src}.jpg` : src;
 }
-Q('main').prepend(DB().then(() => 
+Q('main').prepend(DB().then(() => {
+    DB.get('meta', 'parts').then(meta => Bey.import(meta.general)); //for preview
     (onhashchange = async () => {
         let place = Q(`#${location.hash.substring(1)}`);
         Filter.hidden = place.id == 'others';
@@ -109,5 +110,5 @@ Q('main').prepend(DB().then(() =>
             place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
         );
     })()
-));
+}));
 </script>

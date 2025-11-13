@@ -125,7 +125,6 @@ Object.assign(DB, {
             fetch(`/x/db/-update.json`).then(resp => resp.json())
             .then(({news, ...files}) => {
                 index && DB.plugins.announce(news);
-                Storage('updated', Math.round(new Date / 1000));
                 return fresh || files;
             }) : Promise.resolve(true)
         ,

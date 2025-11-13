@@ -75,7 +75,7 @@ Object.assign(Search.show, {
             .slice(0, results.length > 1 ? 5 : Infinity)
         ).map(({item}) => E(`li>button.${item.comp}.${item.line || item.group}`, 
             Markup('cell', item.names?.chi || item.abbr),
-            {onclick: () => new Preview(['tile', 'cell'], item.path)}
+            {onclick: ev => new Preview(['tile', 'cell'], {path: item.path}, ev)}
         )),
     links: query => [
         ...new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
@@ -93,7 +93,7 @@ Object.assign(Search.show, {
         query = query.toUpperCase().replace(/([A-Z]+)(\d+)/, '$1-$2');
         let [line, no] = query.split('-');
         return parseInt(no) <= parseInt(CACHE.max[line]) ? 
-            [E('li>button', query, {onclick: () => new Preview(['cell', 'image'], query)})] : [];
+            [E('li>button', query, {onclick: ev => new Preview(['cell', 'image'], {code: query}, ev)})] : [];
     },
     history: results => results.map(item => E('button', item, {onclick: () => Search(item)}))
 })
@@ -137,9 +137,16 @@ Q('header').after(DB(plugins).then(() => {
             lift: PI => PI.goal && reset(PI.target.nextElementSibling),
         }
     });
-}));
 
-(new Date/1000 - Storage('updated'))/60/60/24 > 30 && fetch('sw/?delete=parts');
+    new O({cache: 30, parts: 60}).each(([cache, days]) => 
+        cookieStore.get(`no-update-${cache}`).then(cookie => cookie || 
+            fetch(`sw/?delete=${cache}`) && cookieStore.set({
+                name: `no-update-${cache}`, value: '', 
+                expires: Date.now() + days*24*60*60*1000
+            })
+        )
+    );
+}));
 
 Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
 Q('#reboot form').onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});

@@ -44,7 +44,7 @@ Object.assign(Menu, {
     },
     current () {
         Q('nav .current')?.classList.remove('current');
-        Q('nav menu a')?.find(a => new URL(a.href, document.baseURI).href == location.href)?.classList.add('current');
+        Q('nav menu a')?.find(a => a.href == location.href)?.classList.add('current');
     },
     drag: {
         'nav menu': {
@@ -73,4 +73,12 @@ addEventListener('DOMContentLoaded', () => {
     (Q('style', [])[0] ?? Q('head').appendChild(E('style'))).innerText += new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('');
+    window.addEventListener('pageswap', ev => {
+        new URL(ev.activation.entry.url).pathname === '/x/' && 
+        (console.log('swap')??ev.viewTransition.types.add("reverse"));
+    });
+    window.addEventListener("pagereveal", ev =>
+        new URL(navigation.activation.entry.url).pathname === '/x/' && 
+        (console.log('reveal')??ev.viewTransition.types.add("reverse"))
+    );
 });

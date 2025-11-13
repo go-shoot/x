@@ -119,6 +119,24 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
     --dark: hsl(var(--hue,0),var(--sat,50%),calc(25% + var(--b-adj,0%)));
 }
 
+@view-transition {navigation: auto;}
+@keyframes move-out {
+    to {transform: translateX(calc(-100%*var(--dir,1)));}
+}
+@keyframes move-in {
+    from {transform: translateX(calc(100%*var(--dir,1)));}
+}
+::view-transition-old(root) {animation: .5s move-out;}
+::view-transition-new(root) {animation: .5s move-in;}
+@keyframes move-out-right {
+    to {transform: translateX(100%);}
+}
+@keyframes move-in-left {
+    from {transform: translateX(-100%);}
+}
+:active-view-transition-type(reverse)::view-transition-image-pair(root) {
+    --dir: -1;
+}
 html {
     background: var(--backdrop);
     --backdrop: black;--overlay1:#383838E8;--overlay2:#555555E8;
@@ -130,7 +148,6 @@ html {
 body {
     margin: 0;
     text-align: center; -webkit-text-size-adjust: 100%;
-    opacity: 1; transition: opacity .25s; @starting-style {opacity:0;}
 }
 body:has(db-state[title=更新中]) {
     pointer-events: none;

@@ -1,6 +1,6 @@
 import DB from '../include/DB.js'
 import { Part } from '../parts/part.js';
-import { Glossary, Markup, FilterForm } from '../include/utilities.js';
+import { Glossary, Markup, FilterForm, Transition } from '../include/utilities.js';
 
 let META, PARTS;
 let [comp, line] = [...new URLSearchParams(location.search)][0] ?? [];
@@ -19,7 +19,7 @@ Object.assign(Parts, {
         Parts.place = Q('section');
         Magnifier();
     },
-    before: () => [Filter(), Sorter()],
+    before: () => Promise.all([Filter(), Sorter()]),
     display: () => Promise.all([...
             /^.X$/.test(line) ? PARTS.blade[line].flatten(([_, abbr]) => [abbr]).values() : PARTS[comp].values()
         ].map(part => part.tile?.()))
@@ -93,7 +93,7 @@ Object.assign(Magnifier, {
             E(Parts.place).set({'--font': target.value});
             Storage('pref', target instanceof HTMLInputElement ? {button: target.id} : {knob: target.value});
         }
-        setTimeout(onresize = Magnifier.switch);
+        new ResizeObserver(Magnifier.switch).observe(Q('nav'));
     },
     switch: () => E(Parts.place).set({'--font': (innerWidth > 630 ? Q('continuous-knob') : Q('[name=mag]:checked')).value})
 });
@@ -101,12 +101,16 @@ Object.assign(Magnifier, {
 const Sorter = () => {
     Q('nav').append(new FilterForm.fieldset(Sorter.icons, {legend: '排序'}));
     Sorter.events();
-    Sorter.getSchedule(comp);
+    return Sorter.getSchedule(comp);
 }
 Object.assign(Sorter, {
     events: () => Q('.sorter').onchange = ({target: input}) => {
-        let sorted = [...Parts.place.children].map(tile => tile.Part).sort(Sorter.functions[input.id]);
-        Parts.place.append(...[...Parts.place.children].sort((a, b) => sorted.indexOf(a.Part) - sorted.indexOf(b.Part)));
+        Transition.swipe.pause();
+        document.startViewTransition().ready.then(() => {
+            Parts.place.append(...[...Parts.place.children]
+                .sort((a, b) => Sorter.functions[input.id](a.Part, b.Part)));
+            Transition.swipe.resume();
+        });
         input.checked && Storage('pref', {sort: input.id});
     },
     compare: (u, v, f = p => p) => +(f(u) > f(v)) || -(f(u) < f(v)),
@@ -119,7 +123,7 @@ Object.assign(Sorter, {
         weight: (p, q) => Sorter.compare(q, p, p => (w => parseInt(w) + Sorter.weight[w.at(-1)])(p.stat[0] || '0=')),
         
         time: (p, q) => Sorter.compare(p, q, p =>
-            Sorter.getSchedule()[Sorter.index.blade[p.group] ?? 0].findIndex(abbr => abbr == p.abbr) * -1
+            Sorter.schedule[Sorter.index.blade[p.group] ?? 0].findIndex(abbr => abbr == p.abbr) * -1
         )
     },
     getSchedule: comp => Sorter.schedule ?? DB.get('product', 'beys')

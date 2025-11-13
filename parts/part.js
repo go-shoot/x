@@ -128,7 +128,7 @@ class Tile extends HTMLElement {
         return `/x/parts/?${path[0]}${path[2] ? `=${path[1]}` : ''}#${from ?? path.at(-1)}`
     }
     static named = path => path[0] == 'blade' && !path[2] || ['motif', 'upper', 'hasbro'].includes(path[2]);
-    static #onclick = ev => location.pathname.includes('parts') ? new Preview('cell', ev.target.Part.path) : 
+    static #onclick = ev => location.pathname.includes('parts') ? new Preview('cell', {path: ev.target.Part.path}, ev) : 
         location.pathname.includes('products') ? Table.search(ev.target.Part.path) : '';
     static hue = {};
     static icons = new O([

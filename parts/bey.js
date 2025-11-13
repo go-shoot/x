@@ -1,6 +1,6 @@
 import DB from '../include/DB.js';
 import { Part, Cell } from './part.js';
-import { Glossary, Markup } from '../include/utilities.js';
+import { Glossary, Markup, Transition } from '../include/utilities.js';
 import Maps from '../products/maps.js';
 
 let META, PARTS;
@@ -144,18 +144,18 @@ class Search {
     static #or = abbrs => abbrs?.length ? `(?:${[abbrs].flat().filter(a => typeof a == 'string').join('|')})` : '.+?'
 }
 class Preview {
-    constructor(what, pathORcode, type) {
+    constructor(what, {path, code, type}, ev) {
         if (what == 'index')
             return [
-                ...this.#image.src('main', pathORcode),
-                ...this.#image.src('more', pathORcode, '', this.#image.params(pathORcode, type).amount),
+                ...this.#image.src('main', code),
+                ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
         Preview.reset();
-        Preview.place.showPopover();
-        [what].flat().reduce((prom, w) => prom.then(() => this[w](pathORcode)), Promise.resolve())
+        Transition.popover(ev, Preview.place);
+        [what].flat().reduce((prom, w) => prom.then(() => this[w]({path, code})), Promise.resolve())
         .then(() => Glossary(Preview.place));
     }
-    cell = path => new Search(path).then(({beys, href}) => Q('#cells').append(
+    cell = ({path}) => new Search(path).then(({beys, href}) => Q('#cells').append(
         E('table', [
             href ? E('caption>a', {href: `/x/products/?${href}`}) : '',
             Preview.thead.cloneNode(true), 
@@ -165,9 +165,9 @@ class Preview {
         })
     )).then(() => Cell.fill('chi'))
 
-    tile = path => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
+    tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
     image (tdORcode) {
-        let dataset = typeof tdORcode == 'object' ? tdORcode.dataset : {code: tdORcode};
+        let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
         Preview.place.Q('#images').append(
             E('p', Markup.spacing(Maps.note.find(dataset.code))),
@@ -207,9 +207,9 @@ class Preview {
         },
     }
     static for = {
-        table: ev => location.pathname.includes('products') ? new Preview(...
-            ev.target.matches(':first-child') ? ['image', ev.target.dataset.code] : ['tile', ev.target.Part.path]
-        ) : ''
+        table: ev => location.pathname.includes('products') ? new Preview(...ev.target.matches(':first-child') ? 
+            ['image', {code: ev.target.dataset.code}] : ['tile', {path: ev.target.Part.path}]
+        , ev) : ''
     }
     static place = Q('[popover]') || Q('body').appendChild(E('aside', {
         popover: 'auto',

@@ -36,7 +36,6 @@ const is = {
     cacheable: url => (is.internal(url) || /cdn\.?js/.test(url)) && !/\.json$/.test(new URL(url).pathname),
     stable: url => /bg.mp4$/.test(new URL(url).pathname),
     volatile: url => /\.(?:css|js|json)$|head\.html$/.test(new URL(url).pathname),
-    image: url => /\.(?:ico|svg|jpeg|jpg|png)$/.test(new URL(url).pathname),
     part: url => /img\/.+?\/.+?\.png$/.test(new URL(url).pathname),
     html: url => /(?:\/|\.html)$/.test(new URL(url).pathname),
     opaque: url => /takaratomy/.test(url) ? {mode: 'no-cors'} : 

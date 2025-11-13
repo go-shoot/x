@@ -30,9 +30,9 @@ class Shohin {
     static after = () => Q('.scroller:has(h4)', []).forEach(div => {
         let header = div.Q('h5').innerText;
         if (!/XG?-\d+/.test(header)) return;
-        let [code, cat] = header.match(/(?<=\n?).+$/)[0].split(/(?<=\d) /);
+        let [code, type] = header.match(/(?<=\n?).+$/)[0].split(/(?<=\d) /);
         let figures = div.Q('figure', []);
-        figures.push(...new Preview('index', code.replace('-', ''), cat).map(img => 
+        figures.push(...new Preview('index', {code: code.replace('-', ''), type}).map(img => 
             E('figure', [E('a', '🖼️', {href: img.src}), img])
         ));
         div.replaceChildren(
@@ -219,4 +219,37 @@ Object.assign(Markup, {
     remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? '',
     spacing: text => text?.replace(/(?<=\w)(?=[一-龢])/g, ' ').replace(/(?<=[一-龢])(?=\w)/g, ' ') ?? ''
 });
-export {FilterForm, Shohin, Keihin, Glossary, Markup}
+
+const Transition = {
+    root: Q('html'),
+    swipe: {
+        pause: () => Transition.root.style.viewTransitionName = 'none',
+        resume: () => Transition.root.style.viewTransitionName = ''
+    },
+    popover: ({clientX: x, clientY: y}, popover) => {
+        let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        Transition.swipe.pause();
+        document.startViewTransition().ready.then(() => {
+            Q('style', [])[0].innerText += `
+    ::view-transition-image-pair(root) {
+		isolation: auto;
+	}
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none;
+		mix-blend-mode: normal;
+		display: block;
+	}`;
+            popover.showPopover();
+            document.documentElement.animate({
+                clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`],
+            }, {
+                duration: 500,
+                easing: 'ease-in',
+                pseudoElement: '::view-transition-new(root)',
+            });
+        });
+        Transition.swipe.resume();
+    }
+}
+export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}
