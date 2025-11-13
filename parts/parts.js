@@ -105,11 +105,10 @@ const Sorter = () => {
 }
 Object.assign(Sorter, {
     events: () => Q('.sorter').onchange = ({target: input}) => {
-        Transition.swipe.pause();
         document.startViewTransition().ready.then(() => {
+            Transition.swipe.pause();
             Parts.place.append(...[...Parts.place.children]
                 .sort((a, b) => Sorter.functions[input.id](a.Part, b.Part)));
-            Transition.swipe.resume();
         });
         input.checked && Storage('pref', {sort: input.id});
     },

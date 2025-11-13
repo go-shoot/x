@@ -349,7 +349,7 @@ label:has(:is([type=radio],[type=checkbox]):not(:is(:checked,[name=mag]))):not(.
 }
 
 .loading::after {
-    content: '\e005' !important; font-size: 2em;
+    content: '\e005' !important; font-size: 2rem;
     display: inline-block;
     animation: spin 1s infinite;
 }

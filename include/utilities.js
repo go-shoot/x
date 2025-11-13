@@ -223,33 +223,27 @@ Object.assign(Markup, {
 const Transition = {
     root: Q('html'),
     swipe: {
-        pause: () => Transition.root.style.viewTransitionName = 'none',
+        pause: () => Q('style', [])[0].innerText += `
+        ::view-transition-image-pair(root) {
+            isolation: auto;
+        }
+        ::view-transition-old(root), ::view-transition-new(root) {
+            animation: none;
+        }`,
         resume: () => Transition.root.style.viewTransitionName = ''
     },
     popover: ({clientX: x, clientY: y}, popover) => {
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        Transition.swipe.pause();
         document.startViewTransition().ready.then(() => {
-            Q('style', [])[0].innerText += `
-    ::view-transition-image-pair(root) {
-		isolation: auto;
-	}
-	::view-transition-old(root),
-	::view-transition-new(root) {
-		animation: none;
-		mix-blend-mode: normal;
-		display: block;
-	}`;
+            Transition.swipe.pause();
             popover.showPopover();
             document.documentElement.animate({
                 clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`],
             }, {
                 duration: 500,
-                easing: 'ease-in',
                 pseudoElement: '::view-transition-new(root)',
             });
         });
-        Transition.swipe.resume();
     }
 }
 export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}
