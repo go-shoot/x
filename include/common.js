@@ -70,7 +70,7 @@ PointerInteraction.events(Menu.drag)`
 addEventListener('DOMContentLoaded', () => {
     Menu();
     Q('[popover=auto]')?.addEventListener('click', ev => ev.currentTarget.hidePopover());
-    (Q('style', [])[0] ?? Q('head').appendChild(E('style'))).innerText += new O(LINES).flatMap(([line, {color}]) => 
+    Q('head').appendChild(E('style')).innerText += new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('');
     window.addEventListener('pageswap', ev => {

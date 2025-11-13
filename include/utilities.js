@@ -237,7 +237,7 @@ const Transition = {
         document.startViewTransition().ready.then(() => {
             Transition.swipe.pause();
             popover.showPopover();
-            document.documentElement.animate({
+            Transition.root.animate({
                 clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`],
             }, {
                 duration: 500,
