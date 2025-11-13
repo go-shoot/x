@@ -73,12 +73,4 @@ addEventListener('DOMContentLoaded', () => {
     Q('head').appendChild(E('style')).innerText += new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('');
-    window.addEventListener('pageswap', ev => {
-        new URL(ev.activation.entry.url).pathname === '/x/' && 
-        (console.log('swap')??ev.viewTransition.types.add("reverse"));
-    });
-    window.addEventListener("pagereveal", ev =>
-        new URL(navigation.activation.entry.url).pathname === '/x/' && 
-        (console.log('reveal')??ev.viewTransition.types.add("reverse"))
-    );
 });

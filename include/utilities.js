@@ -223,13 +223,9 @@ Object.assign(Markup, {
 const Transition = {
     root: Q('html'),
     swipe: {
-        pause: () => Q('style', [])[0].innerText += `
-        ::view-transition-image-pair(root) {
-            isolation: auto;
-        }
-        ::view-transition-old(root), ::view-transition-new(root) {
-            animation: none;
-        }`,
+        pause: () => Transition.swipe.done || (Q('style', [])[0].innerText += `
+        ::view-transition-image-pair(root) {isolation: auto;}
+        ::view-transition-old(root),::view-transition-new(root) {animation: none;}`) && (Transition.swipe.done = true),
         resume: () => Transition.root.style.viewTransitionName = ''
     },
     popover: ({clientX: x, clientY: y}, popover) => {

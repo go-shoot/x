@@ -120,23 +120,18 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 }
 
 @view-transition {navigation: auto;}
-@keyframes move-out {
-    to {transform: translateX(calc(-100%*var(--dir,1)));}
+@keyframes exit {
+    to {transform: translate(calc(var(--x)*100%), calc(var(--y)*100%));}
 }
-@keyframes move-in {
-    from {transform: translateX(calc(100%*var(--dir,1)));}
+@keyframes enter {
+    from {transform: translate(calc(var(--x)*-100%), calc(var(--y)*-100%));}
 }
-::view-transition-old(root) {animation: .5s move-out;}
-::view-transition-new(root) {animation: .5s move-in;}
-@keyframes move-out-right {
-    to {transform: translateX(100%);}
-}
-@keyframes move-in-left {
-    from {transform: translateX(-100%);}
-}
-:active-view-transition-type(reverse)::view-transition-image-pair(root) {
-    --dir: -1;
-}
+::view-transition-old(root) {animation: .5s exit;}
+::view-transition-new(root) {animation: .5s enter;}
+::view-transition-image-pair(root) {--x: -1; --y: 0;}
+:active-view-transition-type(right)::view-transition-image-pair(root) {--x: 1; --y: 0;}
+:active-view-transition-type(up)::view-transition-image-pair(root) {--x: 0; --y: -1;}
+:active-view-transition-type(down)::view-transition-image-pair(root) {--x: 0; --y: 1;}
 html {
     background: var(--backdrop);
     --backdrop: black;--overlay1:#383838E8;--overlay2:#555555E8;

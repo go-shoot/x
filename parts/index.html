@@ -64,4 +64,8 @@ PointerInteraction.events({
         drag: PI => Math.abs(PI.$drag.dy) > 30 && PI.target.parentElement.classList[PI.$drag.dy > 0 ? 'add' : 'remove']('showing')
     }
 });
+window.addEventListener('pageswap', ev => {
+    ev.viewTransition.types.add('up');
+    console.log(ev.activation.entry.url,ev.activation.from.url,[...ev.viewTransition.types]);
+});
 </script>
