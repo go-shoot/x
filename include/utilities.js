@@ -235,6 +235,7 @@ const Transition = {
     popover: ({clientX: x, clientY: y}, popover) => {
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
         document.startViewTransition().ready.then(() => {
+            Q('section')?.classList.add('under');
             Transition.swipe.pause();
             popover.showPopover();
             Transition.root.animate({

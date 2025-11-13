@@ -69,7 +69,7 @@ PointerInteraction.events(Menu.drag)`
 
 addEventListener('DOMContentLoaded', () => {
     Menu();
-    Q('[popover=auto]')?.addEventListener('click', ev => ev.currentTarget.hidePopover());
+    Q('[popover=auto]')?.addEventListener('click', ev => ev.currentTarget.hidePopover() ?? Q('.under')?.classList.remove('under'));
     Q('head').appendChild(E('style')).innerText += new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('');

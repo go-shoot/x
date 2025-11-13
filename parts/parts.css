@@ -4,7 +4,9 @@ x-part { /* :host doesn't work*/
 ::view-transition-group(.part) {animation-duration: 1s;}
 section {
     font-size: calc(var(--font,1.2)*1em); 
-    padding: 2rem 0; 
+    padding: 2rem 0;
+    transition: opacity .5s;
+    &.under {opacity: 0;}
 }
 details {
     position: relative; 
