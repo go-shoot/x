@@ -105,11 +105,12 @@ const Sorter = () => {
 }
 Object.assign(Sorter, {
     events: () => Q('.sorter').onchange = ({target: input}) => {
-        document.startViewTransition().ready.then(() => {
-            Transition.swipe.pause();
-            Parts.place.append(...[...Parts.place.children]
-                .sort((a, b) => Sorter.functions[input.id](a.Part, b.Part)));
-        });
+        Transition.swipe.pause();
+        let tr = document.startViewTransition();
+        tr.ready.then(() => Parts.place.append(...
+            [...Parts.place.children].sort((a, b) => Sorter.functions[input.id](a.Part, b.Part))
+        ));
+        tr.finished.then(Transition.swipe.resume);
         input.checked && Storage('pref', {sort: input.id});
     },
     compare: (u, v, f = p => p) => +(f(u) > f(v)) || -(f(u) < f(v)),

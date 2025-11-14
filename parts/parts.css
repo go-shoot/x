@@ -1,6 +1,3 @@
-x-part { /* :host doesn't work*/
-    view-transition-name: match-element; view-transition-class: part;
-}
 ::view-transition-group(.part) {animation-duration: 1s;}
 section {
     font-size: calc(var(--font,1.2)*1em); 

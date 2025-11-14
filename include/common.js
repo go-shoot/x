@@ -30,7 +30,8 @@ html::before {
 })();
 
 const Menu = () => {
-    if (!Q('nav')) return;
+    [Menu.nav, Menu.menu] = [Q('nav'), Q('nav menu')];
+    if (!Menu.nav) return;
     Menu.config();
     Menu.script();
     Menu.current();
@@ -38,9 +39,10 @@ const Menu = () => {
 }
 Object.assign(Menu, {
     config () {
-        Q('nav').classList.toggle('bottom', !!Storage('pref')?.bottom);
-        Q('nav').classList.toggle('right', !!Storage('pref')?.right);
-        Q('nav menu')?.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
+        sessionStorage.menu = Menu.menu.Q('a[href]', []).map(a => a.pathname + a.search);
+        Menu.nav.classList.toggle('bottom', !!Storage('pref')?.bottom);
+        Menu.nav.classList.toggle('right', !!Storage('pref')?.right);
+        Menu.menu?.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
     },
     current () {
         Q('nav .current')?.classList.remove('current');
@@ -49,12 +51,12 @@ Object.assign(Menu, {
     drag: {
         'nav menu': {
             drag: PI => {
-                PI.drag.to.translate({x: false, y: Q('nav.bottom') ? 
+                PI.drag.to.translate({x: false, y: Menu.nav.classList.contains('bottom') ? 
                     {min: PI.target.parentElement.offsetHeight - PI.target.offsetTop - PI.target.offsetHeight + 4} : 
                     {max: PI.target.offsetTop * -1 - 4} 
                 });
                 PI.drag.to.select(
-                    {y: Q('nav.bottom') ? innerHeight : 0}, 
+                    {y: Menu.nav.classList.contains('bottom') ? innerHeight : 0}, 
                     [...PI.target.children].filter(child => !child.matches(':has(.current),:last-child'))
                 );
             },

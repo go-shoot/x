@@ -223,16 +223,18 @@ Object.assign(Markup, {
 const Transition = {
     root: Q('html'),
     swipe: {
-        pause: () => Transition.swipe.done || (Q('style', [])[0].innerText += `
+        pause: () => document.head.appendChild(E('style#transition', `
         ::view-transition-image-pair(root) {isolation: auto;}
-        ::view-transition-old(root),::view-transition-new(root) {animation: none;}`) && (Transition.swipe.done = true),
-        resume: () => Transition.root.style.viewTransitionName = ''
+        ::view-transition-old(root),::view-transition-new(root) {animation: none;}
+        x-part {view-transition-name: match-element; view-transition-class: part;}`)),
+        resume: () => Q('#transition').remove()
     },
     popover: ({clientX: x, clientY: y}, popover) => {
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        document.startViewTransition().ready.then(() => {
+        Transition.swipe.pause();
+        let tr = document.startViewTransition();
+        tr.ready.then(() => {
             Q('section')?.classList.add('under');
-            Transition.swipe.pause();
             popover.showPopover();
             Transition.root.animate({
                 clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`],
@@ -241,6 +243,7 @@ const Transition = {
                 pseudoElement: '::view-transition-new(root)',
             });
         });
+        tr.finished.then(Transition.swipe.resume);
     }
 }
 export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}
