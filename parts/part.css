@@ -10,7 +10,7 @@
     opacity: 1 !important; transition: opacity .5s;
 
     &::after,object {
-        position: absolute; right: 0; z-index: -1;
+        position: absolute; inset: 0; z-index: -1;
     }
     h4,h5,dd {text-shadow: 0 0 .05rem,0 0 .05rem black;}
 }
@@ -21,19 +21,18 @@
 }
 @keyframes highlight {from {filter:brightness(300%);} }
 :host(.bsb)::after {
-    content: url(../img/reincarnated.svg#bsb); 
-    width: 10em;
-    transform: rotate(-135deg) translate(-.15em,1.9em);
+    --reincar2: url(../img/reincarnated.svg#bsb) no-repeat center / 70%;
 }
 :host(.mfb)::after {
-    content: url(../img/reincarnated.svg#mfb); 
-    width: 9em;
-    transform: translate(2em,-1.6em) rotate(15deg);
+    --reincar1: url(../img/reincarnated.svg#mfb) no-repeat 50% 74.8% / 60%;
 }
 :host(.bbb)::after {
     content: url(../img/reincarnated.svg#bbb); 
-    width: 9em;
-    transform: translate(2em,-1.6em) rotate(15deg);
+}
+:host::after {
+    content: '';
+    background: var(--reincar1,linear-gradient(transparent)), var(--reincar2,linear-gradient(transparent));
+    transform: rotate(225deg) translate(0,5.43em);
 }
 :host img {
     filter: drop-shadow(0 0 .1rem var(--on));
