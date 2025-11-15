@@ -151,7 +151,7 @@ class Preview {
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
         Preview.reset();
-        Transition.popover(ev, Preview.place);
+        Transition.popover('show', ev, Preview.place);
         [what].flat().reduce((prom, w) => prom.then(() => this[w]({path, code})), Promise.resolve())
         .then(() => Glossary(Preview.place));
     }
@@ -211,9 +211,9 @@ class Preview {
             ['image', {code: ev.target.dataset.code}] : ['tile', {path: ev.target.Part.path}]
         , ev) : ''
     }
-    static place = Q('[popover]') || Q('body').appendChild(E('aside', {
+    static place = Q('dialog') || Q('body').appendChild(E('dialog', {
         popover: 'auto',
-        onclick: ev => ev.target.closest('[popover]')?.hidePopover()
+        onclick: ev => Transition.popover('hide', ev, ev.currentTarget)
     }, [E('div#cells'), E('div#tiles'), E('div#images')]));
     static thead = E('thead>tr', [
         E('th', 'No'), 

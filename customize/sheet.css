@@ -201,8 +201,7 @@ form {
     #control-color[hidden]~#control .color {display: none;}
 }
 
-[popover]:popover-open {
-    display: block !important;
+dialog {
     padding: 1em .5em;
 
     * {width: 100%;}

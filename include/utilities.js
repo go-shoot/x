@@ -117,6 +117,32 @@ const FilterForm = {
     count () {this.form.count.value = [...this.targets].filter(el => !el.matches('.hidden,[hidden]')).length},
 }
 
+const Transition = {
+    root: Q('html'),
+    swipe: {
+        pause: () => document.head.appendChild(E('style#transition', `
+        ::view-transition-image-pair(root) {isolation: auto;}
+        ::view-transition-old(root),::view-transition-new(root) {animation: none;}
+        x-part {view-transition-name: match-element; view-transition-class: part;}`)),
+        resume: () => Q('#transition').remove()
+    },
+    popover: (action, {clientX: x, clientY: y}, popover) => {
+        let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        Transition.swipe.pause();
+        let tr = document.startViewTransition();
+        tr.ready.then(() => {
+            action == 'show' ? popover.showPopover() : popover.hidePopover();
+            let frames = [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`];
+            action == 'hide' && frames.reverse();
+            Transition.root.animate({clipPath: frames}, {
+                duration: 300,
+                pseudoElement: `::view-transition-${action == 'show' ? 'new' : 'old'}(root)`,
+            });
+        });
+        tr.finished.then(Transition.swipe.resume);
+    }
+}
+
 const Glossary = async (where = document) => {
     if (!Q('#glossary')) {
         addEventListener('click', ev => {
@@ -220,30 +246,4 @@ Object.assign(Markup, {
     spacing: text => text?.replace(/(?<=\w)(?=[一-龢])/g, ' ').replace(/(?<=[一-龢])(?=\w)/g, ' ') ?? ''
 });
 
-const Transition = {
-    root: Q('html'),
-    swipe: {
-        pause: () => document.head.appendChild(E('style#transition', `
-        ::view-transition-image-pair(root) {isolation: auto;}
-        ::view-transition-old(root),::view-transition-new(root) {animation: none;}
-        x-part {view-transition-name: match-element; view-transition-class: part;}`)),
-        resume: () => Q('#transition').remove()
-    },
-    popover: ({clientX: x, clientY: y}, popover) => {
-        let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        Transition.swipe.pause();
-        let tr = document.startViewTransition();
-        tr.ready.then(() => {
-            Q('section')?.classList.add('under');
-            popover.showPopover();
-            Transition.root.animate({
-                clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`],
-            }, {
-                duration: 500,
-                pseudoElement: '::view-transition-new(root)',
-            });
-        });
-        tr.finished.then(Transition.swipe.resume);
-    }
-}
 export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}

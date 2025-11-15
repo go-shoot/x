@@ -1,4 +1,4 @@
-::view-transition-group(.part) {animation-duration: 1s;}
+::view-transition-group(.part) {animation-duration: .5s;}
 section {
     font-size: calc(var(--font,1.2)*1em); 
     padding: 2rem 0;
