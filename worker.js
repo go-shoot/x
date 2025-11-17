@@ -22,7 +22,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
             if (`${er}`.includes('Failed to fetch')) return;
             console.error(req.url);
             console.error(er);
-            new URLPattern({hostname: location.host, pathname: '/'}).test(url) && self.registration.unregister();
+            new URLPattern({hostname: location.host, pathname: '/'}).test(req.url) && self.registration.unregister();
         });
 })()));
 
