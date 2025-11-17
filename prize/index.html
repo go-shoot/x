@@ -13,7 +13,9 @@
 </nav>
 
 <main>
-    <diamond-grid class="loading"></diamond-grid>
+    <a href="#bits" class="bit">Bits</a>
+    <diamond-grid id="beys" class="loading"></diamond-grid>
+    <diamond-grid id="bits"></diamond-grid>
 </main>
 
 <script type="module">
@@ -25,7 +27,13 @@ Object.assign(Prize, {
     before: () => Promise.all([DB.get.essentials(), DB.get('product', 'keihins')])
         .then(([[meta, parts], keihins]) => Bey.import(meta.general, parts) && keihins),
 
-    display: keihins => Q('diamond-grid').append(...Prize.all = keihins.map(k => new Keihin(k))),
+    display (keihins) {
+        let beys = keihins.filter(({bey}) => !bey.startsWith('/ /')).map(k => new Keihin(k));
+        let bits = keihins.filter(({bey}) => bey.startsWith('/ /')).map(k => new Keihin(k));
+        Prize.all = [...beys, ...bits];
+        Q('#beys').append(...beys);
+        Q('#bits').append(...bits);
+    },
     after () {
         Prize.filter();
         Prize.event();

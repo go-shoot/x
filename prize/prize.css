@@ -33,6 +33,13 @@ label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
 }
 @keyframes highlight {from {filter:brightness(300%);} }
 
+:is(.ratchet,.bit)::before {
+    content: '';
+    width: 1.4em; height: 1.4em; display: inline-block;
+    vertical-align: text-top;
+    background: var(--img) center / contain no-repeat !important;
+    filter: saturate(0) brightness(99);
+}
 diamond-grid {
     font-size: .8em;
     --side: 20em; --gap: .5em;
