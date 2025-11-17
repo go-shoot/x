@@ -16,12 +16,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
             let fetched = fetch.net(req);
             cached || (fetched = await fetched);
             return is.html(req.url) ? Head.add(cached || fetched) : cached || fetched;
-        }).catch(er => {
-            if (`${er}`.includes('Failed to fetch')) return;
-            console.error(req.url);
-            console.error(er);
-            new URLPattern({hostname: location.host, pathname: '/'}).test(req.url) && self.registration.unregister();
-        });
+        })
 })()));
 
 const actions = ([field, value]) => (actions[field]?.[value] ?? actions[field]?._)?.(value)
@@ -61,7 +56,12 @@ fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(
         let cloned = res.clone();
         caches.open(is.part(res.url) ? 'X/parts' : 'X').then(cache => cache.put(to.stripped(res), cloned)); 
         return res;
-    });
+    }).catch(er => {
+        if (`${er}`.includes('Failed to fetch')) return;
+        console.error(req.url);
+        console.error(er);
+        new URLPattern({hostname: location.host, pathname: '/'}).test(req.url) && self.registration.unregister();
+    });;
 
 const Head = {
     url: '/x/include/head.html',
