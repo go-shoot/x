@@ -19,7 +19,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
         })
 })()));
 
-const actions = ([field, value]) => (actions[field]?.[value] ?? actions[field]?._)?.(value)
+const actions = ([key, value]) => (actions[key]?.[value] ?? actions[key]?._)?.(value)
     .then(() => new Response('', {status: 200}))
     .catch(er => console.error(er) ?? new Response('', {status: 400})) 
     ?? new Response('', {status: 404});
