@@ -147,6 +147,7 @@ const Controls = {
             return Q('continuous-knob', knob => knob.classList.toggle('fine', ev.target.checked));
         if (!Layers.selected || !ev.target.name) return;
         Layers.selected.dataset[ev.target.name] = ev.target.value;
+        Layers.selected.dirty = true;
         Draw();
     },
     image (ev) {
@@ -156,6 +157,7 @@ const Controls = {
         reader.readAsDataURL(ev.target.files[0]);
         reader.onload = () => E.img(reader.result).then(img => {
             Layers.selected.Q('img').replaceWith(Layers.selected.img = img);
+            Layers.selected.dirty = true;
             Draw();
         });
         reader.onloadend = () => {
@@ -183,6 +185,7 @@ const Layers = {
         dataset?.type == 'image' && (label.img = label.appendChild(img ?? E('img')));
         label.can = new OffscreenCanvas(MAIN.W, MAIN.H);
         label.con = label.can.getContext('2d');
+        label.dirty = true;
         return label;
     },
     switch (ev) {
@@ -238,10 +241,10 @@ const Draw = all => {
     Draw.clear();
     [...Layers.labels].reverse().forEach(label => {
         if (all || Layers.selected === label) {
-            label.img?.src && Draw.image(label);
+            label.img?.src && label.dirty && Draw.image(label);
             label.dataset.type == 'color' && Draw.color(label);
         }
-        (!Q('.solo') || label.control.checked) && MAIN.con.drawImage(label.can, 0, 0);
+        (!Q('.solo') || label.control.checked) && MAIN.con.drawImage(label.bitmap ?? label.can, 0, 0);
     });
     Draw.frame();
     App.timer = setTimeout(App.save, 1000);
@@ -265,13 +268,18 @@ Object.assign(Draw, {
         return {x: Math.round(-x-drawing.hW), y: Math.round(-y-drawing.hH), W: drawing.W, H: drawing.H};
     },
     image (label) {
-        let {img, con, dataset: {sc, ro, st, x, y, opacity}} = label, W, H;
+        let {img, can, con, dataset: {sc, ro, st, x, y, opacity}} = label, W, H;
         Draw.clear(con);
         con.save();
         ({x, y, W, H} = Draw.transform(con, {sc, ro, st, x, y}, img));
         con.globalAlpha = opacity ?? 1;
 		con.drawImage(img, x, y, W, H);
         con.restore();
+        label.bitmap = null;
+        createImageBitmap(can).then(bm => {
+            label.bitmap = bm;
+            label.dirty = false;
+        });
     },
     color (label) {
         let {con, dataset: {gradient: type, sk, sc, ro, x, y, angle}} = label;

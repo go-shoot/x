@@ -136,6 +136,7 @@ const Transition = {
             action == 'hide' && frames.reverse();
             Transition.root.animate({clipPath: frames}, {
                 duration: 300,
+                easing: 'ease-in-out',
                 pseudoElement: `::view-transition-${action == 'show' ? 'new' : 'old'}(root)`,
             });
         });
