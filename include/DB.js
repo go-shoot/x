@@ -4,7 +4,7 @@ class Indicator extends HTMLElement {
     constructor(callback) {
         super();
         this.callback = callback;
-        this.attachShadow({mode: 'open'}).append(E('style', this.#css));
+        Indicator.#css.then(css => this.attachShadow({mode: 'open'}).adoptedStyleSheets = [css]);
     }
     connectedCallback() {
         [this.progress, this.total] = [0, Storage('DB')?.count || 100];
@@ -36,7 +36,7 @@ class Indicator extends HTMLElement {
         this.classList = 'error';
     }
     static observedAttributes = ['class'];
-    #css = `
+    static #css = new CSSStyleSheet().replace(`
     :host(:not([progress]):not([class]))::before {display:none;}
     :host {
         position:relative;
@@ -56,7 +56,7 @@ class Indicator extends HTMLElement {
         font-size:5rem; color:transparent;
         content:'\\e006';
     }
-    :host(.offline)::before {content:'\\e007';}`
+    :host(.offline)::before {content:'\\e007';}`);
 };
 customElements.define('db-state', Indicator);
 
