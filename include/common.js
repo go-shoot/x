@@ -55,10 +55,8 @@ Object.assign(Menu, {
                     {min: PI.target.parentElement.offsetHeight - PI.target.offsetTop - PI.target.offsetHeight + 4} : 
                     {max: PI.target.offsetTop * -1 - 4} 
                 });
-                PI.drag.to.select(
-                    {y: Menu.nav.classList.contains('bottom') ? innerHeight : 0}, 
-                    [...PI.target.children].filter(child => !child.matches(':has(.current),:last-child'))
-                );
+                PI.drag.to.select({y: Menu.nav.classList.contains('bottom') ? innerHeight : 0})
+                    .from([...PI.target.children].filter(child => !child.matches(':has(.current),:last-child')));
             },
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
         }
