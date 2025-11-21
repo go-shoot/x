@@ -61,10 +61,7 @@ Object.assign(Menu, {
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
         }
     },
-    script: () => document.head.append(E('script', {type: 'module'}, `
-import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
-PointerInteraction.events(Menu.drag)` 
-    ))
+    script: () => import('https://aeoq.github.io/pointer-interaction/script.js').then(({default: PI}) => PI.events(Menu.drag))
 });
 
 addEventListener('DOMContentLoaded', () => {
