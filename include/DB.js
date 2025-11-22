@@ -211,7 +211,8 @@ const Transform = {
             return [RB ? code + `_0${RB}` : code, type, ...rest];
         }
     },
-    truncate: ({comp, line, group, abbr, names}) => ({abbr,
+    truncate: ({comp, line, group, abbr, names, attr}) => ({
+        abbr, attr, //attr for fusion cell
         ...names ? {names} : {}, 
         ...comp == 'blade' ? {line, group} : {}, //line, group: for path 
     })

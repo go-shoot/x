@@ -207,14 +207,11 @@ class Cell {
             abbr: path.at(-1), 
             innerText: path.at(-1) || '', 
             ...attr?.includes('fusion') ? {classList: 'fusion'} : {},
-            onclick: Cell.#onclick
         });
-        tds[0].Part = Part;
-        tds[1] && E(Object.assign(tds[1], {Part})).set({onclick: tds[0].onclick});
+        tds.forEach(td => td && (td.Part = Part));
         return tds;
     }
     static #named = path => path[0] == 'ratchet' || Tile.named(path);
-    static #onclick = ev => '';
 
     static fill = (lang, td) => [td ?? Q('td[abbr]:not([headers=ratchet])')].flat().forEach(async td => {
         if (!td) return;
