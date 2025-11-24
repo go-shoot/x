@@ -12,7 +12,7 @@ const LINES = {
     const unsupported = document.head.appendChild(document.createElement('style'));
     unsupported.textContent = `
 html::before {
-    content: '請重新整理\\A如問題持續，需更新／換瀏覽器\\A' attr(title);
+    content: '請重新整理\\A如問題持續，需更新／換瀏覽器／iOS 系統\\A' attr(title);
     color: white; transition: color .5s 1.5s;
     font-size: 3em; white-space: pre-wrap;
     display: flex; justify-content: center; align-items: center;
@@ -26,10 +26,7 @@ html::before {
         if (!document.querySelector('link[href$="common.css"]')) return Promise.reject();
         document.title += ' ■ 戰鬥陀螺 X⬧爆旋陀螺 X⬧ベイブレード X⬧Beyblade X';
         unsupported.remove();
-    }).catch(er => (sessionStorage.reloaded ||= 0) < 2 ? 
-        ++sessionStorage.reloaded && setTimeout(() => location.reload(), 500) : 
-        document.documentElement.title = er
-    );
+    }).catch(() => (sessionStorage.reloaded ||= 0) < 2 && ++sessionStorage.reloaded && setTimeout(() => location.reload(), 500));
 })();
 
 const Menu = () => {
