@@ -4,7 +4,13 @@
             "jap": {
                 "blade": {
                     "_": "ブレード", 
-                    "CX": {"motif": {"_": "ロックチップ"}, "upper": {"_": "メインブレード"}, "lower": {"_": "アシストブレード"}}
+                    "CX": {
+                        "motif": {"_": "ロックチップ"},
+                        "upper_m": {"_": "メインブレード"},
+                        "lower_p": {"_": "アシストブレード"},
+                        "upper_p": {"_": "オーバーブレード"},
+                        "lower_m": {"_": "メタルブレード"}
+                    }
                 },
                 "ratchet": {"_": "ラチェット"},
                 "bit": {"_": "ビット"}
@@ -51,14 +57,18 @@
                 "CX": {
                     "group": {
                         "motif": {"label": "Chip"},
-                        "upper": {"label": "Main", "checked": true},
-                        "lower": {"label": "Assist"},
+                        "upper_m": {"label": "Main", "checked": true},
+                        "lower_p": {"label": "Assist"},
+                        "upper_p": {"label": "Over"},
+                        "lower_m": {"label": "Metal"},
                         "hasbro": {"label": "未出"}
                     },
                     "title": {
                         "motif": "【CX】紋章鎖⬧鎖定紋章⬧Lock Chip",
-                        "upper": "【CX】主刃⬧主要戰刃⬧Main Blade",
-                        "lower": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
+                        "upper_m": "【CX】主刃⬧主要戰刃⬧Main Blade",
+                        "lower_p": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
+                        "upper_p": "【CX】刃⬧戰刃⬧Over Blade",
+                        "lower_m": "【CX】刃⬧戰刃⬧Metal Blade",
                         "hasbro": "【CX】未出"
                     },
                     "multiple": false

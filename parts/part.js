@@ -19,11 +19,11 @@ class Part {
     get path () {return this.#path ??= [this.constructor.name.toLowerCase(), this.abbr];}
 
     async tile () {
+        await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         let {path, stat} = this;
         !stat && this.push(await (
             path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
-        await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
     }
     cell () {return new Cell(this);}
@@ -39,8 +39,14 @@ class Part {
 class Blade extends Part {
     #path;
     constructor(json) {super(json);}
+    revise () {return super.revise(Blade.revisions);}
+    revised = {
+        classes: () => this.group,
+        group: () => this.group.split('_')[0]
+    }
     get path () {return this.#path ??= this.line ? ['blade', this.line, this.group, this.abbr] : super.path;}
     static sub = ['motif', 'upper', 'lower'];
+    static revisions = ['classes', 'group']
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
@@ -80,7 +86,7 @@ class Bit extends Part {
 class Tile extends HTMLElement {
     constructor(Part) {
         super();
-        let {path, group, attr} = Part;
+        let {path, group, attr, classes} = Part;
         this.Part = Part;
         this.attachShadow({mode: 'open'}).append(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
@@ -88,7 +94,7 @@ class Tile extends HTMLElement {
         );
         E(this).set({
             id: path.at(-1),
-            classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
+            classList: [...path.slice(0, -1), group, classes, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
             style: {opacity: 0},
             hidden: true,
             onclick: Tile.#onclick
