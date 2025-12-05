@@ -19,11 +19,12 @@ class Part {
     get path () {return this.#path ??= [this.constructor.name.toLowerCase(), this.abbr];}
 
     async tile () {
-        await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
+        this.constructor.name == 'Blade' && this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         let {path, stat} = this;
         !stat && this.push(await (
             path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
+        this.constructor.name != 'Blade' && await this.revise('tile');
         return new Tile(this);
     }
     cell () {return new Cell(this);}
@@ -39,26 +40,33 @@ class Part {
 class Blade extends Part {
     #path;
     constructor(json) {super(json);}
-    revise () {return super.revise(Blade.revisions);}
+    revise (where) {
+        return super.revise(Blade.revisions[where]);
+    }
     revised = {
         classes: () => this.group,
-        group: () => this.group.split('_')[0]
+        group: () => this.group?.split('_')[0]
     }
     get path () {return this.#path ??= this.line ? ['blade', this.line, this.group, this.abbr] : super.path;}
+    static revisions = {tile: ['classes', 'group'], cell: ['group']};
     static sub = ['motif', 'upper', 'lower'];
-    static revisions = ['classes', 'group']
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
-    revise (where = 'tile') {return super.revise(Ratchet.revisions[where], {stat: [, ...this.abbr.split('-')]});}
+    revise (where = 'tile') {
+        return super.revise(Ratchet.revisions[where], where == 'tile' && {stat: [, ...this.abbr.split('-')]});
+    }
     revised = {
         ...this.revised,
         group: () => META.ratchet.height.find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
-        names: () => ({ eng: (([blade, height]) => [
-            Ratchet.eng.digit[blade] ?? blade, 
-            Ratchet.eng.tens[Math.floor(height / 10)], 
-            Ratchet.eng.digit[height % 10 || ''] ?? ''
-        ].join(' '))(this.abbr.split('-')) })
+        names: () => {
+            let [blade, height] = this.abbr.split('-');
+            return {eng: [
+                Ratchet.eng.digit[blade] ?? blade, 
+                Ratchet.eng.tens[Math.floor(height / 10)], 
+                Ratchet.eng.digit[height % 10 || ''] ?? ''
+            ].filter(w => w).join(' ')}
+        }
     }
     static revisions = {tile: ['group', 'names', 'stat']};
     static eng = {
@@ -202,6 +210,7 @@ customElements.define('x-part', Tile);
 
 class Cell {
     constructor(Part) {
+        Part.revise('cell');
         let {path, attr} = Part;
         let tds = [E('td'), !Cell.#named(path) ? E('td') : ''];
         E(tds[0]).set({
@@ -225,7 +234,7 @@ class Cell {
         (next.headers ? td : next).replaceChildren(...await Cell.#html(lang, td.Part, JSON.parse(td.dataset.mode ?? null)));
     })
     static async #html (lang, part, mode) {
-        let names = part.names ?? (part.path[0] == 'bit' && await part.revise('cell')).names;
+        let {names} = part;
         if (!names) return [];
         let limit = Cell.#limit[lang]?.at(part.path.slice(0, -1));
         let content = [...Markup('cell', names[lang] || names.eng), mode ? E('sub', mode[lang] || mode.eng) : ''];
