@@ -10,7 +10,7 @@ class Part {
     #path;
     constructor(json = {names: {}}) {
         this.push({...new O(json)});
-        return this.constructor.name == 'Part' ? new Part[this.comp](json) : this;
+        return this.constructor == Part ? new Part[this.comp](json) : this;
     }
     *[Symbol.iterator] () {
         for (const v of Object.values(this)) yield typeof v == 'object' ? Object.values(v) : v;
@@ -19,18 +19,18 @@ class Part {
     get path () {return this.#path ??= [this.constructor.name.toLowerCase(), this.abbr];}
 
     async tile () {
-        this.constructor.name == 'Blade' && this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
+        this.constructor == Blade && this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         let {path, stat} = this;
         !stat && this.push(await (
             path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
-        this.constructor.name != 'Blade' && await this.revise('tile');
+        this.constructor != Blade && await this.revise('tile');
         return new Tile(this);
     }
     cell () {return new Cell(this);}
 
-    revise (revisions, base, pref) {
-        revisions?.forEach?.(what => this[what] = this.revised[what](base, pref));
+    revise (where, base, pref) {
+        this.constructor.revisions[where]?.forEach?.(what => this[what] = this.revised[what](base, pref));
         return this;
     }
     revised = {
@@ -40,21 +40,20 @@ class Part {
 class Blade extends Part {
     #path;
     constructor(json) {super(json);}
-    revise (where) {
-        return super.revise(Blade.revisions[where]);
-    }
     revised = {
         classes: () => this.group,
         group: () => this.group?.split('_')[0]
     }
-    get path () {return this.#path ??= this.line ? ['blade', this.line, this.group, this.abbr] : super.path;}
+    get path () {
+        return this.#path ??= this.line ? ['blade', this.line, this.group, this.abbr] : super.path;
+    }
     static revisions = {tile: ['classes', 'group'], cell: ['group']};
     static sub = ['motif', 'upper', 'lower'];
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
     revise (where = 'tile') {
-        return super.revise(Ratchet.revisions[where], where == 'tile' && {stat: [, ...this.abbr.split('-')]});
+        return super.revise(where, where == 'tile' && {stat: [, ...this.abbr.split('-')]});
     }
     revised = {
         ...this.revised,
@@ -80,7 +79,7 @@ class Bit extends Part {
         if (Bit.revisions[where].every(p => this[p])) return this;
         let [, pref, base] = new RegExp(`^([${META.bit.prefix}]+)([^a-z].*)$`).exec(this.abbr);
         Bit.revisions[where].some(p => !PARTS.bit[base][p]) && PARTS.bit[base].push(await DB.get('bit', base));
-        return super.revise(Bit.revisions[where], PARTS.bit[base], pref);
+        return super.revise(where, PARTS.bit[base], pref);
     }
     revised = {
         ...this.revised,
