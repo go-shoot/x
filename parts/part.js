@@ -232,8 +232,12 @@ class Cell {
         let names = part.names ?? (part.path[0] == 'bit' && await part.revise('cell')).names;
         if (!names) return [];
         let limit = Cell.#limit[lang]?.at(part.path.slice(0, -1));
-        let content = [...Markup('cell', names[lang] || names.eng), mode ? E('sub', mode[lang] || mode.eng) : ''];
-        return names[lang]?.length >= (typeof limit == 'number' ? limit : 99) ? E('small', content) : content;
+        let name = names[lang] || names.eng;
+        if (mode &&= Markup('cell', mode[lang]))
+            name = mode.length > 1 && name.includes(' ') ? 
+                name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`;
+        name = Markup('cell', name);
+        return names[lang]?.length >= (typeof limit == 'number' ? limit : 99) ? [E('small', name)] : name;
     }
     static #limit = {jap: new O({blade: {CX: {lower: 5}}, bit: 7})};
 }
