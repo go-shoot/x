@@ -121,10 +121,12 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 
 @view-transition {navigation: auto;}
 @keyframes exit {
-    to {transform: translate(calc(var(--x)*100%), calc(var(--y)*100%));}
+    /* to {transform: translate(calc(var(--x)*100%), calc(var(--y)*100%));} */
+    to {transform: scale(abs(var(--x)*-5 + 5)); opacity: 0;}
 }
 @keyframes enter {
-    from {transform: translate(calc(var(--x)*-100%), calc(var(--y)*-100%));}
+    /* from {transform: translate(calc(var(--x)*-100%), calc(var(--y)*-100%));} */
+    from {transform: scale(abs(var(--x)*-5 + 5)); opacity: 0;}
 }
 ::view-transition-old(root) {animation: .3s ease-in-out exit;}
 ::view-transition-new(root) {animation: .3s ease-in-out enter;}
