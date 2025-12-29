@@ -95,7 +95,6 @@
         writing-mode: vertical-lr;
         align-self: end;
         font-size: .65em;
-        margin-bottom: -.1em;
     
         sub {
             vertical-align: unset;
@@ -104,12 +103,12 @@
         }
     }
     &.jap {
-        margin-right: -.1em;
+        margin: 0 -.1em -.1em 0;
         justify-self: end;
     }
     &.eng {
         color: var(--type);
-        margin-left: -.2em;
+        margin: 0 0 -.1em -.2em;
         text-transform: uppercase;
         white-space: break-spaces;
 
