@@ -58,11 +58,11 @@ class Ratchet extends Part {
     revised = {
         ...this.revised,
         group: () => META.ratchet.height.find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
-        names: () => ({ eng: (([blade, height]) => [
-            Ratchet.eng.digit[blade] ?? blade, 
-            Ratchet.eng.tens[Math.floor(height / 10)], 
-            Ratchet.eng.digit[height % 10 || ''] ?? ''
-        ].join(' '))(this.abbr.split('-')) })
+        names: () => {
+            let [blade, height] = this.abbr.split('-');
+            let {tens, digit} = Ratchet.eng;
+            return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
+        }
     }
     static revisions = {tile: ['group', 'names', 'stat']};
     static eng = {
