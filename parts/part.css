@@ -86,8 +86,8 @@
         sub {
             max-width: 2em;
             vertical-align: middle;
-            font-size: .5em;
-            margin: 0 0 .2em .2em;
+            font-size: .6em;
+            margin-left: .2em;
             letter-spacing: 0; line-height: 1;
         }
     }
@@ -340,6 +340,13 @@ td {
     &:not(:first-child) sub {
         margin-left: .2em;
         line-height: 0;
+
+        &.long {
+            max-width: 2em; display: inline-block;
+            white-space: initial; line-height: 1;
+            vertical-align: middle;
+            font-size: .7em;
+        }
     }
     &:first-child sub {
         position: absolute; right: .15em; bottom: .1em;
