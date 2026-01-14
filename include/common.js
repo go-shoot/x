@@ -33,7 +33,6 @@ const Menu = () => {
     [Menu.nav, Menu.menu] = [Q('nav'), Q('nav menu')];
     if (!Menu.nav) return;
     Menu.config();
-    Menu.script();
     Menu.current();
     addEventListener('hashchange', Menu.current);
 }
@@ -47,8 +46,15 @@ Object.assign(Menu, {
     current () {
         Q('nav .current')?.classList.remove('current');
         Q('nav menu a')?.find(a => a.href == location.href)?.classList.add('current');
-    },
-    drag: {
+    }
+});
+
+addEventListener('DOMContentLoaded', () => {
+    Menu();
+    Q('head').appendChild(E('style')).innerText += new O(LINES).flatMap(([line, {color}]) => 
+        `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
+    ).join('');
+    import('https://aeoq.github.io/pointer-interaction/script.js').then(({default: PI}) => PI.events({
         'nav menu': {
             drag: PI => {
                 PI.drag.to.translate({x: false, y: Menu.nav.classList.contains('bottom') ? 
@@ -59,14 +65,9 @@ Object.assign(Menu, {
                     .from([...PI.target.children].filter(child => !child.matches(':has(.current),:last-child')));
             },
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
+        },
+        '.stretch summary': {
+            drag: PI => Math.abs(PI.$drag.dy) > 30 && PI.target.parentElement.classList[PI.$drag.dy > 0 ? 'add' : 'remove']('showing')
         }
-    },
-    script: () => import('https://aeoq.github.io/pointer-interaction/script.js').then(({default: PI}) => PI.events(Menu.drag))
-});
-
-addEventListener('DOMContentLoaded', () => {
-    Menu();
-    Q('head').appendChild(E('style')).innerText += new O(LINES).flatMap(([line, {color}]) => 
-        `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
-    ).join('');
+    }));
 });

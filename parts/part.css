@@ -301,17 +301,26 @@ table {
         content: '未有結果'; font-size: 1.5em;
     }
     tbody tr {
+        position: relative;
         height: 1.4rem;
         --width:.45em;
         background: repeating-linear-gradient(45deg, var(--light) 0 var(--width), var(--dark) var(--width) calc(1.5*var(--width)));
         
         &.H {background: var(--dark);}
         &.hidden {display: none;}
+        &[data-rate]::after {
+            content: attr(data-rate); 
+            line-height: 1.1;
+            font-size: 2em; font-family: Fira Code; font-style: italic;
+            color: black; opacity: .5;
+            position: absolute; right: .2em;
+        }
     }
     td {
         padding: 0 var(--pad); --pad: .3em;
         position: relative;
         text-align: left;
+        z-index: 1;
 
         &:first-child {
             color: deepskyblue;

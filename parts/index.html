@@ -3,6 +3,7 @@
 <script type=module src=https://aeoq.github.io/drag-knob/script.js></script>
 <link rel=stylesheet href=parts.css>
 <link rel=stylesheet href=../parts/part.css>
+<link rel=stylesheet href=../include/component.css>
 <!--ps: Get-ChildItem -Filter *.png | ForEach-Object {
     $f = $_.Name
     magick mogrify -fuzz 5% -trim $f
@@ -22,7 +23,7 @@
 </nav>
 
 <main>
-    <details hidden open>
+    <details class="stretch" hidden open>
         <summary onclick="return false">&#xe026;</summary>
         <p></p>
     </details>
@@ -57,10 +58,4 @@ Q('menu').prepend(...[...new O(LINES)]
     .filter(([_, {divided}]) => divided)
     .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
 );
-import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js'
-PointerInteraction.events({
-    summary: {
-        drag: PI => Math.abs(PI.$drag.dy) > 30 && PI.target.parentElement.classList[PI.$drag.dy > 0 ? 'add' : 'remove']('showing')
-    }
-});
 </script>

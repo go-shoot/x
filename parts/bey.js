@@ -18,7 +18,7 @@ class Bey {
             (abbr.blade = [abbr.blade].flat()[0].split(char)).length > 1
         )?.[0];
         this.blade = abbr.blade.length > 1 ? 
-            abbr.blade.map((b, i) => PARTS.blade[this.line][Part.blade.sub[i]][b]) ?? new Part.blade : 
+            abbr.blade.map((b, i) => PARTS.blade[this.line][Part.blade.sub[i]][b] ?? new Part.blade({group: Part.blade.sub[i]})) : 
             PARTS.blade[abbr.blade[0]] ?? new Part.blade;
         this.line ??= this.blade.group ?? '';
         return this.parts;
@@ -33,12 +33,12 @@ class Bey {
     parts = {to: {name: () => {
         let names = {};
         names.chi = [...new O({...['', '']}).append(...
-            [this.blade].flat().map(b => Markup.remove(b?.names.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' '))
+            [this.blade].flat().map(b => Markup.remove(b?.names?.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' '))
         ).values()].filter(n => n).join('⬧'),
         names.chi &&= [names.chi, ' ', this.ratchet.abbr, this.bit.abbr].join('').replace('-', '‑');
 
         names.jap = Array.isArray(this.blade) ? 
-            this.blade.map((b, i, ar) => ar[0] && ar[1] && i == 2 ? b.abbr : b?.names.jap) : this.blade.names.jap,
+            this.blade.map((b, i, ar) => ar[0] && ar[1] && i == 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
         names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
         
         let single = parts => parts.length === 1 && META.jap.at(parts[0].path.slice(0, -1))?._;
@@ -59,7 +59,7 @@ class Bey {
 }
 class Row {
     constructor(bey, code, type, others) {
-        let [video, extra] = ['string', 'object'].map(t => others.find(o => typeof o == t));
+        let [video, more] = ['string', 'object'].map(t => others.find(o => typeof o == t));
         this.tr = E('tr', [
             this.cell(code, video), 
             ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
@@ -67,16 +67,17 @@ class Row {
             classList: [bey.line || bey.blade.abbr && 'BX', type],
             dataset: {abbr: bey.abbr}
         });
-        this.extra(extra ?? {});
+        this.more(more ?? {});
         return this.tr;  
     }
     cell (code, video) {
         code = code.split('_');
         return E('td', [code[0] + ' ', code[1] ? E('sub', code[1]) : ''], {dataset: {code: code[0], ...video ? {video} : {}}});
     }
-    extra ({coat, mode}) {
+    more ({coat, mode, rate}) {
         coat && E(this.tr).set({'--coat': coat});
         mode && (this.tr.Q('td[headers=blade]').dataset.mode = JSON.stringify(mode));
+        rate && (this.tr.dataset.rate = typeof rate == 'number' ? `×${rate}` : rate);
     }
 }
 
@@ -170,7 +171,6 @@ class Preview {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
         Preview.place.Q('#images').append(
-            E('p', Markup.spacing(Maps.note.find(dataset.code))),
             ...video?.split(',').map(vid => E('a', {href: `//youtu.be/${vid}?start=60`})) ?? [],
             ...this.#image.src('main', code),
             ...this.#image.src('more', code, markup.more, amount),

@@ -130,11 +130,11 @@ Q('header').after(DB(plugins).then(() => {
     PointerInteraction.events({
         '.scroller,#search ol': {scroll: {x: true}},
         '#reset': {
-            drop: {goal: 'i:last-child'},
+            drop: {onto: 'i:last-child'},
             drag: PI => PI.drag.to.translate({x: {
                 min: 0, max: Q('#reboot div').clientWidth - Q('#reset').clientWidth
             }, y: false}),
-            lift: PI => PI.goal && reset(PI.target.nextElementSibling),
+            lift: PI => PI.onto && reset(PI.target.nextElementSibling),
         }
     });
 

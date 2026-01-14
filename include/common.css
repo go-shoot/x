@@ -137,7 +137,7 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 html {
     background: var(--backdrop);
     --backdrop: black;--overlay1:#383838E8;--overlay2:#555555E8;
-    color: var(--on); --on: #ffffffdd;
+    color: var(--on); --on: #ffffffcc;
     --hue: 87; --theme: #b5fb5c; 
     --theme-dark: color-mix(in srgb,var(--theme) 35%,black);
     --theme-alt: hsl(45,90%,48%);

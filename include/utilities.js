@@ -50,7 +50,7 @@ class Keihin {
             E('div', [
                 E('figure>img', {src, style}), 
                 E('h4', {lang: 'ja'}, [
-                    E('code', code || ''), 
+                    E('code', code?.replace('-', '‒') || ''), 
                     E('span', jap), 
                     E('small', {
                         classList: ver?.[0].length > 12 ? 'tight' : '',
@@ -205,7 +205,7 @@ const Markup = (where, string, span = true) => {
 }
 Object.assign(Markup, {
     split: /(?<=.+?) (?=[一-龢].+)/,
-    cell: [[/[/\\]/g, ''], [/(?<=[a-z])(?=[A-Z])/, ' ']],
+    cell: [[/[/\\]/g, ''], [/(?<=[a-z])(?=[A-Z])/, ' '], [' ', ' ']],
     tile: new O([ //mode first so that _mode won't be sticking to span
         [/(.+)\\(.+)/, ([, $1, $2]) => [$1, E('span', $2)]],
         [/(.+)\/(.+)/, ([, $1, $2]) => [E('span', $1), $2]],

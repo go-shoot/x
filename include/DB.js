@@ -143,7 +143,7 @@ Object.assign(DB, {
             'meta': json => DB.put('meta', json),
             'prod-equipment': json => DB.put('product', json),
             'prod-keihin': beys => DB.put('product', {keihins: beys}),
-            'prod-beys': beys => DB.put('product', {beys: beys.map(Transform.to.RB)}),
+            'prod-beys': beys => DB.put('product', {beys: beys.map(Transform.to.RB())}),
         },
         files: arr => Promise.all(arr.map(([{value: file}, {value: json}]) => DB.cache.file(file, json)))
             .then(() => DB.indicator.update(true))
@@ -204,11 +204,10 @@ const Transform = {
             );
             return OBJ;
         },
-        RB ([code, type, ...rest]) {
-            let RB = 0, current;
-            type.split(' ')[0] == 'RB' ? code == current ? RB++ : RB = 1 : RB = 0;
+        RB: (subcode, current) => ([code, type, ...rest]) => {
+            type.split(' ')[0] == 'RB' ? code == current ? subcode++ : subcode = 1 : subcode = 0;
             current = code;
-            return [RB ? code + `_0${RB}` : code, type, ...rest];
+            return [subcode ? code + `_0${subcode}` : code, type, ...rest];
         }
     },
     truncate: ({comp, line, group, abbr, names, attr}) => ({

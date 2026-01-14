@@ -45,7 +45,8 @@ class Blade extends Part {
         group: () => this.group?.split('_')[0]
     }
     get path () {
-        return this.#path ??= this.line ? ['blade', this.line, this.group, this.abbr] : super.path;
+        let {line, group, abbr} = this;
+        return this.#path ??= line || !abbr && group ? ['blade', line, group, abbr] : super.path;
     }
     static revisions = {tile: ['classes', 'group'], cell: ['group']};
     static sub = ['motif', 'upper', 'lower'];
