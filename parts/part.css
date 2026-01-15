@@ -310,8 +310,8 @@ table {
         &.hidden {display: none;}
         &[data-rate]::after {
             content: attr(data-rate); 
-            line-height: 1.1;
-            font-size: 2em; font-family: Fira Code; font-style: italic;
+            line-height: 1;
+            font-size: 2em; font-family: Source Code Pro; font-style: italic;
             color: black; opacity: .5;
             position: absolute; right: .2em;
         }
@@ -322,18 +322,15 @@ table {
         text-align: left;
         z-index: 1;
 
-        &:first-child {
-            color: deepskyblue;
-        }
         &[abbr][headers=ratchet] {
             text-align: center;
             min-width: 4em;
         }
-        &[abbr][headers=bit],&:first-child {
+        &[abbr][headers=bit] {
             text-align: right;
         }
         &[abbr]:has(+:not([abbr])),&[headers=ratchet],&:first-child {
-            font-family: Fira Code,COND;
+            font-family: Source Code Pro,COND;
         }
         tr[style]:not(:has(td:nth-child(8))) &:nth-child(2),
         tr[style]:has(td:nth-child(8)) &:nth-child(3) {
@@ -343,12 +340,10 @@ table {
 }
 td {
     * {pointer-events: none;}
-    sub {
-        font-size: .75em;
-    }
     &:not(:first-child) sub {
         margin-left: .2em;
         line-height: 0;
+        font-size: .75em;
 
         &.long {
             max-width: 2em; display: inline-block;
@@ -358,8 +353,9 @@ td {
         }
     }
     &:first-child sub {
-        position: absolute; right: .15em; bottom: .1em;
-        scale: .9 1; letter-spacing: -.05em;
+        font-size: 1em; vertical-align: initial;
+        letter-spacing: -.025em;
+        margin-right: -.1em;
     }
     small {
         letter-spacing: -.05em;

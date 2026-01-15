@@ -4,11 +4,10 @@
 <link rel=stylesheet href=parts.css>
 <link rel=stylesheet href=../parts/part.css>
 <link rel=stylesheet href=../include/component.css>
-<!--ps: Get-ChildItem -Filter *.png | ForEach-Object {
-    $f = $_.Name
-    magick mogrify -fuzz 5% -trim $f
-    .\pngquant --quality=65-80 $f -o "op/$($f)"
-}
+<!-- for f in *.png; do
+  mogrify -fuzz 5% -trim "$f"; 
+  pngquant --quality=65-80 --output "op/$f" --force "$f"; done
+
     ukenagashi: 卸走/開  inashi: 化解
 -->
 <nav>

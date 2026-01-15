@@ -108,15 +108,15 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 .sta,label:has([value$=sta]) {--type: #f08200;}
 .bal,label:has([value$=bal]) {--type: #de0010;}
 
-.RB {--sat: 0%; --b-adj: 5%;}
+.RB {--sat: 0%; --b-adj: 0%;}
 .B  {--hue: 10;}
 .SS {--hue: 235; --b-adj: 5%;}
 .St {--hue: 290;}
 .S  {--hue: 200;}
 .Lm  {--hue: 45;}
 .RB,.B,.S,.St,.SS,.Lm {
-    --light: hsl(var(--hue,0),var(--sat,60%),calc(35% + var(--b-adj,0%)));
-    --dark: hsl(var(--hue,0),var(--sat,50%),calc(25% + var(--b-adj,0%)));
+    --light: hsl(var(--hue,0),var(--sat,35%),calc(40% + var(--b-adj,0%)));
+    --dark: hsl(var(--hue,0),var(--sat,45%),calc(30% + var(--b-adj,0%)));
 }
 
 @view-transition {navigation: auto;}

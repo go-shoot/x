@@ -72,7 +72,10 @@ class Row {
     }
     cell (code, video) {
         code = code.split('_');
-        return E('td', [code[0] + ' ', code[1] ? E('sub', code[1]) : ''], {dataset: {code: code[0], ...video ? {video} : {}}});
+        return E('td', 
+            [code[0].padStart(6, ' '), code[1] ? E('sub', [...code[1]].map(c => String.fromCodePoint(c.codePointAt() + 8272)).join('')) : ''], 
+            {dataset: {code: code[0], ...video ? {video} : {}}}
+        );
     }
     more ({coat, mode, rate}) {
         coat && E(this.tr).set({'--coat': coat});
