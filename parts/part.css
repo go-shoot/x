@@ -356,6 +356,7 @@ td {
     }
     &:first-child sub {
         scale: .9 1; letter-spacing: -.05em;
+        line-height: 0;
         margin-right: -.2em;
     }
     small {
