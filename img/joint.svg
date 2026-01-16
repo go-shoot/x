@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-.5 -.8 1 1.6">
   <style>
-      g {fill: #ffffffcc;}
+      g {fill: #ccc;}
       g:not(:target) {display: none;}
       g path {transform: translate(-.001px,-.001px);}
       use:nth-of-type(1) {transform: scaleX(-1);}

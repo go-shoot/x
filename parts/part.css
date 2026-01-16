@@ -310,10 +310,10 @@ table {
         &.hidden {display: none;}
         &[data-rate]::after {
             content: attr(data-rate); 
-            line-height: 1.1;
+            line-height: 1.1; letter-spacing: -.05em;
             font-size: 2em; font-family: Fira Code; font-style: italic;
             color: black; opacity: .5;
-            position: absolute; right: .2em;
+            position: absolute; right: .3em;
         }
     }
     td {
