@@ -35,12 +35,12 @@
     transform: rotate(225deg) translate(0,5.43em);
 }
 :host img {
-    filter: drop-shadow(0 0 .1rem var(--on));
-    &[alt=types] {filter: drop-shadow(0 0 .1rem var(--type));}
-    &[alt=lines] {filter: drop-shadow(0 0 .05rem var(--line));}
+    --glow-size: .1rem; filter: drop-shadow(0 0 var(--glow-size) var(--on));
+    &[alt=types] {filter: drop-shadow(0 0 var(--glow-size) var(--type));}
+    &[alt=lines] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
 }
-:host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
 :host svg {filter: drop-shadow(0 0 .2em var(--type));}
+:host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
 
 :host {
     h4 {grid-area: 4/2/6/3;}
@@ -58,7 +58,6 @@
     ::slotted(a) {grid-area: 1/1;}
     ::slotted(a:not(:empty)) {grid-area: 2/2;}
 }
-:host(.ratchet) h4 {grid-area: 4/1/6/3;}
 
 :host object {
     width: 100%;
@@ -119,33 +118,29 @@
     display: flex; gap: .2em;
 
     li {
-        ul:not(:has(img[alt^=type])) &:first-child {margin-left: auto;}
-        &:has(img[alt^=type]) {
+        &:has(img[alt=types]) {
             width: var(--icon);
-            margin-right: auto;
         }
         &:has(img[alt^=system]) {
             order: 2;
             width: 2.5em;
         }
-        &:has(img[alt^=line]) {
+        &:has(img[alt=lines]) {
             order: 2;
             width: 1.5em;
+        }
+        &:has(img[alt=joint]) {
+            margin-right: .1em;
         }
         &[title] {
             order: 3;
             line-height: 1.8;
             font-size: 1.1em;
         }
-        &[title=simple] {
-            order: 1;
-            margin-right: .2em;
-
-            :host(.ratchet) & {margin-right: 6.3em;}
-        }
         img {
             object-fit: contain;
             height: 100%; width: 100%;
+            --glow-size: .05rem;
         }
     }
 }
@@ -153,7 +148,11 @@
     content: '';
     width: 1.4em;
     background: url(../img/blade/CX/motif/DR.png) center / contain no-repeat;
-    filter: saturate(0) brightness(99);
+    filter: saturate(0) brightness(99) drop-shadow(0 0 .1rem var(--on));
+}
+:host(.motif) ul::before,:host(.ratchet) ul li,:host li:has(img[alt=types]) {
+    margin-right: auto;
+    img {--glow-size: .1rem;}
 }
 
 ::slotted(a:not(:empty)) {
@@ -170,12 +169,13 @@
 
 :host h4 {
     justify-self: start;
-    font-size: 1.5em; line-height: 1.3;
+    font-size: 1.5em; line-height: 1.35;
     color: var(--type);
     margin-left: .05em;
 }
 :host(.ratchet) h4 {
     color: hsl(var(--hue),70%,50%);
+    margin-left: -.1em;
 }
 
 :host dl {
@@ -313,7 +313,7 @@ table {
             line-height: 1.1;
             font-size: 2em; font-family: Fira Code; font-style: italic;
             color: black; opacity: .5;
-            position: absolute; right: .3em;
+            position: absolute; right: .2em;
         }
     }
     td {

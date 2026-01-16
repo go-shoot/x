@@ -63,9 +63,10 @@ class Ratchet extends Part {
             let [blade, height] = this.abbr.split('-');
             let {tens, digit} = Ratchet.eng;
             return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
-        }
+        },
+        attr: () => this.attr ??= ['normal']
     }
-    static revisions = {tile: ['group', 'names', 'stat']};
+    static revisions = {tile: ['group', 'names', 'attr', 'stat']};
     static eng = {
         digit: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
         tens: ['', '', '', '', 'fourty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
@@ -145,8 +146,9 @@ class Tile extends HTMLElement {
     static icons = new O([
         [/^[A-Z]+X$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
         [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
-        [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})]
-    ], {left: '\ue01d', right: '\ue01e', simple: '\ue04e'});
+        [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
+        [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
+    ], {left: '\ue01d', right: '\ue01e'});
 }
 Object.assign(Tile.prototype.html, {
     background () {

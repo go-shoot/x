@@ -51,9 +51,9 @@ Object.assign(Menu, {
 
 addEventListener('DOMContentLoaded', () => {
     Menu();
-    Q('head').appendChild(E('style')).innerText += new O(LINES).flatMap(([line, {color}]) => 
+    document.head.append(E('style', new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
-    ).join('');
+    ).join('')));
     import('https://aeoq.github.io/pointer-interaction/script.js').then(({default: PI}) => PI.events({
         'nav menu': {
             drag: PI => {

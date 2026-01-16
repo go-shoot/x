@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-.5 -.8 1 1.6">
+  <style>
+      g {fill: #ffffffcc;}
+      g:not(:target) {display: none;}
+      g path {transform: translate(-.001px,-.001px);}
+      use:nth-of-type(1) {transform: scaleX(-1);}
+      use:nth-of-type(2) {transform: scaleY(-1);}
+      use:nth-of-type(3) {transform: scale(-1,-1);}      
+  </style>
+  <mask id="hole">
+    <rect x="-1" y="-1" width="2" height="2" fill="white"/>
+    <path d="M.28,-1 L.28,.14 L.165,.227 A.28,.28,0,0,1,0,.28 L-1,-1 Z" fill="black"/>
+    <!-- r=0.28 t=0.3PI~ -->
+  </mask>
+  <g id="simple">
+    <path id="simple-q" d="M.45,0 A.45,.45,0,0,1,0,.45 L0,0 Z" mask="url(#hole)"/>
+    <use href="#simple-q"/>
+    <use href="#simple-q"/>
+    <use href="#simple-q"/>
+  </g>
+  <g id="normal">
+    <path id="normal-q" d="M.45,0 A.45,.45,0,0,1,0,.45 L.318,.318 L.429,.553 A.7,.7,0,0,1,0,.7 L0,0 Z" mask="url(#hole)"/>
+    <!-- inner: r=0.45 t=~0.25PI  outer: r=0.7 t=0.29PI~ -->
+    <use href="#normal-q"/>
+    <use href="#normal-q"/>
+    <use href="#normal-q"/>
+  </g>
+</svg>
