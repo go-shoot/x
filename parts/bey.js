@@ -155,9 +155,9 @@ class Preview {
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
         Preview.reset();
-        Transition.popover('show', ev, Preview.place);
+        Transition.popover('show', ev, Preview.dialog);
         [what].flat().reduce((prom, w) => prom.then(() => this[w]({path, code})), Promise.resolve())
-        .then(() => Glossary(Preview.place));
+        .then(() => Glossary(Preview.dialog));
     }
     cell = ({path}) => new Search(path).then(({beys, href}) => Q('#cells').append(
         E('table', [
@@ -173,21 +173,21 @@ class Preview {
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
-        Preview.place.Q('#images').append(
+        Preview.dialog.Q('#images').append(
             ...video?.split(',').map(vid => E('a', {href: `//youtu.be/${vid}?start=60`})) ?? [],
             ...this.#image.src('main', code),
             ...this.#image.src('more', code, markup.more, amount),
             ...this.#image.src('detail', lowercase ? code.toLowerCase() : code, markup.detail),
         );
-        /^BXG-\d+$/.test(dataset.code) && setTimeout(() => !Preview.place.Q('#images img') && 
-            Preview.place.Q('#images').prepend(E('a', {
+        /^BXG-\d+$/.test(dataset.code) && setTimeout(() => !Preview.dialog.Q('#images img') && 
+            Preview.dialog.Q('#images').prepend(E('a', {
                 href: `//google.com/search?q=%22${dataset.code}%22+beyblade`, target: '_blank'
             }))
         , 1000);
     }
     #image = {
         revisions: ({code, video}) => {
-            video ??= Q(`[data-code=${code}][data-video]`)?.dataset.video;
+            video ??= Q(`[data-code='${code}'][data-video]`)?.dataset.video;
             let {lowercase, amount} = this.#image.params(code);
             let {alias, _, ...markup} = Maps.images.find(code) ?? {};
             code = (alias || code).replace('-', _ ? '_' : '');
@@ -214,7 +214,7 @@ class Preview {
             ['image', {code: ev.target.dataset.code}] : ['tile', {path: ev.target.Part.path}]
         , ev) : ''
     }
-    static place = Q('dialog') || Q('body').appendChild(E('dialog', {
+    static dialog = Q('dialog') || Q('body').appendChild(E('dialog', {
         popover: 'auto',
         onclick: ev => Transition.popover('hide', ev, ev.currentTarget)
     }, [E('div#cells'), E('div#tiles'), E('div#images')]));
@@ -224,6 +224,6 @@ class Preview {
         E('th.ratchet', 'Ratchet'),
         E('th.bit', 'Bit', {colSpan: 2}),
     ]);
-    static reset = () => Preview.place?.Q('div', div => div.innerHTML = '');
+    static reset = () => Preview.dialog?.Q('div', div => div.innerHTML = '');
 }
 export {Bey, Search, Preview};

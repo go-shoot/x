@@ -173,13 +173,14 @@ Object.assign(Tile.prototype.html, {
         });
     },
     names () {
-        let {path, group, names} = this.Part;
-        let span = !['remake', 'collab', 'hasbro'].includes(group);
+        let {path, group, names, attr} = this.Part;
+        let divide = {eng: !['collab', 'hasbro'].includes(group)};
+        divide.chi = divide.eng && !attr.includes('BSB');
         return [
             this.named ? 
-                Markup('tile', names.chi, span)?.map(els => E('h5.chi', els)) ?? '' : 
+                Markup('tile', names.chi, divide.chi)?.map(els => E('h5.chi', els)) ?? '' : 
                 E('h4', path.at(-1).replace('-', '‒')), 
-            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup('tile', names[l], span)[0])) : ''
+            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup('tile', names[l], divide.eng)[0])) : ''
         ].flat(9);
     },
     stat () {

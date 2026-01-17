@@ -119,16 +119,13 @@ const FilterForm = {
 
 const Transition = {
     root: Q('html'),
-    swipe: {
-        pause: () => document.head.appendChild(E('style#transition', `
-        ::view-transition-image-pair(root) {isolation: auto;}
-        ::view-transition-old(root),::view-transition-new(root) {animation: none;}
-        x-part {view-transition-name: match-element; view-transition-class: part;}`)),
-        resume: () => Q('#transition').remove()
+    page: {
+        pause: (popover = false) => Q('html').classList.add('pause-page', popover ? 'prepare-popover' : null),
+        resume: () => Q('html').classList.remove('pause-page', 'prepare-popover')
     },
     popover: (action, {clientX: x, clientY: y}, popover) => {
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        Transition.swipe.pause();
+        Transition.page.pause(true);
         let tr = document.startViewTransition();
         tr.ready.then(() => {
             action == 'show' ? popover.showPopover() : popover.hidePopover();
@@ -140,7 +137,7 @@ const Transition = {
                 pseudoElement: `::view-transition-${action == 'show' ? 'new' : 'old'}(root)`,
             });
         });
-        tr.finished.then(Transition.swipe.resume);
+        tr.finished.then(Transition.page.resume);
     }
 }
 
@@ -191,14 +188,14 @@ Object.assign(Glossary, {
     },
 });
 
-const Markup = (where, string, span = true) => {
+const Markup = (where, string, divide = true) => {
     if (!string) return [];
     string = string.split(Markup.split);
     if (where == 'cell')
         return (string.length == 2 ? [string[0], '⬧', string[1]] : string)
             .map(s => Markup.replace(s, 'cell')).flatMap(s => Markup.replace(s, 'mode'));
     if (where == 'tile')
-        return string.map(s => Markup.replace(s, 'mode')).map(s => span ? Markup.replace(s, 'tile') : s);
+        return string.map(s => Markup.replace(s, 'mode')).map(s => divide ? Markup.replace(s, 'tile') : s);
     if (where == 'stat')
         return Markup.replace(string, 'stat');
     return string;
