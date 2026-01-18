@@ -53,8 +53,5 @@
 import DB from '../include/DB.js'
 import Parts from './parts.js'
 Q('main').prepend(DB().then(location.search && Parts));
-Q('menu').prepend(...[...new O(LINES)]
-    .filter(([_, {divided}]) => divided)
-    .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
-);
+Q('menu li:has(.blade)').before(...Menu.lines());
 </script>

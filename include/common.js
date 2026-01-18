@@ -38,15 +38,27 @@ const Menu = () => {
 }
 Object.assign(Menu, {
     config () {
-        sessionStorage.menu = Menu.menu.Q('a[href]', []).map(a => a.pathname + a.search);
+        let existing = Menu.menu.Q('a[href]', []);
+        Menu.menu?.append(E('li>a', {href: '/x/'}, ''));
+        Menu.menu?.prepend(...Menu.links()
+            .filter(a => a.pathname != location.pathname && !existing.map(a => a.href).includes(a.href)).map(a => E('li', a))
+        );
+        sessionStorage.menu = existing.map(a => a.pathname + a.search);
         Menu.nav.classList.toggle('bottom', !!Storage('pref')?.bottom);
         Menu.nav.classList.toggle('right', !!Storage('pref')?.right);
-        Menu.menu?.append(E('li>a', {href: '/x/', dataset: {icon: ''}}));
     },
     current () {
         Q('nav .current')?.classList.remove('current');
         Q('nav menu a')?.find(a => a.href == location.href)?.classList.add('current');
-    }
+    },
+    links: () => [
+        E('a', {href: '/x/products/'}, ''),
+        E('a', {href: '/x/parts/?blade=CX'}, ''),
+        E('a', {href: '/x/prize/'}, '')
+    ],
+    lines: () => [...new O(LINES)]
+        .filter(([_, {divided}]) => divided)
+        .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
 });
 
 addEventListener('DOMContentLoaded', () => {

@@ -23,12 +23,21 @@ class Bey {
         this.line ??= this.blade.group ?? '';
         return this.parts;
     }}}
-    name = {to: {parts: name => {
-        let bey = name.toUpperCase().match(/^(.*?(?:(?<=[A-z])\D)?)(\w-?\d+)?(\w*)$/)?.slice(1, 4) ?? [];
+    name = {to: {parts: input => {
+        // input.split(/[ ,]/).forEach(text => {
+            // text = text.toUpperCase().trim();
+            // let matched = {};
+            // Bey.regexp.each(([comp, regexp]) => {
+                // matched[comp] = regexp.exec(text)?.[0];
+                // text = text.replace(regexp, '');
+            // });
+            // console.log(text, matched);
+        // });
+        let bey = input.toUpperCase().match(/^(.*?(?:(?<=[A-z])\D)?)(\w-?\d+)?(\w*)$/)?.slice(1, 4) ?? [];
         return bey[0] ? [
             ...bey[0].match(/^(.*?)([一-龢]{1,2})(\w)?$/)?.slice(1, 4).map((b, i) => PARTS.blade.CX[Part.blade.sub[i]][b] ?? b) ?? [],
             ...['ratchet', 'bit'].map((comp, i) => Bey.CACHE.parts.find(p => p.abbr == bey[i + 1] && p.comp == comp) ?? bey[i + 1]),
-        ].filter(_ => _) : [name];
+        ].filter(_ => _) : [input];
     }}}
     parts = {to: {name: () => {
         let names = {};
@@ -56,6 +65,11 @@ class Bey {
             return new Row(this, code, type, others);
         },
     }
+    static regexp = new O({
+        ratchet: /.-?\d{2}(?!\d)/,
+        bit: /(?<![一-龢])[A-z]{1,2}$/,
+        blade: /^[一-龢]+[A-z]?/,
+    })
 }
 class Row {
     constructor(bey, code, type, others) {

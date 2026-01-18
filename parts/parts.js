@@ -73,6 +73,7 @@ Object.assign(Filter, {
     },
     content: {
         group:  () => [new O(META.group), {legend: line, checked: false}],
+        joint:  () => [new O(['normal', 'simple'].map(t => [t, E('img', {src: `../img/joint.svg#${t}`})] )), {legend: '類型'}],
         type:   () => [new O(META.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
         spin:   () => [new O({left: '\ue01d', right: '\ue01e'}), {legend: '迴轉'}],
         prefix: () => [new O({'¬': '–', ...META.variety}), {legend: '變化'}],

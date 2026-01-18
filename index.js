@@ -3,6 +3,8 @@ import {Bey, Preview} from './parts/bey.js'
 import {Part} from './parts/part.js'
 import {Markup, Keihin} from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
+Q('search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['商品', '部件', '景品'][i]}`) && a));
+
 let CACHE;
 const Search = query => (CACHE ? Promise.resolve() : 
     Promise.all([DB.get.essentials(false), DB.get('meta', 'search'), DB.get('product', 'beys'), DB.get('product', 'keihins')])

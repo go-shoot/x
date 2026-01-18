@@ -294,12 +294,11 @@ menu {
             margin: 0; padding: .3rem;
             height: 100%; max-width: 100%;
         }
-        &[data-icon]::after {
-            content: attr(data-icon);
+        &[href^='/x/'] {
             font-size: 1.5em;
             margin-top: .1em;
         }
-        &:not([data-icon]) {
+        &:not([href^='/x/']) {
             font-size: .8em;
             border-radius: 9em;
         }
@@ -312,7 +311,7 @@ menu {
         filter: saturate(0) brightness(0) !important;
         z-index: 0 !important;
     }
-    a[href$=X]::before {
+    a[href$=X]:not([href^='/x/'])::before {
         content: ''; 
         position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); 
         z-index: 1; 
