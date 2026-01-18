@@ -301,6 +301,7 @@ menu {
         &:not([href^='/x/']) {
             font-size: .8em;
             border-radius: 9em;
+            padding-top: .1em;
         }
         &.current {border: .1rem dashed var(--theme);}
     }

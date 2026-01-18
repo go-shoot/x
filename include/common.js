@@ -39,8 +39,8 @@ const Menu = () => {
 Object.assign(Menu, {
     config () {
         let existing = Menu.menu.Q('a[href]', []);
-        Menu.menu?.append(E('li>a', {href: '/x/'}, ''));
-        Menu.menu?.prepend(...Menu.links()
+        Menu.menu.append(E('li>a', {href: '/x/'}, ''));
+        !Menu.menu.matches('.exclude') && Menu.menu.prepend(...Menu.links()
             .filter(a => a.pathname != location.pathname && !existing.map(a => a.href).includes(a.href)).map(a => E('li', a))
         );
         sessionStorage.menu = existing.map(a => a.pathname + a.search);
