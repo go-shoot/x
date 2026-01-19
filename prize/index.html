@@ -9,10 +9,15 @@
     <form class="LED"></form>
 </nav>
 
-<main>
-    <a href="#bits" class="bit">Bits</a>
-    <diamond-grid id="beys" class="loading"></diamond-grid>
-    <diamond-grid id="bits"></diamond-grid>
+<main class="groups">
+    <details open>
+        <summary>完整陀螺</summary>
+        <diamond-grid id="beys" class="loading"></diamond-grid>
+    </details>
+    <details>
+        <summary>非完整陀螺</summary>
+        <diamond-grid id="parts"></diamond-grid>
+    </details>
 </main>
 
 <script type="module">
@@ -25,11 +30,11 @@ Object.assign(Prize, {
         .then(([[meta, parts], keihins]) => Bey.import(meta.general, parts) && keihins),
 
     display (keihins) {
-        let beys = keihins.filter(({bey}) => !bey.startsWith('/ /')).map(k => new Keihin(k));
-        let bits = keihins.filter(({bey}) => bey.startsWith('/ /')).map(k => new Keihin(k));
-        Prize.all = [...beys, ...bits];
+        let {true: parts, false: beys} = Object.groupBy(keihins, ({bey}) => bey.includes('/') || !bey.includes(' '));
+        [beys, parts] = [beys.map(b => new Keihin(b)), parts.map(p => new Keihin(p))];
+        Prize.all = [...beys, ...parts];
         Q('#beys').append(...beys);
-        Q('#bits').append(...bits);
+        Q('#parts').append(...parts);
     },
     after () {
         Prize.filter();

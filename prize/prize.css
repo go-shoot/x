@@ -33,12 +33,8 @@ label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
 }
 @keyframes highlight {from {filter:brightness(300%);} }
 
-:is(.ratchet,.bit)::before {
-    content: '';
-    width: 1.4em; height: 1.4em; display: inline-block;
-    vertical-align: text-top;
-    background: var(--img) center / contain no-repeat !important;
-    filter: saturate(0) brightness(99);
+summary {
+    line-height: 4em;
 }
 diamond-grid {
     font-size: .8em;
@@ -61,14 +57,13 @@ diamond-grid {
             line-height: .9;
         }
     }
-    p {
+    a {
         grid-area: desc;
         font-size: .7em;
         margin: .3em auto;
         line-height: 1.2;
         max-width: 12em;
-
-        a {color: green !important;}
+        &[href] {color: green !important;}
     }
     div {
         grid-area: img;
@@ -80,7 +75,7 @@ diamond-grid {
         overflow: hidden;
         shape-outside: ellipse(50% 40%); float: left;
         border-radius: 8em;
-        margin: .5em .3em;
+        margin: .5em .2em;
     }
     img {
         position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
@@ -90,7 +85,7 @@ diamond-grid {
         font-size: .8em;
         display: block;
         color: grey;
-        margin: .3em auto;        
+        margin: .3em auto .2em auto;        
     }
     h4:lang(ja) {
         font-size: .9em; line-height: 1.1;
@@ -99,7 +94,7 @@ diamond-grid {
         position: relative;
 
         code {
-            text-indent: .3em;
+            text-indent: .1em;
 
             &:empty::before {content:'　';}
         }

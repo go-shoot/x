@@ -23,12 +23,12 @@
         }
     }
     details {
-        padding: 0 .5em; margin: 2em auto;
+        margin: 2em auto;
     }
     summary {
         background: var(--theme-dark);
         position: relative;
-        padding: .5em .5em .5em 2em;
+        padding: .5em .5em .5em 2em; margin: 0 .5em;
         border-top-right-radius: 5em; border-bottom-right-radius: 5em;
         z-index: 1;
         text-align: left;

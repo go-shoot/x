@@ -1,7 +1,6 @@
 
 <title>陀螺商品⬧Products</title>
 <script src=../include/common.js></script>
-<link rel=stylesheet href=../include/component.css>
 <style>
     main {
         max-width:1000px;
@@ -58,7 +57,7 @@ Q('nav form').append(Filter);
 class Group {
     constructor({eng, jap, desc, colors}) {
         let [, , src, size] = colors[1] || colors[0];
-        let details = E('details', {name: 'panel'}, [
+        let details = E('details', [
             E('summary', [
                 E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
                 E('small', Markup.spacing(desc)),

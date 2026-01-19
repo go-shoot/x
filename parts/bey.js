@@ -43,18 +43,15 @@ class Bey {
         let names = {};
         names.chi = [...new O({...['', '']}).append(...
             [this.blade].flat().map(b => Markup.remove(b?.names?.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' '))
-        ).values()].filter(n => n).join('⬧'),
-        names.chi &&= [names.chi, ' ', this.ratchet.abbr, this.bit.abbr].join('').replace('-', '‑');
+        ).values()].filter(n => n);
+        names.chi.every(n => /^[^一-龢]$/.test(n)) && (names.chi = '');
+        names.chi &&= [names.chi.join('⬧'), ' ', this.ratchet.abbr, this.bit.abbr].join('').replace('-', '‑');
 
         names.jap = Array.isArray(this.blade) ? 
             this.blade.map((b, i, ar) => ar[0] && ar[1] && i == 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
         names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
         
-        let single = parts => parts.length === 1 && META.jap.at(parts[0].path.slice(0, -1))?._;
-        return {
-            ...names, line: this.line,
-            only: single([this.blade, this.ratchet, this.bit].flat().filter(p => p?.abbr))
-        };
+        return {...names, line: this.line};
     }}}
     for = {
         index: name => this.name.to.parts(name),

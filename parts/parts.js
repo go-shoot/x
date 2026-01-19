@@ -28,7 +28,8 @@ Object.assign(Parts, {
     after () {
         let hash = decodeURI(location.hash.substring(1));
         Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
-        Q(`#${Storage('pref')?.sort || 'name'}`).click();
+        let by = Storage('pref')?.sort || 'name';
+        (Q(`#${by}`).checked = true) && Sorter.sort(by);
         Filter.form.onchange();
     },
     finally: () => Q('.loading').classList.remove('loading'),
@@ -67,7 +68,10 @@ Object.assign(Filter, {
     events () {
         FilterForm.event(Parts.place.children, {
             legend: {group: {click: META.multiple}},
-            action: {group: ev => [location.hash = '', Parts.switch(ev.target.value.substring(1))]},
+            action: {group: ev => {
+                history.replaceState(null, '', ' '); //remove #
+                Parts.switch(ev.target.value.substring(1))
+            }},
             single: true
         });
     },
@@ -105,17 +109,14 @@ const Sorter = () => {
     return Sorter.getSchedule(comp);
 }
 Object.assign(Sorter, {
+    sort: by => Parts.place.append(...[...Parts.place.children].sort((a, b) => Sorter.by[by](a.Part, b.Part))),
     events: () => Q('.sorter').onchange = ({target: input}) => {
         Transition.page.pause();
-        let tr = document.startViewTransition();
-        tr.ready.then(() => Parts.place.append(...
-            [...Parts.place.children].sort((a, b) => Sorter.functions[input.id](a.Part, b.Part))
-        ));
-        tr.finished.then(Transition.page.resume);
+        document.startViewTransition(() => Sorter.sort(input.id)).finished.then(Transition.page.resume);
         input.checked && Storage('pref', {sort: input.id});
     },
     compare: (u, v, f = p => p) => +(f(u) > f(v)) || -(f(u) < f(v)),
-    functions: {
+    by: {
         name: (p, q) =>
             [p.group, q.group].includes('remake') && Sorter.compare(p, q, p => p.group)
             || Sorter.compare(p, q, p => parseInt(p.abbr))

@@ -43,19 +43,19 @@ class Shohin {
 }
 class Keihin {
     constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
-        let {line, jap, chi, only} = new Bey(bey, {for: 'prize'});   
+        let {line, jap, chi} = new Bey(bey, {for: 'prize'});   
         return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 
-            E('p', link ? E('a', {href: link}, note) : parseInt(style?.width) > 300 ? E('a', {href: src}, note) : note),
+            E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note),
             E('div', [
                 E('figure>img', {src, style}), 
                 E('h4', {lang: 'ja'}, [
-                    E('code', code?.replace('-', '‒') || ''), 
+                    E('code', code || ''), 
                     E('span', jap), 
-                    E('small', {
-                        classList: ver?.[0].length > 12 ? 'tight' : '',
-                        innerHTML: [ver?.[0] ?? '', only ? `（${only}）` : ''].filter(t => t).join('<br>')
-                    })
+                    E('small', ver?.[0] ? {
+                        classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
+                        innerHTML: ver[0]
+                    } : '')
                 ]),
             ]),
             E('h4', {lang: 'zh'}, [chi, E('small', [ver?.[1] ?? ''].filter(t => t).join(' '))]),
@@ -71,26 +71,31 @@ const FilterForm = {
         this.targets = targets;
         this.form = Object.assign(form, {
             onchange: ev => {
-                (single === true || single?.[ev?.target.name]) 
-                    && form[ev?.target.name]?.forEach(i => i.checked = i == ev.target);
-                action?.[ev?.target.name]?.(ev);
-
+                if (ev) {
+                    (single === true || single?.[ev.target.name]) && form[ev.target.name]?.forEach(i => i.checked = i == ev.target);
+                    action?.[ev.target.name]?.(ev);
+                    Transition.page.pause();
+                }
                 let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
                     [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
                 }), {});
                 query = [...new O(query).map(([n, v]) => [n, v.join()]).values()];
-                [...targets].forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
-                form.count && this.count();
+                
+                let filter = () => {
+                    [...targets].forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
+                    form.count && this.count();
+                }
+                ev ? document.startViewTransition(filter).finished.then(Transition.page.resume) : filter();
             },
             onreset: () => {
                 [...form.elements].forEach(input => input.checked = true);
                 [...targets].forEach(el => el.hidden = false);
                 form.count && this.count();
             },
-            onclick: ({target}) => {
-                if (target.tagName != 'LEGEND' || legend?.[target.parentElement.id]?.click === false) return;
-                [...target.parentElement.elements].forEach(input => input.checked = true);
-                form.onchange();
+            onclick: ev => {
+                if (ev.target.tagName != 'LEGEND' || legend?.[ev.target.parentElement.id]?.click === false) return;
+                [...ev.target.parentElement.elements].forEach(input => input.checked = true);
+                form.onchange(ev);
             }
         })
     },
