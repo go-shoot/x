@@ -33,9 +33,8 @@ label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
 }
 @keyframes highlight {from {filter:brightness(300%);} }
 
-summary {
-    line-height: 4em;
-}
+main {margin-top: 6em;}
+summary {line-height: 4em;}
 diamond-grid {
     font-size: .8em;
     --side: 20em; --gap: .5em;
