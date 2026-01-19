@@ -6,7 +6,7 @@ import Maps from '../products/maps.js';
 let META, PARTS;
 
 class Bey {
-    static import = (meta, parts) => [META, PARTS] = [meta, parts];
+    static import = (meta, parts) => ([META, PARTS] = [meta, parts]) && Object.assign(window, {meta, parts});
     constructor(content, {for: FOR} = {}) {
         return typeof content == 'string' ? this.for[FOR](content) : this.for.product(content);
     }

@@ -92,7 +92,7 @@ class Bit extends Part {
 class Tile extends HTMLElement {
     constructor(Part) {
         super();
-        let {path, group, attr} = Part;
+        let {path, group, attr, classes} = Part;
         this.Part = Part;
         this.attachShadow({mode: 'open'}).append(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
@@ -100,7 +100,7 @@ class Tile extends HTMLElement {
         );
         E(this).set({
             id: path.at(-1),
-            classList: [...path.slice(0, -1), group, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
+            classList: [...path.slice(0, -1), group, classes, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
             style: {opacity: 0},
             hidden: true,
             onclick: Tile.#onclick
@@ -210,6 +210,7 @@ customElements.define('x-part', Tile);
 
 class Cell {
     constructor(Part) {
+        Part.revise('cell');
         let {path, attr} = Part;
         let tds = [E('td'), !Cell.#named(path) ? E('td') : ''];
         E(tds[0]).set({
@@ -233,7 +234,7 @@ class Cell {
         (next.headers ? td : next).replaceChildren(...await Cell.#html(lang, td.Part, JSON.parse(td.dataset.mode ?? null)));
     })
     static async #html (lang, part, mode) {
-        let names = part.names ?? (part.path[0] == 'bit' && await part.revise('cell')).names;
+        let {names} = part;
         if (!names) return [];
         let limit = Cell.#limit[lang]?.at(part.path.slice(0, -1));
         let name = names[lang] || names.eng;

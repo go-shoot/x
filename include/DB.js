@@ -14,8 +14,9 @@ class Indicator extends HTMLElement {
         if (state == 'success') {
             E(this).set({'--p': 40 - 225 + '%'});
             this.progress > (Storage('DB')?.count ?? 0) && Storage('DB', {count: this.progress});
-            setTimeout(() => this.hidden = true, 2000);
-        }
+            this.timer = setTimeout(() => this.hidden = true, 3000);
+        } else
+            clearTimeout(this.timer);
         E(this).set({'--hue': state == 'success' ? 'lime' : 'deeppink'});
         this.title = state == 'success' ? '更新成功' : state == 'offline' ? '離線' : '';
     }
@@ -197,7 +198,7 @@ const Transform = {
             let OBJ = new O;
             parts.forEach(([comp, parts]) => comp.includes('-') ?
                 OBJ.blade[comp.split('-')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))]) : 
-                OBJ[comp] = new O(parts.map(part => [
+                OBJ[comp.split('_')[0]] = new O(OBJ[comp.split('_')[0]] ?? {}, parts.map(part => [
                     part.abbr, 
                     new Part[part.comp](truncate ? Transform.truncate(part) : part)
                 ]))
