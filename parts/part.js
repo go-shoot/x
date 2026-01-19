@@ -42,7 +42,7 @@ class Blade extends Part {
     constructor(json) {super(json);}
     revised = {
         classes: () => this.group,
-        group: () => this.group?.split('_')[0]
+        group: () => this.group?.split('-')[0]
     }
     get path () {
         let {line, group, abbr} = this;

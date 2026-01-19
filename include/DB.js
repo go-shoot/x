@@ -66,16 +66,16 @@ Object.assign(DB, {
     outdate: 'V', current: 'X', indicator: Indicator,
     stores: [
         'bit', 'ratchet', 'blade',
-        ...[...new O(LINES)].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade-${line}`)
+        ...[...new O(LINES)].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade.${line}`)
     ],
     then: callback => Object.assign(DB.indicator, {callback}),
     format: {
         store (store) {
             if (Array.isArray(store)) return store.map(DB.format.store);
-            store = store.replace('part-', '').replace(/^.X$/, 'blade-$&');
+            store = store.replace('part-', '').replace(/^.X$/, 'blade.$&');
             return DB.stores.includes(store) ? store.toUpperCase() : store;
         },
-        part: (part, store) => ({...part, comp: store.split('-')[0], ...store.includes('-') ? {line: store.split('-')[1]} : {}})
+        part: (part, store) => ({...part, comp: store.split('.')[0], ...store.includes('.') ? {line: store.split('.')[1]} : {}})
     },
 
     replace: (before = DB.outdate, after = DB.current) => indexedDB.databases()
@@ -108,7 +108,8 @@ Object.assign(DB, {
                 return DB.db.close().then(() => DB.open(DB.db.version + 1));
 
             ev.type == 'upgradeneeded' && DB.setup(ev);
-            return DB.fetch.updates({fresh: ev.oldVersion === 0, index: location.pathname == '/x/'})
+            DB.fresh = ev.oldVersion === 0;
+            return DB.fetch.updates(location.pathname == '/x/')
                 .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
                 .catch(er => `${er}`.includes('Failed to fetch') ? DB.indicator.classList = 'offline' : console.error(er))
                 .then(() => DB.plugins.followup?.())
@@ -122,16 +123,20 @@ Object.assign(DB, {
         return DB.transfer.in();
     },
     fetch: {
-        updates: ({fresh, index}) => !fresh || index ? 
+        updates: index => !DB.fresh || index ? 
             fetch(`/x/db/-update.json`).then(resp => resp.json())
             .then(({news, ...files}) => {
                 index && DB.plugins.announce(news);
-                return fresh || files;
+                return DB.fresh || files;
             }) : Promise.resolve(true)
         ,
         files: files => DB.indicator.init(files) && Promise.all(files.map(DB.fetch.file)),
         file: file => fetch(`/x/db/${file}.json`)
-            .then(resp => Promise.allSettled([file, resp.json(), file == 'part-blade-collab' && DB.delete('blade','hasbro')]))
+            .then(resp => Promise.allSettled([
+                file, resp.json(), 
+                !DB.fresh && file == 'part-blade-collab' && DB.delete('blade','hasbro'),
+                !DB.fresh && file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
+            ]))
     },
     filter: {
         files: files => Object.keys(DB.cache.actions)
@@ -140,7 +145,7 @@ Object.assign(DB, {
     cache: {
         actions: {
             'part-blade': '', 'part-ratchet': '', 'part-bit': '', 'part-blade-collab': json => DB.put.parts(json, 'blade'),
-            'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(parts, `blade-${line}`))),
+            'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(parts, `blade.${line}`))),
             'meta': json => DB.put('meta', json),
             'prod-equipment': json => DB.put('product', json),
             'prod-keihin': beys => DB.put('product', {keihins: beys}),
@@ -196,9 +201,9 @@ const Transform = {
     to: {
         dict (parts, truncate = !location.pathname.includes('/parts/')) {
             let OBJ = new O;
-            parts.forEach(([comp, parts]) => comp.includes('-') ?
-                OBJ.blade[comp.split('-')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))]) : 
-                OBJ[comp.split('_')[0]] = new O(OBJ[comp.split('_')[0]] ?? {}, parts.map(part => [
+            parts.forEach(([comp, parts]) => comp.includes('.') ?
+                OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))]) : 
+                OBJ[comp.split('-')[0]] = new O(OBJ[comp.split('-')[0]] ?? {}, parts.map(part => [
                     part.abbr, 
                     new Part[part.comp](truncate ? Transform.truncate(part) : part)
                 ]))

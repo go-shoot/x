@@ -35,11 +35,14 @@ nav {
         justify-self: start; 
         max-width: 100%;
         padding-right: .6em; 
-        display: flex; align-items: center; gap: .3rem;
+        display: flex; align-items: center; gap: .3em;
         overflow: scroll hidden; scrollbar-width: none;
         background: var(--overlay2); border-radius: 9em; 
         --color: hsl(var(--hue), 90%, calc(50% + var(--b-adj)));
 
+        .blade &#group {
+            font-size: .8em; text-transform: uppercase;
+        }
         label img {
             height: 1.2em; 
             margin-top: .05em; 
@@ -51,7 +54,7 @@ nav {
                 padding: 0 0 0 .2em;
                 min-width: 2.8em; height: 100%; 
                 line-height: 1.8rem; 
-                color: black; font-size: .9em;
+                color: black; font-size: .9rem;
                 background: var(--color);
                 border-top-left-radius: 9em; border-bottom-left-radius: 9em;
             }
@@ -68,9 +71,6 @@ nav {
             #type & {padding: 0;}
             &:has(:checked) {
                 color: var(--theme); border-color: var(--type,--theme); 
-            }
-            &:has([value$=remake],[value$=collab],[value$=hasbro]) {
-                font-size: .9em;
             }
         }
     }

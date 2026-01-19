@@ -36,7 +36,7 @@ Object.assign(Parts, {
     
     switch (groupORpart) {
         let [group, part] = typeof groupORpart == 'string' ? [groupORpart] : [, groupORpart.Part];
-        group ??= part.path[2] ?? part.group;
+        group ??= part.classes || part.path[2] || part.group;
         group && Q(`#group input`, input => input.checked = input.value == `.${group}`);
         group ||= Q('#group input:checked').value?.substring(1);
         Parts.info(group);
