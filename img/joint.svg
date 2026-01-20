@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -70 100 140">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -75 100 150">
   <style>
       mask~* {fill: #ccc;}
       mask~:not(:target) {display: none;}
