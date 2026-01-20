@@ -167,11 +167,9 @@ Object.assign(DB, {
         return new Promise(res => store.index('group').getAll(IDBKeyRange.only(value))
             .onsuccess = ev => res(ev.target.result.forEach(({abbr}) => store.delete(abbr))));
     },
-    get (store, key) {
-        !key && ([store, key] = store.split('.').reverse());
-        return new Promise(res => DB.store(store).get(key)
-            .onsuccess = ({target: {result}}) => res(result?.abbr ? DB.format.part(result, store) : result));
-    },
+    get: (store, key) => new Promise(res => DB.store(store).get(key)
+        .onsuccess = ({target: {result}}) => res(result?.abbr ? DB.format.part(result, store) : result))
+    ,
     put: (store, items) => Array.isArray(items) ?
         Promise.all(items.map(item => DB.put(store, item))) :
         items && new Promise(res => DB.store(store).put(...items.abbr ? [items] : Object.entries(items)[0].reverse())

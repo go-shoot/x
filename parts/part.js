@@ -22,7 +22,7 @@ class Part {
         this.constructor == Blade && this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         let {path, stat} = this;
         !stat && this.push(await (
-            path.length >= 3 ? DB.get(`${path[0]}-${path[1]}`, path[3]) : DB.get(path[0], path[1])
+            path.length >= 3 ? DB.get(`${path[0]}.${path[1]}`, path[3]) : DB.get(path[0], path[1])
         ));
         this.constructor != Blade && await this.revise('tile');
         return new Tile(this);

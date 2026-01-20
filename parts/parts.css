@@ -54,7 +54,7 @@ nav {
                 padding: 0 0 0 .2em;
                 min-width: 2.8em; height: 100%; 
                 line-height: 1.8rem; 
-                color: black; font-size: .9rem;
+                color: black; font-size: .8rem;
                 background: var(--color);
                 border-top-left-radius: 9em; border-bottom-left-radius: 9em;
             }
