@@ -6,10 +6,10 @@
                     "_": "ブレード", 
                     "CX": {
                         "motif": {"_": "ロックチップ"},
-                        "upper_m": {"_": "メインブレード"},
-                        "lower_p": {"_": "アシストブレード"},
-                        "upper_p": {"_": "オーバーブレード"},
-                        "lower_m": {"_": "メタルブレード"}
+                        "upper-m": {"_": "メインブレード"},
+                        "lower-p": {"_": "アシストブレード"},
+                        "upper-p": {"_": "オーバーブレード"},
+                        "lower-m": {"_": "メタルブレード"}
                     }
                 },
                 "ratchet": {"_": "ラチェット"},
@@ -57,18 +57,18 @@
                 "CX": {
                     "group": {
                         "motif": {"label": "Chip"},
-                        "upper_m": {"label": "Main", "checked": true},
-                        "lower_p": {"label": "Assist"},
-                        "upper_p": {"label": "Over"},
-                        "lower_m": {"label": "Metal"},
+                        "upper-m": {"label": "Main", "checked": true},
+                        "lower-p": {"label": "Assist"},
+                        "upper-p": {"label": "Over"},
+                        "lower-m": {"label": "Metal"},
                         "hasbro": {"label": "未出"}
                     },
                     "title": {
                         "motif": "【CX】紋章鎖⬧鎖定紋章⬧Lock Chip",
-                        "upper_m": "【CX】主刃⬧主要戰刃⬧Main Blade",
-                        "lower_p": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
-                        "upper_p": "【CX】刃⬧戰刃⬧Over Blade",
-                        "lower_m": "【CX】刃⬧戰刃⬧Metal Blade",
+                        "upper-m": "【CX】主刃⬧主要戰刃⬧Main Blade",
+                        "lower-p": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
+                        "upper-p": "【CX】刃⬧戰刃⬧Over Blade",
+                        "lower-m": "【CX】刃⬧戰刃⬧Metal Blade",
                         "hasbro": "【CX】未出"
                     },
                     "multiple": false
@@ -82,7 +82,8 @@
                         "mid":  {"label": "▅", "checked": true},
                         "high": {"label": "▇", "checked": true}
                     },
-                    "title": "核輪⬧固鎖輪盤⬧Ratchet"
+                    "title": "核輪⬧固鎖輪盤⬧Ratchet",
+                    "filters": ["joint"]
                 }
             },
             "bit": {

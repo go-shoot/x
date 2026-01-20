@@ -1,4 +1,28 @@
 {
+    "VkHc": {
+        "group": "hasbro",
+        "names": {
+            "jap": "",
+            "eng": "",
+            "chi": ""
+        },
+        "stat": ["33-"],
+        "desc": "（目前只在孩之寶商品中收錄，稱「Hack Viking」）",
+        "attr": ["bal","right","UX"],
+        "from": "HlHm"
+    },
+    "MdSt": {
+        "group": "hasbro",
+        "names": {
+            "jap": "",
+            "eng": "",
+            "chi": ""
+        },
+        "stat": ["28-"],
+        "desc": "（目前只在孩之寶商品中收錄，稱「Stun Medusa」）",
+        "attr": ["sta","right","UX"],
+        "from": "ShSh"
+    },
     "KnYl": {
         "group": "hasbro",
         "names": {
@@ -41,7 +65,7 @@
             "chi": "暴風戰龍 龍騎士 S"
         },
         "stat": ["25="],
-        "desc": "特化於左迴轉的四枚刃強力地撞走對手。（2000年發售的陀螺之X代復刻版）",
+        "desc": "左迴轉特化的四枚刃強力地撞走對手。（2000年發售的陀螺之X代復刻版）",
         "attr": ["att","left","BSB"]
     },
     "DCS": {
@@ -59,8 +83,8 @@
         "group": "remake",
         "names": {
             "jap": "ストームペガシス",
-            "eng": "Storm \\Pegasis",
-            "chi": "烈風天馬 暴風天馬"
+            "eng": "Storm\\Pegasis",
+            "chi": "烈風\\天馬 暴風\\天馬"
         },
         "stat": ["31+"],
         "desc": "Upper形狀三枚刃把對手撞走及給予傷害。（2009年發售的陀螺之X代復刻版）",
@@ -70,8 +94,8 @@
         "group": "remake",
         "names": {
             "jap": "ロックレオーネ",
-            "eng": "Rock \\Leone",
-            "chi": "岩巖獅王 巨岩雄獅"
+            "eng": "Rock\\Leone",
+            "chi": "岩巖\\獅王 巨岩\\雄獅"
         },
         "stat": ["30-"],
         "desc": "台形形狀六枚刃化解對手攻擊同時給予反擊。（2009年發售的陀螺之X代復刻版）",
@@ -81,8 +105,8 @@
         "group": "remake",
         "names": {
             "jap": "ライトニングエルドラゴ_アッパー",
-            "eng": "Lightning \\L-Drago_upper",
-            "chi": "雷霆魔龍_高空扣殺 雷霆天龍_強擊"
+            "eng": "Lightning\\L-Drago_upper",
+            "chi": "雷霆\\魔龍_高空扣殺 雷霆\\天龍_強擊"
         },
         "stat": ["34-"],
         "desc": "在三處配置向左的Upper刃，重視Upper攻擊。（2009年發售的陀螺之X代復刻版）",
@@ -92,8 +116,8 @@
         "group": "remake",
         "names": {
             "jap": "ライトニングエルドラゴ_連打",
-            "eng": "Lightning \\L-Drago_rush",
-            "chi": "雷霆魔龍_連環攻擊 雷霆天龍_連打"
+            "eng": "Lightning\\L-Drago_rush",
+            "chi": "雷霆\\魔龍_連環攻擊 雷霆\\天龍_連打"
         },
         "stat": ["33+"],
         "desc": "在三處配置向左的連打刃，重視連打攻擊。（2009年發售的陀螺之X代復刻版）",
@@ -103,8 +127,8 @@
         "group": "remake",
         "names": {
             "jap": "ビクトリーヴァルキリー",
-            "eng": "Victory \\Valkyrie",
-            "chi": "勝利武神 天翼戰神"
+            "eng": "Victory\\Valkyrie",
+            "chi": "勝利\\武神 天翼\\戰神"
         },
         "stat": ["33+"],
         "desc": "三把大劍的強烈上段攻擊旨在Burst。（2016年發售的陀螺之X代復刻版）",
@@ -114,8 +138,8 @@
         "group": "remake",
         "names": {
             "jap": "ゼノエクスカリバー",
-            "eng": "Xeno \\Xcalibur",
-            "chi": "異界聖劍 神力聖劍"
+            "eng": "Xeno\\Xcalibur",
+            "chi": "異界\\聖劍 神力\\聖劍"
         },
         "stat": ["31-"],
         "desc": "劍形大型一枚刃，擅於強烈地撞飛對手。（2016年發售的陀螺之X代復刻版）",
@@ -127,7 +151,7 @@
         "names": {
             "jap": "アイアンマン",
             "eng": "Ironman",
-            "chi": "鋼鐵人"
+            "chi": "鐵甲奇俠 鋼鐵人"
         },
         "stat": ["32+"],
         "attr": ["def","right","BX"],
@@ -138,7 +162,7 @@
         "names": {
             "jap": "サノス",
             "eng": "Thanos",
-            "chi": "薩諾斯"
+            "chi": "魁隆 薩諾斯"
         },
         "stat": ["29+"],
         "attr": ["def","right","BX"],
@@ -171,7 +195,7 @@
         "names": {
             "jap": "スパイダーマン",
             "eng": "Spiderman",
-            "chi": "蜘蛛人"
+            "chi": "蜘蛛俠 蜘蛛人"
         },
         "stat": ["33="],
         "attr": ["sta","right","BX"],
@@ -182,7 +206,7 @@
         "names": {
             "jap": "ヴェノム",
             "eng": "Venom",
-            "chi": "猛毒"
+            "chi": "毒魔 猛毒"
         },
         "stat": ["34+"],
         "attr": ["att","right","BX"],
@@ -281,7 +305,7 @@
         "names": {
             "jap": "オプティマスプライム",
             "eng": "Optimus Prime",
-            "chi": "柯博文"
+            "chi": "柯柏文 柯博文"
         },
         "stat": ["33="],
         "attr": ["def","right","BX"],
@@ -292,7 +316,7 @@
         "names": {
             "jap": "メガトロン",
             "eng": "Megatron",
-            "chi": "密卡登"
+            "chi": "麥加登 密卡登"
         },
         "stat": ["32-"],
         "attr": ["bal","right","BX"],
@@ -303,7 +327,7 @@
         "names": {
             "jap": "オプティマスプライマル",
             "eng": "Optimus Primal",
-            "chi": "金剛王"
+            "chi": "奧狄武 金剛王"
         },
         "stat": ["36-"],
         "attr": ["att","right","BX"],
@@ -314,7 +338,7 @@
         "names": {
             "jap": "スタースクリーム",
             "eng": "Starscream",
-            "chi": "天王星"
+            "chi": "星星叫 天王星"
         },
         "stat": ["29+"],
         "attr": ["sta","right","BX"],

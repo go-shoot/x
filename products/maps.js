@@ -7,7 +7,7 @@ const Maps = {
         ['BX-21', {detail: '${no}_(p|y|o)', more: '${no}_(p|y|o)'}],
         ['BX-20', {detail: '${no}(B|G|P)', more: '${no}_(b|g|p)'}],
         [['BX-17','UX-04'], {detail: '${no}(A|B)'}],
-        ['BXG-', {alias: 'BX00_bit_silver_white'}],
+        ['BXG-50', {alias: 'BX00_bit_silver_white'}],
         ['BXG-25', {alias: 'BXA-02', detail: 'bxa_02_d(b2|d|s)'}],
         ['BXG-17', {alias: 'BXG_bit01'}],
         ['BXG-14', {alias: 'BXG-09'}],

@@ -1,92 +1,97 @@
 [
     {
         "type":"m", "note":"Full color 版漫畫同梱", "date":"2026-05", "link":"https://lifetunes-mall.jp/shop/g/gR20250033/",
-        "bey":"DR.Ar.S 2-70 K", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
+        "code":"BXC-10 BXC-13", "bey":"DR.Ar.S 2-70 K", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://corocoro-news.jp/wp-content/uploads/2025/05/f07d92190b453b7cb0b9d2ae5b80b03a.jpg",{"width":"95%","left":"45%"}]
     },
     {
         "type":"m", "note":"Full color 版漫畫同梱", "date":"2026-02", "link":"https://lifetunes-mall.jp/shop/g/gR20250030/",
-        "bey":"SmSb 2-70 L", "ver":["メタルコート：オレンジ", "Metal Coat: Orange"],
+        "code":"BXC-06 BXC-12", "bey":"SmSb 2-70 L", "ver":["メタルコート：オレンジ", "Metal Coat: Orange"],
         "img":["https://pbs.twimg.com/media/GjzKKRDa0AAaxOg?format=jpg&name=large",{"width":"97%"}]
     },
     {
-        "type":"m", "note":"コロコロ雜誌應募", "date":"2025-12",
-        "bey":"OrCl 6-60 LF",
-        "img":["https://corocoro-news.jp/wp-content/uploads/2025/10/769ec69bf4024f902aa8b4908054b884.jpg"]
+        "type":"m", "note":"コロコロ雜誌應募", "date":"2025-12", "link":"https://corocoro-news.jp/news/399068/",
+        "code":"BXG-55", "bey":"ShEd 2-60 GP", "ver":["メタルコート：ブラック", "Metal Coat: Black"],
+        "img":["https://corocoro-news.jp/wp-content/uploads/2025/11/ffa922810e98c8f245f5a2f52d470c71.jpg"]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251114.html", "date":"2025-12",
-        "bey":"/ / O", "ver":["スペシャル Ver.", "Special Ver."],
+        "code":"BXH-21", "bey":"/ / O", "ver":["スペシャル Ver.", "Special Ver."],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251114_bitO.webp",{"width":"200%"}]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251114.html", "date":"2025-12",
-        "bey":"/ / D", "ver":["スペシャル Ver.", "Special Ver."],
+        "code":"BXH-21", "bey":"/ / D", "ver":["スペシャル Ver.", "Special Ver."],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251114_bitD.webp",{"width":"200%"}]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251114.html", "date":"2025-12",
-        "bey":"/ / V", "ver":["スペシャル Ver.", "Special Ver."],
+        "code":"BXH-21", "bey":"/ / V", "ver":["スペシャル Ver.", "Special Ver."],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251114_bitV.webp",{"width":"200%"}]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251015_3.html", "date":"2025-11",
-        "bey":"/ / P", "ver":["スペシャル Ver.", "Special Ver."],
+        "code":"BXH-20", "bey":"/ / P", "ver":["スペシャル Ver.", "Special Ver."],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251015_3_point.webp",{"width":"200%"}]
     },
     {
+        "type":"m", "note":"コロコロ雜誌應募", "date":"2025-11", "link":"https://corocoro-news.jp/news/398602/",
+        "code":"BXC-15", "bey":"OrCl 6-60 LF",
+        "img":["https://corocoro-news.jp/wp-content/uploads/2025/10/769ec69bf4024f902aa8b4908054b884.jpg"]
+    },
+    {
         "type":"m", "note":"實物版遊戲同梱", "link":"https://www.cs.furyu.jp/beyblade2025/", "date":"2025-11",
-        "bey":"LN.Fn.T 4-60 A", "ver":["レッド Ver.", "Red Ver."],
+        "code":"BXG-38", "bey":"LN.Fn.T 4-60 A", "ver":["レッド Ver.", "Red Ver."],
         "img":["https://pbs.twimg.com/media/Gq9VsAaaAAcQkI4?format=jpg&name=large",{"width":"100%"}]
     },
     {
-        "type":"d", "note":"DMM くじ Last Chance 賞", "date":"2025-10", "link": "https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",
-        "bey":"WyHv 2-80 GN","ver":["メタルコート：バイオレット","Metal Coat: Violet"],
+        "type":"d", "note":"DMM くじ Last Chance 賞", "date":"2025-10", "link":"https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",
+        "code":"BXG-39", "bey":"WyHv 2-80 GN","ver":["メタルコート：バイオレット","Metal Coat: Violet"],
         "img":["https://scratch.dmm.com/s3/dmmkuji_double_long_img/16/qcnjiLiMCt5LfHJ7cNY3iSbEaT295DHtBecaOTFG.jpeg",{"width":"364%","left":"-20%","top":"43%"}]
     },
     {
-        "type":"d", "note":"DMM くじ A 賞", "date":"2025-10", "link": "https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",
-        "bey":"WyHv 2-80 GN",
+        "type":"d", "note":"DMM くじ A 賞", "date":"2025-10", "link":"https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",
+        "code":"BXG-39", "bey":"WyHv 2-80 GN",
         "img":["https://scratch.dmm.com/s3/dmmkuji_double_long_img/16/qcnjiLiMCt5LfHJ7cNY3iSbEaT295DHtBecaOTFG.jpeg",{"width":"365%","left":"120%","top":"43%"}]
     },
     {
-        "type":"d", "note":"App 抽獎獎品", "date":"2025-07",
-        "bey":"VL.Vl.S 4-70 V","ver":["メタルコート：ゴールド","Metal Coat: Gold"],
+        "type":"d", "note":"App 抽獎獎品", "date":"2025-07", 
+        "code":"BXH-14", "bey":"VL.Vl.S 4-70 V","ver":["メタルコート：ゴールド","Metal Coat: Gold"],
         "img":["https://takaratomymall.jp/img/goods/5/4904810954316_6c4a390e451f4e0d88c55a5dbf3f1f5a.png"]
     },
     {
         "type":"g", "note":"コロコロ合體版雜誌附錄", "link":"https://corocoro-news.jp/news/397017/", "date":"2025-07",
-        "bey":"/./.J",
+        "code":"BXC-14", "bey":"/./.J",
         "img":["https://corocoro-news.jp/wp-content/uploads/2025/06/dafb3d8b9744b924199470365546d041.jpg"]
     },
     {
         "type":"m", "note":"コロコロ雜誌應募", "date":"2025-05", "link":"https://corocoro-news.jp/news/396091/",
-        "bey":"SmSt 5-70 GF", "ver":["メタルコート：ホワイト", "Metal Coat: White"],
+        "code":"BXC-11", "bey":"SmSt 5-70 GF", "ver":["メタルコート：ホワイト", "Metal Coat: White"],
         "img":["https://corocoro-news.jp/wp-content/uploads/2025/04/4e0bd5ecc822c03193ad809c190f0a2d.jpg",{"width":"104%"}]
     },
     {
-        "type":"t", "note":"G1 大會冠軍獎品", "date":"2025-05",
-        "bey":"DR.Br.S 6-60 V", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
+        "type":"t", "note":"G1 大會冠軍獎品", "date":"2025-05", 
+        "code":"BXH-16", "bey":"DR.Br.S 6-60 V", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2025_1.png",{"width":"200%","left":"52%"}]
     },
     {
-        "type":"t", "note":"G1 大會亞軍獎品", "date":"2025-05",
-        "bey":"DR.Br.S 6-60 V", "ver":["メタルコート：シルバー", "Metal Coat: Silver"],
+        "type":"t", "note":"G1 大會亞軍獎品", "date":"2025-05", 
+        "code":"BXH-16", "bey":"DR.Br.S 6-60 V", "ver":["メタルコート：シルバー", "Metal Coat: Silver"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2025_2.png",{"width":"200%","left":"52%"}]
     },
     {
-        "type":"t", "note":"G1 大會季軍獎品", "date":"2025-05",
-        "bey":"DR.Br.S 6-60 V", "ver":["メタルコート：ブロンズ", "Metal Coat: Bronze"],
+        "type":"t", "note":"G1 大會季軍獎品", "date":"2025-05", 
+        "code":"BXH-16", "bey":"DR.Br.S 6-60 V", "ver":["メタルコート：ブロンズ", "Metal Coat: Bronze"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2025_3.png",{"width":"200%","left":"54%"}]
     },
     {
-        "type":"t", "note":"G3 大會獎品（集齊後）", "date":"2025-04", "code":"BXH-15",
-        "bey":"PR.Dr.B 6-80 W", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
+        "type":"t", "note":"G3 大會獎品（集齊後）", "date":"2025-04", 
+        "code":"BXH-15", "bey":"PR.Dr.B 6-80 W", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/g3_gift1_2025.webp", {"width":"135%"}]
     },
     {
         "type":"g", "note":"月費會員加入贈品", "date":"2025-03",
-        "bey":"DR././", "ver":["クリアブラックVer.", "Clear Black Ver."],
+        "code":"BXH-17", "bey":"DR././", "ver":["クリアブラックVer.", "Clear Black Ver."],
         "img":["https://takaratomymall.jp/img/goods/5/4904810953715_d1e01b6b57d6487e97188c2595366d43.jpg",{"width":"80%"}]
     },
     {
@@ -101,7 +106,7 @@
     },
     {
         "type":"m", "note":"Full color 版漫畫同梱", "link":"https://lifetunes-mall.jp/shop/g/gR20240002/", "date":"2024-12",
-        "code":"BXC-09", "bey":"DrBs 1-60 A", "ver":["メタルコート：レッド", "Metal Coat: Red"],
+        "code":"BXC-03 BXC-09", "bey":"DrBs 1-60 A", "ver":["メタルコート：レッド", "Metal Coat: Red"],
         "img":["https://corocoro.jp/wp-content/uploads/2024/03/f701f1cdac42c7408a4ff6095be0ed1d.jpg"]
     },
     {
@@ -116,27 +121,27 @@
     },
     {
         "type":"m", "note":"實物版遊戲同梱", "link":"https://www.cs.furyu.jp/beyblade2024/", "date":"2024-11",
-        "bey":"ShKn 4-60 LF", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
+        "code":"BXG-16", "bey":"ShKn 4-60 LF", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://www.cs.furyu.jp/beyblade2024/assets/img/guide/special_bey.png",{"width":"90%"}]
     },
     {
         "type":"g", "note":"コロコロ雜誌附錄", "link":"https://corocoro.jp/news/385187/", "date":"2024-06",
-        "bey":"DrSw", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
+        "code":"BXC-04", "bey":"DrSw", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://corocoro.jp/wp-content/uploads/2024/05/745531bfaf43d87bc17ea9b9d5588099.jpg",{"width":"100%"}]
     },
     {
-        "type":"t", "note":"G3 大會獎品（集齊後）", "date":"2024-06", "code":"BXH-09",
-        "bey":"WzRd 5-70 DB", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
+        "type":"t", "note":"G3 大會獎品（集齊後）", "date":"2024-06", 
+        "code":"BXH-09", "bey":"WzRd 5-70 DB", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/g3_gift1_2024.jpg", {"width":"120%","top":"52%"}]
     },
     {
         "type":"m", "note":"香港壽司郎推廣活動", "link":"https://www.facebook.com/SUSHIROHONGKONG/posts/407971458462714", "date":"2024-02",
         "code":"BXA-01", "bey":"DrSw 3-60 F", "ver":["〈スシロー〉", "〈Sushiro〉"],
-        "img":["keihin/sushiro.jpg",{"width":"90%"}]
+        "img":["https://beyblade-ex/github.io/keihin/sushiro.jpg",{"width":"90%"}]
     },
     {
         "type":"m", "note":"コロコロ雜誌應募", "link":"https://corocoro.jp/news/379029/", "date":"2024-01",
-        "code":"BXC-02", "bey":"HlSc 3-80 F", "ver":["スペシャルクロスベイ<br>〈ペルソナ〉", "SPX Bey〈Persona〉"],
+        "code":"BXC-02", "bey":"HlSc 3-80 F", "ver":["スペシャルクロスベイ", "SPX Bey"],
         "img":["https://corocoro.jp/wp-content/uploads/2023/12/f919dd35dc468956f947d2d2ab3551d1.jpg",{"width":"115%"}]
     },
     {

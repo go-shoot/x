@@ -2,12 +2,12 @@
   "part-ratchet":      "2025/11/08 15:18:00",
   "part-blade":        "2025/11/08 15:10:00",
   "part-blade-collab": "2025/09/12 21:40:00",
-  "part-blade-divided":"2025/09/12 22:20:00",
-  "prod-beys":         "2025/09/12 21:40:00",
-  "prod-keihin":       "2025/11/08 15:08:00",
+  "part-blade-divided":"2026/01/19 21:40:00",
+  "meta":              "2026/01/19 20:40:00",
+  "prod-beys":         "2026/01/19 12:40:00",
+  "prod-keihin":       "2026/01/19 15:45:00",
   "prod-equipment":    "2025/09/12 21:40:00",
   "part-bit":          "2025/11/08 15:19:00",
-  "meta":              "2025/08/11 23:00:00",
   "news": {
     "2025-11-01":[
       {"code":"CX-10 booster","name":"ウルフハントF0-60DB<br>WolfHunt F0-60DB","type":"sta",

@@ -1,10 +1,7 @@
 {
     "A": {
         "group": "flat",
-        "names": {
-            "jap": "アクセル",
-            "eng": "Accel"
-        },
+        "names": {"jap":"アクセル", "eng":"Accel"},
         "stat": ["3-",16,94],
         "desc": "由平坦軸端加上大型Gear組成，提高X Dash性能。",
         "attr": ["att"]
@@ -15,17 +12,14 @@
     },
     "B": {
         "group": "round",
-        "names": {
-            "jap": "ボール",
-            "eng": "Ball"
-        },
+        "names": {"jap":"ボール", "eng":"Ball"},
         "stat": ["2=",12,78],
         "desc": "球狀軸端以適度移動來躱避攻擊及實現高持久力。",
         "attr": ["sta"]
     },
     "DB": {
         "stat": ["3+",12,77],
-        "desc": "産生離心力及堅韌的迴轉。高度亦增加20。"
+        "desc": "産生離心力及堅韌的迴轉。（比標準高度增加約20）"
     },
     "FB": {
         "stat": ["2=",12,76],
@@ -41,40 +35,28 @@
     },
     "C": {
         "group": "flat",
-        "names": {
-            "jap": "サイクロン",
-            "eng": "Cyclone"
-        },
+        "names": {"jap":"サイクロン", "eng":"Cyclone"},
         "stat": ["2+",12,94],
         "desc": "渦形的平坦軸端在左迴轉時提高與對戰盤的緊咬性，能高速攻擊。",
         "attr": ["att"]
     },
     "D": {
         "group": "sharp",
-        "names": {
-            "jap": "ドット",
-            "eng": "Dot"
-        },
+        "names": {"jap":"ドット", "eng":"Dot"},
         "stat": ["2=",12,76],
         "desc": "在軸端的多數突起提高與對戰盤的摩擦，受攻擊時也難以被推走。",
         "attr": ["def"]
     },
     "E": {
-        "group": "round",
-        "names": {
-            "jap": "エレベート",
-            "eng": "Elevate"
-        },
+        "group": "flat",
+        "names": {"jap":"エレベート", "eng":"Elevate"},
         "stat": ["3+",12,76],
         "desc": "附有大型Guide（移動引導物）的設計容易保持姿勢；X Dash時軸端浮上，可作Smash攻擊。",
         "attr": ["bal"]
     },
     "F": {
         "group": "flat",
-        "names": {
-            "jap": "フラット",
-            "eng": "Flat"
-        },
+        "names": {"jap":"フラット", "eng":"Flat"},
         "stat": ["2+",12,94],
         "desc": "平坦軸端令陀螺跑動，提高以X Dash決勝的容易度。",
         "attr": ["att"]
@@ -93,30 +75,28 @@
     },
     "G": {
         "group": "round",
-        "names": {
-            "jap": "グライド",
-            "eng": "Glide"
-        },
+        "names": {"jap":"グライド", "eng":"Glide"},
         "stat": ["3-",16,76],
         "desc": "以低摩擦素材製的半球形軸端及其周圍容易使姿勢維持的形狀，實現持久性能。",
         "attr": ["sta"]
     },
     "H": {
         "group": "sharp",
-        "names": {
-            "jap": "ヘキサ",
-            "eng": "Hexa"
-        },
+        "names": {"jap":"ヘキサ", "eng":"Hexa"},
         "stat": ["3-",16,94],
         "desc": "軸端側面六個平面形狀抑制陀螺的傾斜，持續保持安定姿勢。",
         "attr": ["bal"]
     },
+    "J": {
+        "group": "flat",
+        "names": {"jap":"ジョルト", "eng":"Jolt"},
+        "stat": ["3-",16,94],
+        "desc": "一併展現以幼細平坦軸端來壓抑持久損失的攻擊、及大型Gear的高速X Dash。",
+        "attr": ["att"]
+    },
     "K": {
         "group": "flat",
-        "names": {
-            "jap": "キック",
-            "eng": "Kick"
-        },
+        "names": {"jap":"キック", "eng":"Kick"},
         "stat": ["2+",12,94],
         "desc": "有角的軸端側面於對戰盤内踢蹴，實現連續攻擊或反擊防禦的動態。",
         "attr": ["bal"]
@@ -127,30 +107,21 @@
     },
     "L": {
         "group": "flat",
-        "names": {
-            "jap": "レベル",
-            "eng": "Level"
-        },
+        "names": {"jap":"レベル", "eng":"Level"},
         "stat": ["3-",16,94],
         "desc": "軸端有三級的高度，實現低速、中速、高速三種攻擊速度。",
         "attr": ["att"]
     },
     "M": {
         "group": "sharp",
-        "names": {
-            "jap": "マージ",
-            "eng": "Merge"
-        },
+        "names": {"jap":"マージ", "eng":"Merge"},
         "stat": ["3+",18,94],
         "desc": "高摩擦的橡膠素材圍繞鈍角的尖軸端，抓力及持久力兼備。（比標準高度增加約40）",
         "attr": ["bal"]
     },
     "N": {
         "group": "sharp",
-        "names": {
-            "jap": "ニードル",
-            "eng": "Needle"
-        },
+        "names": {"jap":"ニードル", "eng":"Needle"},
         "stat": ["2=",12,78],
         "desc": "尖鋭軸端令陀螺傾斜，提高反擊性能。",
         "attr": ["def"]
@@ -173,24 +144,18 @@
     },
     "O": {
         "group": "round",
-        "names": {
-            "jap": "オーブ",
-            "eng": "Orb"
-        },
+        "names": {"jap":"オーブ", "eng":"Orb"},
         "stat": ["2=",12,78],
         "desc": "小型半球狀的軸端減低摩擦，提高持久性能。",
         "attr": ["sta"]
     },
     "LO": {
-        "stat": ["2="],
+        "stat": ["2=",12,77],
         "desc": "低重心化令持久性能向上。"
     },
     "P": {
         "group": "round",
-        "names": {
-            "jap": "ポイント",
-            "eng": "Point"
-        },
+        "names": {"jap":"ポイント", "eng":"Point"},
         "stat": ["2+",12,94],
         "desc": "在中心設有突起的平坦軸端，由活躍變化為靜態的機動。",
         "attr": ["bal"]
@@ -205,20 +170,14 @@
     },
     "Q": {
         "group": "flat",
-        "names": {
-            "jap": "クエイク",
-            "eng": "Quake"
-        },
+        "names": {"jap":"クエイク", "eng":"Quake"},
         "stat": ["2+",12,94],
         "desc": "斜向切割形狀的軸端，四處跳躍地暴走，産生不規則的動態。",
         "attr": ["att"]
     },
     "R": {
         "group": "flat",
-        "names": {
-            "jap": "ラッシュ",
-            "eng": "Rush"
-        },
+        "names": {"jap":"ラッシュ", "eng":"Rush"},
         "stat": ["2=",10,94],
         "desc": "十枚刃Gear以壓抑X Dash的速度來增加衝刺次數。",
         "attr": ["att"]
@@ -233,10 +192,7 @@
     },
     "S": {
         "group": "sharp",
-        "names": {
-            "jap": "スパイク",
-            "eng": "Spike"
-        },
+        "names": {"jap":"スパイク", "eng":"Spike"},
         "stat": ["2=",12,77],
         "desc": "細小尖鋭的軸端持續穩守對戰盤中央，提高反擊機會。",
         "attr": ["def"]
@@ -247,10 +203,7 @@
     },
     "T": {
         "group": "flat",
-        "names": {
-            "jap": "テーパー",
-            "eng": "Taper"
-        },
+        "names": {"jap":"テーパー", "eng":"Taper"},
         "stat": ["2+",12,94],
         "desc": "收細的軸端兼備頭段的攻擊力及尾段的持久力。",
         "attr": ["bal"]
@@ -261,60 +214,46 @@
     },
     "U": {
         "group": "round",
-        "names": {
-            "jap": "ユナイト",
-            "eng": "Unite"
-        },
+        "names": {"jap":"ユナイト", "eng":"Unite"},
         "stat": ["2+",12,94],
         "desc": "球狀軸端的尖端磨平同時在中央設有突起，迴避、衝刺、反擊三種軌道都可能。",
         "attr": ["bal"]
     },
     "V": {
         "group": "flat",
-        "names": {
-            "jap": "ボルテックス",
-            "eng": "Vortex"
-        },
+        "names": {"jap":"ボルテックス", "eng":"Vortex"},
         "stat": ["2+",12,95],
         "desc": "渦形的粗大平坦軸端在右迴轉時提高與對戰盤的緊咬性，能高速攻擊。",
         "attr": ["att"]
     },
     "W": {
         "group": "sharp",
-        "names": {
-            "jap": "ウェッジ",
-            "eng": "Wedge"
-        },
+        "names": {"jap":"ウェッジ", "eng":"Wedge"},
         "stat": ["2=",10,78],
         "desc": "以鈍角尖銳的軸端難以傾斜；十枚齒X Dash時減輕持久損失。",
         "attr": ["def"]
     },
+    "WW": {
+        "stat": [],
+        "desc": ""
+    },
     "Z": {
         "group": "round",
-        "names": {
-            "jap": "ザップ",
-            "eng": "Zap"
-        },
+        "names": {"jap":"ザップ", "eng":"Zap"},
         "stat": ["3-",16,94],
         "desc": "大形Gear上一併擁有平軸帶來的活躍攻擊及中央突起帶來的平靜防守。",
         "attr": ["bal"]
     },
     "Op": {
         "group": "multi",
-        "names": {
-            "jap": "オペレート",
-            "eng": "Operate"
-        },
-        "stat": ["14+",14,"85<>80"],
+        "names": {"jap":"オペレート", "eng":"Operate"},
+        "stat": ["14+",14,"85/80"],
         "desc": "可選擇以化解性四枚刃及幼細軸端來抵耐攻擊的防禦模式、或以擁有空力構造的兩枚刃及粗大軸端來環迴的攻擊模式。",
         "attr": ["bal","fusion"]
     },
     "Tr": {
         "group": "multi",
-        "names": {
-            "jap": "ターボ",
-            "eng": "Turbo"
-        },
+        "names": {"jap":"ターボ", "eng":"Turbo"},
         "stat": ["13-",16,"90>65"],
         "desc": "高速迴轉時以幼軸保持安定的動態；迴轉下降後變形至粗軸及再加速以作X Dash。調整發射力度能分別使用兩種狀態。",
         "attr": ["att","fusion"]

@@ -10,6 +10,28 @@
         "desc": "",
         "attr": ["att","right"]
     },
+   "MmCr": {
+        "group": "UX",
+        "names": {
+            "jap": "マミーカース",
+            "eng": "MummyCurse",
+            "chi": "木乃伊/詛咒 古屍詛咒"
+        },
+        "stat": ["37+"],
+        "desc": "依迴轉速度變形：初段時彈出Counter刃作反擊、後段時以近圓形狀防守到尾。",
+        "attr": ["def","right"]
+    },
+   "MtDg": {
+        "group": "UX",
+        "names": {
+            "jap": "メテオ\\ドラグーン",
+            "eng": "Meteor\\Dragoon",
+            "chi": "隕石\\青龍 隕星\\龍騎士"
+        },
+        "stat": ["39="],
+        "desc": "搭載大型橡膠的三枚刃不斷作出強烈一擊。",
+        "attr": ["att","left","bsb","mfb"]
+    },
    "ClMr": {
         "group": "UX",
         "names": {
@@ -587,7 +609,7 @@
         "names": {
             "jap": "シャークギル",
             "eng": "SharkGill",
-            "chi": "烈鯊鰓刃"
+            "chi": "烈鯊鰓刃 鮫鯊撕裂"
         },
         "stat": ["30="],
         "desc": "滑順圓形兩枚刃卸開對手攻擊，提高持久力。",
@@ -601,8 +623,8 @@
             "eng": "WyvernHover",
             "chi": ""
         },
-        "stat": ["35="],
-        "desc": " (暫只於Hasbro產品及日本抽籤商品中出現)",
+        "stat": ["35+"],
+        "desc": "向下收窄的階梯構造擅於抵受攻擊並從上方壓制，不論對手的形狀。",
         "attr": ["def","right"]
     }
 }
