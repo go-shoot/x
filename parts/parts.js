@@ -95,7 +95,7 @@ const Magnifier = () => {
 Object.assign(Magnifier, {
     events () {
         Q('.magnifier').oninput = ({target}) => {
-            E(Parts.place).set({'--font': target.value});
+            innerWidth > 630 && E(Parts.place).set({'--font': target.value});
             Storage('pref', target instanceof HTMLInputElement ? {button: target.id} : {knob: target.value});
         }
         new ResizeObserver(Magnifier.switch).observe(Q('nav'));

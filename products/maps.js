@@ -17,7 +17,7 @@ const Maps = {
         ['BX-08', {detail: '${no}_(r|g|y)', more: '${no}_(r|g|y)'}],
     ]),
     lowercase: {
-        BXG: n => [1,4,7,14,31,32,11,18,19].includes(parseInt(n)),
+        BXG: n => new Set([1,4,7,14,31,32,11,18,19]).has(parseInt(n)),
         BX: n => parseInt(n) <= 39,
         UX: n => parseInt(n) <= 13
     }

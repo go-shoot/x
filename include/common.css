@@ -113,7 +113,7 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 .SS {--hue: 235; --b-adj: 5%;}
 .St {--hue: 290;}
 .S  {--hue: 200;}
-.Lm  {--hue: 45;}
+.Lm {--hue: 45;}
 .RB,.B,.S,.St,.SS,.Lm {
     --light: hsl(var(--hue,0),var(--sat,35%),calc(40% + var(--b-adj,0%)));
     --dark: hsl(var(--hue,0),var(--sat,45%),calc(30% + var(--b-adj,0%)));

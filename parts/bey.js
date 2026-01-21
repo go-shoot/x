@@ -57,7 +57,6 @@ class Bey {
         index: name => this.name.to.parts(name),
         prize: abbr => this.abbr.to.parts(abbr).to.name(),
         product: ([code, type, abbr, ...others]) => {
-            if (type == 'hidden') return new Text;
             this.abbr.to.parts(this.abbr = abbr);
             return new Row(this, code, type, others);
         },

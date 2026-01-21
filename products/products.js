@@ -7,13 +7,14 @@ let META, PARTS;
 
 const Table = () => Table.before().then(Table.display).then(Table.after);
 Object.assign(Table, {
+    body: Q('tbody'),
     async before () {
         Filter();
         Table.events();
         [META, PARTS] = await DB.get.essentials();
         Part.import(META = META.general, PARTS);
     },
-    display: () => DB.get('product', 'beys').then(beys => Q('tbody').append(...beys.map(bey => new Bey(bey)))),
+    display: () => DB.get('product', 'beys').then(beys => Table.body.append(...beys.map(bey => new Bey(bey)))),
     after () {
         Q('.loading').classList.remove('loading');
         $(Q('table')).tablesorter();
@@ -33,25 +34,26 @@ Object.assign(Table, {
                 Table.timer = setTimeout(() => Table.search(ev.target.value), 500);
             }
         });
-        Q('tbody').onclick = Preview.for.table;
+        Table.body.onclick = Preview.for.table;
     },
     reset () {
+        Table.body.classList.remove('BXG');
         location.search && history.replaceState('', '', './');
         Q('input[type=search]').value = '';
-        Q('tbody tr', tr => tr.classList.toggle('hidden', tr.hidden = false));
+        [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', tr.hidden = false));
         Filter.form.onreset();
         Q('a[href*=obake]').href = 'http://obakeblader.com/?s=入手法';
         Q('a[href*=kyoganken]').href = '//kyoganken.web.fc2.com/beyx/#parts1';
     },
     async search (search) {
         Filter.form.onreset();
-        search[0] == 'search' && (search = search[1]);
+        search[0] == 'search' && (search = search[1]) && (Q('input[type=search]').value ||= search);
         typeof search == 'string' && (search = search.trim());
         if (!search) return Table.reset();
-        Q('tbody tr', tr => tr.classList.add('hidden'));
         let {beys, href} = await new Search(search);
-        beys.forEach(tr => tr.classList.remove('hidden'));
+        [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', !beys.includes(tr)));
         href && setTimeout(() => Table.links(search)) && history.replaceState('', '', `?${href}`);
+        /^bxg-?$/.test(search) && Table.body.classList.add('BXG');
         FilterForm.count();
     },
     links (query) {
@@ -73,7 +75,7 @@ const Filter = () => {
 Object.assign(Filter, {
     form: document.forms[1],
     events () {
-        FilterForm.event(Q('tbody').children, {single: {line: true}}, Filter.form);
+        FilterForm.event(Table.body.children, {single: {line: true}}, Filter.form);
         Filter.form.onmouseover = ({target}) => target.matches('label[title]') && 
             (Q('summary i').innerText = `｛${target.innerText || target.classList}｝：${target.title}`);
     },

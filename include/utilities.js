@@ -119,7 +119,7 @@ const FilterForm = {
             })))
         ]
     },
-    count () {this.form.count.value = [...this.targets].filter(el => !el.matches('.hidden,[hidden]')).length},
+    count () {this.form.count.value = [...this.targets].filter(el => !el.matches('[hidden],.hidden,.Lm')).length},
 }
 
 const Transition = {
