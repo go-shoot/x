@@ -109,14 +109,14 @@
         "group": "upper-m",
         "names": {"jap":"ハント", "eng":"Hunt", "chi":"狩獵"},
         "stat": ["32-"],
-        "desc": "重量集中外周的圓滑形狀連打刃，兼備高持久性能及攻擊性能。",
+        "desc": "重量集中外周的圓滑形狀連打刃，既有高持久性能以及攻擊性能。",
         "attr": ["sta","right","bsb"]
     },
     "Ec": {
         "group": "upper-m",
         "names": {"jap":"エクリプス", "eng":"Eclipse", "chi":"光噬 滅世"},
         "stat": ["32+"],
-        "desc": "反轉可切換模式：upper-m模式擅於以五枚刃撞飛對手的攻擊、Smash模式擅於以十枚刃砸下對手攻擊的防禦。",
+        "desc": "反轉可切換模式：Upper模式擅於以五枚刃撞飛對手的攻擊、Smash模式擅於以十枚刃砸下對手攻擊的防禦。",
         "attr": ["bal","right","mfb"]
     },
     "Fl": {
@@ -151,7 +151,7 @@
         "group": "upper-m",
         "names": {"jap":"ブラッシュ", "eng":"Brush", "chi":"兇尾 九尾"},
         "stat": ["30+"],
-        "desc": "逐漸變大的九枚刃能連打同時強攻擊。",
+        "desc": "一級級變大的九枚刃能連打同時強攻擊。",
         "attr": ["att","right"]
     },
     "Rp": {
@@ -165,7 +165,7 @@
         "group": "upper-m",
         "names": {"jap":"ダーク", "eng":"Dark", "chi":"幽暗 幽冥"},
         "stat": ["30+"],
-        "desc": "波浪形狀的連打六枚刃抵受並撞回攻擊。",
+        "desc": "波浪形狀的連打六枚刃抵擋並撞回攻擊。",
         "attr": ["def","right","mfb"]
     },
     "Ar": {
@@ -179,7 +179,7 @@
         "group": "upper-m",
         "names": {"jap":"ブレイブ", "eng":"Brave", "chi":"勇者 勇氣"},
         "stat": ["31+"],
-        "desc": "三枚大形upper-m刃加上能産生Down force的空力構造。",
+        "desc": "三枚大形Upper刃加上了能産生Down force的空力構造。",
         "attr": ["att","right"]
     },
     "H": {
@@ -193,21 +193,21 @@
         "group": "lower-p",
         "names": {"jap":"フリー", "eng":"Free"},
         "stat": ["6-",11],
-        "desc": "外周Free Ring可迴轉，卸開攻擊以維持持久。",
+        "desc": "外周Free Ring能迴轉，卸開攻擊以維持持久。",
         "attr": ["sta","right"]
     },
     "D": {
         "group": "lower-p",
         "names": {"jap":"デュアル", "eng":"Dual"},
         "stat": ["6=",11],
-        "desc": "把外周的刃反轉可切換至upper-m或Smash模式。",
+        "desc": "把外周的刃反轉可切換至Upper或Smash模式。",
         "attr": ["bal","right"]
     },
     "M": {
         "group": "lower-p",
         "names": {"jap":"マッシブ", "eng":"Massive"},
         "stat": ["5+",11],
-        "desc": "大徑Smash形狀五枚刃的連打擅於令對手姿勢崩倒。",
+        "desc": "大徑幅Smash形狀五枚刃的連打擅於令對手姿勢崩倒。",
         "attr": ["bal","right"]
     },
     "W": {
@@ -249,7 +249,7 @@
         "group": "lower-p",
         "names": {"jap":"チャージ", "eng":"Charge"},
         "stat": ["5=",11],
-        "desc": "小徑三枚刃，内重心令安定性優秀。",
+        "desc": "小徑三枚刃以内重心令安定性優秀。",
         "attr": ["def","right"]
     },        
     "B": {
