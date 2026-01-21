@@ -157,10 +157,9 @@
 }
 
 ::slotted(a:not(:empty)) {
-    font-size: .8em;
+    font-size: .8em; font-weight: 500;
     margin: 0 0 -.6em -.3em;
     place-self: end start;
-
 }
 ::slotted(a:not(:empty))::before {
     content: '\e03c';
