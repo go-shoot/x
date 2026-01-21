@@ -14,11 +14,11 @@ summary:focus {
 :root,input,input::placeholder,button,db-state {
     font-family: IBM Plex Sans JP,COND,sans-serif;
 }
-#search,nav,fieldset,summary,thead,input[type=reset],
+#search,nav,fieldset,summary,tbody td,input[type=reset],
 h4,h5,em,dfn,p dt,.links {
     font-weight: 500;
 }
-nav dd,summary>*,small {
+th,nav dd,summary>*,small {
     font-weight: 400;
 }
 :host(x-part) dd,output {

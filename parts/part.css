@@ -288,7 +288,6 @@ table {
     th {
         position: relative;
         height: 4.5em; min-width: 4em;
-        font-weight: normal;
 
         div {
             display: inline-block; vertical-align: .7em;
