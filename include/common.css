@@ -118,6 +118,9 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
     --light: hsl(var(--hue,0),var(--sat,35%),calc(40% + var(--b-adj,0%)));
     --dark: hsl(var(--hue,0),var(--sat,45%),calc(30% + var(--b-adj,0%)));
 }
+a[href^='/x/products/']::before {content: '';}
+a[href^='/x/prizes/']::before {content: '';}
+a[href^='/x/parts/']::before {content: '';}
 
 @view-transition {navigation: auto;}
 @keyframes exit {
@@ -365,7 +368,6 @@ dialog {
     padding: 1em 0;
 
     a:not([href*=youtu]):empty::before {
-        content: '\e024';
         font-size: 1.2rem;
     }
     a[href^='//']::before {content: '\e023';}

@@ -170,13 +170,14 @@ class Preview {
         .then(() => Glossary(Preview.dialog));
     }
     cell = ({path}) => new Search(path).then(({beys, href}) => Q('#cells').append(
-        E('table', [
-            href ? E('caption>a', {href: `/x/products/?${href}`}) : '',
+        E('table', {onclick: Preview.for.table}, [
+            E('caption', beys ? 
+                href ? E('a', {href: `/x/products/?${href}`}) : '' : 
+                ['未有結果，請在 ', E('a', {href: '/x/prizes/'}), ' 中尋找']
+            ),
             Preview.thead.cloneNode(true), 
             E('tbody', beys.map(bey => new Bey(bey)))
-        ], {
-            onclick: Preview.for.table
-        })
+        ])
     )).then(() => Cell.fill('chi'))
 
     tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))

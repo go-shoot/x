@@ -72,6 +72,9 @@ nav {
             &:has(:checked) {
                 color: var(--theme); border-color: var(--type,--theme); 
             }
+            &:has([value='.UX'],[value='.BX']) {
+                font-size: 1.1em;
+            }
         }
     }
     .magnifier {

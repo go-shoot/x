@@ -1,12 +1,12 @@
 [
     {
         "type":"m", "note":"Full color 版漫畫同梱", "date":"2026-05", "link":"https://lifetunes-mall.jp/shop/g/gR20250033/",
-        "code":"BXC-10 BXC-13", "bey":"DR.Ar.S 2-70 K", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
+        "code":"BXC-13", "bey":"DR.Ar.S 2-70 K", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://corocoro-news.jp/wp-content/uploads/2025/05/f07d92190b453b7cb0b9d2ae5b80b03a.jpg",{"width":"95%","left":"45%"}]
     },
     {
         "type":"m", "note":"Full color 版漫畫同梱", "date":"2026-02", "link":"https://lifetunes-mall.jp/shop/g/gR20250030/",
-        "code":"BXC-06 BXC-12", "bey":"SmSb 2-70 L", "ver":["メタルコート：オレンジ", "Metal Coat: Orange"],
+        "code":"BXC-12", "bey":"SmSb 2-70 L", "ver":["メタルコート：オレンジ", "Metal Coat: Orange"],
         "img":["https://pbs.twimg.com/media/GjzKKRDa0AAaxOg?format=jpg&name=large",{"width":"97%"}]
     },
     {
@@ -47,7 +47,7 @@
     {
         "type":"d", "note":"DMM くじ Last Chance 賞", "date":"2025-10", "link":"https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",
         "code":"BXG-39", "bey":"WyHv 2-80 GN","ver":["メタルコート：バイオレット","Metal Coat: Violet"],
-        "img":["https://scratch.dmm.com/s3/dmmkuji_double_long_img/16/qcnjiLiMCt5LfHJ7cNY3iSbEaT295DHtBecaOTFG.jpeg",{"width":"364%","left":"-20%","top":"43%"}]
+        "img":["https://scratch.dmm.com/s3/dmmkuji_double_long_img/16/qcnjiLiMCt5LfHJ7cNY3iSbEaT295DHtBecaOTFG.jpeg",{"width":"360%","left":"-20%","top":"43%"}]
     },
     {
         "type":"d", "note":"DMM くじ A 賞", "date":"2025-10", "link":"https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",
@@ -106,7 +106,7 @@
     },
     {
         "type":"m", "note":"Full color 版漫畫同梱", "link":"https://lifetunes-mall.jp/shop/g/gR20240002/", "date":"2024-12",
-        "code":"BXC-03 BXC-09", "bey":"DrBs 1-60 A", "ver":["メタルコート：レッド", "Metal Coat: Red"],
+        "code":"BXC-09", "bey":"DrBs 1-60 A", "ver":["メタルコート：レッド", "Metal Coat: Red"],
         "img":["https://corocoro.jp/wp-content/uploads/2024/03/f701f1cdac42c7408a4ff6095be0ed1d.jpg"]
     },
     {
@@ -126,7 +126,7 @@
     },
     {
         "type":"g", "note":"コロコロ雜誌附錄", "link":"https://corocoro.jp/news/385187/", "date":"2024-06",
-        "code":"BXC-04", "bey":"DrSw", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
+        "code":"BXC-03", "bey":"DrSw", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://corocoro.jp/wp-content/uploads/2024/05/745531bfaf43d87bc17ea9b9d5588099.jpg",{"width":"100%"}]
     },
     {

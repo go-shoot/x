@@ -52,9 +52,9 @@ Object.assign(Menu, {
         Q('nav menu a')?.find(a => a.href == location.href)?.classList.add('current');
     },
     links: () => [
-        E('a', {href: '/x/products/'}, ''),
-        E('a', {href: '/x/parts/?blade=CX'}, ''),
-        E('a', {href: '/x/prize/'}, '')
+        E('a', {href: '/x/products/'}),
+        E('a', {href: '/x/parts/?blade=CX'}),
+        E('a', {href: '/x/prizes/'})
     ],
     lines: () => [...new O(LINES)]
         .filter(([_, {divided}]) => divided)

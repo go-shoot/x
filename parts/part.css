@@ -162,7 +162,7 @@
     place-self: end start;
 }
 ::slotted(a:not(:empty))::before {
-    content: '\e03c';
+    content: '\e03c' !important;
     font-size: 1.45em;
     transform: translate(.4em,-.4em); display: inline-block;
 }

@@ -88,7 +88,7 @@ Object.assign(Search.show, {
             })),
         ...new Fuse(CACHE.prizes, {keys: ['name'], threshold: .51})
             .search(query)
-            .map(({item}) => E('li>a.prize', item.name, {href: `./prize/#${item.id}`}))
+            .map(({item}) => E('li>a.prize', item.name, {href: `./prizes/#${item.id}`}))
         ],
     products (query) {
         if (!/^[a-z]x[a-z]?-?\d{2,3}$/i.test(query)) return [];
