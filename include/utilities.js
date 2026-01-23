@@ -50,7 +50,7 @@ class Keihin {
             E('div', [
                 E('figure>img', {src, style}), 
                 E('h4', {lang: 'ja'}, [
-                    E('code', code || ''), 
+                    E('code', code?.replace('-', '‒') || ''), 
                     E('span', jap), 
                     E('small', ver?.[0] ? {
                         classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',

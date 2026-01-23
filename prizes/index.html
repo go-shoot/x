@@ -51,7 +51,7 @@ Object.assign(Prize, {
             let h4 = ev.target.closest('h4')?.cloneNode(true);
             if (!h4) return;
             h4.Q('code')?.remove();
-            navigator.clipboard.writeText([...h4.children].map(el => el.innerText.replace(' ', '')).join(' '));
+            navigator.clipboard.writeText(h4.innerText.replaceAll(' ', '').replaceAll('‑', '-'));
         }
         let target = Q(`[id='${decodeURI(location.hash.substring(1))}']`);
         target?.scrollIntoView();
