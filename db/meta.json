@@ -25,7 +25,7 @@
                 "terms": ["重量", "RING刃數", "BASE高度"]
             },
             "bit": {
-                "terms": ["重量", "GEAR齒數", "SHAFT粗度"],
+                "terms": ["重量", "GEAR齒數", "SHAFT粗度","(mm)全高"],
                 "terms.fusion": ["重量", "GEAR齒數", "BASE高度"],
                 "prefix": {
                     "B": {"eng": "Bound", "jap": "バウンド", "desc": "對Ratchet能以上下方向陷入"},

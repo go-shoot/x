@@ -83,12 +83,17 @@
             margin-right: calc((2em + var(--gap))*(var(--s) - 1));
         }
         sub {
-            max-width: 2em;
-            vertical-align: middle;
-            font-size: .6em;
+            position: absolute; top: anchor(top); bottom: anchor(bottom);
             margin-left: .2em;
+            display: inline-flex; align-items: center;
+            max-width: 2em;
+            font-size: .6em;
             letter-spacing: 0; line-height: 1;
         }
+        &:nth-child(1 of .chi) span {anchor-name: --name1;}
+        &:nth-child(1 of .chi) sub {position-anchor: --name1;}
+        &:nth-child(2 of .chi) span {anchor-name: --name2;}
+        &:nth-child(2 of .chi) sub {position-anchor: --name2;}
     }
     &.jap,&.eng {
         writing-mode: vertical-lr;
@@ -179,9 +184,9 @@
 
 :host dl {
     place-self: end;
-    display: grid; gap: .4em .2em;
-    grid-template: repeat(2,1.5em) / repeat(2,auto) minmax(2.1em,max-content) minmax(1.1em,max-content);
-    margin: 0 .2em .05em 0;
+    display: grid; gap: 0 .2em; place-items: center start;
+    grid-template: repeat(3,1.8em) / repeat(4,auto);
+    margin-right: .2em;
 
     dt {
         font-size: .6em;
@@ -191,35 +196,39 @@
     }
     dd {
         font-size: 1.6em; font-style: italic;
-        text-align: left; line-height: .9;
-    }
-    :is(dt,dd):first-of-type {
-        grid-area: 1/-2/2/-1;
+        margin-top: .05em;
+
+        &:has(sup) {margin-right: .35em; justify-self: end;}
     }
     dt:first-of-type {
-        position: absolute; right: 0;
+        position: absolute; position-anchor: --weight;
+        right: calc(anchor(right) - .3em); top: calc(anchor(top) - 1.3em);
         border-bottom: .2em solid;
-        transform: translate(-1em,-1.9em);
         width: 3em;
         line-height: 1.4;
     }
     dd:first-of-type {
-        text-align: right;
-        transform: translateX(-.4em);
+        grid-column: 4;
+        anchor-name: --weight;
     }
-    dd:first-of-type~* {
-        grid-row-start: 2;
+    :host(:not(.CX.lower-p)) &:not(:has(dt:nth-of-type(4))) {
+        dd:first-of-type {grid-row: 2;}
+        dd:first-of-type~* {grid-row: 3;}
+    }
+    :host(.CX.lower-p) &,&:has(dt:nth-of-type(4)) {
+        dt:nth-of-type(2) {grid-column: 3;}
     }
     sup {
-        margin-left: .15em;
-        line-height: 0;
-        position: absolute;
+        position: absolute; position-anchor: --weight;
+        right: calc(anchor(right) - .6em); top: calc(anchor(top) - .3em);
     }
     small {
         font-size: .6em;
         margin-left: .1em;
-        vertical-align: middle;
+        vertical-align: .15em;
     }
+    dd:nth-child(2 of :has(sup)) {anchor-name: --dd2;}
+    dd:nth-child(2 of :has(sup)) sup {position-anchor: --dd2;}
 }
 
 :host strong {
@@ -253,7 +262,6 @@
     }
     u {
         border-bottom: .15em dotted var(--theme);
-        line-height: 1; display: inline-block;
     }
 }
 :host div {
