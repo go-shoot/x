@@ -191,7 +191,7 @@
     }
     dd {
         font-size: 1.6em; font-style: italic;
-        text-align: left; line-height: .85;
+        text-align: left; line-height: .9;
     }
     :is(dt,dd):first-of-type {
         grid-area: 1/-2/2/-1;
