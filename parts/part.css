@@ -184,7 +184,7 @@
 
 :host dl {
     place-self: end;
-    display: grid; gap: 0 .2em; place-items: center start;
+    display: grid; gap: 0 .2em; place-items: center end;
     grid-template: repeat(3,1.8em) / repeat(4,auto);
     margin-right: .2em;
 
@@ -198,7 +198,8 @@
         font-size: 1.6em; font-style: italic;
         margin-top: .05em;
 
-        &:has(sup) {margin-right: .35em; justify-self: end;}
+        &:has(sup) {margin-right: .35em;}
+        &:not(:has(sup)) {justify-self: start;}
     }
     dt:first-of-type {
         position: absolute; position-anchor: --weight;
