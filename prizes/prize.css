@@ -45,15 +45,15 @@ diamond-grid {
         grid-template-areas: '. type . .' '. desc . .' '. img img .' '. name . .' '. date . .';
     }
     em {
-        grid-area: type; align-self: end;
-        color: white; font-size: .9em;
-        padding-top: 2em;
+        grid-area: type;
+        color: #fbfbfd; font-size: .9em;
+        padding-top: 1em;
         background: var(--type);
 
         &::before {
             display: block;
             font-size: 1.7em;
-            line-height: .9;
+            line-height: 1.2;
         }
     }
     a {

@@ -12,20 +12,28 @@ summary:focus {
     outline: none;
 }
 :root,input,input::placeholder,button,db-state {
-    font-family: IBM Plex Sans JP,COND,sans-serif;
+    font-family: Chiron GoRound TC,COND,sans-serif;
 }
-#search,nav,fieldset,summary,tbody td,input[type=reset],
+h1,h2,h3 {
+    font-weight: 700;
+}
+#search,nav,fieldset,summary,input[type=reset],
 h4,h5,em,dfn,p dt,.links {
     font-weight: 500;
+}
+tbody td {
+    font-weight: 450;
 }
 th,nav dd,summary>*,small {
     font-weight: 400;
 }
 :host(x-part) dd,output {
-    font-family: COND,IBM Plex Sans JP,sans-serif;
+    font-family: COND, Chiron GoRound TC, sans-serif;
 }
-h2,h3 {
-    font-family: Kaisei Decol,COND,sans-serif;
+tr[data-rate]::after,
+td[abbr]:has(+:not([headers])),td[headers=ratchet],td:first-child,
+.boards code {
+    font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;
 }
 @font-face {
     font-family: 'COND';font-display: swap;
@@ -36,8 +44,10 @@ menu,ol:not(.default),ul:not(.default),dl,dt,dd,summary,figure,fieldset {
     list-style: none; border: none;
     margin: 0; padding:0;
 }
-article p {
-    text-align: left;
+p {
+    line-height: 1.4;
+    article & {text-align: left;}
+    rt {margin-top: 1em;}
 }
 svg {
     overflow: visible;
@@ -48,7 +58,8 @@ ruby {
     text-align: center;
 
     rt {
-        text-align: center; line-height: .5;
+        text-align: center; line-height: .6;
+        font-size: .6em;
     }
     &.below {
         flex-direction: column;
@@ -268,7 +279,7 @@ nav {
         form& {gap: .5em;}
         label {
             display: inline-block; 
-            margin: .3rem .5rem 0 0;
+            margin-right: .5rem;
         }
     }
     form:not(.LED) {display: contents;}
@@ -341,12 +352,12 @@ label:has(:is([type=radio],[type=checkbox]):not(:is(:checked,[name=mag]))):not(.
         color: dimgray;
     }
 }
-.LED:has(label) label:has(:is([type=radio],[type=checkbox]))::before,
+.LED label:has(:is([type=radio],[type=checkbox]))::before,
 .LED:not(:has(label))::before {
     content: '·';
     display: block;
-    position: relative;
-    font-size: 2rem; line-height: .6rem;
+    margin-bottom: .6rem;
+    font-size: 2rem; line-height: 0;
     color: var(--theme); text-shadow: 0 0 .1em var(--theme);
     transition: color .5s;
 }
@@ -377,7 +388,7 @@ dialog {
     #cells table,#tiles x-part {
         margin: .5em auto;
     }
-    #cells:has(tbody:empty) a,#tiles:not(:has(x-part)) a,#images:empty,p:empty {
+    #tiles:not(:has(x-part)) a,#images:empty,p:empty {
         display: none;
     }
     #images {

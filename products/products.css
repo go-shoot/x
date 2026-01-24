@@ -22,7 +22,7 @@ nav {
             content: '\e00a'; font-size: 1.1rem;
             grid-area: 1/4;
             width: 1.7rem;
-            line-height: 1.65;
+            line-height: 1.5;
             border-radius: 5em;
         }
     }   
@@ -65,7 +65,7 @@ main {
     a {
         width: 2em; height: 2em; display: inline-block;
         outline: .15em solid var(--theme); border-radius: 8em;
-        font-size: 1.25em; line-height: 2.15em; 
+        font-size: 1.25em; line-height: 2em; 
         text-align: center;
         color: var(--on) !important;
         position: relative;
@@ -75,7 +75,7 @@ main {
         &[href$='#toc2'],&[href*=color] {outline-color: var(--theme-alt);}
         &::before {
             content: '\e02a';
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-45%);
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-48%);
             z-index: -1;
             background: conic-gradient(salmon,orange,yellow,yellowgreen,springgreen ,cyan,dodgerblue,mediumslateblue,violet,salmon);
             background-clip: text; color: transparent;
@@ -103,7 +103,7 @@ details:has(#filter) {
     }
     legend {
         text-align: left;
-        margin-bottom: .2em;
+        margin-top: .2em;
         cursor: pointer;
         
         span {
@@ -118,11 +118,10 @@ details:has(#filter) {
         font-size: .9em;
         
         &:has([value='¬']) {display: none;}
-        &:not(:has(img))::before {line-height: .4rem;}
     }
     fieldset:not(#line) label::after {
         content: '';
-        position: absolute; inset: .7em -.5em .2em -.5em;;
+        position: absolute; inset: .8em -.5em -.1em -.5em;;
         background: var(--light);
         transform: skew(-20deg);
         z-index: -1;

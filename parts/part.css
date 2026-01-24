@@ -73,7 +73,7 @@
         color: var(--type);
         place-self: center start;
         font-size: .75em;
-        margin: .15em 0 0 .2em;
+        margin-left: .2em;
         letter-spacing: .1em;
     
         span {
@@ -102,12 +102,11 @@
         }
     }
     &.jap {
-        margin: 0 -.1em -.1em 0;
+        margin-bottom: -.1em;
         justify-self: end;
     }
     &.eng {
         color: var(--type);
-        margin: 0 0 -.1em -.2em;
         text-transform: uppercase;
         white-space: break-spaces;
 
@@ -134,7 +133,7 @@
         }
         &[title] {
             order: 3;
-            line-height: 1.8;
+            line-height: 1.65;
             font-size: 1.1em;
         }
         img {
@@ -157,8 +156,8 @@
 }
 
 ::slotted(a:not(:empty)) {
-    font-size: .8em; font-weight: 500;
-    margin: 0 0 -.6em -.3em;
+    font-size: .8em; 
+    margin: 0 0 -.5em -.3em;
     place-self: end start;
 }
 ::slotted(a:not(:empty))::before {
@@ -169,7 +168,7 @@
 
 :host h4 {
     justify-self: start;
-    font-size: 1.5em; line-height: 1.35;
+    font-size: 1.5em; 
     color: var(--type);
     margin-left: .05em;
 }
@@ -192,7 +191,7 @@
     }
     dd {
         font-size: 1.6em; font-style: italic;
-        text-align: left; line-height: .8;
+        text-align: left; line-height: .85;
     }
     :is(dt,dd):first-of-type {
         grid-area: 1/-2/2/-1;
@@ -297,9 +296,6 @@ table {
     thead:has(+tbody:empty) {
         display: none;
     }
-    tbody:empty::after {
-        content: '未有結果'; font-size: 1.5em;
-    }
     tbody tr {
         height: 1.4rem;
         --width:.45em;
@@ -310,7 +306,7 @@ table {
         &[data-rate]::after {
             content: attr(data-rate); 
             line-height: 1.1; letter-spacing: -.05em;
-            font-size: 2em; font-family: Fira Code; font-style: italic;
+            font-size: 2em; font-style: italic;
             color: black; opacity: .5;
             position: absolute; right: .3em;
         }
@@ -327,9 +323,6 @@ table {
         }
         &[abbr][headers=bit] {
             text-align: right;
-        }
-        &[abbr]:has(+:not([headers])),&[headers=ratchet],&:first-child {
-            font-family: Fira Code,COND;
         }
         tr[style]:not(:has(td:nth-child(8))) &:nth-child(2),
         tr[style]:has(td:nth-child(8)) &:nth-child(3) {

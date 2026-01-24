@@ -171,7 +171,7 @@ class Preview {
     }
     cell = ({path}) => new Search(path).then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [
-            E('caption', beys ? 
+            E('caption', beys.length ? 
                 href ? E('a', {href: `/x/products/?${href}`}) : '' : 
                 ['未有結果，請在 ', E('a', {href: '/x/prizes/'}), ' 中尋找']
             ),

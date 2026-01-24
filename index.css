@@ -88,7 +88,7 @@ section {
         &.parts button::before, &.links a:not([class='']):not(.prize)::before {
             content: '';
             width: 1.4em; height: 1.4em; display: inline-block;
-            vertical-align: text-top;
+            vertical-align: top;
             background: var(--img-line, url(img/lines.svg#BX)) center / contain no-repeat;
         }
         :is(.ratchet,.bit)::before {
