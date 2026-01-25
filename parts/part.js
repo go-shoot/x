@@ -85,6 +85,7 @@ class Bit extends Part {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => META.bit.prefix[p])),
         attr: (base, pref) => [...this.attr ?? [], ...base.attr, ...pref],
+        stat: base => this.stat.length < 3 ? this.stat.toSpliced(1, 0, ...base.stat.slice(1,3)) : this.stat,
         desc: (base, pref) => [...pref].map(p => META.bit.prefix[p].desc).join('、') + `的【${base.abbr}】Bit${this.desc ? `，${this.desc}` : '。'}`,
     }
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
@@ -128,7 +129,7 @@ class Tile extends HTMLElement {
             E('p', Markup.spacing(desc)),
             ...this.html.stat(),
             ...this.html.names(),
-            E('div', META.types.map(t => E(`svg.${t}`, {viewBox: '-10 -10 20 10'}, E('use', {href: '#triangle'})))),
+            E('svg', {viewBox: '-75 -75 150 150'}, META.types.map(t => E(`use.${t}`, {href: '#triangle'}))),
         );
         this.append(
             from ? E('a', from, {href: this.href(from)}) : '',
@@ -188,10 +189,10 @@ Object.assign(Tile.prototype.html, {
         let terms = META[comp][attr?.includes('fusion') ? 'terms.fusion' : 'terms'];
         return [
             date ? E('strong', date) : '',
-            E('dl', stat.flatMap((s, i) => [
-                E('dt', Markup('stat', terms[i])), 
+            E('dl', stat.flatMap((s, i) => E('div', [
+                E('dt', s ? Markup('stat', terms[i]) : ''), 
                 E('dd', typeof s == 'string' ? Markup('stat', s) : s)
-            ]))
+            ])))
         ];
     },
 });

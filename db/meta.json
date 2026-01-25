@@ -17,7 +17,7 @@
             },
             "types": ["att", "bal", "def", "sta"],
             "blade": {
-                "terms": ["重量"," 厚度"],
+                "terms": ["重量","(mm)厚度"],
                 "delimiter": {"CX": "."}
             },
             "ratchet": {
@@ -25,8 +25,8 @@
                 "terms": ["重量", "RING刃數", "BASE高度"]
             },
             "bit": {
-                "terms": ["重量", "GEAR齒數", "SHAFT粗度","(mm)全高"],
-                "terms.fusion": ["重量", "GEAR齒數", "BASE高度"],
+                "terms": ["重量", "GEAR齒數", "SHAFT粗度", "露出高度"],
+                "terms.fusion": ["重量", "GEAR齒數", "", "BASE高度"],
                 "prefix": {
                     "B": {"eng": "Bound", "jap": "バウンド", "desc": "對Ratchet能以上下方向陷入"},
                     "D": {"eng": "Disk",  "jap": "ディスク", "desc": "加上圓盤狀重量器"},
