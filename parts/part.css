@@ -39,7 +39,7 @@
     &[alt=types] {filter: drop-shadow(0 0 var(--glow-size) var(--type));}
     &[alt=lines] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
 }
-:host use {filter: drop-shadow(0 0 .1em var(--type));}
+:host :is(svg,use) {filter: drop-shadow(0 0 .1em var(--type));} /*safari*/
 :host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
 
 :host {
@@ -267,7 +267,7 @@
     }
 }
 :host svg {
-    position: absolute; inset: 2em;
+    position: absolute; inset: 2em; height: 11em; /*safari*/
     pointer-events: none;
 
     use {
