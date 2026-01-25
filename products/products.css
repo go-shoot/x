@@ -83,7 +83,7 @@ main {
         }
     }
 }
-
+details.stretch p {max-width: min(510px,100vw);}
 details:has(#filter) {
     padding: 0 .5rem; margin-bottom: 2em;
     user-select: none; -webkit-user-select: none;
