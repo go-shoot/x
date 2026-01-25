@@ -39,7 +39,7 @@
     &[alt=types] {filter: drop-shadow(0 0 var(--glow-size) var(--type));}
     &[alt=lines] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
 }
-:host :is(svg,use) {filter: drop-shadow(0 0 .1em var(--type));} /*safari*/
+:host use {filter: drop-shadow(0 0 .1em var(--type));} 
 :host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
 
 :host {
@@ -106,7 +106,7 @@
         }
     }
     &.jap {
-        margin-bottom: -.1em;
+        margin-bottom: -.05em;
         justify-self: end;
     }
     &.eng {
@@ -161,7 +161,7 @@
 
 ::slotted(a:not(:empty)) {
     font-size: .8em; 
-    margin: 0 0 -.5em -.3em;
+    margin: 0 0 -.35em -.3em;
     place-self: end start;
 }
 ::slotted(a:not(:empty))::before {

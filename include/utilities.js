@@ -72,8 +72,8 @@ const FilterForm = {
         this.form = Object.assign(form, {
             onchange: ev => {
                 if (ev) {
-                    (single === true || single?.[ev.target.name]) && form[ev.target.name]?.forEach(i => i.checked = i == ev.target);
-                    action?.[ev.target.name]?.(ev);
+                    (single === true || single?.[ev.target.name]) && 
+                        form[ev.target.name]?.forEach(i => i.checked = i == ev.target);
                     Transition.page.pause();
                 }
                 let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
@@ -84,6 +84,7 @@ const FilterForm = {
                 let filter = () => {
                     [...targets].forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
                     form.count && this.count();
+                    action?.[ev?.target.name]?.(ev);
                 }
                 ev ? document.startViewTransition(filter).finished.then(Transition.page.resume) : filter();
             },

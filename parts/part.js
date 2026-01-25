@@ -33,9 +33,6 @@ class Part {
         this.constructor.revisions[where]?.forEach?.(what => this[what] = this.revised[what](base, pref));
         return this;
     }
-    revised = {
-        stat: base => this.stat.length === 1 ? [this.stat[0], ...base.stat.slice(1)] : this.stat,
-    }
 }
 class Blade extends Part {
     #path;
@@ -57,14 +54,14 @@ class Ratchet extends Part {
         return super.revise(where, where == 'tile' && {stat: [, ...this.abbr.split('-')]});
     }
     revised = {
-        ...this.revised,
         group: () => META.ratchet.height.find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
             let [blade, height] = this.abbr.split('-');
             let {tens, digit} = Ratchet.eng;
             return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
         },
-        attr: () => this.attr ??= ['normal']
+        attr: () => this.attr ??= ['normal'],
+        stat: base => this.stat.length === 1 ? this.stat.concat(base.stat.slice(1)) : this.stat
     }
     static revisions = {tile: ['group', 'names', 'attr', 'stat']};
     static eng = {
@@ -81,7 +78,6 @@ class Bit extends Part {
         return super.revise(where, PARTS.bit[base], pref);
     }
     revised = {
-        ...this.revised,
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => META.bit.prefix[p])),
         attr: (base, pref) => [...this.attr ?? [], ...base.attr, ...pref],
