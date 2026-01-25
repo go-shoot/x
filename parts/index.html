@@ -51,6 +51,6 @@
 <script type=module>
 import DB from '../include/DB.js'
 import Parts from './parts.js'
-Q('main').prepend(DB().then(location.search && Parts));
+Q('.stretch').after(DB().then(location.search && Parts));
 Q('menu li:has(.blade)').before(...Menu.lines());
 </script>

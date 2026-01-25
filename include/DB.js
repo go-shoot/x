@@ -43,6 +43,7 @@ class Indicator extends HTMLElement {
         position:relative;
         background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%) text;
         display:block;
+        pointer-events:none;
     }
     :host([style*='--hue']) {
         background:var(--hue) text;

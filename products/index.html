@@ -58,5 +58,5 @@
 <script type="module">
 import DB from '../include/DB.js';
 import Table from './products.js';
-Q('main').prepend(DB().then(Table));
+Q('.stretch').after(DB().then(Table));
 </script>
