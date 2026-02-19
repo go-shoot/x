@@ -51,6 +51,7 @@ Object.assign(Menu, {
         Q('nav .current')?.classList.remove('current');
         Q('nav menu a')?.find(a => a.href == location.href)?.classList.add('current');
     },
+    selectable: () => Q('nav li:not(:has(.current)):not(:last-child)'),
     links: () => [
         E('a', {href: '/x/products/'}),
         E('a', {href: '/x/parts/?blade=CX'}),
@@ -73,8 +74,7 @@ addEventListener('DOMContentLoaded', () => {
                     {min: PI.target.parentElement.offsetHeight - PI.target.offsetTop - PI.target.offsetHeight + 4} : 
                     {max: PI.target.offsetTop * -1 - 4} 
                 });
-                PI.drag.to.select({y: Menu.nav.classList.contains('bottom') ? innerHeight : 0})
-                    .from([...PI.target.children].filter(child => !child.matches(':has(.current),:last-child')));
+                PI.drag.to.select({y: Menu.nav.classList.contains('bottom') ? innerHeight : 0}).from(Menu.selectable);
             },
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
         },
