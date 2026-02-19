@@ -1,0 +1,57 @@
+{
+  "part-ratchet":      "2026/02/13 15:45:00",
+  "part-bit":          "2026/02/14 23:45:00",
+  "part-blade":        "2026/02/19 12:30:00",
+  "part-blade-collab": "2026/02/18 22:28:00",
+  "part-blade-divided":"2026/02/14 21:13:00",
+  "meta":              "2026/02/16 11:47:00",
+  "prod-beys":         "2026/02/18 22:02:00",
+  "prod-keihin":       "2026/02/15 10:04:00",
+  "prod-equipment":    "2026/02/17 14:13:00",
+  "news": {
+    "2026-02-21":[{
+      "code":"BXG-24 booster","name":"エアロペガサス3ｰ70A<br>レッドVer.<br>Aero Pegasus 3-70A<br>Red Ver.","type":"att",
+      "desc":"App 抽獎購買品"
+    }],
+    "2026-03-14":[{
+      "code":"BXG-52 starter","name":"ドランソード1-60V<br>メタルコート:ブラック JリーグVer.","type":"att",
+      "desc":"日本球場活動及<a href=https://store.jleague.jp/search/lcd-15/mcd-17/>網店售賣</a>"
+    }, {
+      "code":"BXG-53 starter","name":"コバルトドラグーン9-60F<br>メタルコート:ホワイト JリーグVer.","type":"att",
+      "desc":"日本球場活動及<a href=https://store.jleague.jp/search/lcd-15/mcd-17/>網店售賣</a>"
+    }],
+    "2026-03-28":[{
+      "code":"CX-13 starter","name":"バハムートブリッツBK1-50I<br>Bahamut Blitz BK1-50I","type":"att",
+      "desc":["CX新結構：分為四層。上層塑膠【Over Blade】及中層金屬【Metal Blade】","三層都有偏重心，加強一處的攻擊","【Ignition】Bit：多處突起的大圓筒軸，高速跑動"],
+      "imgs":[]
+    }, {
+      "code":"CX-14 starter","name":"ナイトフォートレスGV8-70UN<br>Knight Fortress GV8-70UN","type":"def",
+      "imgs":[],
+      "desc":[""]
+    }, {
+      "code":"CX-15 booster","name":"ラグナレイジFE4-55Y<br>Ragna Rage FE4-55Y","type":"sta",
+      "imgs":[],
+      "desc":["【Yielding】Bit：大型球狀軸加上向四方突出的重物保持姿勢"]
+    }, {
+      "code":"CX-16 entry set","name":"スタートダッシュセットＣ<br>Start Dash Set C","type":"att",
+      "imgs":[]
+    }, {
+      "code":"BXG-62","name":"ストリングランチャー<br>B4ストア限定カラーVer.<br>String Launcher<br>B4 Store Limited Color"
+    }, {
+      "code":"BXG-21 starter"
+    }],
+    "2026-04":[{
+      "code":"CX-17 random booster"
+    }, {
+      "code":"UX-19 starter","name":"バレットグリフォンH<br>Bullet Griffon H","type":"bal",
+      "imgs":["https://i0.wp.com/fenixnests.com/wp-content/uploads/2026/02/G4561AS00_detail_2_26_tif_2000px_300DPI.jpg?resize=300%2C300&ssl=1"],
+      "desc":["首個Blade—Ratchet一體型陀螺"]
+    }],
+    "2026-05-30":[{
+      "code":"BX-49 starter","name":"ドランストライク4-50FF<br>Dran Strike 4-50FF","type":"att",
+      "imgs":["https://i0.wp.com/fenixnests.com/wp-content/uploads/2026/02/G2742AS20_detail_2_26_tif_2000px_300DPI.jpg?fit=1024%2C1024&ssl=1"]
+    }, {
+      "code":"BXG-51 booster","name":"ドランブレイブS6-60V<br>メタルコート:ブラック<br>Dran Brave S6-60V<br>Metal Coat: Black"
+    }]
+  }
+}

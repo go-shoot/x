@@ -1,0 +1,119 @@
+nav>a {
+    grid-area: 1/2/3/3; align-self: center;
+    font-size: .9em; line-height: 1.1;
+    width: 3em; height: 3em;
+    background: url(https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news_stickerlist_12.png) center / cover;
+
+    &::before {
+        content: attr(title); color: white;
+        width: 2em; display: inline-block; 
+        vertical-align: -1.6em;
+    }
+}
+label {
+    color: var(--type);
+    font-size: 1.2em; line-height: 1.2;
+
+    &::before {line-height: .7rem;}
+
+    img {width: 1.5em;}
+}
+label:has([value$=keihin-t]),.keihin-t {--type: olive;}
+label:has([value$=keihin-d]),.keihin-d {--type: lightslategray;}
+label:has([value$=keihin-g]),.keihin-g {--type: steelblue;}
+label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
+.keihin-t em::before {content: '\e031';}
+.keihin-d em::before {content: '\e02f';}
+.keihin-g em::before {content: '\e002';}
+.keihin-m em::before {content: '\e001';}
+
+.target {
+    animation: highlight 1s .5s ease 3;
+    scroll-margin-top: 5rem;
+}
+@keyframes highlight {from {filter:brightness(300%);} }
+
+main {margin-top: 6em;}
+summary {line-height: 4em;}
+diamond-grid {
+    font-size: .8em;
+    --side: 20em; --gap: .5em;
+
+    article {
+        background: #fbfbfd; color: black;
+        display: grid; grid-template: 20% 7.5% 44% 13.5% 15% / 10% 80% 7% 3%;
+        grid-template-areas: '. type . .' '. desc . .' '. img img .' '. name . .' '. date . .';
+    }
+    em {
+        grid-area: type;
+        color: #fbfbfd; font-size: .9em;
+        padding-top: 1em;
+        background: var(--type);
+
+        &::before {
+            display: block;
+            font-size: 1.7em;
+            line-height: 1.2;
+        }
+    }
+    a {
+        grid-area: desc;
+        font-size: .7em;
+        margin: .3em auto;
+        line-height: 1.2;
+        max-width: 12em;
+        &[href] {color: green !important;}
+    }
+    div {
+        grid-area: img;
+        text-align: left;
+    }
+    figure {
+        position: relative;
+        width: 8em; height: 8em;
+        overflow: hidden;
+        shape-outside: ellipse(50% 40%); float: left;
+        border-radius: 8em;
+        margin: .5em .2em;
+    }
+    img {
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+        width: 100%;
+    }
+    small,code {
+        font-size: .8em;
+        display: block;
+        color: grey;
+        margin: .3em auto .2em auto;        
+    }
+    h4:lang(ja) {
+        font-size: .9em; line-height: 1.1;
+        display: block; 
+        margin-top: 3.5em;
+        position: relative;
+
+        code {
+            text-indent: .1em;
+
+            &:empty::before {content:'　';}
+        }
+        small {scale: .95 1;}
+        small,span {letter-spacing: -.05em;}
+        small.tight {letter-spacing: -.15em;}
+    }
+    h4:lang(zh) {
+        grid-area: name;
+        font-size: .7em; font-style: italic;
+
+        small {
+            width: 15em;
+            line-height: 1.3;
+            font-size: .9em;
+            margin: .2em auto;
+        }
+    }
+    time {
+        grid-area: date;
+        font-size: .75em;
+    }
+}

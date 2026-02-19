@@ -1,0 +1,55 @@
+<title>陀螺部件⬧Parts</title>
+<script src=../include/common.js></script>
+<script type=module src=https://aeoq.github.io/drag-knob/script.js></script>
+<link rel=stylesheet href=parts.css>
+<link rel=stylesheet href=../parts/part.css>
+<!-- 
+shopt -s nullglob && for f in *.webp *.avif *.png; do mogrify -format png -resize '500x>'' -fuzz 5% -trim "$f" && pngquant --quality=65-80 --output "op/${f%.*}.png" --force "${f%.*}.png"; done && shopt -u nullglob
+ukenagashi: 卸走/開  inashi: 化解
+-->
+<nav>
+    <menu>
+        <li><a href="?blade" class="blade"></a>
+        <li><a href="?ratchet" class="ratchet"></a>
+        <li><a href="?bit" class="bit"></a>
+    </menu>
+    <form>
+        <output name="count"></output>
+    </form>
+</nav>
+
+<main>
+    <details class="stretch" hidden open>
+        <summary onclick="return false">&#xe026;</summary>
+        <p></p>
+    </details>
+    <section class="loading"></section>
+</main>
+
+<template id="blade">
+    &#xe03c; 表示與所示的Blade有相同形狀的塑膠下層。<br>
+    <img src="../img/joint.svg#simple"> 表示只能裝上簡化型Ratchet。
+</template>
+<template id="blade.CX">
+    <img style="width:49%; max-width:20em" src="https://beyblade.takaratomy.co.jp/beyblade-x/guide/_image/pict17_3@2x.png">
+    <img style="width:49%; max-width:20em" src="https://beyblade.takaratomy.co.jp/beyblade-x/guide/_image/pict17_expand@2x.webp"><br>
+    能以三層結構 <ruby>Lock Chip<rt>ロックチップ</rt></ruby>—<ruby>Main Blade<rt>メインブレード</rt></ruby>—<ruby>Assist Blade<rt>アシストブレード</rt></ruby> 或<br>
+    四層結構 <ruby>Lock Chip<rt>ロックチップ</rt></ruby>—<ruby>Over Blade<rt>オーバーブレード</rt></ruby>—<ruby>Metal Blade<rt>メタルブレード</rt></ruby>—<ruby>Assist Blade<rt>アシストブレード</rt></ruby> 方式組裝。<br>
+    同一款塑膠Lock Chip可在官方比賽中使用多個，但含金屬的同一款則只能使用一個。<br><br>
+    &#xe03c; 表示與所示的Main Blade有相同形狀的金屬下層。
+</template>
+<template id="ratchet">
+    高度單位為dmm，10 dmm＝1 mm。（<ruby>d<rt>deci</rt></ruby>＝1/10、<ruby>m<rt>milli</rt></ruby>＝1/1000）<br>
+    <img src="../img/joint.svg#simple"> 表示屬<ruby>簡化型<rt>Simple type</rt></ruby>：即不論所裝上之Bit的粗度，Burst抵禦性都是統一至「較鬆」。
+</template>
+<template id="bit">
+    Gear齒愈多，X Dash時的速度就愈快，但迴轉速度下降也加快。<br>
+    Shaft部指與Ratchet機關接觸部分，目前以最小直徑計算，愈粗就愈難被擊至爆裂。
+</template>
+
+<script type=module>
+import DB from '../include/DB.js'
+import Parts from './parts.js'
+Q('.stretch').after(DB().then(location.search && Parts));
+Q('menu li:has(.blade)').before(...Menu.lines());
+</script>

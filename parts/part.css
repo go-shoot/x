@@ -1,0 +1,377 @@
+:host {
+    min-width: 15em; max-width: 15em; min-height: 15em; max-height: 15em;
+    --icon: 1.6em;
+    display: inline-grid;
+    grid-template: 2em auto .1em .9em .9em / var(--icon) calc(50% - var(--icon)) auto var(--icon) var(--icon);
+    padding: .3em .4em; margin: .1rem;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    opacity: 1 !important; transition: opacity .5s;
+
+    &::after,object {
+        position: absolute; inset: 0; z-index: -1;
+    }
+    h4,h5,dd {text-shadow: 0 0 .05rem,0 0 .05rem black;}
+}
+:host(:only-of-type) {margin: auto;}
+:host(:is(:target,.target)) {
+    animation: highlight 1s .5s ease 3;
+    scroll-margin-top: 5rem;
+}
+@keyframes highlight {from {filter:brightness(300%);} }
+:host(.bsb)::after {
+    --reincar2: url(../img/reincarnated.svg#bsb) no-repeat center / 70%;
+}
+:host(.mfb)::after {
+    --reincar1: url(../img/reincarnated.svg#mfb) no-repeat 50% 74.8% / 60%;
+}
+:host(.bbb)::after {
+    content: url(../img/reincarnated.svg#bbb); 
+}
+:host::after {
+    content: '';
+    background: var(--reincar1,linear-gradient(transparent)), var(--reincar2,linear-gradient(transparent));
+    transform: rotate(225deg) translate(0,5.43em);
+}
+:host img {
+    --glow-size: .1em; filter: drop-shadow(0 0 var(--glow-size) var(--on));
+    &[alt=types] {filter: drop-shadow(0 0 var(--glow-size) var(--type));}
+    &[alt=lines] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
+}
+:host use {filter: drop-shadow(0 0 .1em var(--type));} 
+:host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
+
+:host {
+    h4 {grid-area: 4/2/6/3;}
+    .chi:nth-of-type(1) {grid-area: 4/2/5/4;}
+    .chi:nth-of-type(2) {grid-area: 5/2/6/4;}
+    .chi:nth-of-type(1):not(:has(+.chi)) {grid-area: 4/2/6/3;}
+    .jap {grid-area: 1/1/3/2;}
+    .eng {grid-area: 2/1;}
+    figure {grid-area: 2/1/3/-1;}
+    p {grid-area: 1/3/-1/-1;}
+    dl {grid-area: 2/2/-1/-1;}
+    strong {grid-area: 2/4;}
+    ul {grid-area: 4/1/-1/-1;}
+    ::slotted(a) {grid-area: 1/1;}
+    ::slotted(a:not(:empty)) {grid-area: 2/2;}
+}
+
+:host object {
+    width: 100%;
+}
+:host h5 {
+    line-height: normal; /*index*/
+    
+    * {
+        color: var(--on);
+        display: inline-block;
+    }
+    &.chi {
+        color: var(--type);
+        place-self: center start;
+        font-size: .75em;
+        margin-left: .2em;
+        letter-spacing: .1em;
+    
+        span {
+            -webkit-text-stroke: var(--type) .1em; paint-order: stroke fill;
+            transform: translateX(calc(50%*(var(--s) - 1) + .025em)) scale(var(--s)); --s: .95;
+            letter-spacing: calc(var(--gap)/var(--s)); --gap: .175em;
+            margin-right: calc((2em + var(--gap))*(var(--s) - 1));
+        }
+        sub {
+            position: absolute; top: anchor(top); bottom: anchor(bottom);
+            margin-left: .2em;
+            display: inline-flex; align-items: center;
+            max-width: 2em;
+            font-size: .6em;
+            letter-spacing: 0; line-height: 1;
+        }
+        &:nth-child(1 of .chi) span {anchor-name: --name1;}
+        &:nth-child(1 of .chi) sub {position-anchor: --name1;}
+        &:nth-child(2 of .chi) span {anchor-name: --name2;}
+        &:nth-child(2 of .chi) sub {position-anchor: --name2;}
+    }
+    &.jap,&.eng {
+        writing-mode: vertical-lr;
+        align-self: end;
+        font-size: .65em;
+    
+        sub {
+            vertical-align: unset;
+            font-size: .7em;
+            margin-inline-start: .3em;
+        }
+    }
+    &.jap {
+        margin-bottom: -.05em;
+        justify-self: end;
+    }
+    &.eng {
+        color: var(--type);
+        text-transform: uppercase;
+        white-space: break-spaces;
+
+        span {color: var(--on);}
+    }
+}
+:host ul {
+    display: flex; gap: .2em;
+
+    li {
+        &:has(img[alt=types]) {
+            width: var(--icon);
+        }
+        &:has(img[alt^=system]) {
+            order: 2;
+            width: 2.5em;
+        }
+        &:has(img[alt=lines]) {
+            order: 2;
+            width: 1.5em;
+        }
+        &:has(img[alt=joint]) {
+            margin-right: .1em;
+        }
+        &[title] {
+            order: 3;
+            line-height: 1.65;
+            font-size: 1.1em;
+        }
+        img {
+            object-fit: contain;
+            height: 100%; width: 100%;
+            --glow-size: .05em;
+        }
+    }
+}
+:host(.CX.chip) ul::before {
+    content: '';
+    width: 1.4em;
+    background: url(../img/blade/CX/chip/Dr.png) center / contain no-repeat;
+    filter: saturate(0) brightness(99) drop-shadow(0 0 .1em var(--on));
+}
+:host(.chip) ul::before,:host(.ratchet) ul li,:host li:has(img[alt=types]) {
+    margin-right: auto;
+    &:has(img[alt=joint]) {width: 1em;}
+    img {--glow-size: .1em;}
+}
+
+::slotted(a:not(:empty)) {
+    font-size: .8em; 
+    margin: 0 0 -.3em -.3em;
+    place-self: end start;
+}
+::slotted(a:not(:empty))::before {
+    content: '\e03c' !important;
+    font-size: 1.45em;
+    transform: translate(.4em,-.4em); display: inline-block;
+}
+
+:host h4 {
+    justify-self: start;
+    font-size: 1.5em; 
+    color: var(--type);
+    margin-left: .05em;
+}
+:host(.ratchet) h4 {
+    color: hsl(var(--hue),70%,50%);
+    margin-left: -.2em;
+}
+
+:host dl {
+    place-self: end;
+    display: grid; place-items: center end;
+    grid-template: repeat(3,1.8em) / repeat(2,auto);
+    margin-right: .2em;
+
+    div {
+        display: flex; align-items: center; gap: .2em;
+        grid-column: 2;
+    
+        dt {
+            font-size: .6em;
+            text-align: right; line-height: 1.1;
+            white-space: pre;
+            margin-left: 1em;
+        }
+        dd {
+            font-size: 1.6em; font-style: italic;
+
+            &:has(sup) {margin-right: .35em;}
+            :host(:not(.fusion)) &:has(small) {letter-spacing: -.05em;}
+        }
+    }
+    div:nth-child(1) {
+        dt {
+            position: absolute; position-anchor: --weight;
+            right: calc(anchor(right) - .3em); top: calc(anchor(top) - 1.3em);
+            border-bottom: .2em solid;
+            width: 3em;
+            line-height: 1.4;
+        }
+        dd {anchor-name: --weight;}
+    }
+    :host(.ratchet) & div:nth-child(2),
+    :host(.bit) & div:nth-child(3):has(+div) {grid-column: 1;}
+    :host(.ratchet) & div:first-child,
+    :host(.blade) & div:only-child {
+        grid-row: 2;
+        &~* {grid-row: 3;}
+    }
+    sup {
+        position: absolute; position-anchor: --weight;
+        right: calc(anchor(right) - .6em); top: calc(anchor(top) - .3em);
+    }
+    small {
+        font-size: .5em;
+        margin-left: .2em;
+        vertical-align: .25em;
+    }
+}
+
+:host strong {
+    align-self: end;
+    font-size: .6em; color: silver;
+    writing-mode: vertical-lr;
+    margin: 0 0 .2em -.4em;
+}
+
+:host figure {
+    place-self: center;
+    width: 6em; height: 6em;
+
+    img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+    }
+}
+:host p {
+    text-align: left; font-size: .6em;
+    line-height: 1.4; letter-spacing: .03em;
+    margin: 0; padding-left: .5em;
+    overflow: hidden;
+
+    &::before {
+        content: '一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一';
+        width: 100%; height: 100%;
+        float: left;
+        visibility: hidden;
+        shape-outside: polygon(0% 14%,75% 50%,0% 86%);
+    }
+    u {
+        border-bottom: .15em dotted var(--theme);
+    }
+}
+:host svg {
+    position: absolute; inset: 2em; height: 11em; /*safari*/
+    pointer-events: none;
+
+    use {
+        stroke: var(--type); fill: none;
+        transform: rotate(var(--angle)) translateY(70px);
+
+        &.att {--angle: 000deg;}
+        &.bal {--angle: 180deg;}
+        &.sta {--angle: -90deg;}
+        &.def {--angle: 090deg;}
+
+        :host(.att) &.att, :host(.bal) &.bal, :host(.def) &.def, :host(.sta) &.sta {
+            fill: var(--type);
+        }
+    }
+}
+
+table {
+    white-space: nowrap; border-spacing: 0;
+    margin: auto;
+    position: relative; /*safari*/
+
+    th {
+        position: relative;
+        height: 4.5em; min-width: 4em;
+
+        div {
+            display: inline-block; vertical-align: .7em;
+        }
+        &:not(:first-child) {color: black;}
+        &::after {width: 4em;}
+    }
+    thead:has(+tbody:empty) {
+        display: none;
+    }
+    tbody tr {
+        height: 1.4rem;
+        --width:.45em;
+        background: repeating-linear-gradient(45deg, var(--light) 0 var(--width), var(--dark) var(--width) calc(1.5*var(--width)));
+        
+        &.H {background: var(--dark);}
+        &.hidden, tbody:not(.BXG) &.Lm {display: none;}
+        &[data-rate]::after {
+            content: attr(data-rate); 
+            line-height: 1.1; letter-spacing: -.05em;
+            font-size: 2em; font-style: italic;
+            color: black; opacity: .5;
+            position: absolute; right: .3em;
+        }
+    }
+    td {
+        padding: 0 var(--pad); --pad: .3em;
+        position: relative;
+        text-align: left;
+        z-index: 1;
+
+        &:is([headers=ratchet],[abbr]:has(+:not([headers]))) {
+            min-width: 2em;
+            text-align: center;
+        }
+        &[headers=bit] {
+            text-align: right !important;
+        }
+        tr[style] &:is([headers=blade],[headers=main],[headers=metal]) {
+            color: var(--coat,transparent);
+        }
+    }
+}
+td {
+    * {pointer-events: none;}
+    &.hide {font-size: 0;}
+    
+    sub {font-size: .75em;}
+    &:not(:first-child) sub {
+        margin-left: .2em;
+        line-height: 0;
+
+        &.long {
+            max-width: 2em; display: inline-block;
+            white-space: initial; line-height: 1;
+            vertical-align: middle;
+            font-size: .7em;
+        }
+    }
+    &:first-child sub {
+        scale: .9 1; letter-spacing: -.05em;
+        line-height: 0;
+        margin-right: -.2em;
+    }
+    small {
+        letter-spacing: -.05em;
+    }
+}
+
+tbody tr:nth-last-child(1 of :not([hidden])) td {
+    border-bottom: solid .5px var(--on);
+}
+tbody td {
+    border-top: solid .5px var(--on);
+}
+td[abbr]:not([headers=bit].fusion),td:not([headers=blade].fusion)+td:empty {
+    border-left: solid .5px var(--on);
+}
+td[abbr]+td:not([headers]):not(.hide) {
+    border-left: solid .5px hsl(0,0%,55%);
+}
+thead {font-size: min(3vw,.7em);}
+tbody {font-size: min(2.75vw,.7em);}

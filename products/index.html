@@ -1,0 +1,62 @@
+<title>陀螺商品⬧Merchandise</title>
+<script defer src=../include/common.js></script>
+<script defer src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js></script>
+<script defer src=https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js></script>
+<link rel=stylesheet href=products.css>
+<link rel=stylesheet href=../parts/part.css>
+
+<nav>
+    <menu>
+        <li><a href='../products/'>陀螺</a>
+        <li><a href='equipment.html#launchers'>發射器</a>
+        <li><a href='equipment.html#others'>其他</a>
+    </menu>
+    <form>
+        <fieldset class="LED">
+            <label>中<input name=lang type=radio value=chi checked></label>
+            <label>A<input name=lang type=radio value=eng></label>
+            <label>ア<input name=lang type=radio value=jap></label>
+        </fieldset>
+        <label>
+            <span>部件檢索</span>
+            <input type="search" placeholder=騎士/HN/low>
+        </label>
+        <output form="filter" name="count"></output>
+        <input type="reset" value="&#xe029; 重設">
+    </form>
+</nav>
+
+<main>
+    <details class="stretch" open>
+        <summary onclick="return false">&#xe026;</summary>
+        <p>行尾的數字表示每箱所含的盒數；J 表示日本以外未有發售；A 表示經 App 獲得</p>
+    </details>
+    <div class="links">
+        <a href="//kyoganken.web.fc2.com/beyx/index.htm#parts1" target=_blank>競</a>
+        <a href="http://obakeblader.com/?s=入手法" target=_blank>お</a>
+    </div>
+    <details>
+        <summary>&#xe027; 分類<i></i></summary>
+        <form id="filter" class="LED"></form>
+    </details>
+
+    <table>
+        <caption class=loading></caption>
+        <thead>
+            <tr>
+                <th class="LED">Code</th>
+                <th colspan=6 class="LED blade">Blade</th>
+                <th colspan=1 class="LED ratchet">Ratchet</th>
+                <th colspan=2 class="LED bit">Bit</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+    </table>
+</main>
+
+<script type="module">
+import DB from '../include/DB.js';
+import Table from './products.js';
+Q('.stretch').after(DB().then(Table));
+</script>

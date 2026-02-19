@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html lang="zh">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#b0ff50">
+<link rel="stylesheet" href="/x/include/common.css">
+<link rel="stylesheet" href="/x/include/component.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Chiron+GoRound+TC:wght@400..700&display=swap');
+</style>
+<script type="module">
+    import { A, E, O, Q } from 'https://aeoq.github.io/AEOQ.mjs'; Object.assign(window, { A, E, O, Q });
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MJMB14RTQP"></script>
+<script defer>
+    onpagereveal = ev => {
+        if (!ev.viewTransition) return;
+        let current = location.pathname + location.search;
+        if (current == '/x/') return ev.viewTransition.types.add('right'); 
+        let from = new URL(navigation.activation.from.url);
+        from = from.pathname + from.search;
+        let menu = [...new Set(sessionStorage.menu?.split(','))];
+        [from, current] = [menu.indexOf(from), menu.indexOf(current)];
+        if (from == -1 || current == -1) return;
+        ev.viewTransition.types.add(Storage('pref')?.bottom ? from > current ? 'up' : 'down' : from < current ? 'up' : 'down');
+    }
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date);
+    gtag('config', 'G-MJMB14RTQP');
+</script>

@@ -1,0 +1,134 @@
+::view-transition-group(.part) {animation-duration: .5s;}
+html.pause-page:not(.prepare-popover) x-part {
+    view-transition-name: match-element; view-transition-class: part;
+}
+section {
+    font-size: calc(var(--font,1.2)*1em); 
+    padding: 2rem 0;
+    transition: opacity .5s;
+    &.under {opacity: 0;}
+}
+
+nav {
+    .sorter {grid-area: 2/3;}
+    .filter {
+        &#group {grid-area: 1/2;}
+        &#type,&#joint {grid-area: 2/2;}
+        &#spin,&#prefix {grid-area: 1/3;}
+    }
+    output {
+        grid-area: 1/4; place-self: center end;
+        font-size: 2em;
+
+        &:not(:empty)::after {
+            content: '款';
+            font-size: .9rem;
+            margin-left: .1em;
+            vertical-align: .05em;
+        }
+        @media (min-width:631px) {
+            & {grid-area: 1/3;}
+        }
+    }
+    fieldset {
+        all: unset;
+        justify-self: start; 
+        max-width: 100%;
+        padding-right: .6em; 
+        display: flex; align-items: center; gap: .3em;
+        overflow: scroll hidden; scrollbar-width: none;
+        background: var(--overlay2); border-radius: 9em; 
+        --color: hsl(var(--hue), 90%, calc(50% + var(--b-adj)));
+
+        .blade &#group {
+            font-size: .85em; text-transform: uppercase;
+        }
+        label img {
+            height: 1.2em; 
+            margin-top: .05em; 
+        }
+        legend {
+            float: left; display: contents;
+            &::before {
+                content: attr(title);
+                padding: 0 0 0 .2em;
+                min-width: 2.8em; height: 100%; 
+                line-height: 1.8rem; 
+                color: black; font-size: .8rem;
+                background: var(--color);
+                border-top-left-radius: 9em; border-bottom-left-radius: 9em;
+            }
+            .sorter &::before {background: silver;}
+            .filter:not(:has([value$=chip])) &::before {cursor: pointer;}
+        }
+        label {
+            border-bottom: .1rem solid transparent; 
+            padding: 0 .1em; 
+            height: 1.4rem; 
+            line-height: 1.45rem;
+            white-space: nowrap;
+
+            #type & {padding: 0;}
+            &:has(:checked) {
+                color: var(--theme); border-color: var(--type,--theme); 
+            }
+            &:has([value='.UX'],[value='.BX']) {font-size: 1.1em;}
+            &:has([value='.over'],[value='.metal']) {font-size: .8em;}
+        }
+    }
+    .magnifier {
+        grid-area: 2/4; justify-self: flex-end;
+        display: flex; gap: .3em;
+
+        >* {display: none;}
+        @media (max-width:630px) {
+            label,&::before,&::after {
+                font-size: 1.1rem; color: var(--theme);
+                line-height: 1.7em;
+            }
+            &::before,&::after {
+                color: gray;
+            }
+            label:has(+label>:checked),
+            label:has(:checked)+label {
+                display: inline-block;
+            }
+            &:has(label:first-of-type>:checked)::before,
+            label:has(+label>:checked)::before {
+                content: '\e00c';
+            }
+            label:has(:checked)+label::before,
+            &:has(label:last-of-type>:checked)::after {
+                content: '\e00b';
+            }
+        }
+        @media (min-width:631px) {
+            & {grid-area: 1/4/3/5;}
+            continuous-knob {
+                display: inline-grid;
+                margin-top: .15em; 
+                font-size: .9em;
+    
+                &::part(output) {color: transparent;}
+            }
+        }
+    }
+}
+@media (max-width: 630px) and (orientation: portrait) {
+    nav:has(form.blade) {
+        grid-template-columns: 3em 1fr 6em auto;
+        &.right {grid-template-columns: 0 1fr 6em auto 3em;}
+
+        .sorter {
+            grid-area: 2/2/2/4; justify-self: end;
+        }
+    }
+}
+@media (min-width: 631px) and (max-width: 700px) {
+    nav:has(legend[title=CX]) {
+        .sorter {
+            grid-area: 2/2; justify-self: end;
+        }
+        #spin {grid-area: 2/3;}
+    }
+}

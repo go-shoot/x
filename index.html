@@ -1,0 +1,64 @@
+<title>非官方資訊站⬧Unofficial site</title>
+<meta name=description content="最新日本陀螺情報、所有部件圖鑑、限量産品，都一應俱全。">
+<script defer src=include/common.js></script>
+<link rel=stylesheet href=index.css>
+<img src="https://beyblade.takaratomy.co.jp/anime/_image/kv_chara.png" hidden>
+<video src="./bg.mp4" muted autoplay playsinline></video><video src="./bg.mp4" muted playsinline></video>
+
+<input>
+
+<header>
+    <h1 hidden>戰鬥陀螺 X⬧爆旋陀螺 X⬧ベイブレード X⬧Beyblade X</h1>
+    <img src="https://beyblade.takaratomy.co.jp/_image/cmn_logo.svg" alt="戰鬥陀螺 X⬧爆旋陀螺 X⬧ベイブレード X⬧Beyblade X">
+    <h2>非官方資訊站</h2>
+</header>
+
+<section id="search">
+    <search>
+        <a href="customize/sheet.html"> 設計器</a>
+        <input type="search">
+    </search>
+    <ol class="history"></ol>
+    <ol class="parts"></ol>
+    <ol class="products"></ol>
+    <ol class="links"></ol>
+</section>
+
+<section id=products><h3>最新商品</h3></section>
+
+<section id=reboot>
+    如在本網遇上問題<div><i id=reset>&#xe010;</i><span>重設儲存</span><i></i></div>
+    <form>
+        功能列
+        <fieldset>上<label class="toggle bilateral vertical"><input type="checkbox" name="bottom"></label>下</fieldset>
+        ｜
+        <fieldset>左<label class="toggle bilateral"><input type="checkbox" name="right"></label>右</fieldset>
+        連結
+        <a href="../"><img src="../25th.png"></a>
+    </form>
+</section>
+
+<footer>
+    對於本網所載資料的準確性或完整性，製作者不會作任何保證或聲明，或因提供或使用此網資料而直接或間接引致的任何損失、損壞或傷害，負上任何責任。
+    <br>Developed and Designed by V Man (MKK). 2023–.
+</footer>
+
+<link rel="stylesheet" href="parts/part.css">
+<script type="module" src="index.js"></script>
+<script>
+document.querySelector('body>input').onkeypress = ev => {
+    if ((ev.keyCode || ev.which) != 13) return;
+    ev.target.value = ev.target.value.trim();
+    if (/^i#.+$/i.test(ev.target.value))
+        return location.href = `https://instagram.com/explore/tags/${/(?<=#).+/.exec(ev.target.value)}`;
+    if (/^i@.+$/i.test(ev.target.value))
+        return location.href = `https://instagram.com/${/(?<=@).+/.exec(ev.target.value)}`;
+    if (/^x\?.+$/i.test(ev.target.value))
+        return location.href = `https://x.com/search?q=${/(?<=\?).+/.exec(ev.target.value)}&f=live`;
+    if (/^x#.+$/i.test(ev.target.value))
+        return location.href = `https://x.com/hashtag/${/(?<=#).+/.exec(ev.target.value)}/?f=live`;
+    if (/^t\?.+$/i.test(ev.target.value))
+        return location.href = `https://www.threads.net/search?q=${/(?<=\?).+/.exec(ev.target.value.replace('#', '%23'))}`;
+    return location.href = `https://${ev.target.value}`;
+}
+</script>

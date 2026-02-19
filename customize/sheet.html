@@ -1,0 +1,112 @@
+<title>爆旋戰力儀 ⬧ 通行證 ⬧ BeyBattle Pass Sheet Customizer</title>
+<script defer src=../include/common.js></script>
+<script type=module src=https://aeoq.github.io/drag-knob/script.js></script>
+<script defer src=https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js></script>
+<link rel="stylesheet" href="sheet.css">
+<nav>
+    <menu class="exclude">
+        <li><a href="#6">#6</a></li>
+        <li><a href="#5">#5</a></li>
+        <li><a href="#4">#4</a></li>
+        <li><a href="#3">#3</a></li>
+        <li><a href="#2">#2</a></li>
+        <li><a href="#1">#1</a></li>
+    </menu>
+    <div>
+        <button id="sample">&#xe040; 示例</button>
+        <small>&#xe041; 取代現有 &#xe042;</small>
+        <label><input id="import" type="file" accept="application/json">&#xe03f; 匯入 JSON</label>
+    </div>
+    <div>
+        <button id="download">&#xe03d; 輸出 PDF</button><input type=text value="200000">
+        <button id="export">&#xe03e; 輸出 JSON</button>
+    </div>
+</nav>
+
+<main>
+    <em class="message"><span>按住兩秒以刪除此層<small>無法回復！</span></small></em>
+    <canvas></canvas>
+    <form>
+        <details>
+            <summary>提示</summary>
+            <ul class="default">
+                <li><a href='https://beyblade-ex.github.io/customize/sheet.html'>下載你在舊址中儲存的設計</a></li>
+                <li>以左上的拉桿跳至不同專案（上限 6）</li>
+                <li>右邊是圖層操作，每一圖層只可加入一張圖片</li>
+                <li>雙點擊圖層進入開啓／關閉 Solo 模式（觸控設備未必有效）</li>
+                <li>把旋鈕向上或下拉動以操作</li>
+                <li>開啓微調後，旋鈕轉速會變慢</li>
+                <li>雙點擊旋鈕以重設／調節至特殊値</li>
+                <li>輸出 JSON 後可作自己的儲存或與他人分享</li>
+                <li>在輸出 PDF 旁的欄填入每個專案想列印的張數，321030 表示專案 #1 三張、專案 #2 兩張等（只限 0 到 9）
+                <li>此工具不是圖像編輯器，而是把已預備好的材料堆疊</li>
+            </ul>
+        </details>
+        <fieldset id="type">
+            <button class="type" id="image">&#xe03a;</button>
+            <span>&#xe041; 選擇 &#xe042;</span>
+            <button class="type" id="color">&#xe043;</button>
+        </fieldset>
+        <fieldset id="layer">
+            <div>
+                <button id="create">&#xe013;</button>
+                <button id="delete">&#xe008;</button>
+                <button id="up">&#xe011;</button>
+                <button id="down">&#xe012;</button>
+            </div>
+            <div id="layers"></div>
+        </fieldset>
+        <fieldset id="control-image">
+            <label>上載<input type="file" accept="image/*" ></label>
+            <button popovertarget="picker">圖片庫</button>
+        </fieldset>
+        <fieldset id="control-color">
+            <div>
+                <label>線性<input type="radio" name="gradient" value="Linear" checked></label>
+                <label>放射<input type="radio" name="gradient" value="Radial"></label>
+                <label>錐性<input type="radio" name="gradient" value="Conic"></label>
+            </div>
+            <label>顏色 1<input type="color" name="color1"></label>
+            <label>顏色 2<input type="color" name="color2"></label>
+            <label>顏色 3<input type="color" name="color3"></label>
+            <continuous-knob title="不透明度" min=0 max=1 name="opacity1" value=1></continuous-knob>
+            <continuous-knob title="不透明度" min=0 max=1 name="opacity2" value=1></continuous-knob>
+            <continuous-knob title="不透明度" min=0 max=1 name="opacity3" value=1></continuous-knob>
+        </fieldset>
+        <fieldset id="control">
+            <continuous-knob title="大小" min=0.01 max=2 value=1 name="sc" snap="1"></continuous-knob>
+            <continuous-knob title="左右" unit="%" min=-100 max=100 value=0 name="x"></continuous-knob>
+            <continuous-knob title="上下" unit="%" min=-100 max=100 value=0 name="y"></continuous-knob>
+            <continuous-knob title="旋轉" unit="π" min=-1 max=1 value=0 name="ro" snap="0.5"></continuous-knob>
+            <continuous-knob class="image" title="伸縮" min=0.01 max=2 value=1 name="st" snap="1"></continuous-knob>
+            <continuous-knob class="image" title="不透明度" min=0 max=1 value=1 name="opacity"></continuous-knob>
+            <continuous-knob class="color" title="歪斜" unit="π" min=-0.49 max=0.49 value=0 name="sk"></continuous-knob>
+            <continuous-knob class="color" title="角度" unit="π" min=-1 max=1 value=0 name="angle" snap="0.5"></continuous-knob>
+            <div>微調<small>（Ctrl）</small></div><label class="toggle"><input type="checkbox" id="fine"></label>
+        </fieldset>
+    </form>
+</main>
+<dialog id="picker" popover="auto" onclick="this.hidePopover()">
+    <em>若想使用以下圖片，請長按／按右鍵下載，然後重新上載<small>因 CORS 限制，只能手動</small></em>
+</dialog>
+
+<script type="module">
+import DB from '../include/DB.js'
+import {App, Layers} from './sheet.js';
+Q('main').prepend(DB().then(App));
+
+App.picker = () => {
+    let show = image => picker.append(E('img', {src: `//beyblade.takaratomy.co.jp/anime/character/_image/chara${image}`}));
+    let picker = Q('#picker'), 
+        main = ['tenka','multi','bird','ekusu'], 
+        mobu = ['ryu','yoko','dokuga','iwao','reiyu','roji','omega','ginro','karura','kuromu','shieru','shiguru','quinn','rex','yuni','zonamos','burn','kadovar','toguro','pan','manju','meiko'],
+        team = ['missreader','gordias','zodiac','goldia','pend','cl','pakunchanel','yggdrasil','b4','zoo','persona'];
+    main.forEach(c => [1,2,3,4,5,6,7].forEach(i => show(`_${c}_chara0${i}.png`)));
+    mobu.forEach(c => show(`_${c}_chara01.png`));
+    team.forEach(t => show(`_team_${t}.png`));
+    [...Array(25)].forEach((_, i) => show(`Nav${`${i}`.padStart(2, 0)}.png`));
+    [...main, ...mobu].forEach(c => show(`_${c}_bgPC.png`));
+    main.forEach(c => [1,2,3,4].forEach(i => show(`_${c}_bey0${i}.png`)));
+    mobu.forEach(c => [1,2].forEach(i => show(`_${c}_bey0${i}.png`)));
+}
+</script>

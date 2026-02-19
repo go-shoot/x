@@ -1,0 +1,64 @@
+<title>陀螺景品⬧Prizes</title>
+<script src=../include/common.js></script>
+<script src=https://aeoq.github.io/diamond-grid/script.js type=module></script>
+<link rel=stylesheet href=prize.css>
+
+<nav>
+    <menu></menu>
+    <a href="https://beyblade.takaratomy.co.jp/beyblade-x/news/news_stickerlist.html" title="各款貼紙"></a>
+    <form class="LED"></form>
+</nav>
+
+<main class="groups">
+    <details open>
+        <summary><h3>完整陀螺</h3></summary>
+        <diamond-grid id="beys" class="loading"></diamond-grid>
+    </details>
+    <details>
+        <summary><h3>非完整陀螺</h3></summary>
+        <diamond-grid id="parts"></diamond-grid>
+    </details>
+</main>
+
+<script type="module">
+import { Bey } from '../parts/bey.js'
+import { FilterForm, Keihin } from '../include/utilities.js'
+
+const Prize = () => Prize.before().then(Prize.display).then(Prize.after);
+Object.assign(Prize, {
+    before: () => Promise.all([DB.get.essentials(), DB.get('product', 'keihins')])
+        .then(([[meta, parts], keihins]) => Bey.import(meta.general, parts) && keihins),
+
+    display (keihins) {
+        let {true: parts, false: beys} = Object.groupBy(keihins, ({bey}) => bey.includes('/') || !bey.includes(' '));
+        [beys, parts] = [beys.map(b => new Keihin(b)), parts.map(p => new Keihin(p))];
+        Prize.all = [...beys, ...parts];
+        Q('#beys').append(...beys);
+        Q('#parts').append(...parts);
+    },
+    after () {
+        Prize.filter();
+        Prize.event();
+        Q('.loading').classList.remove('loading');
+    },
+    filter: () => Q('nav form').append(
+        new FilterForm.fieldset(Prize.icons, {name: 'type'}), 
+        new FilterForm.fieldset(Prize.lines, {name: 'line', negate: true})
+    ),
+    event () {
+        FilterForm.event(Prize.all);
+        onclick = ev => {
+            let h4 = ev.target.closest('h4')?.cloneNode(true);
+            if (!h4) return;
+            h4.Q('code')?.remove();
+            navigator.clipboard.writeText(h4.innerText.replaceAll(' ', '').replaceAll('‑', '-'));
+        }
+        let target = Q(`[id='${decodeURI(location.hash.substring(1))}']`);
+        target?.scrollIntoView();
+        target?.classList.add('target');
+    },
+    icons: new O({'keihin-m': '\ue001', 'keihin-g': '\ue002', 'keihin-d': '\ue02f', 'keihin-t': '\ue031'}),
+    lines: new O(LINES).map(([line]) => [line, E('img', {src: `../img/lines.svg#${line}`})]),
+});
+Q('main').prepend(DB().then(Prize));
+</script>

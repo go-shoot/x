@@ -1,0 +1,116 @@
+
+<title>陀螺商品⬧Products</title>
+<script src=../include/common.js></script>
+<style>
+    main {
+        max-width:1000px;
+    }
+    section:not(:target) {
+        display:none;
+    }
+    summary {
+        line-height: 1.5 !important;
+    }
+</style>
+
+<nav>
+    <menu>
+        <li><a href='../products/'>陀螺</a>
+        <li><a href='#launchers'>發射器</a>
+        <li><a href='#others'>其他</a>
+    </menu>
+    <form class="LED"></form>
+</nav>
+
+<main class=groups>
+    <section id=launchers>
+        <h1 hidden>發射器</h1>
+        <h2>拉線型</h2>
+        <h2>拉條型</h2>
+    </section>
+    <section id=others>
+        <h1 hidden>用具</h1>
+        <h2>手把及輔助</h2>
+        <h2>對戰盤</h2>
+    </section>
+</main>
+
+<template id="rubber custom grip">
+    四塊分別是：<dl><dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> L<dd>放四根手指用<dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> M<dd>容易握的平坦形<dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> S<dd>放姆指用<dt><ruby>Rubber Grip Panel<rt>ラバーグリップパネル</ruby><dd>一端的突起減少滑手</dl>
+</template>
+<template id="custom grip">
+    四塊分別是：<dl><dt><ruby>Long Side Panel<rt>ロングサイドパネル</ruby><dd>放四根手指用<dt><ruby>Grip Panel<rt>グリップパネル</ruby><dd>掌心用的平坦形<dt><ruby>Short Side Panel<rt>ショートサイドパネル</ruby><dd>放姆指用<dt><ruby>Hybrid Panel<rt>ハイグリップパネル</ruby><dd>一端的突起減少滑手</dl>
+</template>
+<template id="xtreme stadium">
+    下方兩側為2分 <ruby>Over Zone<rt>オーバーゾーン</rt></ruby>，中間為3分 <ruby>Xtreme Zone<rt>エクストリームゾーン</rt></ruby>。
+</template>
+<template id="wide xtreme stadium">
+    上方兩個角落為3分Xtreme Zone，下方中間為2分Over Zone。最後一顆生存的陀螺為勝，依其餘兩顆如何落敗而加總得分。例如兩顆陀螺互相碰撞後分別從2分區及3分區離開對戰盤，剩餘的一顆就取得5分。
+</template>
+
+
+<script type="module">
+import DB from '../include/DB.js';
+import {Bey, Preview} from '../parts/bey.js';
+import {FilterForm, Markup} from '../include/utilities.js';
+
+const Filter = new FilterForm.fieldset(new O({'l':'', 'r':''}));
+Q('nav form').append(Filter);
+
+class Group {
+    constructor({eng, jap, desc, colors}) {
+        let [, , src, size] = colors[1] || colors[0];
+        let details = E('details', [
+            E('summary', [
+                E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
+                E('small', Markup.spacing(desc)),
+                E('picture', {style: {
+                    background: `url(${Board.src(src)}) center / ${size?.width || (size || 150) + '%'}`
+                }})
+            ]),
+            E('p', {innerHTML: Markup.spacing(Q(`[id='${eng}']`)?.innerHTML)}),
+            E('ol.boards')
+        ]);
+        details.Q('summary').addEventListener('click', () => {
+            details.Q('ol').append(...colors.map(item => new Board(item)));
+            FilterForm.event(Q('.boards li'));
+            document.forms[0].onreset();
+        }, {once: true});
+        return details;
+    }
+    static location = {
+        launchers: eng => eng.includes('string') ? 1 : 2,
+        others: eng => eng.includes('stadium') ? 2 : 1
+    }
+}
+class Board {
+    constructor([classList, code, src, style]) {
+        return E('li', [
+            E('code', {innerHTML: code, onclick: ev => new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)}),
+            E('figure>img', {
+                src: Board.src(src), alt: code, 
+                style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
+            }),
+            ...classList.split(' ').map(c => Board.winder[c]?.cloneNode(true) ?? '')
+        ], {classList});
+    }
+    static winder = {
+        dragon: E('ruby', ['Dragon Winder', E('rt', 'ドラゴンワインダー')]),
+        long: E('ruby', ['Long Winder', E('rt', 'ロングワインダー')])
+    }
+    static src = src => 
+        /^[A-Z]X[A-Z]?\d/i.test(src) ? `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/${src}.png` : 
+        /^\w\//.test(src) ? `//takaratomymall.jp/img/goods/${src}.jpg` : src;
+}
+Q('main').prepend(DB().then(() => {
+    DB.get('meta', 'parts').then(meta => Bey.import(meta.general)); //for preview
+    (onhashchange = async () => {
+        let place = Q(`#${location.hash.substring(1)}`);
+        Filter.hidden = place.id == 'others';
+        if (place.Q(`details`)) return;
+        (await DB.get('product', place.id)).reverse().forEach(({eng, ...rest}) => 
+            place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
+        );
+    })()
+}));
+</script>

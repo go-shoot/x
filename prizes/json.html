@@ -1,0 +1,71 @@
+<title>App data</title>
+<script src=../include/common.js></script>
+<form>
+    <label>上載<input type=file accept="application/json" ></label>
+</form>
+<div class="groups"></div>
+<style>
+form {margin: 1em;}
+input[name=file] {width: 5em;}
+label {color: var(--theme);}
+details {
+    text-align: left;
+
+    summary {line-height: 3em;}
+    li {margin-top: 1em;}
+    time {margin-left: 1em; white-space: break-spaces;}
+    time::after {content: '\A';}
+    h5 {font-size: .8em;}
+    small {margin-left: 1em; font-size: .7em;}
+    p {margin: 0;}
+}
+li {
+    &::before {content: attr(title);}
+    &[title^=BXC]::before {color: crimson;}
+    &[title^=BXH]::before {color: gold;}
+    &[title^=BXG]::before {color: dodgerblue;}
+}
+</style>
+
+<script type="module">
+const remove = {
+    others: data => {
+        ['Missions', 'TrophyTemplates', 'RareBeyGetBattles', 'RareBeyCodes', 'LimitedItemCodes', 'HomeEnquetes', 'Notifications', 'Rewards']
+        .forEach(field => delete data[field]);
+        return data;
+    },
+};
+const transform = {
+    parts: ({release_at, model_name, name, catalog_title, description}) => ({
+        model_name, 
+        release_at, 
+        name: name['ja-JP'], 
+        title: catalog_title['ja-JP'], 
+        description: description['ja-JP']
+    })
+}
+Q('input[type=file]').onchange = ev => {
+    const reader = new FileReader;
+    reader.readAsText(ev.target.files[0]);
+    reader.onload = ev => {
+        let data = JSON.parse(JSON.parse(ev.target.result).masterData).data;
+        remove.others(data);
+        for (let category in data)
+            data[category] = data[category]
+            .filter(({model_name, release_at}) => /[^\d]X[^\d]\d/i.test(model_name) || new Date - new Date(release_at) < 30*24*60*60*1000)
+            .map(transform.parts).sort((a, b) => new Date(b.release_at) - new Date(a.release_at));
+    
+        Q('div').append(...Object.entries(data).reverse().map(([category, parts]) => 
+            E('details', [
+                E('summary', category + ' ' + parts.length), 
+                E('ul', parts.map(p => E('li', {title: p.model_name}, [
+                    E('time', p.release_at),
+                    E('h5', p.name),
+                    E('small', p.title),
+                    E('p', p.description)
+                ])))
+            ])
+        ));
+    }
+}
+</script>

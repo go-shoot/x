@@ -1,0 +1,190 @@
+[{
+    "parts": {
+        "general": {
+            "jap": {
+                "blade": {
+                    "_": "ブレード", 
+                    "CX": {
+                        "chip": {"_": "ロックチップ"},
+                        "over": {"_": "オーバーブレード"},
+                        "main": {"_": "メインブレード"},
+                        "metal": {"_": "メタルブレード"},
+                        "assist": {"_": "アシストブレード"}
+                    }
+                },
+                "ratchet": {"_": "ラチェット"},
+                "bit": {"_": "ビット"}
+            },
+            "types": ["att", "bal", "def", "sta"],
+            "blade": {
+                "terms": ["重量","(mm)厚度"],
+                "delimiter": {"CX": "."}
+            },
+            "ratchet": {
+                "height": {"high": 80, "mid": 65, "low": 50},
+                "terms": ["重量", "RING刃數", "BASE高度"]
+            },
+            "bit": {
+                "terms": ["重量", "GEAR齒數", "SHAFT粗度", "露出高度"],
+                "terms.fusion": ["重量", "GEAR齒數", "", "BASE高度"],
+                "prefix": {
+                    "B": {"eng": "Bound", "jap": "バウンド", "desc": "對Ratchet能以上下方向陷入"},
+                    "D": {"eng": "Disk",  "jap": "ディスク", "desc": "加上圓盤狀重量器"},
+                    "F": {"eng": "Free",  "jap": "フリー",   "desc": "對於Ratchet能自由迴轉"},
+                    "G": {"eng": "Gear",  "jap": "ギア"    , "desc": "齒部延長"},
+                    "H": {"eng": "High",  "jap": "ハイ"    , "desc": "高度提升10"},
+                    "L": {"eng": "Low",   "jap": "ロー"    , "desc": "高度下降10"},
+                    "M": {"eng": "Metal", "jap": "メタル"  , "desc": "使用金屬軸端"},
+                    "R": {"eng": "Rubber","jap": "ラバー" ,  "desc": "橡膠製"},
+                    "T": {"eng": "Trans", "jap": "トランス" ,"desc": "有高度模式轉換"},
+                    "U": {"eng": "Under", "jap": "アンダー" ,"desc": "高度下降20"},
+                    "W": {"eng": "Wall",  "jap": "ウォール" ,"desc": "軸端被筒狀壁包圍"}
+                }
+            }
+        },
+        "grouped": {
+            "blade": {
+                "一體": {
+                    "group": {
+                        "UX": {"label": "UX", "checked": true},
+                        "BX": {"label": "BX", "checked": true},
+                        "remake": {"label": "復刻"},
+                        "collab": {"label": "聯名"},
+                        "hasbro": {"label": "未出"}
+                    },
+                    "title": "【UX】【BX】刃擊環⬧鋼鐵戰刃⬧Blade"
+                },
+                "CX": {
+                    "group": {
+                        "chip": {"label": "Chip"},
+                        "main": {"label": "Main", "checked": true},
+                        "over": {"label": "Over"},
+                        "metal": {"label": "Metal"},
+                        "assist": {"label": "Assist"},
+                        "hasbro": {"label": "未出"}
+                    },
+                    "title": {
+                        "chip": "【CX】紋章鎖⬧鎖定紋章⬧Lock Chip",
+                        "main": "【CX】主刃⬧主要戰刃⬧Main Blade",
+                        "over": "【CX】刃⬧戰刃⬧Over Blade",
+                        "metal": "【CX】刃⬧戰刃⬧Metal Blade",
+                        "assist": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
+                        "hasbro": "【CX】未出"
+                    },
+                    "multiple": false
+                },
+                "filters": ["type","spin"]
+            },
+            "ratchet": {
+                "所有": {
+                    "group": {
+                        "low":  {"label": "▃", "checked": true},
+                        "mid":  {"label": "▅", "checked": true},
+                        "high": {"label": "▇", "checked": true}
+                    },
+                    "title": "核輪⬧固鎖輪盤⬧Ratchet",
+                    "filters": ["joint"]
+                }
+            },
+            "bit": {
+                "所有": {
+                    "group": {
+                        "flat":  {"label": "\ue019", "checked": true},
+                        "sharp": {"label": "\ue01a", "checked": true},
+                        "round": {"label": "\ue01b", "checked": true},
+                        "multi": {"label": "\ue01c", "checked": true}
+                    },
+                    "title": "軸心⬧Bit",
+                    "variety": {"H,L,U":"\ue047","M,R":"\ue04a","B,F,T":"\ue049","G":"\ue048","D,W":"\ue04b"}
+                },
+                "filters": ["type","prefix"]
+            }
+        }
+    }
+}, {
+    "glossary": {
+        "Upper": ["アッパー&攻擊", "旋轉時斜面把對手向上撞向空中，令其失去地面摩擦，更易被擊飛"],
+        "Smash": ["スマッシュ&攻擊", "旋轉時斜面把對手向下壓，令其傾側，更易失平衡倒下"],
+        "Down force": ["ダウンフォース", "旋轉時斜面把空氣推上，獲得向下的力，加強接地"],
+        "Damper": ["ダンパー", "阻尼器、避震器"],
+        "Launcher hook": ["ランチャーフック", "接近中央的三個與發射器掛勾接觸的部份"],
+        "X Line": ["Xライン", "對戰盤旁的齒條，令Bit的齒輪與其咬合時移動速度瞬間加速，為今代的最大特色"],
+        "X Dash": ["Xダッシュ", "因Bit的齒輪與對戰盤的X Line咬合時移動速度瞬間加速"],
+        "Burst": ["バースト", "擊至部件散開，第三代起的特色"]
+    }
+}, {
+    "search": [
+        {
+            "keywords": ["launcher","旋風","拉條","拉線"], 
+            "href": "products/equipment.html#launchers", "text": "發射器"
+        },
+        {
+            "keywords": ["launcher","橡膠","grip","stadium"], 
+            "href": "products/equipment.html#others", "text": "手把與對戰盤"
+        },
+        {
+            "keywords": ["HK","Hong Kong","香港","tclub","facebook","fb"], 
+            "href": "//facebook.com/tclubfanshk", "text": " 🇭🇰🇲🇴官方比賽"
+        },
+        {
+            "keywords": ["HK","Hong Kong","香港","tclub","instagram","ig"], 
+            "href": "//instagram.com/tclub_hk", "text": " 🇭🇰🇲🇴官方比賽"
+        },
+        {
+            "keywords": ["TW","Taiwan","台灣","facebook","fb"], 
+            "href": "//facebook.com/Beyblade2016", "text": " 🇹🇼官方比賽"
+        },
+        {
+            "keywords": ["TW","Taiwan","台灣","instagram","ig"], 
+            "href": "//instagram.com/beyblade.tw", "text": " 🇹🇼官方比賽"
+        },
+        {
+            "keywords": ["manga","corocoro","快樂快樂","最新資訊","コロコロ"],
+            "href": "//drive.google.com/drive/folders/1NHqckGBGUe0Kd57TqiFCZJ4G2qGGbvha", "text": "漫畫與情報"
+        },
+        {
+            "keywords": ["anime","卡通"],
+            "href": "//drive.google.com/drive/folders/1uRJA8OKiWT6NFa83si2DvgCA9kXkzp5Y", "text": "日文動畫"
+        },
+        {
+            "keywords": ["anime","卡通","素材"],
+            "href": "//beyblade.takaratomy.co.jp/anime/character/chara01.html", "text": "動畫角色"
+        },
+        {
+            "keywords": ["Takara Tomy","日本","商品"],
+            "href": "//beyblade.takaratomy.co.jp/beyblade-x/lineup/", "text": "官方網站"
+        },
+        {
+            "keywords": ["Takara Tomy","日本","影片","最新情報資訊"],
+            "href": "//www.youtube.com/@BEYBLADEOfficialYouTube/videos", "text": "官方 Youtube"
+        },
+        {
+            "keywords": ["日本","最新商品"],
+            "href": "//www.amazon.co.jp/s?rh=n%3A2189319051%2Cp_n_date%3A2320554051", "text": "Amazon"
+        },
+        {
+            "keywords": ["iPhone","APP Store","應用程式","分數","抽獎","QR Code","通行證","BeyBattlePass"],
+            "href": "//apps.apple.com/tw/app/beyblade-x/id1670801696", "text": "官方 APP iOS"
+        },
+        {
+            "keywords": ["Google Play Store","應用程式","分數","抽獎","QR Code","通行證","BeyBattlePass"],
+            "href": "//play.google.com/store/apps/details?id=jp.co.takaratomy.beyblade", "text": "官方 APP Android"
+        },
+        {
+            "keywords": ["X","Twitter","推特","最新情報資訊","日本"],
+            "href": "//x.com/tbh_pr", "text": "官方 X"
+        },
+        {
+            "keywords": ["iPhone","APP Store","應用程式","分數","通行證","BeyBattlePass"],
+            "href": "//apps.apple.com/tw/app/beyblader-helper/id6747081690", "text": "發射力測量替代 APP iOS"
+        },
+        {
+            "keywords": ["Google Play Store","應用程式","分數","通行證","BeyBattlePass"],
+            "href": "//play.google.com/store/apps/details?id=com.burnie.Fake", "text": "發射力測量替代 APP Android"
+        },
+        {
+            "keywords": ["應用程式","庫存","件"],
+            "href": "//beyblade.phstudy.org?lang=zh-TW", "text": "庫存替代 APP Web"
+        }
+    ]
+}]
