@@ -113,8 +113,8 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
     --hue: 245; --s-adj: 20%; --b-adj: 15%;
     --img: url(/x/img/bit/B.png);
 }
-.blade.fusion {--hue: 100;}
-.bit.fusion {--hue: 200;}
+.blade.fused {--hue: 100;}
+.bit.fused {--hue: 200;}
 .att,label:has([value$=att]) {--type: #0081e3;}
 .def,label:has([value$=def]) {--type: #009f48;}
 .sta,label:has([value$=sta]) {--type: #f08200;}

@@ -155,7 +155,7 @@ class Tile extends HTMLElement {
 Object.assign(Tile.prototype.html, {
     background () {
         let {comp, attr} = this.Part;
-        let selector = `.${comp}${attr?.includes('fusion') ? '.fusion' : ''}`;
+        let selector = `.${comp}${attr?.includes('fused') ? '.fused' : ''}`;
         Tile.hue[selector] ??= [...document.styleSheets]
             .filter(({href}) => href && new URL(href).host == location.host).flatMap(css => [...css.cssRules])
             .find(rule => rule.selectorText == selector).styleMap.get('--hue')[0];
@@ -187,7 +187,7 @@ Object.assign(Tile.prototype.html, {
     },
     stat () {
         let {comp, stat, date, attr} = this.Part;
-        let terms = META[comp][attr?.includes('fusion') ? 'terms.fusion' : 'terms'];
+        let terms = META[comp][attr?.includes('fused') ? 'terms.fused' : 'terms'];
         return [
             date ? E('strong', date) : '',
             E('dl', stat.flatMap((s, i) => E('div', [
@@ -223,7 +223,7 @@ class Cell {
         E(tds[0]).set({
             abbr: path.at(-1), 
             innerText: path.at(-1) || '', 
-            ...attr?.includes('fusion') ? {classList: 'fusion'} : {},
+            ...attr?.includes('fused') ? {classList: 'fused'} : {},
         });
         tds.forEach(td => td && (td.Part = Part));
         return tds;

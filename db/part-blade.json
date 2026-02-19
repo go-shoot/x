@@ -8,7 +8,7 @@
         },
         "stat": [""],
         "desc": "",
-        "attr": ["UX","def","right","fusion"]
+        "attr": ["UX","def","right","fused"]
     },
    "ShSr": {
         "group": "hasbro",
@@ -19,7 +19,7 @@
         },
         "stat": [""],
         "desc": "",
-        "attr": ["UX","att","right","fusion"]
+        "attr": ["UX","att","right","fused"]
     },
    "DrSt": {
         "group": "BX",
@@ -41,7 +41,7 @@
         },
         "stat": [""],
         "desc": "",
-        "attr": ["bal","right","fusion"]
+        "attr": ["bal","right","fused"]
     },
    "OrCl": {
         "group": "UX",

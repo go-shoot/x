@@ -201,7 +201,7 @@
             font-size: 1.6em; font-style: italic;
 
             &:has(sup) {margin-right: .35em;}
-            :host(:not(.fusion)) &:has(small) {letter-spacing: -.05em;}
+            :host(:not(.fused)) &:has(small) {letter-spacing: -.05em;}
         }
     }
     div:nth-child(1) {
@@ -367,7 +367,7 @@ tbody tr:nth-last-child(1 of :not([hidden])) td {
 tbody td {
     border-top: solid .5px var(--on);
 }
-td[abbr]:not([headers=bit].fusion),td:not([headers=blade].fusion)+td:empty {
+td[abbr]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
     border-left: solid .5px var(--on);
 }
 td[abbr]+td:not([headers]):not(.hide) {
