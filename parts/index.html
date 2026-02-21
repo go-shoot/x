@@ -4,7 +4,7 @@
 <link rel=stylesheet href=parts.css>
 <link rel=stylesheet href=../parts/part.css>
 <!-- 
-shopt -s nullglob && for f in *.webp *.avif *.png; do mogrify -format png -resize '500x>'' -fuzz 5% -trim "$f" && pngquant --quality=65-80 --output "op/${f%.*}.png" --force "${f%.*}.png"; done && shopt -u nullglob
+shopt -s nullglob && for f in *.webp *.avif *.png; do mogrify -format png -resize '500x>' -fuzz 5% -trim "$f" && pngquant --quality=65-80 --output "op/${f%.*}.png" --force "${f%.*}.png"; done && shopt -u nullglob
 ukenagashi: 卸走/開  inashi: 化解
 -->
 <nav>
