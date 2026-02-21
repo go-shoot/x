@@ -40,9 +40,9 @@ Cache.prepare = {
             )
         ]).flat(9)
     ),
-    prizes: prizes => prizes.map(({bey, ver}) => ({
+    prizes: prizes => prizes.map(({bey, ver, code}) => ({
         id: Keihin.id(bey, ver), 
-        name: Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
+        name: code + ' ' + Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
     })).filter(({name}) => name && /[一-龢]/.test(name))
 }
 class Input {
@@ -84,7 +84,7 @@ class Input {
         (targets.subblade || []).forEach(a => {
             (targets.assist ??= new Set()).add(a.at(-1));
             a.at(-2) && (targets.over ??= new Set()).add(a.at(-2));
-        });console.log(targets);
+        });
     }
     static field = Q('[type=search]')
     static regexp = new O({
@@ -142,7 +142,7 @@ class Search {
                 .map(({item}) => new Result('link', {text: item.name, href: `/x/prizes/#${item.id}`})
             )
         ].flat(),
-        products: query => /^[a-z]x[a-z]?-?\d{2,3}$/i.test(query) ?
+        products: query => /^[a-z]xg?-?\d{2,3}$/i.test(query) ?
             [new Result('code', {code: query.toUpperCase().replace(/(?<![\d-])(?=\d+)/, '-')})] : []
         ,
         history: results => results.map(item => E('button', item, {onclick: () => new Search(item)}))
