@@ -52,7 +52,7 @@ Object.assign(Parts, {
     focus (tile) {
         Q('.target')?.classList.remove('target');
         tile.classList.add('target');
-        setTimeout(() => tile.scrollIntoView(), 1000);
+        setTimeout(() => tile.scrollIntoView(), 500);
     }
 });
 onhashchange = () => Parts.after();

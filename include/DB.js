@@ -209,7 +209,7 @@ const Transform = {
                 OBJ[comp] = new O(OBJ[comp] ?? {}, parts.map(part => {
                     part.abbr.includes('.') && ([part.group, part.abbr] = part.abbr.split('.'));
                     part = new (Part[comp] ?? Part.blade)(part);
-                    truncate && part.keep('abbr', 'path', 'names', 'attr', 'revised');
+                    truncate && part.keep('abbr', 'path', 'group', 'names', 'attr', 'revised');
                     return [part.abbr, part];
                 }))
             );

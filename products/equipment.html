@@ -86,7 +86,10 @@ class Group {
 class Board {
     constructor([classList, code, src, style]) {
         return E('li', [
-            E('code', {innerHTML: code, onclick: ev => new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)}),
+            E('code', {
+                innerHTML: code, 
+                onclick: ev => /^.X.?-\d+/.test(code) && new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
+            }),
             E('figure>img', {
                 src: Board.src(src), alt: code, 
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
