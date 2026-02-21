@@ -2,24 +2,24 @@
     "VkHc": {
         "group": "hasbro",
         "names": {
-            "jap": "",
-            "eng": "",
+            "jap": "ヴァイキングハック",
+            "eng": "VikingHack",
             "chi": ""
         },
         "stat": ["33-"],
-        "desc": "（目前只在孩之寶商品中收錄，稱「Hack Viking」）",
+        "desc": "",
         "attr": ["bal","right","UX"],
         "from": "HlHm"
     },
     "MdSt": {
         "group": "hasbro",
         "names": {
-            "jap": "",
-            "eng": "",
+            "jap": "メデューサスタン",
+            "eng": "MedusaStun",
             "chi": ""
         },
         "stat": ["28-"],
-        "desc": "（目前只在孩之寶商品中收錄，稱「Stun Medusa」）",
+        "desc": "",
         "attr": ["def","right","UX"],
         "from": "ShSh"
     },
@@ -31,7 +31,7 @@
             "chi": ""
         },
         "stat": ["31+"],
-        "desc": "（目前只在孩之寶商品中收錄，稱「Kong Yell」）",
+        "desc": "",
         "attr": ["def","right","BX"],
         "from": "WyGl"
     },

@@ -313,21 +313,21 @@
     },
     "hasbro": {
         "Wr": {
-            "names": {"jap":"", "eng":"Wriggle"},
+            "names": {"jap":"リグル", "eng":"Wriggle"},
             "stat": ["30-"],
             "desc": "",
             "attr": ["sta","right"],
             "from": "main.Ar"
         },
         "Ft": {
-            "names": {"jap":"", "eng":"Fort"},
+            "names": {"jap":"フォート", "eng":"Fort"},
             "stat": ["29="],
             "desc": "",
             "attr": ["bal","right"],
             "from": "main.Rp"
         },
         "At": {
-            "names": {"jap":"", "eng":"Antler"},
+            "names": {"jap":"アントラーズ", "eng":"Antlers"},
             "stat": ["29+"],
             "desc": "",
             "attr": ["sta","right"],

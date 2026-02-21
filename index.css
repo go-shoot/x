@@ -77,6 +77,8 @@ section {
         }
         button {
             color: var(--theme);
+
+            sub {line-height: 0; margin-left: .15em;}
         }
         &.beys button::before {content: '\e001';}
         &.history button::before {content: '\e009';}
