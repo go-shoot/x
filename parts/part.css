@@ -309,8 +309,8 @@ table {
         
         &.H {background: var(--dark);}
         &.hidden, tbody:not(.BXG) &.Lm {display: none;}
-        &[data-rate]::after {
-            content: attr(data-rate); 
+        &[data-get]::after {
+            content: attr(data-get); 
             line-height: 1.1; letter-spacing: -.05em;
             font-size: 2em; font-style: italic;
             color: black; opacity: .5;
