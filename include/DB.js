@@ -202,14 +202,15 @@ const Transform = {
             .map(([group, parts]) => [group, parts.map(([sym, part]) => [sym, {...part, group}]) ])
             .flatten(([group, abbr, ...others]) => [`${group}.${abbr}`, ...others])
         }),
-        dict (parts, truncate = !location.pathname.includes('/parts/')) {
+        dict (parts) {
             let OBJ = new O;
             parts.forEach(([comp, parts]) => comp.includes('.') ?
                 OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))]) : 
                 OBJ[comp] = new O(OBJ[comp] ?? {}, parts.map(part => {
                     part.abbr.includes('.') && ([part.group, part.abbr] = part.abbr.split('.'));
                     part = new (Part[comp] ?? Part.blade)(part);
-                    truncate && part.keep('abbr', 'path', 'group', 'names', 'attr', 'revised');
+                    !location.pathname.includes('/parts/') 
+                        && part.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
                     return [part.abbr, part];
                 }))
             );

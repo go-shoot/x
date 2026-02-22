@@ -329,6 +329,7 @@ table {
         }
         &[headers=bit] {
             text-align: right !important;
+            &+td {min-width: 5em;}
         }
         tr[style] &:is([headers=blade],[headers=main],[headers=metal]) {
             color: var(--coat,transparent);
