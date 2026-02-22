@@ -30,7 +30,7 @@ th,nav dd,summary>*,small {
 :host(x-part) dd,output {
     font-family: COND, Chiron GoRound TC, sans-serif;
 }
-tr[data-rate]::after,
+tr[data-get]::after,
 td:is(:first-child,[headers=ratchet],[abbr]:has(+:not([headers]))),
 .boards code {
     font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;

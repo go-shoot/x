@@ -68,10 +68,10 @@ class Row {
             {dataset: {code: code[0], ...video ? {video} : {}}}
         );
     }
-    more ({coat, mode, rate}) {
+    more ({coat, mode, get}) {
         coat && E(this.tr).set({'--coat': coat});
         mode && (this.tr.Q('td[headers=blade]').dataset.mode = JSON.stringify(mode));
-        rate && (this.tr.dataset.rate = typeof rate == 'number' ? `×${rate}` : rate);
+        get && (this.tr.dataset.get = typeof get == 'number' ? `×${get}` : get);
     }
 }
 
