@@ -42,7 +42,7 @@ Cache.prepare = {
     ),
     prizes: prizes => prizes.map(({bey, ver, code}) => ({
         id: Keihin.id(bey, ver), 
-        name: code + ' ' + Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
+        name: (code ? `${code} ` : '') + Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
     })).filter(({name}) => name && /[一-龢]/.test(name))
 }
 class Input {
