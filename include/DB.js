@@ -1,5 +1,6 @@
 import { Part } from "../parts/part.js";
 import { Glossary } from "./utilities.js";
+let fresh, index = location.pathname == '/x/';
 class Indicator extends HTMLElement {
     constructor(callback) {
         super();
@@ -109,12 +110,16 @@ Object.assign(DB, {
                 return DB.db.close().then(() => DB.open(DB.db.version + 1));
 
             ev.type == 'upgradeneeded' && DB.setup(ev);
-            DB.fresh = ev.oldVersion === 0;
-            return DB.fetch.updates(location.pathname == '/x/')
-                .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
-                .catch(er => `${er}`.includes('Failed to fetch') ? DB.indicator.classList = 'offline' : console.error(er))
-                .then(() => DB.plugins.followup?.())
+            fresh = ev.oldVersion === 0;
+            let skip = Date.now() < Storage('no-update-jsons');
+            return (!skip || index ? DB.update() : Promise.resolve())
+                .then(() => DB.plugins.followup?.()).catch(console.error)
         })
+    ,
+    update: () => (fresh && !index ? Promise.resolve() : DB.fetch.updates())
+        .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
+        .then(() => Storage('no-update-jsons', Date.now() + 5*60*1000))
+        .catch(er => navigator.onLine ? console.error(er) : DB.indicator.classList = 'offline')
     ,
     setup (ev) {
         ['product','meta','user'].forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
@@ -124,24 +129,23 @@ Object.assign(DB, {
         return DB.transfer.in();
     },
     fetch: {
-        updates: index => !DB.fresh || index ? 
-            fetch(`/x/db/-update.json`).then(resp => resp.json())
+        updates: () => fetch(`/x/db/-update.json`).then(resp => resp.json())
             .then(({news, ...files}) => {
-                index && DB.plugins.announce(news);
-                return DB.fresh || files;
-            }) : Promise.resolve(true)
+                DB.plugins.announce?.(news);
+                return files;
+            })
         ,
         files: files => DB.indicator.init(files) && Promise.all(files.map(DB.fetch.file)),
         file: file => fetch(`/x/db/${file}.json`)
             .then(resp => Promise.allSettled([
                 file, resp.json(), 
-                !DB.fresh && file == 'part-blade-collab' && DB.delete('blade','hasbro'),
-                !DB.fresh && file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
+                fresh || file == 'part-blade-collab' && DB.delete('blade','hasbro'),
+                fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
     },
     filter: {
         files: files => Object.keys(DB.cache.actions)
-            .filter(f => files === true ? true : new Date(files[f]) / 1000 > (Storage('DB')?.[f] || 0))
+            .filter(f => fresh ? true : new Date(files[f]) / 1000 > (Storage('DB')?.[f] || 0))
     },
     cache: {
         actions: {

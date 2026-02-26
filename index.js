@@ -216,13 +216,10 @@ Q('header').after(DB(plugins).then(() => {
         }
     });
 
-    new O({cache: 30, parts: 60}).each(([cache, days]) => 
-        cookieStore.get(`no-update-${cache}`).then(cookie => cookie || 
-            fetch(`sw/?delete=${cache}`) && cookieStore.set({
-                name: `no-update-${cache}`, value: '', 
-                expires: Date.now() + days*24*60*60*1000
-            })
-        )
+    new O({cache: 30, parts: 60}).each(([cache, days]) =>
+        Date.now() > Storage(`no-update-${cache}`) 
+        && fetch(`sw/?delete=${cache}`) 
+        && Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000)
     );
 }));
 
