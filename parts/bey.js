@@ -213,10 +213,10 @@ class Preview {
         onclick: ev => Transition.popover('hide', ev, ev.currentTarget)
     }, [E('div#cells'), E('div#tiles'), E('div#images')]));
     static thead = E('thead>tr', [
-        E('th', 'No'), 
-        E('th.blade', 'Blade', {colSpan: 6}),
-        E('th.ratchet', 'Ratchet'),
-        E('th.bit', 'Bit', {colSpan: 2}),
+        E('th', {title: 'CODE'}), 
+        E('th.blade', {title: 'BLADE', colSpan: 6}),
+        E('th.ratchet', {title: 'RATCHET'}),
+        E('th.bit', {title: 'BIT', colSpan: 2}),
     ]);
     static reset = () => Preview.dialog?.Q('div', div => div.innerHTML = '');
 }
