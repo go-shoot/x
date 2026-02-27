@@ -26,22 +26,22 @@
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251114.html", "date":"2025-12",
-        "code":"BXH-21", "bey":"/ / O", "ver":["スペシャルVer.", "Special Ver."],
+        "code":"BXH-21", "bey":"/ / O", "ver":["スペシャル", "Special"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251114_bitO.webp",{"width":"200%"}]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251114.html", "date":"2025-12",
-        "code":"BXH-21", "bey":"/ / D", "ver":["スペシャルVer.", "Special Ver."],
+        "code":"BXH-21", "bey":"/ / D", "ver":["スペシャル", "Special"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251114_bitD.webp",{"width":"200%"}]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251114.html", "date":"2025-12",
-        "code":"BXH-21", "bey":"/ / V", "ver":["スペシャルVer.", "Special Ver."],
+        "code":"BXH-21", "bey":"/ / V", "ver":["スペシャル", "Special"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251114_bitV.webp",{"width":"200%"}]
     },
     {
         "type":"g", "note":"購物滿額贈品", "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news251015_3.html", "date":"2025-11",
-        "code":"BXH-20", "bey":"/ / P", "ver":["スペシャルVer.", "Special Ver."],
+        "code":"BXH-20", "bey":"/ / P", "ver":["スペシャル", "Special"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news251015_3_point.webp",{"width":"200%"}]
     },
     {
@@ -51,7 +51,7 @@
     },
     {
         "type":"m", "note":"實物版遊戲同梱", "link":"https://www.cs.furyu.jp/beyblade2025/", "date":"2025-11",
-        "code":"BXG-38", "bey":"Ln.Fn.T 4-60 A", "ver":["レッドVer.", "Red Ver."],
+        "code":"BXG-38", "bey":"Ln.Fn.T 4-60 A", "ver":["レッド", "Red"],
         "img":["https://pbs.twimg.com/media/Gq9VsAaaAAcQkI4?format=jpg&name=large",{"width":"100%"}]
     },
     {
@@ -101,7 +101,7 @@
     },
     {
         "type":"g", "note":"月費會員加入贈品", "date":"2025-03",
-        "code":"BXH-17", "bey":"Dr././", "ver":["クリアブラックVer.", "Clear Black Ver."],
+        "code":"BXH-17", "bey":"Dr././", "ver":["クリアブラック", "Clear Black"],
         "img":["https://takaratomymall.jp/img/goods/5/4904810953715_d1e01b6b57d6487e97188c2595366d43.jpg",{"width":"80%"}]
     },
     {
@@ -151,7 +151,7 @@
     },
     {
         "type":"m", "note":"コロコロ雜誌應募", "link":"https://corocoro.jp/news/379029/", "date":"2024-01",
-        "code":"BXC-02", "bey":"HlSc 3-80 F", "ver":["スペシャルクロスベイ", "SPX Bey"],
+        "code":"BXC-02", "bey":"HlSc 3-80 F", "ver":["「スペシャルクロスベイ」", "「SPX Bey」"],
         "img":["https://corocoro.jp/wp-content/uploads/2023/12/f919dd35dc468956f947d2d2ab3551d1.jpg",{"width":"115%"}]
     },
     {

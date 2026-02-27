@@ -58,7 +58,7 @@ class Keihin {
                     } : '')
                 ]),
             ]),
-            E('h4', {lang: 'zh'}, [chi, E('small', [ver?.[1] ?? ''].filter(t => t).join(' '))]),
+            E('h4', {lang: 'zh'}, [chi || '　', E('small', ver?.[1] ?? '')]),
             E('time', date.replace('-','‒'))
         ], {id: Keihin.id(bey, ver)});
     }
