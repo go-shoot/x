@@ -153,8 +153,8 @@ a[href^='/x/parts/']::before {content: '';}
 :active-view-transition-type(down)::view-transition-image-pair(root) {--x: 0; --y: 1;}
 .pause-page::view-transition-old(root),.pause-page::view-transition-new(root) {animation: none;}
 html {
-    background: var(--backdrop);
-    --backdrop: black;--overlay1:#383838E8;--overlay2:#555555E8;
+    background: var(--backdrop); --backdrop: hsl(var(--hue),30%,5%); 
+    --overlay1: hsla(var(--hue),20%,15%,.9); --overlay2: hsla(var(--hue),10%,25%,.9);
     color: var(--on); --on: #ccc;
     --hue: 87; --theme: #b5fb5c; 
     --theme-dark: color-mix(in srgb,var(--theme) 35%,black);
@@ -285,11 +285,9 @@ nav {
     }
     form:not(.LED) {display: contents;}
 }
-:is(th,menu a):is(.blade,.ratchet,.bit)::after {
+:is(th,menu a:is(.blade,.ratchet,.bit))::after {
     content: '';
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); 
-    z-index: -1; 
-    aspect-ratio: 1;
+    display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 
     filter: saturate(0) brightness(99);
 }

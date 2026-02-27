@@ -140,9 +140,6 @@ details:has(#filter) {
 tr {
     cursor: pointer;
 }
-th::before {
-    transform: translateY(-.5em);
-}
 th:not([data-sortedby])::before {
     text-shadow: none;
     color: dimgray;
