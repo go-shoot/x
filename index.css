@@ -80,8 +80,8 @@ section {
 
             sub {line-height: 0; margin-left: .15em;}
         }
-        &.beys button::before {content: '\e001';}
         &.history button::before {content: '\e009';}
+        &.products button::before {content: '\e001';}
         a {
             -webkit-user-drag: none;
             &[href^='//'] {color: var(--theme-alt);}

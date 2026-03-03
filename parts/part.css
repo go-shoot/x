@@ -60,6 +60,7 @@
 
 :host object {
     width: 100%;
+    background: hsl(var(--hue),30%,10%);
 }
 :host h5 {
     line-height: normal; /*index*/
