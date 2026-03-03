@@ -19,7 +19,7 @@ Object.assign(Parts, {
         };
         Parts.place = Q('section');
         Magnifier();
-        gtag('event', line || comp);
+        gtag('event', line || comp?.toUpperCase());
     },
     before: () => Promise.all([Filter(), Sorter()]),
     display: () => Promise.all([...
