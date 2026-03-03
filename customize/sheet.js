@@ -45,7 +45,7 @@ Object.assign(App, {
             href: `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(Layers.get()))}`,
             download: 'sheet.json'
         }).click();
-        gtag('event', 'export-json');
+        gtag('event', 'EXPORT-JSON');
     },
     import (ev) {
         App.loading(true);
@@ -53,7 +53,7 @@ Object.assign(App, {
         let reader = new FileReader;
         reader.readAsText(ev.target.files[0]);
         reader.onload = () => Layers.put(JSON.parse(reader.result)).then(App.loading);
-        gtag('event', 'import-json');
+        gtag('event', 'IMPORT-JSON');
     },
     sample () {
         App.loading(true);
@@ -83,7 +83,7 @@ Object.assign(App, {
             });
             return pdf.save();
         }).then(doc => {
-            gtag('event', 'export-pdf');
+            gtag('event', 'EXPORT-PDF');
             open(URL.createObjectURL(new Blob([doc], { type: 'application/pdf' })))
             App.switch(location.hash);
         }).catch(er => document.body.append(er) ?? console.error(er));

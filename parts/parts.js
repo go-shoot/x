@@ -19,6 +19,7 @@ Object.assign(Parts, {
         };
         Parts.place = Q('section');
         Magnifier();
+        gtag('event', line || comp);
     },
     before: () => Promise.all([Filter(), Sorter()]),
     display: () => Promise.all([...
