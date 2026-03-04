@@ -193,11 +193,11 @@ a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filte
     transition: transform .5s;
 }
 @keyframes pull-down {
-    25% {transform: translateY(1em);}
+    25% {transform: translateY(2em);}
     50%,to {transform: none;}
 }
 @keyframes pull-up {
-    25% {transform: translateY(-1em);}
+    25% {transform: translateY(-2em);}
     50%,to {transform: none;}
 }
 nav {
