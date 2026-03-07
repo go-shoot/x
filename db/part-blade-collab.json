@@ -123,6 +123,17 @@
         "desc": "在三處配置向左的連打刃，重視連打攻擊。（2009年發售的陀螺之X代復刻版）",
         "attr": ["att","left","MFB"]
     },
+    "S2": {
+        "group": "remake",
+        "names": {
+            "jap": "ストームスプリガン",
+            "eng": "Storm\\Spriggan",
+            "chi": "暴風\\巨神"
+        },
+        "stat": [""],
+        "desc": "（2016年發售的陀螺之X代復刻版）",
+        "attr": ["bal","right","BBB"]
+    },
     "V2": {
         "group": "remake",
         "names": {

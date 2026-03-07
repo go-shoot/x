@@ -5,14 +5,10 @@
   "part-blade-collab": "2026/02/18 22:28:00",
   "part-blade-divided":"2026/02/14 21:13:00",
   "meta":              "2026/02/21 12:42:00",
-  "prod-beys":         "2026/02/18 22:02:00",
+  "prod-beys":         "2026/03/08 00:20:00",
   "prod-keihin":       "2026/02/15 10:04:00",
   "prod-equipment":    "2026/02/17 14:13:00",
   "news": {
-    "2026-02-21":[{
-      "code":"BXG-24 booster","name":"エアロペガサス3-70A<br>レッドVer.<br>Aero Pegasus 3-70A<br>Red Ver.","type":"att",
-      "desc":"App 抽獎購買品"
-    }],
     "2026-03-14":[{
       "code":"BXG-52 starter","name":"ドランソード1-60V<br>メタルコート:ブラック JリーグVer.","type":"att",
       "desc":"日本球場活動及<a href=https://store.jleague.jp/search/lcd-15/mcd-17/>網店售賣</a>"
@@ -38,7 +34,8 @@
     }, {
       "code":"BXG-62","name":"ストリングランチャー<br>B4ストア限定カラーVer.<br>String Launcher<br>B4 Store Limited Color"
     }, {
-      "code":"BXG-21 starter"
+      "code":"BXG-21 starter","name":"ストームスプリガン2-70M<br>StormSpriggan 2-70M","type":"bal",
+      "imgs":["https://www.central.co.th/_next/image?url=https%3A%2F%2Fassets.central.co.th%2Ffile-assets%2FCDSPIM%2Fweb%2FImage%2FCDS2901%2FBEYBLADE-TOYBEYBLADESTORMSPRIGGAN270MBXG21RED-CDS29016570-1.webp&w=1080&q=75"]
     }],
     "2026-04":[{
       "code":"CX-17 random booster"
