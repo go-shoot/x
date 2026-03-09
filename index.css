@@ -87,7 +87,7 @@ section {
             &[href^='//'] {color: var(--accent);}
             &[href^='//']::before {content: '\e023';}
         }
-        &.parts button::before, &.links a:not([class='']):not(.prize)::before {
+        &.parts button::before, &.links a:not([class=''])::before {
             content: '';
             width: 1.4em; height: 1.4em; display: inline-block;
             vertical-align: -.35em;

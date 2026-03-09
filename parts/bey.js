@@ -90,11 +90,11 @@ class Search {
         }
         this.build();
         return Search.beys().then(beys => ({
-            beys: beys.filter(bey => bey[1] != 'Lm' && (
+            beys: beys.filter(bey =>
                 this.regexp.some(r => r.test(bey.dataset?.abbr ?? bey[2])) ||
                 typeof query == 'string' && query.length >= 2 && 
                     this.#search.code(query.split(' '), bey.firstChild?.dataset.code ?? bey[0])
-            )),
+            ),
             href: this.href || `?search=${query}`
         }));
     }
@@ -154,10 +154,7 @@ class Preview {
     }
     cell = ({path, code}) => new Search(code || path).then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [
-            E('caption', beys.length ? 
-                href ? E('a', {href: `/x/products/${href}`}) : '' : 
-                ['未有結果，請在 ', E('a', {href: '/x/prizes/'}), ' 中尋找']
-            ),
+            E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
             Preview.thead.cloneNode(true), 
             E('tbody', beys.map(bey => new Bey(bey)))
         ])
