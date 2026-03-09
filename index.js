@@ -11,13 +11,11 @@ class Cache {
         return Promise.all([
             DB.get.essentials(false), 
             DB.get('meta', 'search'), 
-            DB.get('product', 'keihins')
-        ]).then(([[meta, parts], links, prizes]) => Promise.all([
+        ]).then(([[meta, parts], links]) => Promise.all([
             Cache.prepare.links(links, meta), 
-            Cache.prepare.prizes(prizes),
             ...parts.flatMap(([, parts]) => parts.map(p => new Part(p).revise()))
-        ])).then(([links, prizes, ...parts]) => ({
-            links, prizes,
+        ])).then(([links, ...parts]) => ({
+            links,
             parts: parts.map(p => p
                     .push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]]})
                     .keep('abbr', 'path', 'group', 'names', 'all'))
@@ -40,10 +38,6 @@ Cache.prepare = {
             )
         ]).flat(9)
     ),
-    prizes: prizes => prizes.map(({bey, ver, code}) => ({
-        id: Keihin.id(bey, ver), 
-        name: (code ? `${code} ` : '') + Keihin.id(new Bey(bey, {for: 'prize'}).chi.replaceAll(/[^⬧一-龢]/g, ''), ver)
-    })).filter(({name}) => name && /[一-龢]/.test(name))
 }
 class Input {
     constructor() {
@@ -138,9 +132,6 @@ class Search {
             new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4}).search(query)
                 .slice(0, 5).map(({item}) => new Result('link', item)
             ),
-            new Fuse(CACHE.prizes, {keys: ['name'], threshold: .51}).search(query)
-                .map(({item}) => new Result('link', {text: item.name, href: `/x/prizes/#${item.id}`})
-            )
         ].flat(),
         products: query => /^[a-z]xg?-?\d{2,3}$/i.test(query) ?
             [new Result('code', {code: query.toUpperCase().replace(/(?<![\d-])(?=\d+)/, '-')})] : []

@@ -204,9 +204,13 @@ class Preview {
         },
     }
     static for = {
-        table: ev => location.pathname.includes('products') ? new Preview(...ev.target.matches(':first-child') ? 
-            ['image', {code: ev.target.dataset.code}] : ['tile', {path: ev.target.Part.path}]
-        , ev) : ''
+        table (ev) {
+            if (!location.pathname.includes('products')) return;
+            new Preview(...ev.target.matches(':first-child') ? 
+                [ev.target.matches('.Lm td') ? 'diamond' : 'image', {code: ev.target.dataset.code}] : 
+                ['tile', {path: ev.target.Part.path}]
+            , ev);
+        }
     }
     static dialog = Q('dialog') || Q('body').appendChild(E('dialog', {
         popover: 'auto',
