@@ -88,7 +88,7 @@ Object.assign(Filter, {
             'St': {label: new A('Set', {title: '至少包含兩陀螺'})},
             'SS': {label: new A('Stadium Set', {title: '含對戰盤及陀螺'})},
             'RB': {label: new A('Random Booster', {title: '單陀螺抽包'})},
-            // 'Lm': {label: new A('', {title: '景品', checked: false})}
+            'Lm': {label: new A('', {title: '景品', checked: false})}
         }), {name: 'type'}],
         [new O({
             'S H' : {label: 'Starter'},
@@ -96,7 +96,7 @@ Object.assign(Filter, {
             'St H': {label: 'Set'},
             'SS H': {label: 'Stadium Set'},
             'RB H': {label: 'Random Booster'},
-            // 'Lm H': {label: ''}
+            'Lm H': {label: ''}
         }), {name: 'type', legend: '\ue02a 異色版／再推出版'}],
         [new O({
             '¬': {label: E('img', {src: `../img/bit/B.png`})}}, 
