@@ -3,6 +3,7 @@ nav {
         grid-area: 2/3; place-self: end;
         line-height: .8;
         font-size: 3rem; 
+        white-space: nowrap;
         
         &:not(:empty)&::after {
             content: '結果';

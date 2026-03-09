@@ -26,9 +26,16 @@ import { FilterForm, Keihin } from '../include/utilities.js'
 
 const Prize = () => Prize.before().then(Prize.display).then(Prize.after);
 Object.assign(Prize, {
-    before: () => Promise.all([DB.get.essentials(), DB.get('product', 'keihins')])
-        .then(([[meta, parts], keihins]) => Bey.import(meta.general, parts) && keihins),
-
+    before: () => Promise.all([
+        DB.get.essentials(), DB.get('product', 'beys'), DB.get('product', 'keihins')
+    ]).then(([[meta, parts], beys, keihins]) => Bey.import(meta.general, parts) && 
+        beys.filter(([, type]) => type.includes('Lm')).map(Prize.subcode())
+            .map(([code, _, bey]) => ({code, bey, ...keihins[code]}))
+    ),
+    subcode: subcode => ([code, type, ...rest], i, list) => {
+        code == list[i - 1]?.[0] ? subcode++ : code == list[i + 1]?.[0] ? subcode = 1 : subcode = 0;
+        return [subcode ? code + `_0${subcode}` : code, type, ...rest];
+    },
     display (keihins) {
         let {true: parts, false: beys} = Object.groupBy(keihins, ({bey}) => bey.includes('/') || !bey.includes(' '));
         [beys, parts] = [beys.map(b => new Keihin(b)), parts.map(p => new Keihin(p))];

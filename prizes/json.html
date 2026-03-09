@@ -39,7 +39,7 @@ const transform = {
     parts: ({release_at, model_name, name, catalog_title, description}) => ({
         model_name, 
         release_at, 
-        name: name['ja-JP'], 
+        name: JSON.stringify(name), 
         title: catalog_title['ja-JP'], 
         description: description['ja-JP']
     })
