@@ -308,11 +308,11 @@ table {
     }
     tbody tr {
         height: 1.4rem;
-        --width:.45em;
+        --width: .48em;
         background: repeating-linear-gradient(45deg, var(--light) 0 var(--width), var(--dark) var(--width) calc(1.5*var(--width)));
         
         &.H {background: var(--dark);}
-        &.hidden,&.Lm {display: none;}
+        &.hidden {display: none;}
         &[data-get]::after {
             content: attr(data-get); 
             line-height: 1.1; letter-spacing: -.05em;

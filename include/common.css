@@ -120,15 +120,15 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 .sta,label:has([value$=sta]) {--type: #f08200;}
 .bal,label:has([value$=bal]) {--type: #de0010;}
 
-.RB {--sat: 0%; --b-adj: -4%;} /*46*/
-.B  {--hue: 10;} /*50*/
-.SS {--hue: 235; --b-adj: 5%;} /*55*/
-.St {--hue: 290; --b-adj: 1%;} /*51*/
-.S  {--hue: 200; --b-adj: -6%;} /*44*/
-.Lm {--hue: 45; --b-adj: -10%;} /*40*/
+.RB {--sat: 0%;} /*40*/
+.B  {--hue: 10; --b-adj: 2%;} /*42*/
+.SS {--hue: 235; --b-adj: 10%;} /*50*/
+.St {--hue: 290; --b-adj: 5%;} /*45*/
+.S  {--hue: 200; --b-adj: -2%;} /*38*/
+.Lm {--hue: 45; --b-adj: -6%;} /*34*/
 .RB,.B,.S,.St,.SS,.Lm {
-    --light: hsl(var(--hue,0),var(--sat,30%),calc(45% + var(--b-adj,0%)));
-    --dark:  hsl(var(--hue,0),var(--sat,30%),calc(35% + var(--b-adj,0%)));
+    --light: hsl(var(--hue,0),var(--sat,30%),calc(42.5% + var(--b-adj,0%)));
+    --dark:  hsl(var(--hue,0),var(--sat,30%),calc(32.5% + var(--b-adj,0%)));
 }
 a[href^='/x/products/']::before {content: '';}
 a[href^='/x/prizes/']::before {content: '';}
