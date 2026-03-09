@@ -67,30 +67,34 @@ class Keihin {
 }
 
 const FilterForm = {
-    event (targets, {legend, single, action} = {}, form = document.forms[0]) {
+    items: {
+        positive: form => [...new FormData(form)],
+        negative: form => form.Q('input:not(:checked)', []).map(input => [input.name, input.value])
+    },
+    filter (query, action, ev) {
+        [...this.targets].forEach(el => 
+            el.hidden = query.some(classes => el.matches(classes) ^ (this.type == 'positive'))
+        );
+        this.form.count && this.count();
+        action?.[ev?.target.name]?.(ev);
+    },
+    count () {this.form.count.value = [...this.targets].filter(el => !el.matches('[hidden],.hidden')).length;},
+    event (targets, {type, legend, single, action} = {}, form = document.forms[0]) {
         this.targets = targets;
         this.form = Object.assign(form, {
             onchange: ev => {
-                if (ev) {
-                    (single === true || single?.[ev.target.name]) && 
-                        form[ev.target.name]?.forEach(i => i.checked = i == ev.target);
-                    Transition.page.pause();
-                }
-                let query = [...new FormData(form)].reduce((obj, [n, v]) => ({...obj, 
+                ev && (single === true || single?.[ev.target.name]) && 
+                    form[ev.target.name]?.forEach(i => i.checked = i == ev.target);
+                this.type = type ??= 'positive';
+                let query = this.items[type](form).reduce((obj, [n, v]) => ({...obj, 
                     [n]: [...obj[n] || [], v == '¬' ? `:not(${Q(`[name=${n}]`).slice(1).map(i => i.value)})` : v]
                 }), {});
                 query = [...new O(query).map(([n, v]) => [n, v.join()]).values()];
-                
-                let filter = () => {
-                    [...targets].forEach(el => el.hidden = query.some(classes => !el.matches(classes)));
-                    form.count && this.count();
-                    action?.[ev?.target.name]?.(ev);
-                }
-                ev ? document.startViewTransition(filter).finished.then(Transition.page.resume) : filter();
+                ev ? Transition.allow.for(() => this.filter(query, action, ev)) : this.filter(query, action, ev);
             },
             onreset: () => {
-                [...form.elements].forEach(input => input.checked = true);
-                [...targets].forEach(el => el.hidden = false);
+                [...form.elements].forEach(input => input.checked = input.value != '.Lm');
+                form.onchange();
                 form.count && this.count();
             },
             onclick: ev => {
@@ -114,13 +118,12 @@ const FilterForm = {
             negate ? E('input', {type: 'hidden', name, value: '¬'}) : '',
             ...E.checkboxes(inputs.flatMap(([value, label]) => ({
                 label: label.label ?? label, 
-                name, 
+                name,
                 value: value.replace(/^(?=\w)|(?<=[(,])|\s/g, '.'), 
-                checked: name == 'group' ? label.checked : true, 
+                checked: label.label?.checked != null || name == 'group' ? label.checked : true, 
             })))
         ]
     },
-    count () {this.form.count.value = [...this.targets].filter(el => !el.matches('[hidden],.hidden,.Lm')).length},
 }
 
 const Transition = {
@@ -129,6 +132,10 @@ const Transition = {
         pause: (popover = false) => Q('html').classList.add('pause-page', popover ? 'prepare-popover' : null),
         resume: () => Q('html').classList.remove('pause-page', 'prepare-popover')
     },
+    allow: {for: action => {
+        Transition.page.pause();
+        document.startViewTransition(action).finished.then(Transition.page.resume);
+    }},
     popover: (action, {clientX: x, clientY: y}, popover) => {
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
         Transition.page.pause(true);

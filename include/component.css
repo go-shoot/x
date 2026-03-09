@@ -241,7 +241,7 @@ details.stretch {
 
         .showing & {height: calc(2.4em + 100%);}
         &::before,&::after {
-            line-height: .6; color: var(--theme-alt);
+            line-height: .6; color: var(--accent);
         }
         &::before {content: '\e00d';}
         &::after  {content: '\e00e';}

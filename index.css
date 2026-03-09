@@ -84,7 +84,7 @@ section {
         &.products button::before {content: '\e001';}
         a {
             -webkit-user-drag: none;
-            &[href^='//'] {color: var(--theme-alt);}
+            &[href^='//'] {color: var(--accent);}
             &[href^='//']::before {content: '\e023';}
         }
         &.parts button::before, &.links a:not([class='']):not(.prize)::before {
@@ -162,7 +162,7 @@ section {
         &:first-child {
             background: var(--overlay2);
             margin-right: .5em;
-            color: var(--theme-alt);
+            color: var(--accent);
         }
         &:last-child::before {
             content: '・';
@@ -206,7 +206,7 @@ time {
         width: 120%; height: .8rem;
         left: 50%; top: 50%; transform: translate(-50%,-50%) skew(-20deg);
         background:linear-gradient(var(--theme) 10%,transparent 10% 90%,var(--theme) 90%),
-        linear-gradient(to right,var(--theme-alt) var(--stop),transparent var(--stop));
+        linear-gradient(to right,var(--accent) var(--stop),transparent var(--stop));
         transition: --stop .5s;
         z-index: -1;
     }

@@ -111,7 +111,7 @@ Object.assign(DB, {
 
             ev.type == 'upgradeneeded' && DB.setup(ev);
             fresh = ev.oldVersion === 0;
-            let skip = Date.now() < Storage('no-update-jsons');
+            let skip = location.host == 'go-shoot.github.io' && Date.now() < Storage('no-update-jsons');
             return (!skip || index ? DB.update() : Promise.resolve())
                 .then(() => DB.plugins.followup?.()).catch(console.error)
         })

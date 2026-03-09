@@ -57,7 +57,7 @@ main {
     width: max-content; min-width: 23rem;
 }
 .links {
-    margin:2em auto -1em auto; padding: 0 .5rem;
+    margin:2em auto -.8em auto; padding: 0 .5rem;
     text-align: right;
     z-index: 1; position: relative;
     pointer-events: none;
@@ -72,7 +72,7 @@ main {
         margin-left: .3em;
         pointer-events: initial;
 
-        &[href$='#toc2'],&[href*=color] {outline-color: var(--theme-alt);}
+        &[href$='#toc2'],&[href*=color] {outline-color: var(--accent);}
         &::before {
             content: '\e02a';
             position: absolute; left: 50%; top: 50%; transform: translate(-50%,-48%);
@@ -94,12 +94,15 @@ details:has(#filter) {
         text-align: left;
         padding: .2em 0; margin-bottom: .2em;
     }
+    &:has([type=checkbox]:not([value^='.Lm']):not(:checked)) summary {
+        color: var(--accent);
+    }
     summary i {
         font-style: italic; color: var(--on);
     }
     fieldset {
         margin: 0 0 .5em 1em; padding-right: .5em;
-        display: flex; gap: 2em;
+        display: flex; gap: 1.5em;
     }
     legend {
         text-align: left;
@@ -117,7 +120,7 @@ details:has(#filter) {
         position: relative;
         font-size: .9em;
         
-        &:has([value='¬']) {display: none;}
+        &.¬ img {filter: saturate(0) brightness(99);}
     }
     fieldset:not(#line) label::after {
         content: '';
@@ -129,7 +132,10 @@ details:has(#filter) {
     fieldset#line {
         gap: 1em;
 
-        img {height: 2em;}
+        img {
+            height: 2em; 
+            pointer-events: none;
+        }
     }
 }
 

@@ -22,7 +22,7 @@ class Bey {
             this.blade = abbr.blade.map((b, i) => PARTS.blade[this.line][subs[i]][b] ?? new Part.blade({group: subs[i]}));
         } else
             this.blade = PARTS.blade[abbr.blade[0]] ?? new Part.blade;
-        this.line ??= this.blade.group ?? '';
+        this.line ??= /^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '';
         return this.parts;
     }}}
     parts = {to: {name: () => {
@@ -55,7 +55,7 @@ class Row {
             this.cell(code, video), 
             ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
         ].flat(9), {
-            classList: [bey.line || bey.blade.abbr && 'BX', type],
+            classList: [bey.line, type],
             dataset: {abbr: bey.abbr}
         });
         this.more(more ?? {});

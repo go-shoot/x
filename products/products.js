@@ -19,6 +19,7 @@ Object.assign(Table, {
         Q('.loading').classList.remove('loading');
         $(Q('table')).tablesorter();
         Table.form.onchange();
+        Filter.form.onchange();
         window.onresize();
         location.search ? Table.search(decodeURI(location.search.substring(1)).split(/\.|=/)) : FilterForm.count();
     },
@@ -38,7 +39,6 @@ Object.assign(Table, {
         Table.body.onclick = Preview.for.table;
     },
     reset () {
-        Table.body.classList.remove('BXG');
         location.search && history.replaceState('', '', './');
         Q('input[type=search]').value = '';
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', tr.hidden = false));
@@ -54,7 +54,6 @@ Object.assign(Table, {
         let {beys, href} = await new Search(search);
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', !beys.includes(tr)));
         href && setTimeout(() => Table.links(search)) && history.replaceState('', '', href);
-        /^bxg-?$/.test(search) && Table.body.classList.add('BXG');
         FilterForm.count();
     },
     links (query) {
@@ -64,44 +63,47 @@ Object.assign(Table, {
         let name = target.only.name() ? target.names.jap : target.abbr.split('.').at(-1);
         Q('a[href*=obake]').href = 'http://obakeblader.com/' + (comp && Filter.form.count.value > 1 ? `${comp}-${name}/#toc2` : `?s=入手法`);
         Q('a[href*=kyoganken]').href = `//kyoganken.web.fc2.com/beyx/color0${['', 'blade', 'ratchet', 'bit'].indexOf(target.path[0])}.htm`;
-    },
-    colSpan: {
-        slim: {main: 2, blade: 4},
-        wide: {main: 3, blade: 6}
     }
 });
 
 const Filter = () => {
     Filter.form.append(...Filter.items.map(([main, ...rest]) =>
-        new FilterForm.fieldset(main.map(([cl, {label}]) => [cl, {label: label.push({classList: cl.match(/\w+/)?.[0]})}]), ...rest)
+        new FilterForm.fieldset(main.map(([cl, {label}]) => [cl, {
+            label: (label instanceof A ? label : new A(label)).push({classList: cl})
+        }]), ...rest)
     ));
     Filter.events();
 }
 Object.assign(Filter, {
     form: document.forms[1],
     events () {
-        FilterForm.event(Table.body.children, {single: {line: true}}, Filter.form);
+        FilterForm.event(Table.body.children, {type: 'negative', single: {line: true}}, Filter.form);
         Filter.form.onmouseover = ({target}) => target.matches('label[title]') && 
             (Q('summary i').innerText = `｛${target.innerText || target.classList}｝：${target.title}`);
     },
     items: [
         [new O({
-            'S:not(H)' : {label: new A('Starter', {title: '附發射器的單陀螺'})},
-            'B:not(H)' : {label: new A('Booster', {title: '單陀螺'})},
-            'St:not(H)': {label: new A('Set', {title: '至少包含兩陀螺'})},
-            'SS:not(H)': {label: new A('Stadium Set', {title: '含對戰盤及陀螺'})},
-            'RB:not(H)': {label: new A('Random Booster', {title: '單陀螺抽包'})}
+            'S' : {label: new A('Starter', {title: '附發射器的單陀螺'})},
+            'B' : {label: new A('Booster', {title: '單陀螺'})},
+            'St': {label: new A('Set', {title: '至少包含兩陀螺'})},
+            'SS': {label: new A('Stadium Set', {title: '含對戰盤及陀螺'})},
+            'RB': {label: new A('Random Booster', {title: '單陀螺抽包'})},
+            'Lm': {label: new A('', {title: '景品', checked: false})}
         }), {name: 'type'}],
         [new O({
-            'S H' : {label: new A('Starter')},
-            'B H' : {label: new A('Booster')},
-            'St H': {label: new A('Set')},
-            'SS H': {label: new A('Stadium Set')},
-            'RB H': {label: new A('Random Booster')}
+            'S H' : {label: 'Starter'},
+            'B H' : {label: 'Booster'},
+            'St H': {label: 'Set'},
+            'SS H': {label: 'Stadium Set'},
+            'RB H': {label: 'Random Booster'},
+            'Lm H': {label: ''}
         }), {name: 'type', legend: '\ue02a 異色版／再推出版'}],
-        [new O({'¬': {label: new A('')}}, new O(LINES).map(([line, {title}]) => 
-            [line,  {label: new A(E('img', {src: `../img/lines.svg#${line}`}), {title})}]
-        )), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
+        [new O({
+            '¬': {label: E('img', {src: `../img/bit/B.png`})}}, 
+            new O(LINES).map(([line, {title}]) => 
+                [line, {label: new A(E('img', {src: `../img/lines.svg#${line}`}), {title})}]
+            )
+        ), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
     ]
 });
 

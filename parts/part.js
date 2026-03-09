@@ -39,8 +39,8 @@ class Part {
         return this;
     }
     only = {
-        abbr: () => !this.path.at(-1) || this.path[0] == 'ratchet',
-        name: () => this.path[0] == 'blade' && this.path.at(-1)?.length > 1
+        abbr: () => this.path[0] == 'ratchet',
+        name: () => this.path[0] == 'blade' && [undefined, 'chip', 'main', 'metal'].includes(this.path[2])
     }
     href = () => `/x/parts/` + Part.href.join(this.path, '?=#.')
     static href = {
@@ -213,16 +213,16 @@ customElements.define('x-part', Tile);
 class Cell {
     constructor(Part) {
         Part.revise('cell');
-        let {path, attr} = Part;
-        let tds = [E('td'), Part.only.name() || Part.only.abbr() ? '' : E('td')];
+        let {abbr, path, attr} = Part;
+        let single = Part.only.name() || Part.only.abbr();
+        let tds = [E('td'), !abbr || single ? '' : E('td')];
         E(tds[0]).set({
-            ...path[0] == 'blade' && !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : {},
             headers: path[2] ?? path[0],
+            ...Cell.colSpan[path[0]]?.(path) || (!abbr && !single ? {colSpan: 2} : {}),
         });
-        if (path.at(-1) == null) return tds;
+        if (abbr == null) return tds;
         E(tds[0]).set({
-            abbr: path.at(-1), 
-            innerText: path.at(-1) || '', 
+            abbr, innerText: abbr || '', 
             ...attr?.includes('fused') ? {classList: 'fused'} : {},
         });
         tds.forEach(td => td && (td.Part = Part));
@@ -246,6 +246,7 @@ class Cell {
         name = Markup('cell', name);
         return names[lang]?.length >= (typeof limit == 'number' ? limit : 99) ? [E('small', name)] : name;
     }
+    static colSpan = {blade: path => !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : ''}
     static #limit = {jap: new O({bit: 7})};
 }
 Part.blade = Blade, Part.ratchet = Ratchet, Part.bit = Bit;

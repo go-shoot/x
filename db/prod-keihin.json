@@ -6,7 +6,7 @@
     },
     {
         "type":"m", "note":"機台遊戲Fanbook同梱", "date":"2026-03", "link":"https://trsp.bn-am.net/special/collabo_fanbook2025/#contents03",
-        "bey":"WhWv 1-80 GF", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
+        "code":"BXG-56", "bey":"WhWv 1-80 GF", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://pbs.twimg.com/media/HBFj5r8b0AAk_hl?format=jpg&name=large",{"width":"95%"}]
     },
     {
@@ -175,13 +175,13 @@
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/g1_6.png",{"width":"200%","left":"54%"}]
     },
     {
-        "type":"t", "note":"G3大會獎品（集齊後）", "date":"2023-12",
-        "code":"BXH-02", "bey":"KnSh 3-80 N", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
-        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gift1.jpg",{"width":"120%","top":"52%"}]
-    },
-    {
-        "type":"d", "note":"App抽獎獎品", "date":"2023-08",
+        "type":"d", "note":"App抽獎獎品", "date":"2023-09",
         "code":"BXH-01", "bey":"CbDr 4-60 F", "ver":["メタルコート：ブルー", "Metal Coat: Blue"],
         "img":["https://takaratomymall.jp/img/goods/L/4904810910510_ac63b10874dd470eb52bd9e7200c55b4.jpg"]
+    },
+    {
+        "type":"t", "note":"G3大會獎品（集齊後）", "date":"2023-07",
+        "code":"BXH-02", "bey":"KnSh 3-80 N", "ver":["メタルコート：ゴールド", "Metal Coat: Gold"],
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gift1.jpg",{"width":"120%","top":"52%"}]
     }
 ]

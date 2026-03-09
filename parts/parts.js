@@ -114,8 +114,7 @@ const Sorter = () => {
 Object.assign(Sorter, {
     sort: by => Parts.place.append(...[...Parts.place.children].sort((a, b) => Sorter.by[by](a.Part, b.Part))),
     events: () => Q('.sorter').onchange = ({target: input}) => {
-        Transition.page.pause();
-        document.startViewTransition(() => Sorter.sort(input.id)).finished.then(Transition.page.resume);
+        Transition.allow.for(() => Sorter.sort(input.id));
         input.checked && Storage('pref', {sort: input.id});
     },
     compare: (u, v, f = p => p) => +(f(u) > f(v)) || -(f(u) < f(v)),
