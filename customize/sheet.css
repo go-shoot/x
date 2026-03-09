@@ -97,7 +97,7 @@ form {
 
             &:has(button) {
                 position: sticky; top: 0;
-                background: black;
+                background: var(--backdrop);
                 z-index: 1;
             }
         }

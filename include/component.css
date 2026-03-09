@@ -5,11 +5,11 @@
         position: relative;
         display: block;
         padding: .6em; margin: 3rem 0.5rem 0 0;
-        border-bottom: .6em double hsla(0,0%,70%,.7); border-right: .6em solid black; border-top: .6em solid transparent;
+        border-bottom: .6em double hsla(0,0%,70%,.7); border-right: .6em solid var(--backdrop); border-top: .6em solid transparent;
 
         &::before {
             content: '';
-            background: linear-gradient(to right,black 10%,rgba(0,0,0,0));
+            background: linear-gradient(to right,var(--backdrop) 10%,rgba(0,0,0,0));
             position: absolute; right: 0;
             width: calc(100% + .6em); height: 100%;
         }
