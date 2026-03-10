@@ -38,7 +38,7 @@ nav {
         display: flex; align-items: center; gap: .3em;
         overflow: scroll hidden; scrollbar-width: none;
         background: var(--overlay2); border-radius: 9em; 
-        --color: hsl(var(--hue), 90%, calc(50% + var(--b-adj)));
+        --color: hsl(var(--hue), 90%, calc(50% + var(--l-adj)));
 
         .blade &#group {
             font-size: .85em; text-transform: uppercase;

@@ -102,15 +102,15 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 }
 
 .blade {
-    --hue: 55; --b-adj: -5%;
+    --hue: 55; --l-adj: -5%;
     --img: url(/x/img/blade/CbDr.png);
 }
 .ratchet {
-    --hue: 175; --b-adj: 0%;
+    --hue: 175; --l-adj: 0%;
     --img: url(/x/img/ratchet/6-60.png);
 }
 .bit {
-    --hue: 245; --s-adj: 20%; --b-adj: 15%;
+    --hue: 245; --s-adj: 20%; --l-adj: 15%;
     --img: url(/x/img/bit/B.png);
 }
 .blade.fused {--hue: 100;}
@@ -120,15 +120,15 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 .sta,label:has([value$=sta]) {--type: #f08200;}
 .bal,label:has([value$=bal]) {--type: #de0010;}
 
-.RB {--hue: 0; --sat: 0%;} 
+.RB {--hue: 0; --s-adj: -100%;} 
 .SS {--hue: 235; --lum: 50%;} 
 .B  {--hue: 10; --lum: 42%;} 
 .S  {--hue: 200; --lum: 38%;} 
 .St {--hue: 290; --s-adj: -10%; --lum: 43%;} 
 .Lm {--hue: 45; --s-adj: 10%; --lum: 33%;} 
 .RB,.B,.S,.St,.SS,.Lm {
-    --light: hsl(var(--hue),calc(var(--sat,30%) + var(--s-adj,0%)),calc(var(--lum,45%) + 5%));
-    --dark:  hsl(var(--hue),calc(var(--sat,40%) + var(--s-adj,0%)),calc(var(--lum,45%) - 5%));
+    --light: hsl(var(--hue),calc(30% + var(--s-adj,0%)),calc(var(--lum,45%) + 5%));
+    --dark:  hsl(var(--hue),calc(40% + var(--s-adj,0%)),calc(var(--lum,45%) - 5%));
 }
 a[href^='/x/products/']::before {content: '';}
 a[href^='/x/prizes/']::before {content: '';}

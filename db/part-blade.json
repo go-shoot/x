@@ -4,7 +4,8 @@
         "names": {
             "jap": "イージスランパート",
             "eng": "AegisRampart",
-            "chi": ""
+            "chi": "",
+            "aka": "護盾城牆"
         },
         "stat": [""],
         "desc": "",
@@ -15,7 +16,8 @@
         "names": {
             "jap": "シノビシュリケン",
             "eng": "ShinobiShuriken",
-            "chi": ""
+            "chi": "",
+            "aka": "忍者飛鏢 手裡劍"
         },
         "stat": [""],
         "desc": "",
@@ -26,7 +28,8 @@
         "names": {
             "jap": "ドランストライク",
             "eng": "DranStrike",
-            "chi": ""
+            "chi": "",
+            "aka": "翔龍 蒼龍"
         },
         "stat": [""],
         "desc": "",
@@ -36,8 +39,9 @@
         "group": "UX",
         "names": {
             "jap": "バレットグリフォン",
-            "eng": "Bullet\\Griffon",
-            "chi": ""
+            "eng": "Bullet\\Gryphon",
+            "chi": "",
+            "aka": "獅鷲"
         },
         "stat": [""],
         "desc": "",
@@ -48,7 +52,8 @@
         "names": {
             "jap": "オロチクラスタ",
             "eng": "OrochiCluster",
-            "chi": ""
+            "chi": "",
+            "aka": "大蛇"
         },
         "stat": ["36+"],
         "desc": "在兩處大幅度凸出的六枚刃特化於以連打及強擊把對手撞飛。",
@@ -556,7 +561,8 @@
         "names": {
             "jap": "サムライスチール",
             "eng": "SamuraiSteel",
-            "chi": ""
+            "chi": "",
+            "aka": "武士鋼鐵"
         },
         "stat": ["32-"],
         "desc": "持有兩種不同性能的刃，可用發射方法分別使用攻擊及防禦。",
@@ -604,7 +610,8 @@
         "names": {
             "jap": "クロコクランチ",
             "eng": "CrocoCrunch",
-            "chi": ""
+            "chi": "",
+            "aka": "鱷魚"
         },
         "stat": ["34-"],
         "desc": "擅於從低位置Upper攻擊。",
@@ -628,7 +635,8 @@
         "names": {
             "jap": "トリケラスパイキー",
             "eng": "TriceraSpiky",
-            "chi": ""
+            "chi": "",
+            "aka": "三角龍"
         },
         "stat": ["30-"],
         "desc": "",
@@ -664,7 +672,8 @@
         "names": {
             "jap": "ワイバーンホバー",
             "eng": "WyvernHover",
-            "chi": ""
+            "chi": "",
+            "aka": "飛龍 翼龍"
         },
         "stat": ["35+"],
         "desc": "向下收窄的階梯構造，不論對手的形狀都擅於抵擋攻擊並從上方壓制。",

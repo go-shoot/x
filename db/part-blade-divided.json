@@ -119,17 +119,17 @@
     },
     "chip":{
         "Rg": {
-            "names": {"jap":"ラグナ", "eng":"Ragna", "chi":""},
+            "names": {"jap":"ラグナ", "eng":"Ragna", "chi":"邪神"},
             "stat": ["2-"],
             "attr": ["right","bbb"]
         },
         "Kn": {
-            "names": {"jap":"ナイト", "eng":"Knight", "chi":""},
+            "names": {"jap":"ナイト", "eng":"Knight", "chi":"騎士"},
             "stat": ["2-"],
             "attr": ["right"]
         },
         "Bh": {
-            "names": {"jap":"バハムート", "eng":"Bahamut", "chi":""},
+            "names": {"jap":"バハムート", "eng":"Bahamut", "chi":"龍王"},
             "stat": ["2-"],
             "attr": ["right"]
         },
@@ -213,19 +213,19 @@
     },
     "metal": {
         "Rg": {
-            "names": {"jap":"レイジ", "eng":"Rage", "chi":""},
+            "names": {"jap":"レイジ", "eng":"Rage", "chi":"狂怒"},
             "stat": [""],
             "desc": "流線形滑順的刃化解對手攻擊，減低迴轉損失。",
             "attr": ["sta","right","bbb"]
         },
         "Fr": {
-            "names": {"jap":"フォートレス", "eng":"Fortress", "chi":""},
+            "names": {"jap":"フォートレス", "eng":"Fortress", "chi":"堡壘"},
             "stat": [""],
             "desc": "有高低差的形狀分散對手的攻擊，立體形狀的刃亦產生反擊。",
             "attr": ["def","right"]
         },
         "Bl": {
-            "names": {"jap":"ブリッツ", "eng":"Blitz", "chi":""},
+            "names": {"jap":"ブリッツ", "eng":"Blitz", "chi":"閃擊"},
             "stat": [""],
             "desc": "高撞擊性能的重量級五枚刃，一併持有重心偏側的大型刃以提高重擊性能。",
             "attr": ["att","right"]
