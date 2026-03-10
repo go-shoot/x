@@ -10,7 +10,7 @@ nav>a {
         vertical-align: -1.6em;
     }
 }
-label {
+label:has([value*=keihin]) {
     color: var(--type);
     font-size: 1.2em; line-height: 1.2;
 
@@ -27,22 +27,22 @@ label:has([value$=keihin-m]),.keihin-m {--type: indianred;}
 .keihin-g em::before {content: '\e002';}
 .keihin-m em::before {content: '\e001';}
 
-.target {
-    animation: highlight 1s .5s ease 3;
-    scroll-margin-top: 5rem;
-}
-@keyframes highlight {from {filter:brightness(300%);} }
+main.groups {
+    margin-top: 6em;
 
-main {margin-top: 6em;}
-summary {line-height: 4em;}
+    summary {line-height: 4em;}
+}
 diamond-grid {
     font-size: .8em;
     --side: 20em; --gap: .5em;
-
+    &:has(article:only-child) {grid-template-columns: auto;}
+    
     article {
         background: #fbfbfd; color: black;
         display: grid; grid-template: 20% 7.5% 44% 13.5% 15% / 10% 80% 7% 3%;
         grid-template-areas: '. type . .' '. desc . .' '. img img .' '. name . .' '. date . .';
+        
+        &:only-child {transform: none;}
     }
     em {
         grid-area: type;

@@ -93,8 +93,8 @@ const FilterForm = {
                 ev ? Transition.allow.for(() => this.filter(query, action, ev)) : this.filter(query, action, ev);
             },
             onreset: () => {
-                [...form.elements].forEach(input => input.checked = input.value != '.Lm');
-                form.onchange();
+                [...form.elements].forEach(input => input.checked = true);
+                [...targets].forEach(tr => tr.hidden = false);
                 form.count && this.count();
             },
             onclick: ev => {

@@ -95,7 +95,7 @@ details:has(#filter) {
         text-align: left;
         padding: .2em 0; margin-bottom: .2em;
     }
-    &:has([type=checkbox]:not([value^='.Lm']):not(:checked)) summary {
+    &:has([type=checkbox]:not(:checked)) summary {
         color: var(--accent);
     }
     summary i {

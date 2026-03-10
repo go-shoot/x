@@ -1,6 +1,6 @@
 import DB from '../include/DB.js';
 import { Part, Cell } from './part.js';
-import { Glossary, Markup, Transition } from '../include/utilities.js';
+import { Glossary, Markup, Transition, Keihin } from '../include/utilities.js';
 import Maps from '../products/maps.js';
 
 let META, PARTS;
@@ -141,7 +141,7 @@ class Search {
     static #or = abbrs => abbrs?.length ? `(?:${[abbrs].flat().filter(a => typeof a == 'string').join('|')})` : '[^.]+?'
 }
 class Preview {
-    constructor(what, {path, code, type}, ev) {
+    constructor(what, {type, code, bey, path}, ev) {
         if (what == 'index')
             return [
                 ...this.#image.src('main', code),
@@ -149,7 +149,7 @@ class Preview {
             ];
         Preview.reset();
         Transition.popover('show', ev, Preview.dialog);
-        [what].flat().reduce((prom, w) => prom.then(() => this[w]({path, code})), Promise.resolve())
+        [what].flat().reduce((prom, w) => prom.then(() => this[w]({code, bey, path})), Promise.resolve())
         .then(() => Glossary(Preview.dialog));
     }
     cell = ({path, code}) => new Search(code || path).then(({beys, href}) => Q('#cells').append(
@@ -160,6 +160,10 @@ class Preview {
         ])
     )).then(() => [window.onresize(), Cell.fill('chi')])
 
+    diamond = ({code, bey}) => DB.get('product', 'keihins')
+        .then(beys => Preview.dialog.Q('diamond-grid').append(...Object.entries(beys)
+            .filter(([c]) => c.includes(code)).map(([, b]) => new Keihin({code, bey, ...b}))
+        ))
     tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
@@ -203,8 +207,9 @@ class Preview {
     static for = {
         table (ev) {
             if (!location.pathname.includes('products')) return;
-            new Preview(...ev.target.matches(':first-child') ? 
-                [ev.target.matches('.Lm td') ? 'diamond' : 'image', {code: ev.target.dataset.code}] : 
+            new Preview(...ev.target.matches(':first-child') ? ev.target.matches('.Lm td') ? 
+                ['diamond', {code: ev.target.dataset.code, bey: ev.target.parentElement.dataset.abbr}] :
+                ['image', {code: ev.target.dataset.code}] : 
                 ['tile', {path: ev.target.Part.path}]
             , ev);
         }
@@ -212,13 +217,13 @@ class Preview {
     static dialog = Q('dialog') || Q('body').appendChild(E('dialog', {
         popover: 'auto',
         onclick: ev => Transition.popover('hide', ev, ev.currentTarget)
-    }, [E('div#cells'), E('div#tiles'), E('div#images')]));
+    }, [E('div#cells'), E('div#tiles'), E('div#images'), E('diamond-grid')]));
     static thead = E('thead>tr', [
         E('th', {title: 'CODE'}), 
         E('th.blade', {title: 'BLADE', colSpan: 6}),
         E('th.ratchet', {title: 'RATCHET'}),
         E('th.bit', {title: 'BIT', colSpan: 2}),
     ]);
-    static reset = () => Preview.dialog?.Q('div', div => div.innerHTML = '');
+    static reset = () => [...Preview.dialog?.children].forEach(div => div.innerHTML = '');
 }
 export {Bey, Search, Preview};

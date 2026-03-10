@@ -297,10 +297,11 @@ table {
         
         div,&:not(.LED)::before {
             content: attr(title);
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-35%);
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
             z-index: 1;
             mix-blend-mode: difference;
         }
+        &.LED div {transform: translate(-50%,-35%);}
         &::after {width: 4em;}
     }
     thead:has(+tbody:empty) {
