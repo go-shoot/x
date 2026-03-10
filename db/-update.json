@@ -1,9 +1,9 @@
 {
   "part-ratchet":      "2026/02/13 15:45:00",
   "part-bit":          "2026/02/14 23:45:00",
-  "part-blade":        "2026/02/19 12:30:00",
-  "part-blade-collab": "2026/03/08 00:23:00",
-  "part-blade-divided":"2026/02/14 21:13:00",
+  "part-blade":        "2026/03/10 15:25:00",
+  "part-blade-collab": "2026/03/10 15:25:00",
+  "part-blade-divided":"2026/03/10 15:25:00",
   "meta":              "2026/02/21 12:42:00",
   "prod-beys":         "2026/03/09 11:00:00",
   "prod-keihin":       "2026/03/09 12:28:00",
@@ -48,7 +48,7 @@
       "code":"BX-49 starter","name":"ドランストライク4-50FF<br>Dran Strike 4-50FF","type":"att",
       "imgs":["https://i0.wp.com/fenixnests.com/wp-content/uploads/2026/02/G2742AS20_detail_2_26_tif_2000px_300DPI.jpg?fit=1024%2C1024&ssl=1"]
     }, {
-      "code":"BXG-51 booster","name":"ドランブレイブS6-60V<br>メタルコート:ブラック<br>Dran Brave S6-60V<br>Metal Coat: Black"
+      "code":"BXG-51 booster","name":"ドランブレイブS6-60V<br>メタルコート:ブラック<br>Dran Brave S6-60V<br>Metal Coat: Black","type":"att"
     }]
   }
 }
