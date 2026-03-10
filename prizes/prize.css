@@ -10,7 +10,7 @@ nav>a {
         vertical-align: -1.6em;
     }
 }
-label:has([value*=keihin]) {
+nav label:has(:is([name=type],[name=line])) {
     color: var(--type);
     font-size: 1.2em; line-height: 1.2;
 
