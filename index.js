@@ -1,7 +1,7 @@
 import DB from './include/DB.js'
-import {Bey, Preview} from './parts/bey.js'
+import {Preview} from './parts/bey.js'
 import {Part} from './parts/part.js'
-import {Markup, Keihin} from './include/utilities.js'
+import {Markup} from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
 Q('search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['商品', '部件', '景品'][i]}`) && a));
 
@@ -128,11 +128,9 @@ class Search {
                 .map(r => r.item)
             ))].map(item => new Result('part', item))
         ,
-        links: query => [
-            new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4}).search(query)
-                .slice(0, 5).map(({item}) => new Result('link', item)
-            ),
-        ].flat(),
+        links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
+            .search(query).slice(0, 5).map(({item}) => new Result('link', item))
+        ,
         products: query => /^[a-z]xg?-?\d{2,3}$/i.test(query) ?
             [new Result('code', {code: query.toUpperCase().replace(/(?<![\d-])(?=\d+)/, '-')})] : []
         ,

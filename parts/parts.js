@@ -106,7 +106,10 @@ Object.assign(Magnifier, {
 });
 
 const Sorter = () => {
-    Q('nav').append(new FilterForm.fieldset(Sorter.icons, {legend: '排序'}));
+    Q('nav').append(new FilterForm.fieldset(
+        new O((META.sorters ?? ['name','time','weight']).map(by => [by, Sorter.icons[by]])), 
+        {legend: '排序'}
+    ));
     Sorter.events();
     Sorter.preferred = Storage('pref')?.sort || 'name';
     Q(`#${Sorter.preferred}`).checked = true;
@@ -125,14 +128,14 @@ Object.assign(Sorter, {
             || Sorter.compare(p, q, p => p.abbr.toLowerCase()),
 
         weight: (p, q) => Sorter.compare(q, p, p => (w => parseInt(w) + Sorter.weight.adjust[w.at(-1)])(p.stat[0] || '0=')),
-        
+        height: (p, q) => Sorter.compare(p, q, p => parseInt(p.stat[3] || 0)),
         time: (p, q) => (q.order ?? Infinity) - (p.order ?? Infinity)
     },
     index: {
         whole: {blade: 0, ratchet: 1, bit: 2},
         blade: {chip: 0, main: 1, metal: 1, over: 2, assist: -1}
     },
-    icons: new O({name: '\ue034', weight: '\ue036', time: '\ue035'})
+    icons: {name: '\ue034', time: '\ue035', weight: '\ue036', height: '\ue047'}
 });
 Sorter.time = {
     order: comp => DB.get('product', 'beys').then(beys => {

@@ -97,7 +97,8 @@
                     "title": "軸心⬧Bit",
                     "variety": {"H,L,U":"\ue047","M,R":"\ue04a","B,F,T":"\ue049","G":"\ue048","D,W":"\ue04b"}
                 },
-                "filters": ["type","prefix"]
+                "filters": ["type","prefix"],
+                "sorters": ["name","time","height"]
             }
         }
     }
