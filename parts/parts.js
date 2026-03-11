@@ -15,6 +15,7 @@ Object.assign(Parts, {
             types: META.general.types, 
             legend,
             filters: META.grouped[comp].filters, 
+            sorters: META.grouped[comp].sorters,
             ...META.grouped[comp][line || legend]
         };
         Parts.place = Q('section');
