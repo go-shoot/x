@@ -42,12 +42,13 @@
     }, {
       "code":"UX-19 starter","name":"バレットグリフォンH<br>Bullet Griffon H","type":"bal",
       "imgs":["https://m.media-amazon.com/images/I/61LStN1rczL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/638830fb-e0ad-42ac-9573-ff600403af37.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/30a4f72e-77eb-42c2-a94e-44db1b4d328d.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/ed724527-e495-4678-8812-194a4e121a2b.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/61F2w7ZMmaL._AC_SX679_.jpg"],
-      "desc":["首個Blade—Ratchet一體型陀螺","",""]
+      "desc":["首個Blade—Ratchet一體型陀螺","對戰時分身成平軸攻擊型的「Bullet」及防禦型「本體」","勝負以本體決定"]
     }],
     "2025-05-16":[{
       "code":"BX-49 starter","name":"ドランストライク4-50FF<br>Dran Strike 4-50FF","type":"att",
       "imgs":["https://m.media-amazon.com/images/I/61gfsOcnJNL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/4977c4f1-d054-41d5-a7e3-34f03b1ac40d.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/61v1rdUmgeL._AC_SX679_.jpg"]
-    }],
+      ,"desc":["以金屬連繫中央，提高剛性，作連續攻擊"]
+      }],
     "2026-05-30":[{
       "code":"BXG-51 booster","name":"ドランブレイブS6-60V<br>メタルコート:ブラック<br>Dran Brave S6-60V<br>Metal Coat: Black","type":"att"
     }]
