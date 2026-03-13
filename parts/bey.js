@@ -64,7 +64,7 @@ class Row {
     cell (code, video) {
         code = code.split('_');
         return E('td', 
-            [code[0].padStart(6, ' '), ...code[1] ? ['​', E('sub', code[1])] : []], 
+            [code[0].replace(/(?<=-)\?\d/, '  ').padStart(6, ' '), ...code[1] ? ['​', E('sub', code[1])] : []], 
             {dataset: {code: code[0], ...video ? {video} : {}}}
         );
     }

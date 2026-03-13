@@ -26,7 +26,7 @@
             },
             "bit": {
                 "terms": ["重量", "GEAR齒數", "SHAFT粗度", "露出高度"],
-                "terms.fused": ["重量", "GEAR齒數", "", "BASE高度"],
+                "terms.fused": ["重量", "GEAR齒數", "BASE高度"],
                 "prefix": {
                     "B": {"eng": "Bound", "jap": "バウンド", "desc": "對Ratchet能以上下方向陷入"},
                     "D": {"eng": "Disk",  "jap": "ディスク", "desc": "加上圓盤狀重量器"},
@@ -42,20 +42,25 @@
                 }
             }
         },
-        "grouped": {
-            "blade": {
-                "一體": {
-                    "group": {
+        "blade": {
+            "filter": {
+                "use": ["type","spin"]
+            },
+            "一體": {
+                "filter": {
+                    "groups": {
                         "UX": {"label": "UX", "checked": true},
                         "BX": {"label": "BX", "checked": true},
                         "remake": {"label": "復刻"},
                         "collab": {"label": "聯名"},
                         "hasbro": {"label": "未出"}
-                    },
-                    "title": "【UX】【BX】刃擊環⬧鋼鐵戰刃⬧Blade"
+                    }
                 },
-                "CX": {
-                    "group": {
+                "title": "【UX】【BX】刃擊環⬧鋼鐵戰刃⬧Blade"
+            },
+            "CX": {
+                "filter": {
+                    "groups": {
                         "chip": {"label": "Chip"},
                         "main": {"label": "Main", "checked": true},
                         "over": {"label": "Over"},
@@ -63,42 +68,49 @@
                         "assist": {"label": "Assist"},
                         "hasbro": {"label": "未出"}
                     },
-                    "title": {
-                        "chip": "【CX】紋章鎖⬧鎖定紋章⬧Lock Chip",
-                        "main": "【CX】主刃⬧主要戰刃⬧Main Blade",
-                        "over": "【CX】刃⬧戰刃⬧Over Blade",
-                        "metal": "【CX】刃⬧戰刃⬧Metal Blade",
-                        "assist": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
-                        "hasbro": "【CX】未出"
-                    },
-                    "multiple": false
+                    "multi": false
                 },
-                "filters": ["type","spin"]
-            },
-            "ratchet": {
-                "所有": {
-                    "group": {
+                "title": {
+                    "chip": "【CX】紋章鎖⬧鎖定紋章⬧Lock Chip",
+                    "main": "【CX】主刃⬧主要戰刃⬧Main Blade",
+                    "over": "【CX】刃⬧戰刃⬧Over Blade",
+                    "metal": "【CX】刃⬧戰刃⬧Metal Blade",
+                    "assist": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
+                    "hasbro": "【CX】未出"
+                }
+            }
+        },
+        "ratchet": {
+            "所有": {
+                "filter": {
+                    "groups": {
                         "low":  {"label": "▃", "checked": true},
                         "mid":  {"label": "▅", "checked": true},
                         "high": {"label": "▇", "checked": true}
                     },
-                    "title": "核輪⬧固鎖輪盤⬧Ratchet",
-                    "filters": ["joint"]
-                }
+                    "use": ["joint"]
+                },
+                "title": "核輪⬧固鎖輪盤⬧Ratchet"
+            }
+        },
+        "bit": {
+            "filter": {
+                "use": ["type","prefix"]
             },
-            "bit": {
-                "所有": {
-                    "group": {
+            "sorter": {
+                "use": ["name","time","height"]
+            },
+            "所有": {
+                "filter": {
+                    "groups": {
                         "flat":  {"label": "\ue019", "checked": true},
                         "sharp": {"label": "\ue01a", "checked": true},
                         "round": {"label": "\ue01b", "checked": true},
                         "multi": {"label": "\ue01c", "checked": true}
                     },
-                    "title": "軸心⬧Bit",
                     "variety": {"H,L,U":"\ue047","M,R":"\ue04a","B,F,T":"\ue049","G":"\ue048","D,W":"\ue04b"}
                 },
-                "filters": ["type","prefix"],
-                "sorters": ["name","time","height"]
+                "title": "軸心⬧Bit"
             }
         }
     }

@@ -130,6 +130,7 @@ details:has(#filter) {
         transform: skew(-20deg);
         z-index: -1;
     }
+    label.H::after {background: var(--dark) !important;}
     fieldset#line {
         gap: 1em;
 

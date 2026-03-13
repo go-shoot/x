@@ -88,7 +88,7 @@ Object.assign(Filter, {
             'St': {label: new A('Set', {title: '至少包含兩陀螺'})},
             'SS': {label: new A('Stadium Set', {title: '含對戰盤及陀螺'})},
             'RB': {label: new A('Random Booster', {title: '單陀螺抽包'})},
-            'Lm': {label: new A('', {title: '景品'})}
+            'Lm': {label: new A('', {title: '官方網站商品頁未有收錄'})}
         }), {name: 'type'}],
         [new O({
             'S H' : {label: 'Starter'},

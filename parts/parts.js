@@ -8,19 +8,19 @@ let [comp, line] = [...new URLSearchParams(location.search)][0] ?? [];
 const Parts = () => Parts.firstly().then(Parts.before).then(Parts.display).then(Parts.after).then(Parts.finally);
 Object.assign(Parts, {
     async firstly () {
-        [META, PARTS] = await DB.get.essentials();
-        Part.import(META.general, PARTS);
-        let legend = META.grouped[comp].所有 ? '所有' : '一體';
-        META = {
-            types: META.general.types, 
-            legend,
-            filters: META.grouped[comp].filters, 
-            sorters: META.grouped[comp].sorters,
-            ...META.grouped[comp][line || legend]
-        };
+        gtag('event', line || comp?.toUpperCase());
         Parts.place = Q('section');
         Magnifier();
-        gtag('event', line || comp?.toUpperCase());
+        [META, PARTS] = await DB.get.essentials();
+        Part.import(META.general, PARTS);
+        Object.assign(Sorter, {...META[comp].sorter ?? {}});
+        Object.assign(Filter, {
+            legend: META[comp].所有 ? '所有' : '一體',
+            types: META.general.types,
+            ...{...META[comp]}.filter ?? {}
+        });
+        META = META[comp][line || Filter.legend];
+        Object.assign(Filter, {...META.filter});
     },
     before: () => Promise.all([Filter(), Sorter()]),
     display: () => Promise.all([...
@@ -31,8 +31,8 @@ Object.assign(Parts, {
     async after () {
         let hash = decodeURI(location.hash.substring(1));
         Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
-        Sorter.preferred == 'time' ? await Sorter.time.order(comp) : Sorter.time.order(comp);
-        Sorter.sort(Sorter.preferred);
+        Sorter.checked == 'time' ? await Sorter.time.order(comp) : Sorter.time.order(comp);
+        Sorter.sort(Sorter.checked);
         Filter.form.onchange();
     },
     finally: () => Q('.loading').classList.remove('loading'),
@@ -59,18 +59,18 @@ Object.assign(Parts, {
 });
 onhashchange = () => Parts.after();
 
-const Filter = function(type) {
+const Filter = function(which) {
     if (this instanceof Filter) 
-        return new FilterForm.fieldset(...Filter.content[type](), {name: type});
+        return new FilterForm.fieldset(...Filter.content[which](), {name: which});
     Filter.form.classList.add(comp);
-    Filter.form.append(...['group', ...META.filters ?? []].map(f => new Filter(f)));
+    Filter.form.append(...['group', ...Filter.use ?? []].map(f => new Filter(f)));
     Filter.events();
 };
 Object.assign(Filter, {
     form: document.forms[0],
     events () {
         FilterForm.event(Parts.place.children, {
-            legend: {group: {click: META.multiple}},
+            legend: {group: {click: Filter.multi}},
             action: {group: ev => {
                 history.replaceState(null, '', ' '); //remove #
                 Parts.switch(ev.target.value.substring(1));
@@ -79,11 +79,11 @@ Object.assign(Filter, {
         });
     },
     content: {
-        group:  () => [new O(META.group), {legend: line || META.legend, checked: false}],
+        group:  () => [new O(Filter.groups), {legend: line || Filter.legend, checked: false}],
         joint:  () => [new O(['normal', 'simple'].map(t => [t, E('img', {src: `../img/joint.svg#${t}`})] )), {legend: '類型'}],
-        type:   () => [new O(META.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
+        type:   () => [new O(Filter.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
         spin:   () => [new O({left: '\ue01d', right: '\ue01e'}), {legend: '迴轉'}],
-        prefix: () => [new O({'¬': '–', ...META.variety}), {legend: '變化'}],
+        prefix: () => [new O({'¬': '–', ...Filter.variety}), {legend: '變化'}],
     }
 });
 
@@ -107,13 +107,11 @@ Object.assign(Magnifier, {
 });
 
 const Sorter = () => {
-    Q('nav').append(new FilterForm.fieldset(
-        new O((META.sorters ?? ['name','time','weight']).map(by => [by, Sorter.icons[by]])), 
-        {legend: '排序'}
-    ));
+    Q('nav').append(new FilterForm.fieldset(new O((Sorter.use ??= ['name','time','weight']).map(by => [by, Sorter.icons[by]])), {legend: '排序'}));
     Sorter.events();
-    Sorter.preferred = Storage('pref')?.sort || 'name';
-    Q(`#${Sorter.preferred}`).checked = true;
+    let checked = Q(`#${Storage('pref')?.sort || 'name'},#${Sorter.use[2]}`, [])[0];
+    checked.checked = true;
+    Sorter.checked = checked.id;
 }
 Object.assign(Sorter, {
     sort: by => Parts.place.append(...[...Parts.place.children].sort((a, b) => Sorter.by[by](a.Part, b.Part))),
@@ -129,8 +127,8 @@ Object.assign(Sorter, {
             || Sorter.compare(p, q, p => p.abbr.toLowerCase()),
 
         weight: (p, q) => Sorter.compare(q, p, p => (w => parseInt(w) + Sorter.weight.adjust[w.at(-1)])(p.stat[0] || '0=')),
-        height: (p, q) => Sorter.compare(p, q, p => parseInt(p.stat[3] || 0)),
-        time: (p, q) => (q.order ?? Infinity) - (p.order ?? Infinity)
+        height: (p, q) => parseInt(p.stat[3] || 999) - parseInt(q.stat[3] || 999),
+        time: (p, q) => (q.order ?? 999) - (p.order ?? 999)
     },
     index: {
         whole: {blade: 0, ratchet: 1, bit: 2},
