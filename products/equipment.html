@@ -59,13 +59,13 @@ Q('nav form').append(Filter);
 
 class Group {
     constructor({eng, jap, desc, colors}) {
-        let [, , src, size] = colors[1] || colors[0];
+        let [, code, src, size] = colors[1] || colors[0];
         let details = E('details', [
             E('summary', [
                 E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
                 E('small', Markup.spacing(desc)),
                 E('picture', {style: {
-                    background: `url(${Board.src(src)}) center / ${size?.width || (size || 150) + '%'}`
+                    background: `url(${Board.src(src, code)}) center / ${size?.width || (size || 150) + '%'}`
                 }})
             ]),
             E('p', {innerHTML: Markup.spacing(Q(`[id='${eng}']`)?.innerHTML)}),
@@ -88,10 +88,10 @@ class Board {
         return E('li', [
             E('code', {
                 innerHTML: code, 
-                onclick: ev => /^.X.?-\d+/.test(code) && new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
+                onclick: ev => !classList.includes('Lm') && new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
             }),
             E('figure>img', {
-                src: Board.src(src), alt: code, 
+                src: Board.src(src, code), alt: code, 
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
             }),
             ...classList.split(' ').map(c => Board.winder[c]?.cloneNode(true) ?? '')
@@ -101,9 +101,12 @@ class Board {
         dragon: E('ruby', ['Dragon Winder', E('rt', 'ドラゴンワインダー')]),
         long: E('ruby', ['Long Winder', E('rt', 'ロングワインダー')])
     }
-    static src = src => 
-        /^[A-Z]X[A-Z]?\d/i.test(src) ? `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/${src}.png` : 
-        /^\w\//.test(src) ? `//takaratomymall.jp/img/goods/${src}.jpg` : src;
+    static src = (src, code) => {
+        src = !src || /^\d/.test(src) ? 
+            code.split(' ')[0].replace('-', '') + (src ? `_${src.padStart(2, '0')}` : '') + '@1' : src;
+        return /^[A-Z]X[A-Z]?\d/i.test(src) ? 
+            `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/${src}.png` : src;
+    }
 }
 Q('main').prepend(DB().then(() => {
     DB.get('meta', 'parts').then(meta => Bey.import(meta.general)); //for preview
