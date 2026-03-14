@@ -83,4 +83,4 @@ addEventListener('DOMContentLoaded', () => {
         }
     }));
 });
-window.onresize = () => Q('[headers=over]+td,[headers=assist]+td', td => td.classList.toggle('hide', outerWidth < 495));
+window.onresize = () => Q('[headers=over]+td,[headers=assist]+td', td => td.classList.toggle('hide', outerWidth < 631));
