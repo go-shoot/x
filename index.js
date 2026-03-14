@@ -29,8 +29,8 @@ class Cache {
     static types = {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}
 }
 Cache.prepare = {
-    links: (links, meta) => links.concat(
-        ...[...meta.grouped].map(([comp, obj]) => [
+    links: (links, {general, ...meta}) => links.concat(
+        ...[...new O(meta)].map(([comp, obj]) => [
             Cache.link([comp], (obj.所有 ?? obj.一體).title),
             [...obj].filter(([, obj]) => obj.group).map(([line, {title, group}]) => line.endsWith('X') ? 
                 [...title].map(([sub, title]) => Cache.link([comp, line, sub], title)) : 
