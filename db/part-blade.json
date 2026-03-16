@@ -1,28 +1,4 @@
 {
-   "AgRm": {
-        "group": "hasbro",
-        "names": {
-            "jap": "イージスランパート",
-            "eng": "AegisRampart",
-            "chi": "",
-            "aka": "護盾城牆"
-        },
-        "stat": [""],
-        "desc": "",
-        "attr": ["UX","def","right","fused"]
-    },
-   "ShSr": {
-        "group": "hasbro",
-        "names": {
-            "jap": "シノビシュリケン",
-            "eng": "ShinobiShuriken",
-            "chi": "",
-            "aka": "忍者飛鏢 手裡劍"
-        },
-        "stat": [""],
-        "desc": "",
-        "attr": ["UX","att","right","fused"]
-    },
    "DrSt": {
         "group": "BX",
         "names": {
