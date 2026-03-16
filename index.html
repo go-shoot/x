@@ -60,6 +60,6 @@ document.querySelector('body>input').onkeypress = ev => {
         return location.href = `https://x.com/hashtag/${/(?<=#).+/.exec(ev.target.value)}/?f=live`;
     if (/^t\?.+$/i.test(ev.target.value))
         return location.href = `https://www.threads.net/search?q=${/(?<=\?).+/.exec(ev.target.value.replace('#', '%23'))}`;
-    return location.href = `https://${ev.target.value.replace(/^((?!http:\/\/|https:\/\/).)/i, 'https://$1')}`;
+    return location.href = ev.target.value.replace(/^((?!http:\/\/|https:\/\/).)/i, 'https://$1');
 }
 </script>
