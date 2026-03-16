@@ -59,7 +59,7 @@ Q('nav form').append(Filter);
 
 class Group {
     constructor({eng, jap, desc, colors}) {
-        let [, code, src, size] = colors[1] || colors[0];
+        let [code, , src, size] = colors[1] || colors[0];
         let details = E('details', [
             E('summary', [
                 E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
@@ -71,7 +71,12 @@ class Group {
             E('p', {innerHTML: Markup.spacing(Q(`[id='${eng}']`)?.innerHTML)}),
             E('ol.boards')
         ]);
-        details.Q('summary').addEventListener('click', () => {
+        details.Q('summary').addEventListener('click', async () => {
+            let beys = await DB.get('product', 'beys');
+            colors.forEach(item => item[1] += ' ' + (
+                /BX[CH]/.test(item[0]) ? 'Lm' :
+                beys.find(([code]) => code == item[0].split(' ')[0])?.[1].split(' ')[0] ?? 'B'
+            ));
             details.Q('ol').append(...colors.map(item => new Board(item)));
             FilterForm.event(Q('.boards li'));
             document.forms[0].onreset();
@@ -84,7 +89,7 @@ class Group {
     }
 }
 class Board {
-    constructor([classList, code, src, style]) {
+    constructor([code, classList, src, style]) {
         return E('li', [
             E('code', {
                 innerHTML: code, 

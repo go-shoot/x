@@ -1,4 +1,26 @@
 {
+    "HvRn": {
+        "group": "hasbro",
+        "names": {
+            "jap": "ヘブンズリング",
+            "eng": "HeavensRing",
+            "chi": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["def","right","BX"]
+    },
+    "BsBr": {
+        "group": "hasbro",
+        "names": {
+            "jap": "バイソンバロー",
+            "eng": "BisonBurrow",
+            "chi": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["sta","right","UX"]
+    },
     "VkHc": {
         "group": "hasbro",
         "names": {

@@ -43,6 +43,7 @@ class Shohin {
 }
 class Keihin {
     constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
+        if (!note) return '';
         let {line, jap, chi} = new Bey(bey, {for: 'prize'});   
         return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 

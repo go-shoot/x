@@ -27,14 +27,16 @@ class Bey {
     }}}
     parts = {to: {name: () => {
         let names = {};
-        names.chi = [...new O({...['', '']}).append(...
-            [this.blade].flat().map(b => Markup.remove(b?.names?.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' '))
-        ).values()].filter(n => n);
-        names.chi.every(n => /^[^一-龢]$/.test(n)) && (names.chi = '');
+        names.chi = new O({...['', '']}).append(...[this.blade].flat().map(b => 
+            Markup.remove(b?.names?.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' ')
+        ));
+        names.chi = [...new Set([...names.chi.values()])].filter(n => n);
+        names.chi.length > 1 ? 
+            names.chi[0] = names.chi[0].replace(/[^一-龢]+$/, '') : /^[^一-龢]+$/.test(names.chi[0]) && (names.chi = '');
         names.chi &&= [names.chi.join('⬧'), ' ', this.ratchet.abbr, this.bit.abbr].join('').replace('-', '‑');
 
         names.jap = Array.isArray(this.blade) ? 
-            this.blade.map((b, i, ar) => ar[0] && ar[1] && i == 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
+            this.blade.map((b, i, ar) => ar[0] && ar[1] && i >= 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
         names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
         
         return {...names, line: this.line};
