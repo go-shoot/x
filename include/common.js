@@ -24,7 +24,7 @@ html::before {
     navigator.serviceWorker?.register('/x/worker.js', {scope: '/x/'})
     .then(() => {
         if (!document.querySelector('link[href$="common.css"]')) return Promise.reject();
-        document.title += ' ■ 戰鬥陀螺 X⬧爆旋陀螺 X⬧ベイブレード X⬧Beyblade X';
+        document.title.includes('🙼') || (document.title += '🙼爆旋陀螺X⬧戰鬥陀螺X⬧ベイブレードX⬧Beyblade X');
         unsupported.remove();
     }).catch(() => (sessionStorage.reloaded ||= 0) < 2 && ++sessionStorage.reloaded && setTimeout(() => location.reload(), 500));
 })();

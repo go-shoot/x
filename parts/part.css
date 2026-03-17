@@ -309,8 +309,7 @@ table {
     }
     tbody tr {
         height: 1.4rem;
-        --width: .48em;
-        background: repeating-linear-gradient(45deg, var(--light) 0 var(--width), var(--dark) var(--width) calc(1.5*var(--width)));
+        background: repeating-linear-gradient(45deg, var(--light) 0 var(--strip), var(--dark) var(--strip) calc(1.5*var(--strip)));
         
         &.H {background: var(--dark);}
         &.hidden {display: none;}
@@ -369,16 +368,16 @@ td {
 }
 
 tbody tr:nth-last-child(1 of :not([hidden])) td {
-    border-bottom: solid .5px var(--on);
+    border-bottom: solid .5px white;
 }
 tbody td {
-    border-top: solid .5px var(--on);
+    border-top: solid .5px white;
 }
 td[abbr]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
-    border-left: solid .5px var(--on);
+    border-left: solid .5px white;
 }
 td[abbr]+td:not([headers]):not(.hide) {
-    border-left: solid .5px hsl(0,0%,55%);
+    border-left: solid .5px hsl(0,0%,70%);
 }
 thead {font-size: min(3vw,.7em);}
 tbody {font-size: min(2.75vw,.7em);}
