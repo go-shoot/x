@@ -75,7 +75,7 @@ class Group {
             let beys = await DB.get('product', 'beys');
             colors.forEach(item => item[1] += ' ' + (
                 /BX[CH]/.test(item[0]) ? 'Lm' :
-                beys.find(([code]) => code == item[0].split(' ')[0])?.[1].split(' ')[0] ?? 'B'
+                beys.find(([code]) => code.includes(item[0].split(' ')[0]))?.[1].split(' ')[0] ?? 'B'
             ));
             details.Q('ol').append(...colors.map(item => new Board(item)));
             FilterForm.event(Q('.boards li'));

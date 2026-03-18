@@ -119,7 +119,7 @@ class Search {
             .search({$or: [...targets.free].map(text => ({
                 $or: [{abbr: text}, {$and: text.split(/(?=\W)/).map(t => ({all: t}))}]
             }) )}) 
-            .slice(0, amount || Infinity)
+            .slice(0, amount)
             .map(r => r.item)
     }
     static match = {
@@ -129,9 +129,11 @@ class Search {
     show = Search.show
     static show = (what, query) => Q(`#search .${what}`).replaceChildren(...Search.results[what](query))
     static results = {
-        parts: query => [...new Set([...Search.for.specific(query), ...Search.for.general(query)])]
+        parts: query => {
+            let parts = Search.for.specific(query);
+            return [...new Set([...parts, ...Search.for.general(query, parts.length ? 5 : 50)])]
             .map(item => new Result('part', item))
-        ,
+        },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
         ,
@@ -157,7 +159,7 @@ class Result {
     constructor(type, item) {return this[type](item);}
     part = ({path, group, abbr, names}) => 
         E(`li>button.${path[0]}.${path[2] ? path[1] : group}`, 
-            (path[2] == 'over' ? '↑' : path[2] == 'assist' ? '↓' : '') + Markup('cell', names?.chi || abbr),
+            [path[2] == 'over' ? '↑' : path[2] == 'assist' ? '↓' : '', ...Markup('cell', names?.chi || abbr)],
             {onclick: ev => new Preview(['tile', 'cell'], {path}, ev)}
         )
     link = ({text, href}) =>
