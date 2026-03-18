@@ -122,21 +122,24 @@ section {
     h5 {
         background: var(--light,#333) !important;
 
-        img {
-            width: 3em;
-        }
+        img {width: 3em;}
         ruby {
             margin-bottom: .5em;
+            filter: drop-shadow(0 0 .1em var(--overlay1));
         }
         rt {
             text-align: center;
             color: var(--type); font-size: .7em;
         }
     }
-    p {
-        margin:0;
+    h4 {
+        line-height: 1.4;
+        
+        &:has(strong:first-of-type:empty) {display: none;}
+        small:first-of-type {margin-bottom: .5em;}
+        strong:last-of-type {font-size: .85em;}
     }
-    h4:empty {display: none;}
+    p {margin:0;}
 }
 
 #reboot {

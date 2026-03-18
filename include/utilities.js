@@ -2,23 +2,32 @@ import DB from "./DB.js";
 import { Bey, Preview } from "../parts/bey.js";
 
 class Shohin {
-    constructor({code: header, name, imgs, desc, type}) {
-        imgs ??= [];
-        let content = [desc ?? []].flat().reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), imgs)
-            .map(srcORtext => /^(https?:)?\/\//.test(srcORtext) ? 
-                E('figure', [E('a', '🖼️', {href: srcORtext}), E('img', {src: srcORtext})]) : 
-                E('p', {innerHTML: Markup.spacing(srcORtext)})
+    constructor({code: header, name, bey, ver, imgs, desc, type}) {
+        bey && (this.abbr = bey);
+        Shohin.beys.push(this);
+        let content = Shohin.zip([desc ?? []].flat(), imgs ?? [])
+            .map(srcORtext => srcORtext.startsWith('http') ? 
+                Shohin.figure(srcORtext) : E('p', {innerHTML: Markup.spacing(srcORtext)})
             );
-        return E('div', [
-            E('h5', [type ? E(`ruby.below.${type}`, [
-                E('img', {src: `img/types.svg#${type}`}), 
-                E('rt', Shohin.type[type])
-            ]) : '', header]),
-            name ? E('h4', {innerHTML: name?.replaceAll('-', '‑')}) : '',
+        return this.div = E('div', [
+            E('h5', [type ? Shohin.ruby(type) : '', header]),
+            E('h4', [
+                E('strong', name?.[0].replaceAll('-', '‑') ?? ''), E('small', ver?.[0] ?? ''),
+                E('strong', name?.[1].replaceAll('-', '‑') ?? ''), E('small', ver?.[1] ?? '')
+            ]),
             ...content
         ], {classList: [`scroller`, Shohin.classes.find(header, {default: 'Lm'})]});
     }
-    static type = {att: 'ATTACK', bal: 'BALANCE', sta: 'STAMINA', def: 'DEFENSE'};
+    static ruby = type => E(`ruby.below.${type}`, [
+        E('img', {src: `img/types.svg#${type}`}), 
+        E('rt', Shohin.type[type])
+    ])
+    static figure = imgORsrc => E('figure', [
+        E('a', '🖼️', {href: typeof imgORsrc == 'string' ? imgORsrc : imgORsrc.src}), 
+        typeof imgORsrc == 'string' ? E('img', {src: imgORsrc}) : imgORsrc
+    ])
+    static zip = (texts, images) => texts.reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), images)
+    static type = {att: 'ATTACK', bal: 'BALANCE', sta: 'STAMINA', def: 'DEFENSE'}
     static classes = new O([
         [/(stadium|entry) set/i, 'SS'],
         [/組合|Set/i, 'St'],
@@ -26,25 +35,35 @@ class Shohin {
         [/Random/i, 'RB'],
         [/Booster/i, 'B'],
         [/.XG?-/, 'others'],
-    ]);
-    static after = () => Q('.scroller:has(h4)', []).forEach(div => {
-        let header = div.Q('h5').innerText;
-        if (!/XG?-\d+/.test(header)) return;
-        let [code, type] = header.match(/(?<=\n?).+$/)[0].split(/(?<=\d) /);
-        let figures = div.Q('figure', []);
-        figures.push(...new Preview('index', {code: code.replace('-', ''), type}).map(img => 
-            E('figure', [E('a', '🖼️', {href: img.src}), img])
-        ));
-        div.replaceChildren(
-            div.Q('h5'), div.Q('h4'), 
-            ...div.Q('p', []).reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), figures)
+    ])
+    attrs () {
+        let {bit, names: {chi, jap}} = new Bey(this.abbr);
+        let h4 = this.div.Q('h4');
+        h4.Q('strong:nth-of-type(1)').innerText = jap;
+        h4.Q('strong:nth-of-type(2)').innerText = chi;
+        this.div.Q('h5').prepend(Shohin.ruby(bit.attr[0]));
+    }
+    images () {
+        let [code, type] = this.div.Q('h5').innerText.match(/(?<=\n?).+$/)[0].split(/(?<=\d) /);
+        let figures = [
+            ...this.div.Q('figure', []),
+            ...new Preview('index', {code: code.replace('-', ''), type}).map(img => Shohin.figure(img))
+        ];
+        this.div.replaceChildren(
+            this.div.Q('h5'), this.div.Q('h4'), 
+            ...Shohin.zip(this.div.Q('p', []), figures)
         );
-    });   
+    }
+    static beys = [];
+    static after = () => Shohin.beys.forEach(bey => {
+        bey.abbr && bey.attrs();
+        bey.div.Q('strong:not(:empty)') && /XG?-\d+/.test(bey.div.Q('h5').innerText) && bey.images();
+    });
 }
 class Keihin {
     constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
         if (!note) return '';
-        let {line, jap, chi} = new Bey(bey, {for: 'prize'});   
+        let {line, names: {jap, chi}} = new Bey(bey);   
         return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 
             E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, Markup.spacing(note)),
@@ -228,7 +247,7 @@ Object.assign(Markup, {
         [/(.+)_(.+)/, ([, $1, $2]) => [$1, E('sub', $2)]]
     ]),
     stat: new O([
-        [/^(.+?)([一-龢]{2})$/, ([, $1, $2]) => [$1, String.fromCharCode(10), $2]],
+        [/^(.*?)([一-龢]{2})$/, ([, $1, $2]) => [$1, String.fromCharCode(10), $2]],
         [/(.+)([+=-])/, ([, $1, $2]) => [$1, E('sup', {'+':'+','=':'≈','-':'−'}[$2])]],
         [/(.+?)(<>|>)(.+)/, ([, $1, $2, $3]) => [$1, E('small', {'<>': '↔', '>': '→'}[$2]), $3]],
     ]),

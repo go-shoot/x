@@ -3,22 +3,18 @@ import {Preview} from './parts/bey.js'
 import {Part} from './parts/part.js'
 import {Markup} from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
-Q('search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['商品', '部件', '景品'][i]}`) && a));
+Q('search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['產品', '部件', '景品'][i]}`) && a));
 
 let CACHE;
 class Cache {
     constructor() {
-        return Promise.all([
-            DB.get.essentials(false), 
-            DB.get('meta', 'search'), 
-        ]).then(([[meta, parts], links]) => Promise.all([
-            Cache.prepare.links(links, meta), 
-            ...parts.flatMap(([, parts]) => parts.map(p => new Part(p).revise()))
-        ])).then(([links, ...parts]) => ({
-            links,
-            parts: parts.map(p => p
-                    .push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]]})
-                    .keep('abbr', 'path', 'group', 'names', 'all'))
+        return Promise.all([DB.get.essentials(true), DB.get('meta', 'search')])
+        .then(([[meta, PARTS], links]) => {
+            Part.import(meta.general, PARTS);
+            CACHE = {links: Cache.prepare.links(links, meta)};
+            return Promise.all(Cache.flatten(PARTS).map(p => p.revise('tile')));
+        }).then(parts => ({...CACHE,
+            parts: parts.map(p => p.push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]].join(' ')}))
         }))
     }
     static link = ([comp, line, group], title, label) => ({                        
@@ -26,6 +22,7 @@ class Cache {
         href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
         text: (label || title).match(/[一-龥]+⬧?[一-龥]+/)?.[0] || label || title
     })
+    static flatten = parts => parts instanceof O ? [...parts.values()].map(Cache.flatten).flat() : parts
     static types = {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}
 }
 Cache.prepare = {
@@ -88,11 +85,10 @@ class Input {
         abbr: /(?<![A-z])[A-z]{1,2}(?![A-z\-])/
     })
     static events () {
-        Input.field.onfocus = async () => CACHE = await new Cache();
+        Input.field.onfocus = async () => CACHE ??= await new Cache();
         Input.field.oninput = () => {
             clearTimeout(Search.timer);
             Input.field.value.trim() && (Search.timer = setTimeout(new Search, 500));
-            Preview.reset();
         }
     }
 }
@@ -102,31 +98,39 @@ class Search {
         (CACHE ? Promise.resolve() : new Cache()).then(cache => {
             CACHE ??= cache;
             query && (Input.field.value = query);
-            let results = this.find.parts(new Input().targets);
-            this.show('parts', results);
-            results = results.filter(r => typeof r == 'string').join('');
-            this.show('links', results);
-            this.show('products', results);
+            let targets = new Input().targets;
+            this.show('parts', targets);
+            targets = [...targets.free].join('');
+            this.show('links', targets);
+            this.show('products', targets);
         });
     }
-    find = {parts: targets => 
-        [...CACHE.parts.filter(({path, names}) => 
-            ['ratchet', 'bit'].some(comp => comp == path[0] && targets[comp]?.has(path.at(-1))) ||
-            ['assist', 'over'].some(sub => sub == path[2] && targets[sub]?.has(path.at(-1))) ||
-            'blade' == path[0] && names.chi?.split('⬧').some(n => targets.free?.has(n))
-        ), ...targets.free || []]
+    static for = {
+        specific: (targets) => CACHE.parts.filter(({path, names}) =>
+            ['ratchet', 'bit', 'assist', 'over'].some(comp => 
+                comp == (path[2] || path[0]) && Search.match.abbr(path.at(-1), targets[comp])
+            ) ||
+            ['blade', 'chip', 'main', 'metal'].some(comp => 
+                comp == (path[2] || path[0]) && Search.match.name(names, targets.free)
+            )
+        ),
+        general: (targets, amount) => 
+            new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
+            .search({$or: [...targets.free].map(text => ({
+                $or: [{abbr: text}, {$and: text.split(/(?=\W)/).map(t => ({all: t}))}]
+            }) )}) 
+            .slice(0, amount || Infinity)
+            .map(r => r.item)
+    }
+    static match = {
+        abbr: (abbr, set) => set?.has(abbr),
+        name: (names, set) => names?.chi.split(' ').some(n => set?.has(Markup.remove(n)))
     }
     show = Search.show
     static show = (what, query) => Q(`#search .${what}`).replaceChildren(...Search.results[what](query))
     static results = {
-        parts: results => [...new Set(results
-            .sort((p1, p2) => (p2 instanceof Part) - (p1 instanceof Part))
-            .flatMap(r => r instanceof Part ? r :
-                new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
-                .search({$or: [{abbr: r}, {$and: r.split(/(?=\W)/).map(t => ({all: t}))}] })
-                .slice(0, results.length > 1 ? 5 : Infinity)
-                .map(r => r.item)
-            ))].map(item => new Result('part', item))
+        parts: query => [...new Set([...Search.for.specific(query), ...Search.for.general(query)])]
+            .map(item => new Result('part', item))
         ,
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
@@ -153,7 +157,7 @@ class Result {
     constructor(type, item) {return this[type](item);}
     part = ({path, group, abbr, names}) => 
         E(`li>button.${path[0]}.${path[2] ? path[1] : group}`, 
-            Markup('cell', names?.chi || abbr),
+            (path[2] == 'over' ? '↑' : path[2] == 'assist' ? '↓' : '') + Markup('cell', names?.chi || abbr),
             {onclick: ev => new Preview(['tile', 'cell'], {path}, ev)}
         )
     link = ({text, href}) =>
@@ -173,9 +177,10 @@ const plugins = {
     announce: news => new O(news).each(([date, beys]) => 
         Q('#products').append(E('time', {title: date}), ...beys.map(bey => new Shohin(bey)))
     ),
-    followup: () => DB.get.essentials()
-        .then(([meta, parts]) => Part.import(meta.general, parts)) //parts for search use
-        .then(() => Shohin.after())
+    followup: async () => {
+        CACHE ??= await new Cache();
+        Shohin.after();
+    }
 };
 Q('header').after(DB(plugins).then(() => {
     const observer = new IntersectionObserver(entries => entries.forEach(entry => 

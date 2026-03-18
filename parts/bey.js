@@ -7,8 +7,15 @@ let META, PARTS;
 
 class Bey {
     static import = (meta, parts) => ([META, PARTS] = [meta, parts]) && Object.assign(window, {meta, parts});
-    constructor(content, {for: FOR} = {}) {
-        return typeof content == 'string' ? this.for[FOR](content) : this.for.product(content);
+    constructor(bey) {
+        if (typeof bey == 'string') {
+            this.abbr.to.parts(bey).to.names();
+        }
+        if (Array.isArray(bey)) {
+            let [code, type, abbr, ...others] = bey;
+            this.abbr.to.parts(this.abbr = abbr);
+            this.row = new Row(this, code, type, others);
+        }
     }
     abbr = {to: {parts: abbr => {
         abbr = new O(abbr.split(' ').map((a, i) => [Bey.comps[i], a]));
@@ -25,7 +32,7 @@ class Bey {
         this.line ??= /^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '';
         return this.parts;
     }}}
-    parts = {to: {name: () => {
+    parts = {to: {names: () => {
         let names = {};
         names.chi = new O({...['', '']}).append(...[this.blade].flat().map(b => 
             Markup.remove(b?.names?.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' ')
@@ -38,37 +45,31 @@ class Bey {
         names.jap = Array.isArray(this.blade) ? 
             this.blade.map((b, i, ar) => ar[0] && ar[1] && i >= 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
         names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
-        
-        return {...names, line: this.line};
+        this.names = names;
     }}}
-    for = {
-        prize: abbr => this.abbr.to.parts(abbr).to.name(),
-        product: ([code, type, abbr, ...others]) => {
-            this.abbr.to.parts(this.abbr = abbr);
-            return new Row(this, code, type, others);
-        },
-    }
     static comps = ['blade', 'ratchet', 'bit']
 }
 class Row {
-    constructor(bey, code, type, others) {
+    constructor(bey, code, classes, others) {
         let [video, more] = ['string', 'object'].map(t => others.find(o => typeof o == t));
         this.tr = E('tr', [
-            this.cell(code, video), 
+            this.cell(code, classes, video), 
             ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
         ].flat(9), {
-            classList: [bey.line, type],
+            classList: [bey.line, classes],
             dataset: {abbr: bey.abbr}
         });
         this.more(more ?? {});
         return this.tr;  
     }
-    cell (code, video) {
+    cell (code, classes, video) {
         code = code.split('_');
-        return E('td', 
-            [code[0].replace(/(?<=-)\?\d/, '  ').padStart(6, ' '), ...code[1] ? ['​', E('sub', code[1])] : []], 
-            {dataset: {code: code[0], ...video ? {video} : {}}}
-        );
+        return E('td', [
+            code[0].replace(/(?<=-)\?\d/, '  ').padStart(6, ' '), 
+            ...code[1] && classes.includes('RB') ? ['​', E('sub', code[1])] : []
+        ], {dataset: {
+            code: classes.includes('RB') ? code[0] : code.join('_'), ...video ? {video} : {}
+        }});
     }
     more ({coat, mode, get}) {
         coat && E(this.tr).set({'--coat': coat});
@@ -149,7 +150,6 @@ class Preview {
                 ...this.#image.src('main', code),
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
-        Preview.reset();
         Transition.popover('show', ev, Preview.dialog);
         [what].flat().reduce((prom, w) => prom.then(() => this[w]({code, bey, path})), Promise.resolve())
         .then(() => Glossary(Preview.dialog));
@@ -158,14 +158,12 @@ class Preview {
         E('table', {onclick: Preview.for.table}, [
             E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
             Preview.thead.cloneNode(true), 
-            E('tbody', beys.map(bey => new Bey(bey)))
+            E('tbody', beys.map(bey => new Bey(bey).row))
         ])
     )).then(() => [window.onresize(), Cell.fill('chi')])
 
     diamond = ({code, bey}) => DB.get('product', 'keihins')
-        .then(beys => Preview.dialog.Q('diamond-grid').append(...Object.entries(beys)
-            .filter(([c]) => c.includes(code)).map(([, b]) => new Keihin({code, bey, ...b}))
-        ))
+        .then(beys => Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
     tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
@@ -218,7 +216,10 @@ class Preview {
     }
     static dialog = Q('dialog') || Q('body').appendChild(E('dialog', {
         popover: 'auto',
-        onclick: ev => Transition.popover('hide', ev, ev.currentTarget)
+        onclick: ev => {
+            Transition.popover('hide', ev, ev.currentTarget);
+            Preview.clear();
+        }
     }, [E('div#cells'), E('div#tiles'), E('div#images'), E('diamond-grid')]));
     static thead = E('thead>tr', [
         E('th', {title: 'CODE'}), 
@@ -226,6 +227,6 @@ class Preview {
         E('th.ratchet', {title: 'RATCHET'}),
         E('th.bit', {title: 'BIT', colSpan: 2}),
     ]);
-    static reset = () => [...Preview.dialog?.children].forEach(div => div.innerHTML = '');
+    static clear = () => [...Preview.dialog?.children].forEach(div => div.innerHTML = '');
 }
 export {Bey, Search, Preview};

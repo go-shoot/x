@@ -23,8 +23,9 @@ class Part {
             !fields.includes(key) && typeof this[key] != 'function' && delete this[key];
         return this;
     }
-    push = json => Object.assign(this, json)
-
+    push = json => Object.assign(this, json, json.abbr?.includes('.') ? 
+        {group: json.abbr.split('.')[0], abbr: json.abbr.split('.')[1]} : {}
+    )
     async tile () {
         this.constructor == Blade && this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         let {path, stat} = this;
@@ -50,7 +51,6 @@ class Part {
 class Blade extends Part {
     constructor(json) {
         super(json);
-        this.abbr?.includes('.') && ([this.group, this.abbr] = this.abbr.split('.'));
         let {line, group, abbr, path} = this;
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
@@ -59,7 +59,7 @@ class Blade extends Part {
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
-    revise = (where = 'tile') => super.revise(where, where == 'tile' && {stat: [, ...this.abbr.split('-')]});
+    revise = (where = 'cell') => super.revise(where, where == 'tile' && {stat: [, ...this.abbr.split('-')]});
     revised = {
         group: () => META.ratchet.height.find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
@@ -78,7 +78,7 @@ class Ratchet extends Part {
 }
 class Bit extends Part {
     constructor(json) {super(json);}
-    async revise (where = 'tile') {
+    async revise (where = 'cell') {
         if (Bit.revisions[where].every(p => this[p])) return this;
         let [, pref, base] = new RegExp(`^([${META.bit.prefix}]+)([^a-z].*)$`).exec(this.abbr);
         Bit.revisions[where].some(p => !PARTS.bit[base][p]) && PARTS.bit[base].push(await DB.get('bit', base));
@@ -191,7 +191,7 @@ Object.assign(Tile.prototype.html, {
         return [
             date ? E('strong', date) : '',
             E('dl', stat.flatMap((s, i) => E('div', [
-                E('dt', s ? Markup('stat', terms[i]) : ''), 
+                E('dt', s ? i > 0 ? Markup('stat', terms[i]) : terms[i] : ''), 
                 E('dd', typeof s == 'string' ? Markup('stat', s) : s)
             ])))
         ];

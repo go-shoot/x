@@ -127,7 +127,7 @@ details:has(#filter) {
     fieldset:not(#line) label::after {
         content: '';
         position: absolute; inset: .8em -.5em -.1em -.5em;
-        background: repeating-linear-gradient(45deg, var(--light) 0 var(--strip), var(--dark) var(--strip) calc(1.5*var(--strip)));
+        background: var(--light);
         transform: skew(-20deg);
         z-index: -1;
     }

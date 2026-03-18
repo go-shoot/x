@@ -188,10 +188,10 @@ Object.assign(DB.get, {
     all: store => new Promise(res => DB.store(store).getAll()
         .onsuccess = ev => res(ev.target.result.map(p => p.abbr ? DB.format.part(p, store) : p)))
     ,
-    parts: dict => Promise.all(DB.stores.map(store => DB.get.all(store).then(parts => [store, parts])))
-        .then(parts => dict ? Transform.to.dict(parts) : parts)
+    parts: detailed => Promise.all(DB.stores.map(store => DB.get.all(store).then(parts => [store, parts])))
+        .then(parts => Transform.to.dict(parts, detailed))
     ,
-    essentials: (dict = true) => Promise.all([DB.get('meta', 'parts'), DB.get.parts(dict)])
+    essentials: detailed => Promise.all([DB.get('meta', 'parts'), DB.get.parts(detailed)])
         .then(([meta, parts]) => [new O(meta), parts])
 });
 
@@ -206,24 +206,23 @@ const Transform = {
             .map(([group, parts]) => [group, parts.map(([sym, part]) => [sym, {...part, group}]) ])
             .flatten(([group, abbr, ...others]) => [`${group}.${abbr}`, ...others])
         }),
-        dict (parts) {
+        dict (parts, detailed) {
             let OBJ = new O;
             parts.forEach(([comp, parts]) => comp.includes('.') ?
                 OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))]) : 
                 OBJ[comp] = new O(OBJ[comp] ?? {}, parts.map(part => {
                     part.abbr.includes('.') && ([part.group, part.abbr] = part.abbr.split('.'));
                     part = new (Part[comp] ?? Part.blade)(part);
-                    !location.pathname.includes('/parts/') 
-                        && part.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
+                    detailed || part.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
                     return [part.abbr, part];
                 }))
             );
             return OBJ;
         },
-        RB: (subcode, current) => ([code, type, ...rest]) => {
-            type.split(' ')[0] == 'RB' ? code == current ? subcode++ : subcode = 1 : subcode = 0;
-            current = code;
-            return [subcode ? code + `_0${subcode}` : code, type, ...rest];
+        RB: subcode => ([code, classes, ...rest], i, list) => {
+            subcode = code == list[i-1]?.[0] ? subcode + 1 : 
+                      code == list[i+1]?.[0] && /^RB|Lm/.test(classes) ? 1 : 0;
+            return [subcode ? code + `_0${subcode}` : code, classes, ...rest];
         }
     }
 };

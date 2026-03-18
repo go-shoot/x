@@ -309,6 +309,7 @@ table {
     }
     tbody tr {
         height: 1.4rem;
+        --strip: .48em;
         background: repeating-linear-gradient(45deg, var(--light) 0 var(--strip), var(--dark) var(--strip) calc(1.5*var(--strip)));
         
         &.H {background: var(--dark);}
@@ -367,11 +368,11 @@ td {
     }
 }
 
-tbody tr:nth-last-child(1 of :not([hidden])) td {
-    border-bottom: solid .5px white;
+tbody tr:nth-last-child(1 of :not([hidden],.hidden)) td {
+    border-bottom: solid .5px var(--on);
 }
 tbody td {
-    border-top: solid .5px white;
+    border-top: solid .5px var(--on);
 }
 td[abbr]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
     border-left: solid .5px white;

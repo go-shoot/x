@@ -11,7 +11,7 @@ Object.assign(Parts, {
         gtag('event', line || comp?.toUpperCase());
         Parts.place = Q('section');
         Magnifier();
-        [META, PARTS] = await DB.get.essentials();
+        [META, PARTS] = await DB.get.essentials(true);
         Part.import(META.general, PARTS);
         Object.assign(Sorter, {...META[comp].sorter ?? {}});
         Object.assign(Filter, {

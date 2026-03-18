@@ -14,7 +14,8 @@ Object.assign(Table, {
         [META, PARTS] = await DB.get.essentials();
         Part.import(META = META.general, PARTS);
     },
-    display: () => DB.get('product', 'beys').then(beys => Table.body.append(...beys.map(bey => new Bey(bey)))),
+    display: () => DB.get('product', 'beys')
+        .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).row))),
     after () {
         Q('.loading').classList.remove('loading');
         $(Q('table')).tablesorter();
@@ -88,7 +89,7 @@ Object.assign(Filter, {
             'St': {label: new A('Set', {title: '至少包含兩陀螺'})},
             'SS': {label: new A('Stadium Set', {title: '含對戰盤及陀螺'})},
             'RB': {label: new A('Random Booster', {title: '單陀螺抽包'})},
-            'Lm': {label: new A('', {title: '官方網站商品頁未有收錄'})}
+            'Lm': {label: new A('', {title: '官方網站產品頁未有收錄'})}
         }), {name: 'type'}],
         [new O({
             'S H' : {label: 'Starter'},

@@ -17,7 +17,7 @@
             },
             "types": ["att", "bal", "def", "sta"],
             "blade": {
-                "terms": ["重量","(mm)厚度"],
+                "terms": ["重量","厚度"],
                 "delimiter": {"CX": "."}
             },
             "ratchet": {
@@ -164,7 +164,7 @@
             "href": "//beyblade.takaratomy.co.jp/anime/character/chara01.html", "text": "動畫角色"
         },
         {
-            "keywords": ["Takara Tomy","日本","商品"],
+            "keywords": ["Takara Tomy","日本","產品"],
             "href": "//beyblade.takaratomy.co.jp/beyblade-x/lineup/", "text": "官方網站"
         },
         {
@@ -172,7 +172,7 @@
             "href": "//www.youtube.com/@BEYBLADEOfficialYouTube/videos", "text": "官方 Youtube"
         },
         {
-            "keywords": ["日本","最新商品"],
+            "keywords": ["日本","最新產品"],
             "href": "//www.amazon.co.jp/s?rh=n%3A2189319051%2Cp_n_date%3A2320554051", "text": "Amazon"
         },
         {

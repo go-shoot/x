@@ -127,7 +127,6 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 .St {--hue: 290; --s-adj: -10%; --lum: 43%;} 
 .Lm {--hue: 45; --s-adj: 10%; --lum: 33%;} 
 .RB,.B,.S,.St,.SS,.Lm {
-    --strip: .48em;
     --light: hsl(var(--hue),calc(30% + var(--s-adj,0%)),calc(var(--lum,40%) + 5%));
     --dark:  hsl(var(--hue),calc(40% + var(--s-adj,0%)),calc(var(--lum,40%) - 5%));
 }

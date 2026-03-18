@@ -40,79 +40,79 @@
         },
         "H": {
             "names": {"jap":"ヘビー", "eng":"Heavy"},
-            "stat": ["8-",10],
+            "stat": ["8-",100],
             "desc": "搭載金屬零件以提高離心力的低處六枚刃，強化打擊力及安定性。",
             "attr": ["bal","right"]
         },
         "F": {
             "names": {"jap":"フリー", "eng":"Free"},
-            "stat": ["6-",11],
+            "stat": ["6-",110],
             "desc": "外周Free Ring能迴轉，卸開攻擊以維持持久。",
             "attr": ["sta","right"]
         },
         "D": {
             "names": {"jap":"デュアル", "eng":"Dual"},
-            "stat": ["6=",11],
+            "stat": ["6=",110],
             "desc": "把外周的刃反轉可切換至Upper或Smash模式。",
             "attr": ["bal","right"]
         },
         "M": {
             "names": {"jap":"マッシブ", "eng":"Massive"},
-            "stat": ["5+",11],
+            "stat": ["5+",110],
             "desc": "大徑幅Smash形狀五枚刃的連打擅於令對手姿勢崩倒。",
             "attr": ["bal","right"]
         },
         "W": {
             "names": {"jap":"ウィール", "eng":"Wheel"},
-            "stat": ["7=",13],
+            "stat": ["7=",130],
             "desc": "有厚度的圓柱形狀刃持續地把從任何高度而來的攻擊都化解。",
             "attr": ["sta","right"]
         },
         "A": {
             "names": {"jap":"アサルト", "eng":"Assault"},
-            "stat": ["5=",11],
+            "stat": ["5=",110],
             "desc": "有厚度的三枚刃實現高撞擊性能。",
             "attr": ["att","right"]
         },
         "J": {
             "names": {"jap":"ジャギー", "eng":"Jaggy"},
-            "stat": ["5-",10],
+            "stat": ["5-",100],
             "desc": "向下擴闊的低重心九枚刃擅於如下潛的連打攻擊。",
             "attr": ["att","right"]
         },
         "S": {
             "names": {"jap":"スラッシュ", "eng":"Slash"},
-            "stat": ["5-",10],
+            "stat": ["5-",100],
             "desc": "高度較低的高撞擊性能三枚刃，擅於善用低重心的攻擊性能。",
             "attr": ["att","right"]
         },
         "T": {
             "names": {"jap":"ターン", "eng":"Turn"},
-            "stat": ["6-",11],
+            "stat": ["6-",110],
             "desc": "把外周的刃反轉可切換至連擊或化解模式。",
             "attr": ["bal","right"]
         },
         "C": {
             "names": {"jap":"チャージ", "eng":"Charge"},
-            "stat": ["5=",11],
+            "stat": ["5=",110],
             "desc": "小徑三枚刃以内重心令安定性優秀。",
             "attr": ["def","right"]
         },
         "B": {
             "names": {"jap":"バンパー", "eng":"Bumper"},
-            "stat": ["5+",11],
+            "stat": ["5+",110],
             "desc": "容易吸收衝擊的阻尼器形狀的刃緩和並卸走對手攻擊。",
             "attr": ["def","right"]
         },
         "R": {
             "names": {"jap":"ラウンド", "eng":"Round"},
-            "stat": ["5-",11],
+            "stat": ["5-",110],
             "desc": "内側鏤空的圓形刃提升Blade的離心力。",
             "attr": ["sta","right"]
         },
         "Z": {
             "names": {"jap":"ジリオン", "eng":"Zillion"},
-            "stat": ["7-",13],
+            "stat": ["7-",130],
             "desc": "排列成圓形的重厚十二枚刃把攻擊撞開及抵耐。",
             "attr": ["def","right"]
         }
