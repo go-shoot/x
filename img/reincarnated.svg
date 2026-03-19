@@ -3,6 +3,7 @@
       g:not(:target) {display:none;}
       #bsb {fill:hsla(0,50%,50%,.3);}
       #mfb {fill:hsla(200,50%,50%,.3);}
+      #bbb {fill:hsla(50,50%,50%,.3);}
     </style>
     <defs>
         <clipPath id="bsb-clip">
@@ -17,5 +18,8 @@
     </g>
     <g id="mfb">
         <polygon points="0,50 43.3013,25 43.3013,-25 0,-50 -43.3013,-25 -43.3013,25" transform="translate(50 50) rotate(90)"/>
+    </g>
+    <g id="bbb">
+        <polygon points="35,0 15,25 35,15 25,40 45,25 50,50 55,25 75,40 65,15 85,25 65,0" transform="translate(0 43)"/>
     </g>
 </svg>
