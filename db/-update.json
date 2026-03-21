@@ -5,17 +5,10 @@
   "part-blade-collab": "2026/03/16 22:45:00",
   "part-blade-divided":"2026/03/18 20:45:00",
   "meta":              "2026/03/18 20:45:00",
-  "prod-beys":         "2026/03/18 20:45:00",
+  "prod-beys":         "2026/03/21 11:30:00",
   "prod-keihin":       "2026/03/18 21:05:00",
   "prod-equipment":    "2026/03/16 22:33:00",
   "news": {
-    "2026-03-14":[{
-      "code":"BXG-52 starter","bey":"DrSw 1-60 V","ver":["メタルコート:ブラック JリーグVer.","Metal Coat: Black J League Ver."],
-      "desc":"日本球場活動及<a href=https://store.jleague.jp/search/lcd-15/mcd-17/>網店售賣</a>"
-    }, {
-      "code":"BXG-53 starter","bey":"CbDg 9-60 F","ver":["メタルコート:ホワイト JリーグVer.","Metal Coat: White J League Ver."],
-      "desc":"日本球場活動及<a href=https://store.jleague.jp/search/lcd-15/mcd-17/>網店售賣</a>"
-    }],
     "2026-03-28":[{
       "code":"CX-13 starter","name":["バハムートブリッツBK1-50I","Bahamut Blitz BK1-50I"],"type":"att",
       "desc":["CX新結構：分為四層。上層塑膠【Over Blade】及中層金屬【Metal Blade】","三層都有偏重心，加強一處的攻擊","【Ignition】Bit：多處突起的大圓筒軸，高速跑動"],
@@ -43,6 +36,9 @@
       "code":"UX-19 starter","name":["バレットグリフォンH","Bullet Griffon H"],"type":"bal",
       "imgs":[],
       "desc":["首個Blade—Ratchet一體型陀螺","對戰時分身成平軸攻擊型的「Bullet」及防禦型「本體」","勝負以本體決定"]
+    },{
+      "code":"BXG-61 booster","bey":"ScSp 0-70 Z","ver":["メタルコート:マゼンタ","Metal Coat: Magenta"],
+      "desc":["App抽獎購買品"]
     }],
     "2025-05-16":[{
       "code":"BX-49 starter","name":["ドランストライク4-50FF","Dran Strike 4-50FF"],"type":"att",
@@ -51,6 +47,10 @@
       }],
     "2026-05-30":[{
       "code":"BXG-51 booster","bey":"Dr.Br.S 6-60 V","ver":["メタルコート:ブラック","Metal Coat: Black"]
+    }],
+    "2026-08-29":[{
+      "code":"BXG-57 deck set","name":["エヴァンゲリオンデッキセット","Evangelion Deck Set"],
+      "desc":["以初号機、零号機、２号機作image設計","現在訂購"]
     }]
   }
 }
