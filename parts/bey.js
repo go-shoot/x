@@ -190,8 +190,7 @@ class Preview {
         },
         params: (code, type) => ({
             lowercase: (([line, number]) => Maps.lowercase[line]?.(number))(code.split('-')),
-            amount: (/set|random/i.test(type) || Q(`[data-code='${code}']`)?.length > 2 ? 18 : 9) 
-                + (META.blade.delimiter[code.split(/(?<=[a-z])(?=\d)|-/i)[0]] ? 2 : 0)
+            amount: 9 * (/set|random/i.test(type) || Q(`[data-code='${code}']`)?.length > 2 ? 3 : 1)
         }),
         src: (type, code, markup, amount) => 
             [...markup ? Markup.replace(markup, 'image', {no: code}) : [code]]
