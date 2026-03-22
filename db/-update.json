@@ -3,10 +3,10 @@
   "part-bit":          "2026/03/13 13:05:00",
   "part-blade":        "2026/03/16 22:45:00",
   "meta":              "2026/03/18 20:45:00",
-  "part-blade-collab": "2026/03/21 13:45:00",
-  "part-blade-divided":"2026/03/21 13:45:00",
-  "prod-beys":         "2026/03/21 13:45:00",
-  "prod-keihin":       "2026/03/18 21:05:00",
+  "part-blade-collab": "2026/03/22 22:25:00",
+  "part-blade-divided":"2026/03/22 22:25:00",
+  "prod-beys":         "2026/03/22 22:25:00",
+  "prod-keihin":       "2026/03/22 22:25:00",
   "prod-equipment":    "2026/03/16 22:33:00",
   "news": {
     "2026-03-28":[{
@@ -38,7 +38,7 @@
       "desc":["首個Blade—Ratchet一體型陀螺","對戰時分身成平軸攻擊型的「Bullet」及防禦型「本體」","勝負以本體決定"]
     },{
       "code":"BXG-61 booster","bey":"ScSp 0-70 Z","ver":["メタルコート:マゼンタ","Metal Coat: Magenta"],
-      "desc":["App抽獎購買品"]
+      "desc":["先於Beyblade Bar發售，後成為App抽獎購買品"]
     }],
     "2025-05-16":[{
       "code":"BX-49 starter","name":["ドランストライク4-50FF","Dran Strike 4-50FF"],"type":"att",

@@ -1,4 +1,19 @@
 {
+    "BXH-?1_01":{
+        "type":"t", "date":"2026-05", "note":"G1大會冠軍獎品", 
+        "ver":["メタルコート：ゴールド","Metal Coat: Gold"],
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2026_1.webp",{"width":"190%","left":"50%","top":"45%"}]
+    },
+    "BXH-?1_02":{
+        "type":"t", "date":"2026-05", "note":"G1大會亞軍獎品", 
+        "ver":["メタルコート：シルバー","Metal Coat: Silver"],
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2026_2.webp",{"width":"190%","left":"50%","top":"45%"}]
+    },
+    "BXH-?1_03":{
+        "type":"t", "date":"2026-05", "note":"G1大會季軍獎品", 
+        "ver":["メタルコート：ブロンズ","Metal Coat: Bronze"],
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2026_3.webp",{"width":"190%","left":"50%","top":"45%"}]
+    },
     "BXC-13":{
         "type":"m", "date":"2026-05", "note":"Full color版漫畫同梱", 
         "ver":["メタルコート：ブルー","Metal Coat: Blue"], "link":"https://lifetunes-mall.jp/shop/g/gR20250033/",
