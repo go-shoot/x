@@ -164,7 +164,9 @@ class Preview {
 
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
+
     tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
+    
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
@@ -174,8 +176,8 @@ class Preview {
             ...this.#image.src('more', code, markup.more, amount),
             ...this.#image.src('detail', lowercase ? code.toLowerCase() : code, markup.detail),
         );
-        /^BXG-\d+$/.test(dataset.code) && setTimeout(() => !Preview.dialog.Q('#images img') && 
-            Preview.dialog.Q('#images').prepend(E('a', {
+        /^BXG-\d+$/.test(dataset.code) && location.pathname == '/x/' && setTimeout(() => 
+            !Preview.dialog.Q('#images img') && Preview.dialog.Q('#images').prepend(E('a', {
                 href: `//google.com/search?q=%22${dataset.code}%22+beyblade`, target: '_blank'
             }))
         , 1000);

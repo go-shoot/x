@@ -118,6 +118,12 @@
         }
     },
     "chip":{
+        "Ev": {
+            "names": {"jap":"エヴァ", "eng":"Eva", "chi":""},
+            "stat": ["2-"],
+            "desc": "（共有三款）",
+            "attr": ["right"]
+        },
         "Rg": {
             "names": {"jap":"ラグナ", "eng":"Ragna", "chi":"邪神"},
             "stat": ["2-"],
