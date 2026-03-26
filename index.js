@@ -20,7 +20,7 @@ class Cache {
     static link = ([comp, line, group], title, label) => ({                        
         keywords: ['零件','部件','組件','圖鑑', ...title.split(/[【⬧】]/)],
         href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
-        text: (label || title).match(/[一-龥]+⬧?[一-龥]+/)?.[0] || label || title
+        text: (label || title).match(/[一-龥]+( ⬧ )?[一-龥]+/)?.[0] || label || title
     })
     static flatten = parts => parts instanceof O ? [...parts.values()].map(Cache.flatten).flat() : parts
     static types = {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}

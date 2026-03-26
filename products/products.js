@@ -1,7 +1,7 @@
 import DB from '../include/DB.js'
 import { Part, Cell } from '../parts/part.js';
 import { Bey, Preview, Search } from '../parts/bey.js';
-import { FilterForm } from '../include/utilities.js';
+import { FilterForm, Markup } from '../include/utilities.js';
 
 let META, PARTS;
 
@@ -45,7 +45,7 @@ Object.assign(Table, {
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', tr.hidden = false));
         Filter.form.onreset();
         Q('a[href*=obake]').href = 'http://obakeblader.com/?s=入手法';
-        Q('a[href*=kyoganken]').href = '//kyoganken.web.fc2.com/beyx/#parts1';
+        Q('a[href*=phstudy]').href = '//beyblade.phstudy.org';
     },
     async search (search) {
         Filter.form.onreset();
@@ -57,13 +57,24 @@ Object.assign(Table, {
         href && setTimeout(() => Table.links(search)) && history.replaceState('', '', href);
         FilterForm.count();
     },
-    links (query) {
+    async links (query) {
         let target = PARTS.at(query);
         if (!target) return;
-        let comp = target.path[2] != 'chip' && META.jap.at(target.path.slice(0, -1))._;
-        let name = target.only.name() ? target.names.jap : target.abbr.split('.').at(-1);
-        Q('a[href*=obake]').href = 'http://obakeblader.com/' + (comp && Filter.form.count.value > 1 ? `${comp}-${name}/#toc2` : `?s=入手法`);
-        Q('a[href*=kyoganken]').href = `//kyoganken.web.fc2.com/beyx/color0${['', 'blade', 'ratchet', 'bit'].indexOf(target.path[0])}.htm`;
+        let comp = {
+            eng: target.path[2] ? 
+                (await DB.get('meta', 'parts')).blade[target.line].title[target.path[2]].match(/[ \w]+$/)[0].replace(' ', '') :
+                target.comp[0].toUpperCase() + target.comp.substring(1),
+            jap: target.path[2] != 'chip' && META.jap.at(target.path.slice(0, -1))._
+        };
+        comp.eng == 'MetalBlade' && (comp.eng = 'MainBlade');
+        let name = target.only.name() ? {
+            chi: Markup.remove(target.names.chi).replace(' ', ','),
+            jap: target.names.jap
+        } : target.abbr.split('.').at(-1);
+        Q('a[href*=obake]').href = 'http://obakeblader.com/' 
+            + (comp.jap ? `${comp.jap}-${name.jap ?? name}/#toc2` : `?s=入手法`);
+        Q('a[href*=phstudy]').href = `//beyblade.phstudy.org/?category=${comp.eng}&`
+            + (name.chi ? `search=${name.chi}` : `view=table&spec=spec-${name}#spec-${name}`);
     }
 });
 

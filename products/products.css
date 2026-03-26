@@ -60,7 +60,7 @@ main {
 .links {
     margin:2em auto -.8em auto; padding: 0 .5rem;
     text-align: right;
-    z-index: 1; position: relative;
+    z-index: 2; position: relative;
     pointer-events: none;
 
     a {
@@ -73,7 +73,7 @@ main {
         margin-left: .3em;
         pointer-events: initial;
 
-        &[href$='#toc2'],&[href*=color] {outline-color: var(--accent);}
+        &[href$='#toc2'],&[href*=category] {outline-color: var(--accent);}
         &::before {
             content: '\e02a';
             position: absolute; left: 50%; top: 50%; transform: translate(-50%,-48%);

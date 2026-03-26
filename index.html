@@ -1,4 +1,4 @@
-<title>非官方資訊站⬧Unofficial site🙼爆旋陀螺X⬧戰鬥陀螺X⬧ベイブレードX⬧Beyblade X</title>
+<title>非官方資訊站 ⬧ Unofficial site🙼爆旋陀螺X ⬧ 戰鬥陀螺X ⬧ ベイブレードX ⬧ Beyblade X</title>
 <meta name=description content="最新日本陀螺情報、所有部件圖鑑、限量産品，都一應俱全。">
 <script defer src=include/common.js></script>
 <link rel=stylesheet href=index.css>
@@ -8,8 +8,8 @@
 <input>
 
 <header>
-    <h1 hidden>爆旋陀螺X⬧戰鬥陀螺X⬧ベイブレードX⬧Beyblade X</h1>
-    <img src="https://beyblade.takaratomy.co.jp/_image/cmn_logo.svg" alt="戰鬥陀螺 X⬧爆旋陀螺 X⬧ベイブレード X⬧Beyblade X">
+    <h1 hidden>爆旋陀螺X ⬧ 戰鬥陀螺X ⬧ ベイブレードX ⬧ Beyblade X</h1>
+    <img src="https://beyblade.takaratomy.co.jp/_image/cmn_logo.svg" alt="戰鬥陀螺 X ⬧ 爆旋陀螺 X ⬧ ベイブレード X ⬧ Beyblade X">
     <h2>非官方資訊站</h2>
 </header>
 
@@ -49,7 +49,7 @@
 document.querySelector('body>input').onkeypress = ev => {
     if ((ev.keyCode || ev.which) != 13) return;
     typeof Q != 'undefined' && gtag('event', 'PRIVATE');
-    ev.target.value = ev.target.value.trim();
+    ev.target.value = ev.target.value.trim().replaceAll(/[“”]/g, '"');
     if (/^i#.+$/i.test(ev.target.value))
         return location.href = `https://instagram.com/explore/tags/${/(?<=#).+/.exec(ev.target.value)}`;
     if (/^i@.+$/i.test(ev.target.value))
