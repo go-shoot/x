@@ -8,15 +8,15 @@
         },
         "G": {
             "names": {"jap":"ガード", "eng":"Guard"},
-            "stat": [""],
+            "stat": ["3+"],
             "desc": "三枚大型刃以向上配置，把對手的Smash攻擊撞回，實現強力反擊。",
             "attr": ["def","right"]
         },
         "F": {
             "names": {"jap":"フロー", "eng":"Flow"},
-            "stat": [""],
+            "stat": ["4-"],
             "desc": "薄且順滑的形狀減輕空氣抵抗，維持迴轉力。",
-            "attr": ["sta","right"]
+            "attr": ["sta","right","bbb"]
         }
     },
     "assist": {
@@ -28,13 +28,13 @@
         },
         "V": {
             "names": {"jap":"ヴァーチカル", "eng":"Vertical"},
-            "stat": [""],
+            "stat": ["5+"],
             "desc": "向下方伸出的十二枚垂直刃阻止對Ratchet的攻擊，提高Burst抵耐性。",
             "attr": ["def","right"]
         },
         "E": {
             "names": {"jap":"イレイズ", "eng":"Erase"},
-            "stat": [""],
+            "stat": ["6="],
             "desc": "順滑連打刃使持久損失最小化，同時能活用持久力作連續攻擊。",
             "attr": ["sta","right"]
         },
@@ -220,13 +220,13 @@
     "metal": {
         "Rg": {
             "names": {"jap":"レイジ", "eng":"Rage", "chi":"狂怒"},
-            "stat": [""],
+            "stat": ["27+"],
             "desc": "流線形滑順的刃化解對手攻擊，減低迴轉損失。",
             "attr": ["sta","right","bbb"]
         },
         "Fr": {
             "names": {"jap":"フォートレス", "eng":"Fortress", "chi":"堡壘"},
-            "stat": [""],
+            "stat": ["28-"],
             "desc": "有高低差的形狀分散對手的攻擊，立體形狀的刃亦產生反擊。",
             "attr": ["def","right"]
         },
