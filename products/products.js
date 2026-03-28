@@ -44,8 +44,14 @@ Object.assign(Table, {
         Q('input[type=search]').value = '';
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', tr.hidden = false));
         Filter.form.onreset();
-        Q('a[href*=obake]').href = 'http://obakeblader.com/?s=入手法';
-        Q('a[href*=phstudy]').href = '//beyblade.phstudy.org';
+        E(Q('a[href*=obake]')).set({
+            href: 'http://obakeblader.com/?s=入手法',
+            onclick: gtag('event', 'LINK-obake')
+        });
+        E(Q('a[href*=phstudy]')).set({
+            href: '//beyblade.phstudy.org',
+            onclick: gtag('event', 'LINK-ps')
+        });
     },
     async search (search) {
         Filter.form.onreset();
@@ -71,10 +77,14 @@ Object.assign(Table, {
             chi: Markup.remove(target.names.chi).replace(' ', ','),
             jap: target.names.jap
         } : target.abbr.split('.').at(-1);
-        Q('a[href*=obake]').href = 'http://obakeblader.com/' 
-            + (comp.jap ? `${comp.jap}-${name.jap ?? name}/#toc2` : `?s=入手法`);
-        Q('a[href*=phstudy]').href = `//beyblade.phstudy.org/?category=${comp.eng}&`
-            + (name.chi ? `search=${name.chi}` : `view=table&spec=spec-${name}#spec-${name}`);
+        E(Q('a[href*=obake]')).set({
+            href: 'http://obakeblader.com/' + (comp.jap ? `${comp.jap}-${name.jap ?? name}/#toc2` : `?s=入手法`),
+            onclick: () => gtag('event', `LINK-obake-${target.abbr}`)
+        });
+        E(Q('a[href*=phstudy]')).set({
+            href: `//beyblade.phstudy.org/?category=${comp.eng}&` + (name.chi ? `search=${name.chi}` : `view=table&spec=spec-${name}#spec-${name}`),
+            onclick: () => gtag('event', `LINK-ph-${target.abbr}`)
+        });
     }
 });
 

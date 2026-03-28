@@ -3,35 +3,35 @@ import { Part } from '../parts/part.js';
 import { Glossary, Markup, FilterForm, Transition } from '../include/utilities.js';
 
 let META, PARTS;
-let [comp, line] = [...new URLSearchParams(location.search)][0] ?? [];
+let [COMP, LINE] = [...new URLSearchParams(location.search)][0] ?? [];
 
 const Parts = () => Parts.firstly().then(Parts.before).then(Parts.display).then(Parts.after).then(Parts.finally);
 Object.assign(Parts, {
     async firstly () {
-        gtag('event', line || comp?.toUpperCase());
+        gtag('event', LINE || COMP.toUpperCase());
         Parts.place = Q('section');
         Magnifier();
         [META, PARTS] = await DB.get.essentials(true);
         Part.import(META.general, PARTS);
-        Object.assign(Sorter, {...META[comp].sorter ?? {}});
+        Object.assign(Sorter, {...META[COMP].sorter ?? {}});
         Object.assign(Filter, {
-            legend: META[comp].所有 ? '所有' : '一體',
+            legend: META[COMP].所有 ? '所有' : '一體',
             types: META.general.types,
-            ...{...META[comp]}.filter ?? {}
+            ...{...META[COMP]}.filter ?? {}
         });
-        META = META[comp][line || Filter.legend];
+        META = META[COMP][LINE || Filter.legend];
         Object.assign(Filter, {...META.filter});
     },
     before: () => Promise.all([Filter(), Sorter()]),
     display: () => Promise.all([...
-            line ? PARTS.blade[line].flatMap(([_, subs]) => [...subs.values()]) : PARTS[comp].values()
+            LINE ? PARTS.blade[LINE].flatMap(([_, subs]) => [...subs.values()]) : PARTS[COMP].values()
         ].map(part => part.tile?.())
     ).then(parts => Parts.place.replaceChildren(...parts.filter(p => p))),
 
     async after () {
         let hash = decodeURI(location.hash.substring(1));
         Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
-        Sorter.checked == 'time' ? await Sorter.time.order(comp) : Sorter.time.order(comp);
+        Sorter.checked == 'time' ? await Sorter.time.order(COMP) : Sorter.time.order(COMP);
         Sorter.sort(Sorter.checked);
         Filter.form.onchange();
     },
@@ -48,7 +48,7 @@ Object.assign(Parts, {
     },
     info (group) {
         document.title = document.title.replace(/^.*?(?= ■ )/, META.title?.[group] ?? META.title ?? '');
-        let info = comp + (line ? `.${line}` : '');
+        let info = COMP + (LINE ? `.${LINE}` : '');
         Q('details').hidden = !(Q('details p').innerHTML = Markup.spacing(Q(`[id='${info}']`)?.innerHTML));
     },
     focus (tile) {
@@ -62,7 +62,7 @@ onhashchange = () => Parts.after();
 const Filter = function(which) {
     if (this instanceof Filter) 
         return new FilterForm.fieldset(...Filter.content[which](), {name: which});
-    Filter.form.classList.add(comp);
+    Filter.form.classList.add(COMP);
     Filter.form.append(...['group', ...Filter.use ?? []].map(f => new Filter(f)));
     Filter.events();
 };
@@ -74,12 +74,13 @@ Object.assign(Filter, {
             action: {group: ev => {
                 history.replaceState(null, '', ' '); //remove #
                 Parts.switch(ev.target.value.substring(1));
+                gtag('event', `${LINE || COMP}-${ev.target.value.substring(1)}`.toUpperCase());          
             }},
             single: true
         });
     },
     content: {
-        group:  () => [new O(Filter.groups), {legend: line || Filter.legend, checked: false}],
+        group:  () => [new O(Filter.groups), {legend: LINE || Filter.legend, checked: false}],
         joint:  () => [new O(['normal', 'simple'].map(t => [t, E('img', {src: `../img/joint.svg#${t}`})] )), {legend: '類型'}],
         type:   () => [new O(Filter.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
         spin:   () => [new O({left: '\ue01d', right: '\ue01e'}), {legend: '迴轉'}],
@@ -142,7 +143,7 @@ Sorter.time = {
             abbr && PARTS.at([...path, abbr])?.push({order: i})
         );
         let list = beys.reverse().map(bey => bey[2].split(' ')[Sorter.index.whole[comp]]);            
-        if (!line)
+        if (!LINE)
             return setOrder(list.flat(), [comp]);
 
         list = list.map(blade => blade.split('.'));
@@ -150,7 +151,7 @@ Sorter.time = {
             setOrder(list
                 .filter(blade => ['chip','assist'].includes(sub) || blade.length == (sub == 'main' ? 3 : 4))
                 .map(blade => blade.at(index)), 
-            [comp, line, sub])
+            [comp, LINE, sub])
         );
     })
 }

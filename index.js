@@ -151,7 +151,7 @@ class Search {
         history = [...new Set(history.toSpliced(0, 0, Input.field.value.trim()))].slice(0, 10);
         Search.show('history', history);
         Storage('history', history);
-        gtag('event', Input.field.value.trim());
+        gtag('event', Input.field.value.trim().toLowerCase());
     }}
 }
 Search.events();
