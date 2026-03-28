@@ -185,7 +185,7 @@
         },
         {
             "keywords": ["X","Twitter","推特","最新情報資訊","日本"],
-            "href": "//x.com/tbh_pr", "text": "官方 X"
+            "href": "//x.com/tbh_pr", "text": "官方 𝕏"
         },
         {
             "keywords": ["iPhone","APP Store","應用程式","分數","通行證","BeyBattlePass"],
@@ -196,8 +196,8 @@
             "href": "//play.google.com/store/apps/details?id=com.burnie.Fake", "text": "發射力測量替代 APP Android"
         },
         {
-            "keywords": ["應用程式","庫存","件"],
-            "href": "//beyblade.phstudy.org?lang=zh-TW", "text": "庫存替代 APP Web"
+            "keywords": ["比賽","TIER","強勢"],
+            "href": "//www.bbxweekly.com/2weeks", "text": "WBO 比賽部件統計"
         }
     ]
 }]

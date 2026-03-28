@@ -2,7 +2,7 @@
     "over": {
         "B": {
             "names": {"jap":"ブレイク", "eng":"Break"},
-            "stat": [""],
+            "stat": ["4-"],
             "desc": "重心偏側提高撞擊性能。",
             "attr": ["att","right"]
         },
@@ -22,7 +22,7 @@
     "assist": {
         "K": {
             "names": {"jap":"ナックル", "eng":"Knuckle"},
-            "stat": [""],
+            "stat": ["5="],
             "desc": "五枚刃中的一枚有重擊點，提升撞擊性能。",
             "attr": ["att","right"]
         },
@@ -232,7 +232,7 @@
         },
         "Bl": {
             "names": {"jap":"ブリッツ", "eng":"Blitz", "chi":"閃擊"},
-            "stat": [""],
+            "stat": ["30-"],
             "desc": "高撞擊性能的重量級五枚刃，一併持有重心偏側的大型刃以提高重擊性能。",
             "attr": ["att","right"]
         }
