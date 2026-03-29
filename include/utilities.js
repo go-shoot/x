@@ -47,7 +47,7 @@ class Shohin {
         let [code, type] = this.div.Q('h5').innerText.match(/(?<=\n?).+$/)[0].split(/(?<=\d) /);
         let figures = [
             ...this.div.Q('figure', []),
-            ...new Preview('index', {code: code.replace('-', ''), type}).map(img => Shohin.figure(img))
+            ...new Preview('news', {code: code.replace('-', ''), type}).map(img => Shohin.figure(img))
         ];
         this.div.replaceChildren(
             this.div.Q('h5'), this.div.Q('h4'), 

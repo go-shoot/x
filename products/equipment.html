@@ -35,6 +35,9 @@
     </section>
 </main>
 
+<template id="winder launcher (+)">
+    由最長起排名是：<ul><li><ruby>Long Winder<rt>ロングワインダー</ruby><li><ruby>Dragon Winder<rt>ドラゴンワインダー</ruby></ol>
+</template>
 <template id="rubber custom grip">
     四塊分別是：<dl><dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> L<dd>放四根手指用<dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> M<dd>容易握的平坦形<dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> S<dd>放姆指用<dt><ruby>Rubber Grip Panel<rt>ラバーグリップパネル</ruby><dd>一端的突起減少滑手</dl>
 </template>
@@ -93,7 +96,7 @@ class Board {
         return E('li', [
             E('code', {
                 innerHTML: code, 
-                onclick: ev => !classList.includes('Lm') && new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
+                onclick: ev => classList.includes('Lm') ? open(src) : new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
             }),
             E('figure>img', {
                 src: Board.src(src, code), alt: code, 
@@ -103,8 +106,8 @@ class Board {
         ], {classList});
     }
     static winder = {
-        dragon: E('ruby', ['Dragon Winder', E('rt', 'ドラゴンワインダー')]),
-        long: E('ruby', ['Long Winder', E('rt', 'ロングワインダー')])
+        dragon: E('b', 'DRAGON'),
+        long: E('b', 'LONG')
     }
     static src = (src, code) => {
         src = !src || /^\d/.test(src) ? 

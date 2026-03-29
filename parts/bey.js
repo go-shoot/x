@@ -145,7 +145,7 @@ class Search {
 }
 class Preview {
     constructor(what, {type, code, bey, path}, ev) {
-        if (what == 'index')
+        if (what == 'news')
             return [
                 ...this.#image.src('main', code),
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),

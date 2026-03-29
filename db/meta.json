@@ -153,7 +153,7 @@
         },
         {
             "keywords": ["manga","corocoro","快樂快樂","最新資訊","コロコロ"],
-            "href": "//drive.google.com/drive/folders/1NHqckGBGUe0Kd57TqiFCZJ4G2qGGbvha", "text": "漫畫與情報"
+            "href": "//drive.google.com/drive/folders/1NHqckGBGUe0Kd57TqiFCZJ4G2qGGbvha", "text": "日文漫畫與情報"
         },
         {
             "keywords": ["anime","卡通"],
@@ -169,11 +169,11 @@
         },
         {
             "keywords": ["Takara Tomy","日本","影片","最新情報資訊"],
-            "href": "//www.youtube.com/@BEYBLADEOfficialYouTube/videos", "text": "官方 Youtube"
+            "href": "//youtube.com/@BEYBLADEOfficialYouTube/videos", "text": "官方 Youtube"
         },
         {
             "keywords": ["日本","最新產品"],
-            "href": "//www.amazon.co.jp/s?rh=n%3A2189319051%2Cp_n_date%3A2320554051", "text": "Amazon"
+            "href": "//amazon.co.jp/s?rh=n%3A2189319051%2Cp_n_date%3A2320554051", "text": "Amazon"
         },
         {
             "keywords": ["iPhone","APP Store","應用程式","分數","抽獎","QR Code","通行證","BeyBattlePass"],
@@ -196,8 +196,8 @@
             "href": "//play.google.com/store/apps/details?id=com.burnie.Fake", "text": "發射力測量替代 APP Android"
         },
         {
-            "keywords": ["比賽","TIER","強勢"],
-            "href": "//www.bbxweekly.com/2weeks", "text": "WBO 比賽部件統計"
+            "keywords": ["TIER","強勢"],
+            "href": "//bbxweekly.com/2weeks", "text": "WBO 比賽部件統計"
         }
     ]
 }]

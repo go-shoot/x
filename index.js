@@ -165,7 +165,8 @@ class Result {
     link = ({text, href}) =>
         E('li>a', text, {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
-            href, target: href.startsWith('//') ? '_blank' : ''
+            href, target: href.startsWith('//') ? '_blank' : '',
+            onclick: () => href.startsWith('//') ? gtag('event', `LINK-${href.substring(2,18)}`) : ''
         })
     code = ({code}) =>
         E('li>button', code, 
