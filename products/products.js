@@ -50,7 +50,7 @@ Object.assign(Table, {
         });
         E(Q('a[href*=phstudy]')).set({
             href: '//beyblade.phstudy.org',
-            onclick: gtag('event', 'LINK-ps')
+            onclick: gtag('event', 'LINK-ph')
         });
     },
     async search (search) {

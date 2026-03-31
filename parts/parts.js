@@ -74,7 +74,6 @@ Object.assign(Filter, {
             action: {group: ev => {
                 history.replaceState(null, '', ' '); //remove #
                 Parts.switch(ev.target.value.substring(1));
-                gtag('event', `${LINE || COMP}-${ev.target.value.substring(1)}`.toUpperCase());          
             }},
             single: true
         });
