@@ -69,7 +69,7 @@ Object.assign(Table, {
         let comp = {
             eng: target.path[2] ? 
                 (await DB.get('meta', 'parts')).blade[target.line].title[target.path[2]].match(/[ \w]+$/)[0].replace(' ', '') :
-                target.comp[0].toUpperCase() + target.comp.substring(1),
+                target.path[0][0].toUpperCase() + target.path[0].substring(1),
             jap: target.path[2] != 'chip' && META.jap.at(target.path.slice(0, -1))._
         };
         comp.eng == 'MetalBlade' && (comp.eng = 'MainBlade');
