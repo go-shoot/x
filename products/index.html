@@ -1,7 +1,5 @@
 <title>陀螺產品 ⬧ Merchandise</title>
 <script defer src=../include/common.js></script>
-<script defer src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js></script>
-<script defer src=https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js></script>
 <script src=https://aeoq.github.io/diamond-grid/script.js type=module></script>
 <link rel=stylesheet href=products.css>
 <link rel=stylesheet href=../parts/part.css>
@@ -52,10 +50,18 @@
         <caption class="loading"></caption>
         <thead>
             <tr>
-                <th class="LED">CODE</th>
-                <th colspan=6 class="LED blade">刃擊環 ⬧ 鋼鐵戰刃<br>BLADE</th>
-                <th colspan=1 class="LED ratchet">核輪 ⬧ 固鎖輪盤<br>RATCHET</th>
-                <th colspan=2 class="LED bit">軸心<br>BIT</th>
+                <th class="LED">
+                    <div><input type="radio" name="sort">CODE</div>
+                </th>
+                <th colspan=6 class="LED blade">
+                    <div><input type="radio" name="sort">刃擊環 ⬧ 鋼鐵戰刃<br>BLADE</div>
+                </th>
+                <th colspan=1 class="LED ratchet">
+                    <div><input type="radio" name="sort">核輪 ⬧ 固鎖輪盤<br>RATCHET</div>
+                </th>
+                <th colspan=2 class="LED bit">
+                    <div><input type="radio" name="sort">軸心<br>BIT</div>
+                </th>
             </tr>
         </thead>
         <tbody></tbody>

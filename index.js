@@ -175,7 +175,6 @@ class Result {
 }
 
 import {Shohin} from './include/utilities.js'
-import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
 const plugins = {
     announce: news => new O(news).each(([date, beys]) => 
         Q('#products').append(E('time', {title: date}), ...beys.map(bey => new Shohin(bey)))
@@ -190,6 +189,11 @@ Q('header').after(DB(plugins).then(() => {
         entry.target.classList.toggle('seeing', entry.isIntersecting)
     ));
     Q('header,section,time,.scroller', el => observer.observe(el));
+    new O({cache: 30, parts: 60}).each(([cache, days]) =>
+        Date.now() > Storage(`no-update-${cache}`) 
+        && fetch(`sw/?delete=${cache}`) 
+        && Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000)
+    );
 
     const reset = message => Promise.all([
         DB.discard(ev => message.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
@@ -203,7 +207,8 @@ Q('header').after(DB(plugins).then(() => {
         message.innerText = er;
         console.error(er)
     });
-    PointerInteraction.events({
+    import('https://aeoq.github.io/pointer-interaction/script.js')
+    .then(({default: PI}) => PI.events({
         '.scroller,#search ol': {scroll: {x: true}},
         '#reset': {
             drop: {onto: 'i:last-child'},
@@ -212,12 +217,9 @@ Q('header').after(DB(plugins).then(() => {
             }, y: false}),
             lift: PI => PI.onto && reset(PI.target.nextElementSibling),
         }
-    });
-
-    new O({cache: 30, parts: 60}).each(([cache, days]) =>
-        Date.now() > Storage(`no-update-${cache}`) 
-        && fetch(`sw/?delete=${cache}`) 
-        && Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000)
+    }))
+    .catch(() => caches.open('X')
+        .then(cache => cache.delete('https://aeoq.github.io/pointer-interaction/script.js'))
     );
 }));
 

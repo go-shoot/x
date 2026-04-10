@@ -73,8 +73,8 @@
                 "title": {
                     "chip": "【CX】紋章鎖 ⬧ 鎖定紋章 ⬧ Lock Chip",
                     "main": "【CX】主刃 ⬧ 主要戰刃 ⬧ Main Blade",
-                    "over": "【CX】刃 ⬧ 戰刃 ⬧ Over Blade",
-                    "metal": "【CX】刃 ⬧ 戰刃 ⬧ Metal Blade",
+                    "over": "【CX】超越刃 ⬧ 超越戰刃 ⬧ Over Blade",
+                    "metal": "【CX】金屬刃 ⬧ 鋼鐵戰刃 ⬧ Metal Blade",
                     "assist": "【CX】支援刃 ⬧ 輔助戰刃 ⬧ Assist Blade",
                     "hasbro": "【CX】未出"
                 }
@@ -86,7 +86,7 @@
                     "groups": {
                         "low":  {"label": "▃", "checked": true},
                         "mid":  {"label": "▅", "checked": true},
-                        "high": {"label": "▇", "checked": true}
+                        "high": {"label": "▇"}
                     },
                     "use": ["joint"]
                 },

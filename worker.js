@@ -1,6 +1,10 @@
 self.addEventListener('install', ev => {
     self.skipWaiting();
-    ev.waitUntil(Head.cache());
+    ev.waitUntil(
+        caches.open('X').then(cache => cache.addAll([
+            Head.url, '/x/parts/bg.svg', '/x/bg.mp4'
+        ]))
+    );
 });
 self.addEventListener('activate', ev => ev.waitUntil(clients.claim()));
 self.addEventListener('fetch', ev => ev.respondWith((() => {
@@ -15,7 +19,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
                 return cached;
             let fetched = fetch.net(req);
             cached || (fetched = await fetched);
-            return is.html(req.url) ? Head.add(cached || fetched) : cached || fetched;
+            return is.html(req.url) ? Head.inject(cached || fetched) : cached || fetched;
         })
         .catch(er => {
             if (`${er}`.includes('Failed to fetch')) return;
@@ -53,7 +57,7 @@ const to = {
     random: req => new Request(`${req.url}?${Math.random()}`, req),
     stripped: res => res.url.replace(/[?#].*$/, ''),
     opaque: req => /takaratomy/.test(req.url) ? {mode: 'no-cors'} : 
-        new URLPattern({hostname: 'aeoq.github.io', pathname: '*.css'}).test(req.url) ? {mode: 'cors', credentials: 'omit'} : null
+        /aeoq\.github\.io.+\.css$/.test(req.url) ? {mode: 'cors', credentials: 'omit'} : null
 }
 fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(req))
     .then(res => {
@@ -66,24 +70,29 @@ fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(
 
 const Head = {
     url: '/x/include/head.html',
-    manifest: {
-        name: "非官方資訊站",
-        display: "standalone",
-        start_url: `https://${location.host}/x/`,
-        theme_color: "%23b0ff50",
-        icons: [{src: `https://${location.host}/x/img/blade/CX/chip/Vl.png`, type: "image/png", sizes: "512x512"}]
+    async code () {
+        let manifest = {
+            name: "非官方資訊站",
+            display: "standalone",
+            start_url: `https://${location.host}/x/`,
+            theme_color: "%23b0ff50",
+            icons: [{src: `https://${location.host}/x/img/blade/CX/chip/Vl.png`, type: "image/png", sizes: "512x512"}]
+        };
+        manifest = `
+        <link rel="icon" href="https://${location.host}/x/img/blade/CX/chip/Vl.png" type="image/png">
+        <link rel="manifest" href='data:application/manifest+json,${JSON.stringify(manifest)}'>`;
+
+        return Head.code = await caches.match(Head.url).then(resp => resp.text())
+        .then(html => new TextEncoder().encode(html + manifest));
     },
-    code: () => `
-<link rel="icon" href="https://${location.host}/x/img/blade/CX/chip/Vl.png" type="image/png">
-<link rel="manifest" href='data:application/manifest+json,${JSON.stringify(Head.manifest)}'>`,
-
-    cache: () => caches.open('X').then(cache => Promise.all([
-        cache.add(Head.url), cache.add('/x/parts/bg.svg'), cache.add('/x/bg.mp4')
-    ])),
-
-    fetch: () => caches.match(Head.url).then(resp => resp.text()),
-
-    add: async resp => new Response(await Head.fetch() + Head.code() + await resp.text(), Head.response(resp)),
-            
-    response: ({status, statusText, headers}) => ({status, statusText, headers})
+    inject: async res => {
+        const {readable, writable} = new TransformStream();
+        const writer = writable.getWriter();
+        (async () => {
+            writer.write(typeof Head.code == 'function' ? await Head.code() : Head.code);
+            writer.releaseLock();
+            await res.body.pipeTo(writable);
+        })();
+        return new Response(readable, res);
+    }
 }

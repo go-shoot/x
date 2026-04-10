@@ -133,6 +133,7 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 a[href^='/x/products/']::before {content: '';}
 a[href^='/x/prizes/']::before {content: '';}
 a[href^='/x/parts/']::before {content: '';}
+img[src*='lines.svg'][src$=X] {aspect-ratio: 1.485;}
 
 @view-transition {navigation: auto;}
 @keyframes exit {
@@ -289,7 +290,7 @@ nav {
     content: '';
     display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 
-    filter: saturate(0) brightness(99);
+    filter: saturate(0) brightness(99) brightness(80%);
 }
 menu {
     li a {

@@ -18,7 +18,6 @@ Object.assign(Table, {
         .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).row))),
     after () {
         Q('.loading').classList.remove('loading');
-        $(Q('table')).tablesorter();
         Table.form.onchange();
         Filter.form.onchange();
         window.onresize();
@@ -38,20 +37,37 @@ Object.assign(Table, {
             }
         });
         Table.body.onclick = Preview.for.table;
+        Q('thead').onclick = Table.sort;
+
+        Q('.links').onclick = ({target: {tagName, href, parentElement}}) => tagName == 'A' ? 
+            gtag('event', `link-${href.includes('obake') ? 'ob' : 'ph'}-${parentElement.title}`) : '';
+        new MutationObserver(([{target}]) => target.title == '' && target.childNodes.forEach((a, i) => 
+            a.href = ['//beyblade.phstudy.org', 'http://obakeblader.com/?s=入手法'][i]
+        )).observe(Q('.links'), {attributeFilter: ['title']});
+    },
+    sort (ev) {
+        let input = ev.target.Q('input');
+        input.value == 'on' && (input.value = 1);
+        let index = Q('th').indexOf(ev.target.closest('th'));
+        let extract = {
+            code: tr => Array.isArray(tr) ? tr.map(extract.code) : tr.firstChild.innerText.trim(),
+            abbr: tr => Array.isArray(tr) ? tr.map(extract.abbr) : tr.dataset.abbr.split(' ')[index - 1]
+        }
+        Table.body.append(...[...Table.body.children].sort((...trs) => {
+            let text = extract[index === 0 ? 'code' : 'abbr'](trs);
+            let move = text[0].includes('/') && text[1].includes('/') ? 0 : 
+                text[0].includes('/') ? 1 : text[1].includes('/') ? -1 : 
+                index == 1 && (text[0].length - text[1].length) || text[0].localeCompare(text[1]);
+            return move * input.value;
+        }));
+        (input.checked = true) && (input.value *= -1);
     },
     reset () {
         location.search && history.replaceState('', '', './');
         Q('input[type=search]').value = '';
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', tr.hidden = false));
         Filter.form.onreset();
-        E(Q('a[href*=obake]')).set({
-            href: 'http://obakeblader.com/?s=入手法',
-            onclick: gtag('event', 'LINK-obake')
-        });
-        E(Q('a[href*=phstudy]')).set({
-            href: '//beyblade.phstudy.org',
-            onclick: gtag('event', 'LINK-ph')
-        });
+        Q('.links').title = '';
     },
     async search (search) {
         Filter.form.onreset();
@@ -60,12 +76,13 @@ Object.assign(Table, {
         if (!search) return Table.reset();
         let {beys, href} = await new Search(search);
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', !beys.includes(tr)));
-        href && setTimeout(() => Table.links(search)) && history.replaceState('', '', href);
+        Table.links(href ? search : '');
+        href && history.replaceState('', '', href);
         FilterForm.count();
     },
     async links (query) {
         let target = PARTS.at(query);
-        if (!target) return;
+        if (!target) return Q('.links').title = '';
         let comp = {
             eng: target.path[2] ? 
                 (await DB.get('meta', 'parts')).blade[target.line].title[target.path[2]].match(/[ \w]+$/)[0].replace(' ', '') :
@@ -77,14 +94,9 @@ Object.assign(Table, {
             chi: Markup.remove(target.names.chi).replace(' ', ','),
             jap: target.names.jap
         } : target.abbr.split('.').at(-1);
-        E(Q('a[href*=obake]')).set({
-            href: 'http://obakeblader.com/' + (comp.jap ? `${comp.jap}-${name.jap ?? name}/#toc2` : `?s=入手法`),
-            onclick: () => gtag('event', `LINK-obake-${target.abbr}`)
-        });
-        E(Q('a[href*=phstudy]')).set({
-            href: `//beyblade.phstudy.org/?category=${comp.eng}&` + (name.chi ? `search=${name.chi}` : `view=table&spec=spec-${name}#spec-${name}`),
-            onclick: () => gtag('event', `LINK-ph-${target.abbr}`)
-        });
+        Q('.links').title = target.abbr;
+        Q('a[href*=obake]').href = 'http://obakeblader.com/' + (comp.jap ? `${comp.jap}-${name.jap ?? name}/#toc2` : `?s=入手法`);
+        Q('a[href*=phstudy]').href = `//beyblade.phstudy.org/?category=${comp.eng}&` + (name.chi ? `search=${name.chi}` : `view=table&spec=spec-${name}#spec-${name}`);
     }
 });
 

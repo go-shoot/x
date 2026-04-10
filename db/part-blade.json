@@ -4,20 +4,18 @@
         "names": {
             "jap": "ドランストライク",
             "eng": "DranStrike",
-            "chi": "",
-            "aka": "翔龍 蒼龍"
+            "chi": "蒼龍突擊"
         },
         "stat": [""],
         "desc": "金屬連接至中央能提高剛性；重量級的六枚刃作強烈連打攻擊。",
-        "attr": ["att","right"]
+        "attr": ["att","right","expand"]
     },
    "BlGr": {
         "group": "UX",
         "names": {
             "jap": "バレットグリフォン",
             "eng": "Bullet\\Griffon",
-            "chi": "",
-            "aka": "獅鷲"
+            "chi": "子彈獅鷲"
         },
         "stat": [""],
         "desc": "對戰中分身成內藏平坦軸端以跑動來攻擊對手的「子彈」、及以防禦性能優秀的圓形來抵耐對手攻擊的「本體」。（勝負以本體判定）",

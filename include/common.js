@@ -12,8 +12,8 @@ const LINES = {
     const unsupported = document.head.appendChild(document.createElement('style'));
     unsupported.textContent = `
 html::before {
-    content: '請重新整理\\A如問題持續，需更新／換瀏覽器／iOS 系統\\A' attr(title);
-    color: white; transition: color .5s 1.5s;
+    content: '請重新整理\\A如問題持續，需更新／換瀏覽器／iOS 系統\\A\\A若你正在使用社交平台，請在右上方選項中，以 Safari / Chrome 等開啟' attr(title);
+    color: white; transition: color .5s 2s;
     font-size: 3em; white-space: pre-wrap;
     display: flex; justify-content: center; align-items: center;
     background: black; 
@@ -64,9 +64,10 @@ Object.assign(Menu, {
 
 addEventListener('DOMContentLoaded', () => {
     Menu();
-    document.head.append(E('style', new O(LINES).flatMap(([line, {color}]) => 
+    new CSSStyleSheet().replace(new O(LINES).flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
-    ).join('')));
+    ).join('')).then(css => document.adoptedStyleSheets.push(css));
+    
     import('https://aeoq.github.io/pointer-interaction/script.js').then(({default: PI}) => PI.events({
         'nav menu': {
             drag: PI => {

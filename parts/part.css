@@ -37,7 +37,7 @@
 :host img {
     --glow-size: .1em; filter: drop-shadow(0 0 var(--glow-size) var(--on));
     &[alt=types] {filter: drop-shadow(0 0 var(--glow-size) var(--type));}
-    &[alt=lines] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
+    &[alt=lines][src$=X] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
 }
 :host use {filter: drop-shadow(0 0 .1em var(--type));} 
 :host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
@@ -126,20 +126,25 @@
             width: var(--icon);
         }
         &:has(img[alt^=system]) {
-            order: 2;
+            order: 3;
             width: 2.5em;
         }
         &:has(img[alt=lines]) {
-            order: 2;
+            order: 3;
             width: 1.5em;
         }
+        &:has(img[alt=lines][src$=expand]) {
+            order: 3;
+            width: 1em;
+        }
         &:has(img[alt=joint]) {
+            order: 2;
             margin-right: .1em;
         }
         &[title] {
-            order: 3;
-            line-height: 1.65;
-            font-size: 1.1em;
+            order: 4;
+            line-height: 1.6;
+            font-size: 1.15em;
         }
         img {
             object-fit: contain;
@@ -257,10 +262,12 @@
 
     &::before {
         content: '一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一一';
-        width: 100%; height: 100%;
+        height: 100%; width: 100%;
+        --h: 14.4em; --w: 7.1em; /*calculated for safari*/
         float: left;
         visibility: hidden;
-        shape-outside: polygon(0% 14%,75% 50%,0% 86%);
+        --y: 14; --x:75;
+        shape-outside: polygon(0 calc(var(--y)*var(--h)/100/.6),calc(var(--x)*var(--w)/100/.6) calc(50*var(--h)/100/.6),0 calc((100 - var(--y))*var(--h)/100/.6));
     }
     u {
         border-bottom: .15em dotted var(--theme);
@@ -375,10 +382,10 @@ tbody td {
     border-top: solid .5px var(--on);
 }
 td[abbr]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
-    border-left: solid .5px white;
+    border-left: solid .5px var(--on);
 }
 td[abbr]+td:not([headers]):not(.hide) {
-    border-left: solid .5px hsl(0,0%,70%);
+    border-left: solid .5px #999;
 }
 thead {font-size: min(3vw,.7em);}
 tbody {font-size: min(2.75vw,.7em);}

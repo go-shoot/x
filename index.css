@@ -95,7 +95,7 @@ section {
         }
         :is(.ratchet,.bit)::before {
             background: var(--img) center / contain no-repeat !important;
-            filter: saturate(0) brightness(99);
+            filter: saturate(0) brightness(99) brightness(80%);
         }
     }
     table {margin: .5em auto;}

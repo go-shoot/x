@@ -125,6 +125,6 @@ Q('main').prepend(DB().then(() => {
         (await DB.get('product', place.id)).reverse().forEach(({eng, ...rest}) => 
             place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
         );
-    })()
+    })();
 }));
 </script>

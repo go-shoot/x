@@ -27,10 +27,9 @@ class Part {
         {group: json.abbr.split('.')[0], abbr: json.abbr.split('.')[1]} : {}
     )
     async tile () {
-        this.constructor == Blade && this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         let {path, stat} = this;
         !stat && this.push(await DB.get(...path));
-        this.constructor != Blade && await this.revise('tile');
+        await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
     }
     cell = () => new Cell(this)
@@ -54,7 +53,11 @@ class Blade extends Part {
         let {line, group, abbr, path} = this;
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
-    static revisions = {};
+    revised = {
+        attr: () => ['over', 'metal'].includes(this.group) || this.group == 'UX' && this.attr.includes('fused') ?
+            [...this.attr, 'expand'] : this.attr
+    }
+    static revisions = {tile: ['attr']};
     static CX = {3: ['chip', 'main', 'assist'], 4: ['chip', 'metal', 'over', 'assist']}
 }
 class Ratchet extends Part {
@@ -68,7 +71,7 @@ class Ratchet extends Part {
             return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
         },
         attr: () => this.attr ??= ['normal'],
-        stat: base => this.stat.length === 1 ? this.stat.concat(base.stat.slice(1)) : this.stat
+        stat: base => this.stat.length === 1 ? [...this.stat, ...base.stat.slice(1)] : this.stat
     }
     static revisions = {tile: ['group', 'names', 'attr', 'stat']};
     static eng = {
@@ -147,6 +150,7 @@ class Tile extends HTMLElement {
     static hue = {};
     static icons = new O([
         [/^[A-Z]+X$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
+//        [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
         [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
         [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
         [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]

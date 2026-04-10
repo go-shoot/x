@@ -68,7 +68,7 @@ main {
         outline: .15em solid var(--theme); border-radius: 8em;
         font-size: 1.25em; line-height: 2em; 
         text-align: center;
-        color: var(--on) !important;
+        color: white;
         position: relative;
         margin-left: .3em;
         pointer-events: initial;
@@ -122,7 +122,7 @@ details:has(#filter) {
         position: relative;
         font-size: .9em;
         
-        &.¬ img {filter: saturate(0) brightness(99);}
+        &.¬ img {filter: saturate(0) brightness(99) brightness(80%);}
     }
     fieldset:not(#line) label::after {
         content: '';
@@ -149,13 +149,10 @@ details:has(#filter) {
 tr {
     cursor: pointer;
 }
-th:not([data-sortedby])::before {
+th:not(:has(input:checked))::before {
     text-shadow: none;
     color: dimgray;
 }
 tfoot {
     visibility: hidden;
-}
-.note .tablesorter-header-inner {
-    font-size: 0.75em;
 }

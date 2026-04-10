@@ -1,5 +1,5 @@
 [
-  ["BXG-57","St H","Ev.Ar.B 0-70 E",{"coat":"darkorange"}],
+  ["BXG-57","St H","Ev.Ar.B 0-70 E","UpB6BMBKq2w",{"coat":"darkorange"}],
   ["BXG-57","St H","Ev.Br.A 1-70 V",{"coat":"blueviolet"}],
   ["BXG-57","St H","Ev.Bs.T 2-70 A",{"coat":"crimson"}],
   ["BXG-51","B H","Dr.Br.S 6-60 V",{"coat":"black"}],
@@ -11,8 +11,8 @@
   ["BXA-04","St","Mile 1-60 GN"],["BXA-04","St","Gree 9-80 HT"],
   ["BXA-03","St","Capt 4-70 GB"],["BXA-03","St","Redh 1-80 R"],
   ["BXG-61","B H","ScSp 0-70 Z",{"coat":"mediumvioletred","get":"A"}],
-  ["UX-19","S","BlGr = H"],["BXC-?1","Lm H","Bh.Bl.B.K 1-50 I"],
-  ["BXG-21","S","S2 2-70 M"],
+  ["UX-19","S","BlGr = H"],["BXC-?1","Lm H","Bh.Bl.B.K 1-50 I",{"coat":"yellow","get":"J"}],
+  ["BXG-21","S","S2 2-70 M","Il8N6kxpbxs"],
   ["CX-16","SS H","Bh.Bl.B.K 1-50 I","9lqPf__Jlgs"],
   ["CX-15","B","Rg.Rg.F.E 4-55 Y","Elq5yngup_c"],["CX-14","S","Kn.Fr.G.V 8-70 GN","Elq5yngup_c"],
   ["CX-13","S","Bh.Bl.B.K 1-50 I","9lqPf__Jlgs"],
