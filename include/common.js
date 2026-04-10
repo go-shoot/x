@@ -17,16 +17,18 @@ html::before {
     font-size: 3em; white-space: pre-wrap;
     display: flex; justify-content: center; align-items: center;
     background: black; 
+    padding: .25em;
     position: fixed; inset: 0;
     z-index: 9;
     @starting-style {color: black;}
 }`;
     navigator.serviceWorker?.register('/x/worker.js', {scope: '/x/'})
-    .then(() => {
-        if (!document.querySelector('link[href$="common.css"]')) return Promise.reject();
-        document.title.includes('🙼') || (document.title += ' 🙼 爆旋陀螺X ⬧ 戰鬥陀螺X ⬧ ベイブレードX ⬧ Beyblade X');
-        unsupported.remove();
-    }).catch(() => (sessionStorage.reloaded ||= 0) < 2 && ++sessionStorage.reloaded && setTimeout(() => location.reload(), 500));
+    .then(() => document.querySelector('link[href$="common.css"]') ? 
+        unsupported.remove() : Promise.reject()
+    ).catch(() => (sessionStorage.reloaded ||= 0) < 2 && 
+        ++sessionStorage.reloaded && setTimeout(() => location.reload(), 500)
+    );
+    document.title.includes('🙼') || (document.title += ' 🙼 爆旋陀螺X ⬧ 戰鬥陀螺X ⬧ ベイブレードX ⬧ Beyblade X');
 })();
 
 const Menu = () => {

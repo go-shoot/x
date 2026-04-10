@@ -22,19 +22,19 @@
     "assist": {
         "K": {
             "names": {"jap":"ナックル", "eng":"Knuckle"},
-            "stat": ["5="],
+            "stat": ["5=",100],
             "desc": "五枚刃中的一枚有重擊點，提升撞擊性能。",
             "attr": ["att","right"]
         },
         "V": {
             "names": {"jap":"ヴァーチカル", "eng":"Vertical"},
-            "stat": ["5+"],
+            "stat": ["5+",110],
             "desc": "向下方伸出的十二枚垂直刃阻止對Ratchet的攻擊，提高Burst抵耐性。",
             "attr": ["def","right"]
         },
         "E": {
             "names": {"jap":"イレイズ", "eng":"Erase"},
-            "stat": ["6="],
+            "stat": ["6=",120],
             "desc": "順滑連打刃使持久損失最小化，同時能活用持久力作連續攻擊。",
             "attr": ["sta","right"]
         },
@@ -118,6 +118,11 @@
         }
     },
     "chip":{
+        "Un": {
+            "names": {"jap":"ユニコーン", "eng":"Unicorn", "chi":"獨角"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
         "Ev": {
             "names": {"jap":"エヴァ", "eng":"Eva", "chi":""},
             "stat": ["2-"],
@@ -218,6 +223,12 @@
         }
     },
     "metal": {
+        "Dl": {
+            "names": {"jap":"デルタ", "eng":"Delta", "chi":""},
+            "stat": [""],
+            "desc": "",
+            "attr": ["bal","right"]
+        },
         "Rg": {
             "names": {"jap":"レイジ", "eng":"Rage", "chi":"狂怒"},
             "stat": ["27+"],

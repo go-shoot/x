@@ -86,7 +86,7 @@
                     "groups": {
                         "low":  {"label": "▃", "checked": true},
                         "mid":  {"label": "▅", "checked": true},
-                        "high": {"label": "▇"}
+                        "high": {"label": "▇", "checked": true}
                     },
                     "use": ["joint"]
                 },
