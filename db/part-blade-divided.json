@@ -1,5 +1,11 @@
 {"CX": {
     "over": {
+        "P": {
+            "names": {"jap":"ピーク", "eng":"Peak"},
+            "stat": [],
+            "desc": "",
+            "attr": ["bal","right"]
+        },
         "B": {
             "names": {"jap":"ブレイク", "eng":"Break"},
             "stat": ["4-"],
@@ -20,6 +26,12 @@
         }
     },
     "assist": {
+        "O": {
+            "names": {"jap":"オッド", "eng":"Odd"},
+            "stat": [],
+            "desc": "",
+            "attr": ["bal","right"]
+        },
         "K": {
             "names": {"jap":"ナックル", "eng":"Knuckle"},
             "stat": ["5=",100],
