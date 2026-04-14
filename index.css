@@ -226,3 +226,30 @@ time {
 .scroller:nth-of-type(even):not(.seeing) {
     transform: translateX(100%);
 }
+
+button:has(+#beginner) {
+    display: block; width: 100%;
+    background: var(--overlay1); color: var(--theme);
+    font-size: 2em;
+    margin-top: 1em; padding: .5em;
+}
+#beginner {
+    max-width: 50em; max-height: 100%;
+    overflow: scroll;
+    padding: 1em;
+    background: var(--backdrop); color: var(--on);
+
+    h3,h4 {
+        display: block; 
+        margin: 1em auto;
+    }
+    h3 {
+        font-size: 2em; letter-spacing: .5em;
+    }
+    img {
+        max-width: min(calc(var(--w,100)*1%),calc(var(--w,100)/100*20em));
+    }
+    a::before {
+        content: ''; color: var(--accent);
+    }
+}

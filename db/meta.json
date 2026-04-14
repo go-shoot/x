@@ -137,19 +137,19 @@
         },
         {
             "keywords": ["HK","Hong Kong","香港","tclub","facebook","fb"], 
-            "href": "//facebook.com/tclubfanshk", "text": " 🇭🇰🇲🇴官方比賽"
+            "href": "//facebook.com/tclubfanshk", "text": "🇭🇰🇲🇴官方比賽 "
         },
         {
             "keywords": ["HK","Hong Kong","香港","tclub","instagram","ig"], 
-            "href": "//instagram.com/tclub_hk", "text": " 🇭🇰🇲🇴官方比賽"
+            "href": "//instagram.com/tclub_hk", "text": "🇭🇰🇲🇴官方比賽 "
         },
         {
             "keywords": ["TW","Taiwan","台灣","facebook","fb"], 
-            "href": "//facebook.com/Beyblade2016", "text": " 🇹🇼官方比賽"
+            "href": "//facebook.com/Beyblade2016", "text": "🇹🇼官方比賽 "
         },
         {
             "keywords": ["TW","Taiwan","台灣","instagram","ig"], 
-            "href": "//instagram.com/beyblade.tw", "text": " 🇹🇼官方比賽"
+            "href": "//instagram.com/beyblade.tw", "text": "🇹🇼官方比賽 "
         },
         {
             "keywords": ["manga","corocoro","快樂快樂","最新資訊","コロコロ"],
@@ -169,7 +169,7 @@
         },
         {
             "keywords": ["Takara Tomy","日本","影片","最新情報資訊"],
-            "href": "//youtube.com/@BEYBLADEOfficialYouTube/videos", "text": "官方 Youtube"
+            "href": "//youtube.com/@BEYBLADEOfficialYouTube/videos", "text": "官方 "
         },
         {
             "keywords": ["日本","最新產品"],
@@ -177,11 +177,11 @@
         },
         {
             "keywords": ["iPhone","APP Store","應用程式","分數","抽獎","QR Code","通行證","BeyBattlePass"],
-            "href": "//apps.apple.com/tw/app/beyblade-x/id1670801696", "text": "官方 APP iOS"
+            "href": "//apps.apple.com/tw/app/beyblade-x/id1670801696", "text": "官方APP iOS"
         },
         {
             "keywords": ["Google Play Store","應用程式","分數","抽獎","QR Code","通行證","BeyBattlePass"],
-            "href": "//play.google.com/store/apps/details?id=jp.co.takaratomy.beyblade", "text": "官方 APP Android"
+            "href": "//play.google.com/store/apps/details?id=jp.co.takaratomy.beyblade", "text": "官方APP Android"
         },
         {
             "keywords": ["X","Twitter","推特","最新情報資訊","日本"],
@@ -189,15 +189,15 @@
         },
         {
             "keywords": ["iPhone","APP Store","應用程式","分數","通行證","BeyBattlePass"],
-            "href": "//apps.apple.com/tw/app/beyblader-helper/id6747081690", "text": "發射力測量替代 APP iOS"
+            "href": "//apps.apple.com/tw/app/beyblader-helper/id6747081690", "text": "發射力測量替代APP iOS"
         },
         {
             "keywords": ["Google Play Store","應用程式","分數","通行證","BeyBattlePass"],
-            "href": "//play.google.com/store/apps/details?id=com.burnie.Fake", "text": "發射力測量替代 APP Android"
+            "href": "//play.google.com/store/apps/details?id=com.burnie.Fake", "text": "發射力測量替代APP Android"
         },
         {
             "keywords": ["TIER","強勢"],
-            "href": "//bbxweekly.com/2weeks", "text": "WBO 比賽部件統計"
+            "href": "//bbxweekly.com/2weeks", "text": "WBO比賽部件統計"
         }
     ]
 }]
