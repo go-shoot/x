@@ -7,7 +7,7 @@ class Shohin {
         Shohin.beys.push(this);
         let content = Shohin.zip([desc ?? []].flat(), imgs ?? [])
             .map(srcORtext => srcORtext.startsWith('http') ? 
-                Shohin.figure(srcORtext) : E('p', {innerHTML: Markup.spacing(srcORtext)})
+                Shohin.figure(srcORtext) : E('p', {innerHTML: srcORtext})
             );
         return this.div = E('div', [
             E('h5', [type ? Shohin.ruby(type) : '', header]),
@@ -66,13 +66,13 @@ class Keihin {
         let {line, names: {jap, chi}} = new Bey(bey);   
         return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 
-            E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, Markup.spacing(note)),
+            E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note),
             E('div', [
                 E('figure>img', {src, style}), 
                 E('h4', {lang: 'ja'}, [
                     E('code', code.includes('?') ? '' : code.replace('-', '‒').replace(/_.+$/, '')), 
                     E('span', jap), 
-                    E('small', Markup.spacing(ver?.[0]) ? {
+                    E('small', ver?.[0] ? {
                         classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
                         innerHTML: ver[0]
                     } : '')
@@ -211,7 +211,7 @@ Object.assign(Glossary, {
             E('dfn', [
                 E('ruby', term, E('rt', jap.split('&')[0])),
                 ' ', jap.split('&')[1] ?? ''
-            ]), Markup.spacing(def)
+            ]), def
         ]);
         aside.showPopover();
         Glossary.timer = setTimeout(() => {
@@ -273,8 +273,7 @@ Object.assign(Markup, {
         let [r, f] = Markup[which].find(([r]) => r.test(string)) ?? [];
         return f?.(r.exec(string), values) ?? string;
     },
-    remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? '',
-    spacing: text => text?.replace(/(?<=\w)(?=[一-龢ぁ-ヴ])/g, ' ').replace(/(?<=[一-龢ぁ-ヴ])(?=\w)/g, ' ') ?? ''
+    remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? ''
 });
 
 export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}

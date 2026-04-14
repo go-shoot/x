@@ -131,7 +131,7 @@ class Tile extends HTMLElement {
             E('figure>img', {src: `/x/img/${path.join('/')}.png`}),
             E('slot'),
             E('ul', this.html.icons()),
-            E('p', Markup.spacing(desc)),
+            E('p', desc),
             ...this.html.stat(),
             ...this.html.names(),
             E('svg', {viewBox: '-75 -75 150 150'}, META.types.map(t => E(`use.${t}`, {href: '#triangle'}))),
@@ -169,7 +169,8 @@ Object.assign(Tile.prototype.html, {
             hue: Tile.hue[selector],
             ...spin ? {[attr?.find(a => a == 'left' || a == 'right')]: ''} : {}
         };
-        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;
+        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;
+        //return `/x/parts/bg.svg#${new URLSearchParams(param)}`;
     },
     icons () {
         let {line, group, attr} = this.Part;

@@ -66,12 +66,12 @@ class Group {
         let details = E('details', [
             E('summary', [
                 E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
-                E('small', Markup.spacing(desc)),
+                E('small', desc),
                 E('picture', {style: {
                     background: `url(${Board.src(src, code)}) center / ${size?.width || (size || 150) + '%'}`
                 }})
             ]),
-            E('p', {innerHTML: Markup.spacing(Q(`[id='${eng}']`)?.innerHTML)}),
+            E('p', {innerHTML: Q(`[id='${eng}']`)?.innerHTML}),
             E('ol.boards')
         ]);
         details.Q('summary').addEventListener('click', async () => {

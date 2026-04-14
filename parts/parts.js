@@ -1,6 +1,6 @@
 import DB from '../include/DB.js'
 import { Part } from '../parts/part.js';
-import { Glossary, Markup, FilterForm, Transition } from '../include/utilities.js';
+import { Glossary, FilterForm, Transition } from '../include/utilities.js';
 
 let META, PARTS;
 let [COMP, LINE] = [...new URLSearchParams(location.search)][0] ?? [];
@@ -49,7 +49,7 @@ Object.assign(Parts, {
     info (group) {
         document.title = document.title.replace(/^.*?(?= ■ )/, META.title?.[group] ?? META.title ?? '');
         let info = COMP + (LINE ? `.${LINE}` : '');
-        Q('details').hidden = !(Q('details p').innerHTML = Markup.spacing(Q(`[id='${info}']`)?.innerHTML));
+        Q('details').hidden = !(Q('details p').innerHTML = Q(`[id='${info}']`)?.innerHTML);
     },
     focus (tile) {
         Q('.target')?.classList.remove('target');

@@ -157,6 +157,7 @@ html {
     background: var(--backdrop); --backdrop: hsl(var(--hue),30%,5%); 
     --overlay1: hsla(var(--hue),20%,15%,.9); --overlay2: hsla(var(--hue),10%,25%,.9);
     color: var(--on); --on: #ccc;
+    text-autospace: normal;
     --hue: 87; --theme: #b5fb5c; 
     --theme-dark: color-mix(in srgb,var(--theme) 35%,black);
     --accent: hsl(45,90%,48%);
