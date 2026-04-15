@@ -41,7 +41,7 @@ Object.assign(Table, {
 
         Q('.links').onclick = ({target: {tagName, href, parentElement}}) => tagName == 'A' ? 
             gtag('event', `link-${href.includes('obake') ? 'ob' : 'ph'}-${parentElement.title}`) : '';
-        new MutationObserver(([{target}]) => target.title == '' && target.childNodes.forEach((a, i) => 
+        new MutationObserver(([{target}]) => target.title == '' && [...target.children].forEach((a, i) => 
             a.href = ['//beyblade.phstudy.org', 'http://obakeblader.com/?s=入手法'][i]
         )).observe(Q('.links'), {attributeFilter: ['title']});
     },
