@@ -71,7 +71,7 @@ class Group {
                     background: `url(${Board.src(src, code)}) center / ${size?.width || (size || 150) + '%'}`
                 }})
             ]),
-            E('p', {innerHTML: Q(`[id='${eng}']`)?.innerHTML}),
+            E('p', {innerHTML: Q(`[id='${eng}']`)?.innerHTML ?? ''}),
             E('ol.boards')
         ]);
         details.Q('summary').addEventListener('click', async () => {
@@ -95,7 +95,7 @@ class Board {
     constructor([code, classList, src, style]) {
         return E('li', [
             E('code', {
-                innerHTML: code, 
+                innerHTML: code.replaceAll('-' ,'‑'), 
                 onclick: ev => classList.includes('Lm') ? open(src) : new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
             }),
             E('figure>img', {

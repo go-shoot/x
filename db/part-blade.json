@@ -6,7 +6,7 @@
             "eng": "DranStrike",
             "chi": "蒼龍突擊"
         },
-        "stat": [""],
+        "stat": ["41+"],
         "desc": "金屬連接至中央能提高剛性；重量級的六枚刃作強烈連打攻擊。",
         "attr": ["att","right","expand"]
     },

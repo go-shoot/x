@@ -75,7 +75,8 @@
         font-size: .75em;
         margin-left: .2em;
         letter-spacing: .1em;
-    
+        position: relative;
+
         span {
             -webkit-text-stroke: var(--type) .1em; paint-order: stroke fill;
             transform: translateX(calc(50%*(var(--s) - 1) + .025em)) scale(var(--s)); --s: .95;
@@ -83,17 +84,13 @@
             margin-right: calc((2em + var(--gap))*(var(--s) - 1));
         }
         sub {
-            position: absolute; top: anchor(top); bottom: anchor(bottom);
-            margin-left: .2em;
+            position: absolute; 
+            margin: .05em 0 0 .2em;
             display: inline-flex; align-items: center;
-            max-width: 2em;
+            width: 2em; height: 100%;
             font-size: .6em;
             letter-spacing: 0; line-height: 1;
         }
-        &:nth-child(1 of .chi) span {anchor-name: --name1;}
-        &:nth-child(1 of .chi) sub {position-anchor: --name1;}
-        &:nth-child(2 of .chi) span {anchor-name: --name2;}
-        &:nth-child(2 of .chi) sub {position-anchor: --name2;}
     }
     &.jap,&.eng {
         writing-mode: vertical-lr;

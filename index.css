@@ -229,8 +229,8 @@ time {
 
 button:has(+#beginner) {
     display: block; width: 100%;
-    background: var(--overlay1); color: var(--theme);
-    font-size: 2em;
+    background: #00000066; color: var(--theme);
+    font-size: 1.5em;
     margin-top: 1em; padding: .5em;
 }
 #beginner {
