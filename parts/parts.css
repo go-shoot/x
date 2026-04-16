@@ -23,7 +23,6 @@ nav {
         &:not(:empty)::after {
             content: '款';
             font-size: .9rem;
-            margin-left: .1em;
             vertical-align: .05em;
         }
         @media (min-width:631px) {

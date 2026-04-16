@@ -112,17 +112,16 @@
             border-style: solid;
         }
     }
-    code {
-        position: relative;
-        display: block;
+    div {
         margin: -.7em auto .3em auto;
-        width: 75%;
-        white-space: pre-wrap;
-        line-height: 1.4em;
-        font-size: .85em; color: deepskyblue;
-        cursor: pointer;
-        
-        &::before,&::after {color: var(--on);}
+        max-width: 70%;
+        z-index: 1; position: relative;
+
+        code {
+            line-height: 1.4em;
+            font-size: .85em; color: deepskyblue;
+            cursor: pointer;    
+        }
     }
     figure {
         width: 9em; height: 9em;
@@ -137,17 +136,17 @@
         position: absolute; bottom: 1.4em; right: 1.7em;
         font-size: .7em; color: black;
     }
-    code::before,code::after {
+    div::before,div::after {
         position: absolute; top: -.7em;
     }
 }
-.r code::after,label:has([value='.r'])::after {
+.r div::after,label:has([value='.r'])::after {
     content: "\e01e";
-    right: -1.2em;
+    right: -1.5em;
 }
-.l code::before,label:has([value='.l'])::after {
+.l div::before,label:has([value='.l'])::after {
     content: "\e01d";
-    left: -1.2em;
+    left: -1.5em;
 }
 
 .scroller {

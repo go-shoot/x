@@ -3,7 +3,7 @@
     const q = Object.fromEntries([...new URLSearchParams(location.search || location.hash.substring(1))].map(([p, v]) => [p, v || true]));
     const Q = el => document.querySelector(el);
     const add = (html, where) => where.insertAdjacentHTML('beforeend', html);
-    const root = document.querySelector(':root');console.log(q);
+    const root = document.querySelector(':root');
     root.style.setProperty('--hue', q.hue ?? 60);
     root.style.setProperty('--base-l', (q.hue == 245 ? 5 : q.hue == 200 ? 2.5 : 0) + '%');
     // ]]></script>

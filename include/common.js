@@ -28,7 +28,8 @@ html::before {
     ).catch(() => (sessionStorage.reloaded ||= 0) < 2 && 
         ++sessionStorage.reloaded && setTimeout(() => location.reload(), 500)
     );
-    document.title.includes('🙼') || (document.title += ' 🙼 爆旋陀螺X ⬧ 戰鬥陀螺X ⬧ ベイブレードX ⬧ Beyblade X');
+    document.title.includes('🙼') || (document.title += ' 🙼 爆旋陀螺X⬧戰鬥陀螺X⬧ベイブレードX⬧Beyblade X');
+    document.title = document.title.replaceAll(/(?<! )⬧(?! )/g, ' $& ');
 })();
 
 const Menu = () => {

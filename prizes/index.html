@@ -1,4 +1,4 @@
-<title>陀螺景品 ⬧ Prizes</title>
+<title>景品</title>
 <script src=../include/common.js></script>
 <script src=https://aeoq.github.io/diamond-grid/script.js type=module></script>
 <link rel=stylesheet href=prize.css>
@@ -22,7 +22,7 @@
 
 <script type="module">
 import { Bey } from '../parts/bey.js'
-import { FilterForm, Keihin } from '../include/utilities.js'
+import { FilterForm, Keihin, Markup } from '../include/utilities.js'
 
 const Prize = () => Prize.before().then(Prize.display).then(Prize.after);
 Object.assign(Prize, {
@@ -54,7 +54,7 @@ Object.assign(Prize, {
             let h4 = ev.target.closest('h4')?.cloneNode(true);
             if (!h4) return;
             h4.Q('code')?.remove();
-            navigator.clipboard.writeText(h4.innerText.replaceAll(' ', '').replaceAll('‑', '-'));
+            navigator.clipboard.writeText(Markup.reverse(h4.innerText));
         }
         let target = Q(`[id='${decodeURI(location.hash.substring(1))}']`);
         target?.scrollIntoView();

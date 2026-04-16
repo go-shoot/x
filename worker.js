@@ -1,9 +1,7 @@
 self.addEventListener('install', ev => {
     self.skipWaiting();
     ev.waitUntil(
-        caches.open('X').then(cache => cache.addAll([
-            Head.url, '/x/parts/bg.svg', '/x/bg.mp4'
-        ]))
+        caches.open('X').then(cache => cache.addAll([Head.url]))
     );
 });
 self.addEventListener('activate', ev => ev.waitUntil(clients.claim()));
@@ -22,7 +20,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
             return is.html(req.url) ? Head.inject(cached || fetched) : cached || fetched;
         })
         .catch(er => {
-            if (`${er}`.includes('Failed to fetch')) return;
+            if (/failed/i.test(er.message)) return;
             console.error(req.url);
             console.error(er);
             new URLPattern({hostname: location.host, pathname: '/x/'}).test(req.url) && self.registration.unregister();
@@ -47,11 +45,12 @@ Object.assign(actions, {
 const is = {
     internal: url => location.host == new URL(url).host,
     cacheable: url => is.internal(url) && !/\.json$/.test(new URL(url).pathname) 
-        || ['fonts.googleapis.com', 'aeoq.github.io'].includes(new URL(url).host) 
-        || [/cdn\.?js/, /firacode/].some(r => r.test(url)),
+        || ['aeoq.github.io'].includes(new URL(url).host) 
+        || [/cdn\.?js/, /fonts\./].some(r => r.test(url)),
     volatile: url => is.internal(url) && /\.(?:js|css|json)$/.test(new URL(url).pathname),
     part: url => is.internal(url) && new URLPattern({pathname: '/x/img/*/*.png'}).test(url),
     html: url => new URLPattern({pathname: '*(/|.html)'}).test(url),
+    font: url => new URL(url).host.includes('fonts.')
 }
 const to = {
     random: req => new Request(`${req.url}?${Math.random()}`, req),
@@ -64,7 +63,8 @@ fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(
         if (!res.url || !res.ok || res.status == 206 || !is.cacheable(req.url))
             return res;
         let cloned = res.clone();
-        caches.open(is.part(res.url) ? 'X/parts' : 'X').then(cache => cache.put(to.stripped(res), cloned)); 
+        caches.open(is.part(res.url) ? 'X/parts' : is.font(res.url) ? 'X/fonts' : 'X')
+        .then(cache => cache.put(to.stripped(res), cloned)); 
         return res;
     });
 

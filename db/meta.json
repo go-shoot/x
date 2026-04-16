@@ -56,7 +56,7 @@
                         "hasbro": {"label": "未出"}
                     }
                 },
-                "title": "【UX】【BX】刃擊環 ⬧ 鋼鐵戰刃 ⬧ Blade"
+                "title": "【UX】【BX】刃擊環⬧鋼鐵戰刃⬧Blade"
             },
             "CX": {
                 "filter": {
@@ -71,11 +71,11 @@
                     "multi": false
                 },
                 "title": {
-                    "chip": "【CX】紋章鎖 ⬧ 鎖定紋章 ⬧ Lock Chip",
-                    "main": "【CX】主刃 ⬧ 主要戰刃 ⬧ Main Blade",
-                    "over": "【CX】超越刃 ⬧ 超越戰刃 ⬧ Over Blade",
-                    "metal": "【CX】金屬刃 ⬧ 鋼鐵戰刃 ⬧ Metal Blade",
-                    "assist": "【CX】支援刃 ⬧ 輔助戰刃 ⬧ Assist Blade",
+                    "chip": "【CX】紋章鎖⬧鎖定紋章⬧Lock Chip",
+                    "main": "【CX】主刃⬧主要戰刃⬧Main Blade",
+                    "over": "【CX】超越刃⬧超越戰刃⬧Over Blade",
+                    "metal": "【CX】金屬刃⬧鋼鐵戰刃⬧Metal Blade",
+                    "assist": "【CX】支援刃⬧輔助戰刃⬧Assist Blade",
                     "hasbro": "【CX】未出"
                 }
             }
@@ -90,7 +90,7 @@
                     },
                     "use": ["joint"]
                 },
-                "title": "核輪 ⬧ 固鎖輪盤 ⬧ Ratchet"
+                "title": "核輪⬧固鎖輪盤⬧Ratchet"
             }
         },
         "bit": {
@@ -110,7 +110,7 @@
                     },
                     "variety": {"H,L,U":"\ue047","M,R":"\ue04a","B,F,T":"\ue049","G":"\ue048","D,W":"\ue04b"}
                 },
-                "title": "軸心 ⬧ Bit"
+                "title": "軸心⬧Bit"
             }
         }
     }

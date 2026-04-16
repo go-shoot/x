@@ -249,7 +249,10 @@ button:has(+#beginner) {
     img {
         max-width: min(calc(var(--w,100)*1%),calc(var(--w,100)/100*20em));
     }
-    a::before {
+    a img {
+        height: 8em;
+    }
+    a[href^=https]::before {
         content: ''; color: var(--accent);
     }
 }

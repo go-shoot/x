@@ -186,7 +186,7 @@ Object.assign(Tile.prototype.html, {
         return [
             this.Part.only.name() ? 
                 Markup('tile', names.chi, divide.chi)?.map(els => E('h5.chi', els)) ?? '' : 
-                E('h4', path.at(-1).replace('-', '‒')), 
+                E('h4', Markup.figure(path.at(-1))), 
             names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup('tile', names[l], divide.eng)[0])) : ''
         ].flat(9);
     },

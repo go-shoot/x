@@ -12,8 +12,8 @@ class Shohin {
         return this.div = E('div', [
             E('h5', [type ? Shohin.ruby(type) : '', header]),
             E('h4', [
-                E('strong', name?.[0].replaceAll('-', '‑') ?? ''), E('small', ver?.[0] ?? ''),
-                E('strong', name?.[1].replaceAll('-', '‑') ?? ''), E('small', ver?.[1] ?? '')
+                E('strong', Markup.nobreak(name?.[0])), E('small', ver?.[0] ?? ''),
+                E('strong', Markup.nobreak(name?.[1])), E('small', ver?.[1] ?? '')
             ]),
             ...content
         ], {classList: [`scroller`, Shohin.classes.find(header, {default: 'Lm'})]});
@@ -66,11 +66,11 @@ class Keihin {
         let {line, names: {jap, chi}} = new Bey(bey);   
         return E(`article.keihin-${type}.${line}`, [
             E('em', Keihin.type[type]), 
-            E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note),
+            E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note), //DMM
             E('div', [
-                E('figure>img', {src, style}), 
+                E('figure>img', {src, style: typeof style == 'object' ? style : {width: style + '%'}}), 
                 E('h4', {lang: 'ja'}, [
-                    E('code', code.includes('?') ? '' : code.replace('-', '‒').replace(/_.+$/, '')), 
+                    E('code', code.includes('?') ? '' : Markup.figure(code).replace(/_.+$/, '')), 
                     E('span', jap), 
                     E('small', ver?.[0] ? {
                         classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
@@ -79,7 +79,7 @@ class Keihin {
                 ]),
             ]),
             E('h4', {lang: 'zh'}, [chi || '　', E('small', ver?.[1] ?? '')]),
-            E('time', date.replace('-','‒'))
+            E('time', Markup.figure(date))
         ], {id: Keihin.id(bey, ver)});
     }
     static id = (bey, ver) => `${bey.split(' ')[0]}${ver ? `–${ver[1].match(/\w+(?!.*:)|\w+$/)?.[0]}` : ''}`
@@ -235,7 +235,7 @@ const Markup = (where, string, divide = true) => {
 }
 Object.assign(Markup, {
     split: /(?<=.+?) (?=[一-龢].+)/,
-    cell: [[/[/\\]/g, ''], [/(?<=[a-z]{2,})(?=[A-Z])/, ' '], [' ', ' ']],
+    cell: [[/[/\\]/g, ''], [/(?<=[a-z]{2,})(?=[A-Z])/, ' ']],
     tile: new O([ //mode first so that _mode won't be sticking to span
         [/(.+)\\(.+)/, ([, $1, $2]) => [$1, E('span', $2)]],
         [/(.+)\/(.+)/, ([, $1, $2]) => [E('span', $1), $2]],
@@ -273,7 +273,10 @@ Object.assign(Markup, {
         let [r, f] = Markup[which].find(([r]) => r.test(string)) ?? [];
         return f?.(r.exec(string), values) ?? string;
     },
-    remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? ''
+    remove: name => name?.replaceAll(/[_\/\\]/g, '') ?? '',
+    figure: text => text?.replaceAll('-', '‒') ?? '',
+    nobreak: text => text?.replaceAll('-', '‑') ?? '',
+    reverse: text => text.replaceAll(/[‑‒]/g, '-')
 });
 
 export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}

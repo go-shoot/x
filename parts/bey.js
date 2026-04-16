@@ -40,11 +40,11 @@ class Bey {
         names.chi = [...new Set([...names.chi.values()])].filter(n => n);
         names.chi.length > 1 ? 
             names.chi[0] = names.chi[0].replace(/[^一-龢]+$/, '') : /^[^一-龢]+$/.test(names.chi[0]) && (names.chi = '');
-        names.chi &&= [names.chi.join('⬧'), ' ', this.ratchet.abbr, this.bit.abbr].join('').replace('-', '‑');
+        names.chi &&= [names.chi.join('⬧'), Markup.nobreak(this.ratchet.abbr), this.bit.abbr].join('');
 
         names.jap = Array.isArray(this.blade) ? 
             this.blade.map((b, i, ar) => ar[0] && ar[1] && i >= 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
-        names.jap = [names.jap, ' ', this.ratchet.abbr, this.bit.abbr].flat().join('').replace('-', '‑');
+        names.jap = [names.jap, Markup.nobreak(this.ratchet.abbr), this.bit.abbr].flat().join('');
         this.names = names;
     }}}
     static comps = ['blade', 'ratchet', 'bit']
@@ -184,6 +184,7 @@ class Preview {
     }
     #image = {
         revisions: ({code, video}) => {
+            code = Markup.reverse(code);
             video ??= Q(`[data-code='${code}'][data-video]`)?.dataset.video;
             let {lowercase, amount} = this.#image.params(code);
             let {alias, _, ...markup} = Maps.images.find(code) ?? {};

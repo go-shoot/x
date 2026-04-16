@@ -20,7 +20,7 @@ class Cache {
     static link = ([comp, line, group], title, label) => ({                        
         keywords: ['零件','部件','組件','圖鑑', ...title.split(/[【⬧】]/)],
         href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
-        text: (label || title).match(/[一-龥]+( ⬧ )?[一-龥]+/)?.[0] || label || title
+        text: (label || title).match(/[一-龥]+⬧?[一-龥]+/)?.[0] || label || title
     })
     static flatten = parts => parts instanceof O ? [...parts.values()].map(Cache.flatten).flat() : parts
     static types = {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}
@@ -90,6 +90,7 @@ class Input {
             clearTimeout(Search.timer);
             Input.field.value.trim() && (Search.timer = setTimeout(new Search, 500));
         }
+        onhashchange = () => location.hash && new Search(location.hash.substring(1));
     }
 }
 Input.events();
@@ -97,7 +98,7 @@ class Search {
     constructor(query) {
         (CACHE ? Promise.resolve() : new Cache()).then(cache => {
             CACHE ??= cache;
-            query && (Input.field.value = query);
+            query && (Input.field.value = decodeURI(query));
             let targets = new Input().targets;
             this.show('parts', targets);
             targets = [...targets.free].join('');
@@ -197,7 +198,7 @@ Q('header').after(DB(plugins).then(() => {
 
     const reset = message => Promise.all([
         DB.discard(ev => message.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
-        caches.delete('X'), caches.delete('X/parts'),
+        caches.delete('X'), caches.delete('X/parts'), caches.delete('X/fonts'),
         localStorage.clear(), sessionStorage.clear(),
         navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
     ]).then(() => {

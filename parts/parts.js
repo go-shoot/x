@@ -47,7 +47,7 @@ Object.assign(Parts, {
         Glossary(Parts.place);
     },
     info (group) {
-        document.title = document.title.replace(/^.*?(?= ■ )/, META.title?.[group] ?? META.title ?? '');
+        document.title = document.title.replace(/^.*?(?= 🙼 )/, META.title?.[group] ?? META.title ?? '').replaceAll(/(?<! )⬧(?! )/g, ' $& ');
         let info = COMP + (LINE ? `.${LINE}` : '');
         Q('details').hidden = !(Q('details p').innerHTML = Q(`[id='${info}']`)?.innerHTML);
     },

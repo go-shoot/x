@@ -8,7 +8,6 @@ nav {
         &:not(:empty)&::after {
             content: '結果';
             font-size: .7rem;
-            margin-left: .1em;
         }
     }
     label:has(input[type=search]) {

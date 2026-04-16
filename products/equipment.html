@@ -1,5 +1,5 @@
 
-<title>陀螺產品 ⬧ Products</title>
+<title>發射器 / 對戰盤 / 工具 / 配件</title>
 <script src=../include/common.js></script>
 <style>
     main {
@@ -62,13 +62,13 @@ Q('nav form').append(Filter);
 
 class Group {
     constructor({eng, jap, desc, colors}) {
-        let [code, , src, size] = colors[1] || colors[0];
+        let img = new Board(colors[1] || colors[0]).Q('img');
         let details = E('details', [
             E('summary', [
                 E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
                 E('small', desc),
                 E('picture', {style: {
-                    background: `url(${Board.src(src, code)}) center / ${size?.width || (size || 150) + '%'}`
+                    background: `url(${img.src}) center / ${img.style.width || (img.style || 150) + '%'}`
                 }})
             ]),
             E('p', {innerHTML: Q(`[id='${eng}']`)?.innerHTML ?? ''}),
@@ -76,11 +76,10 @@ class Group {
         ]);
         details.Q('summary').addEventListener('click', async () => {
             let beys = await DB.get('product', 'beys');
-            colors.forEach(item => item[1] += ' ' + (
+            details.Q('ol').append(...colors.map(item => new Board(item,              
                 /BX[CH]/.test(item[0]) ? 'Lm' :
                 beys.find(([code]) => code.includes(item[0].split(' ')[0]))?.[1].split(' ')[0] ?? 'B'
-            ));
-            details.Q('ol').append(...colors.map(item => new Board(item)));
+            )));
             FilterForm.event(Q('.boards li'));
             document.forms[0].onreset();
         }, {once: true});
@@ -92,28 +91,30 @@ class Group {
     }
 }
 class Board {
-    constructor([code, classList, src, style]) {
+    constructor(content, type = '') {
+        content = [...content]; //preview popped
+        let img = typeof content.at(-1) == 'object' ? content.pop() : [];
+        let {true: src, false: style} = Object.groupBy(img, c => typeof c == 'string');
+        [src, style] = [src?.[0], style?.[0]];
+        let [code, classes] = content;
         return E('li', [
-            E('code', {
-                innerHTML: code.replaceAll('-' ,'‑'), 
-                onclick: ev => classList.includes('Lm') ? open(src) : new Preview('image', {code: code.split(/[\/ ]/)[0]}, ev)
-            }),
+            E('div', ...code.split(' ').flatMap(c => [E('code', Markup.nobreak(c)), ' '])),
             E('figure>img', {
-                src: Board.src(src, code), alt: code, 
+                src: this.src(code, src), alt: code, 
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
             }),
-            ...classList.split(' ').map(c => Board.winder[c]?.cloneNode(true) ?? '')
-        ], {classList});
+            ...classes?.split(' ').map(c => Board.winder[c]?.cloneNode(true) ?? '') ?? []
+        ], {classList: classes + (type ? ' ' + type : '')});
     }
-    static winder = {
-        dragon: E('b', 'DRAGON'),
-        long: E('b', 'LONG')
-    }
-    static src = (src, code) => {
+    src = (code, src) => {
         src = !src || /^\d/.test(src) ? 
             code.split(' ')[0].replace('-', '') + (src ? `_${src.padStart(2, '0')}` : '') + '@1' : src;
         return /^[A-Z]X[A-Z]?\d/i.test(src) ? 
             `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/${src}.png` : src;
+    }
+    static winder = {
+        dragon: E('b', 'DRAGON'),
+        long: E('b', 'LONG')
     }
 }
 Q('main').prepend(DB().then(() => {
@@ -126,5 +127,10 @@ Q('main').prepend(DB().then(() => {
             place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
         );
     })();
+    Q('main').onclick = ev => ev.target.tagName == 'CODE' ? 
+        ev.target.parentElement.classList.contains('Lm') ? 
+            window.open(ev.target.parentElement.Q('img').src) : 
+            new Preview('image', {code: ev.target.innerText}, ev) 
+        : '';
 }));
 </script>
