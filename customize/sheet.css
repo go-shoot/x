@@ -27,12 +27,12 @@ nav {
         display: inline-block; line-height: 1.3rem;
     }
     .toggle {
-        display: inline-flex;
+        display: none; /*inline-flex;*/
         font-size: calc(1.3em/2.25);
         vertical-align: middle;
         margin-right: .25em;
     }
-    .toggle+small {font-size: .8em;}
+    .toggle+small {font-size: .8em; display: none;}
 }
 main {
     max-width: 30em;
