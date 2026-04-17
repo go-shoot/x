@@ -39,6 +39,7 @@ main {
     margin: 4.15rem auto 0 auto;
     display: grid; grid-template-columns: auto 1fr;
     user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
     position: relative;
 
     db-state {display: none;}

@@ -121,9 +121,13 @@ Object.assign(App, {
         Q('#export,#download,#sample', button => button.onclick = App[button.id]);
         Q('#import').onchange = App.import;
 
-        onkeydown = ev => ev.key == 'Control' ? Q('#fine').click() : 
-            ev.key == 'ArrowUp' ?   Layers.selected.previousSibling?.click() :
+        onkeydown = ev => {
+            if (ev.target.tagName.includes('KNOB')) 
+                return ev.key == 'Enter' ? ev.target.sQ('input').onblur() : '';
+            ev.key == 'Control' ? Q('#fine').click() : 
+            ev.key == 'ArrowUp' ? Layers.selected.previousSibling?.click() :
             ev.key == 'ArrowDown' ? Layers.selected.nextSibling?.click() : null;
+        }
         onhashchange = App.switch;
     }
 });
