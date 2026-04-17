@@ -128,7 +128,7 @@ Q('main').prepend(DB().then(() => {
         );
     })();
     Q('main').onclick = ev => ev.target.tagName == 'CODE' ? 
-        ev.target.parentElement.classList.contains('Lm') ? 
+        ev.target.closest('li').classList.contains('Lm') ? 
             window.open(ev.target.parentElement.Q('img').src) : 
             new Preview('image', {code: ev.target.innerText}, ev) 
         : '';

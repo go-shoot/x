@@ -74,7 +74,7 @@ Object.assign(App, {
             return Promise.all(canvases.map(can => can ? doc.embedPng(can.toDataURL("image/png", 1.0)) : null));
         }).then(images => {
             images.flatMap((im, i) => im ? Array(amount[i]).fill(im) : []).forEach((image, i) => {
-                let scaled = image.scale(.291);
+                let scaled = image.scale(.291 * (Q('#mag').checked ? 1.03 : 1));
                 pages[Math.floor(i/12)].drawImage(image, {
                     x: 20 + i % 6 * (12.5 + scaled.width),
                     y: 84.5 + (1 - Math.floor(i/6) % 2) * (20 + scaled.height),
@@ -89,9 +89,12 @@ Object.assign(App, {
         }).catch(er => document.body.append(er) ?? console.error(er));
     },
     events () {
-        PointerInteraction.events({
-            '#layers label': {click: click => click.for(2).to(() => Layers.solo(true))}
-        });
+        PointerInteraction.events([
+            ['#layers label', {click: click => click.for(2).to(() => Layers.solo(true))}],
+            [Q('[name=br]'), {
+                click: click => click.for(2).to((_, target) => target.value == 20 && target.set.value({v: 255}))
+            }],
+        ]);
         E(Q('form')).set({
             oncontextmenu: () => false,
             onpointerup: App.save
@@ -102,6 +105,7 @@ Object.assign(App, {
             onpointerdown: ev => ev.target.id == 'delete' && Layers.delete(ev)
         });
         E(Q('#control-image')).set({
+            oninput: Controls.get,
             onchange: Controls.image,
             onclick: ev => {
                 if (!ev.target.popoverTargetElement) return;
@@ -268,18 +272,17 @@ Object.assign(Draw, {
         return {x: Math.round(-x-drawing.hW), y: Math.round(-y-drawing.hH), W: drawing.W, H: drawing.H};
     },
     image (label) {
-        let {img, can, con, dataset: {sc, ro, st, x, y, opacity}} = label, W, H;
+        let {img, can, con, dataset: {sc, ro, st, x, y, opacity, bl, sh, co}} = label, W, H;
         Draw.clear(con);
         con.save();
         ({x, y, W, H} = Draw.transform(con, {sc, ro, st, x, y}, img));
+        (parseFloat(bl) || parseFloat(sh) || parseFloat(co) != 1) &&
+            (con.filter = `blur(${bl || 0}px) drop-shadow(0 0 ${sh || 0}px #010101) contrast(${co || 1})`);
         con.globalAlpha = opacity ?? 1;
 		con.drawImage(img, x, y, W, H);
         con.restore();
-        label.bitmap = null;
-        createImageBitmap(can).then(bm => {
-            label.bitmap = bm;
-            label.dirty = false;
-        });
+        label.bitmap?.close() || (label.bitmap = null);
+        createImageBitmap(can).then(bm => [label.bitmap, label.dirty] = [bm, false]);
     },
     color (label) {
         let {con, dataset: {gradient: type, sk, sc, ro, x, y, angle}} = label;
