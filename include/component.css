@@ -87,7 +87,6 @@
         margin-bottom:0;
     }
     ul {list-style: revert;}
-    li {margin-left: 2em;}
     dt,dd {display:inline;}
     dt::before {content:'・';}
     dd::before {content:'：';}
