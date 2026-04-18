@@ -1,7 +1,7 @@
 https://go-shoot.github.io/x/
 https://go-shoot.github.io/x/products/
-https://go-shoot.github.io/x/products/equipment.html#launchers
-https://go-shoot.github.io/x/products/equipment.html#others
+https://go-shoot.github.io/x/products/equipment.html?launchers
+https://go-shoot.github.io/x/products/equipment.html?others
 https://go-shoot.github.io/x/parts/?blade
 https://go-shoot.github.io/x/parts/?blade=CX
 https://go-shoot.github.io/x/parts/?ratchet

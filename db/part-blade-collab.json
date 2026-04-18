@@ -232,7 +232,7 @@
         "names": {
             "jap": "レッド・ハルク",
             "eng": "Red Hulk",
-            "chi": ""
+            "chi": "紅浩克"
         },
         "stat": ["36+"],
         "attr": ["att","right","BX","marvel"],
@@ -243,7 +243,7 @@
         "names": {
             "jap": "キャプテン・アメリカ",
             "eng": "Captain America",
-            "chi": ""
+            "chi": "美國隊長"
         },
         "stat": ["33-"],
         "attr": ["att","right","BX","marvel"],
@@ -276,7 +276,7 @@
         "names": {
             "jap": "マイルズ・モラレス",
             "eng": "Miles Morales",
-            "chi": ""
+            "chi": "終極蜘蛛人"
         },
         "stat": ["31="],
         "attr": ["sta","right","BX","marvel"],
@@ -287,7 +287,7 @@
         "names": {
             "jap": "グリーンゴブリン",
             "eng": "Green Goblin",
-            "chi": ""
+            "chi": "綠惡魔"
         },
         "stat": ["32="],
         "attr": ["sta","right","BX","marvel"],
@@ -340,9 +340,9 @@
     "Gene": {
         "group": "collab",
         "names": {
-            "jap": "グリーヴァス",
+            "jap": "グリーヴァス将軍",
             "eng": "General Grievous",
-            "chi": ""
+            "chi": "葛里維斯將軍"
         },
         "stat": ["31-"],
         "attr": ["def","right","BX","star-wars"],
@@ -353,7 +353,7 @@
         "names": {
             "jap": "オビ＝ワン・ケノービ",
             "eng": "Obi-Wan Kenobi",
-            "chi": ""
+            "chi": "歐比王"
         },
         "stat": ["31-"],
         "attr": ["def","right","BX","star-wars"],
@@ -364,7 +364,7 @@
         "names": {
             "jap": "チューバッカ",
             "eng": "Chewbacca",
-            "chi": ""
+            "chi": "丘巴卡"
         },
         "stat": ["32-"],
         "attr": ["bal","right","BX","star-wars"],
@@ -375,9 +375,31 @@
         "names": {
             "jap": "ストームトルーパー",
             "eng": "Stormtrooper",
-            "chi": ""
+            "chi": "風暴兵"
         },
         "stat": ["33+"],
+        "attr": ["def","right","BX","star-wars"],
+        "from": "RhHr"
+    },
+    "Grog": {
+        "group": "collab",
+        "names": {
+            "jap": "グローグー",
+            "eng": "Grogu",
+            "chi": ""
+        },
+        "stat": [""],
+        "attr": ["def","right","BX","star-wars"],
+        "from": "RhHr"
+    },
+    "Snow": {
+        "group": "collab",
+        "names": {
+            "jap": "スノートルーパー",
+            "eng": "Snowtrooper",
+            "chi": ""
+        },
+        "stat": [""],
         "attr": ["def","right","BX","star-wars"],
         "from": "RhHr"
     },
@@ -424,5 +446,27 @@
         "stat": ["29+"],
         "attr": ["sta","right","BX","transformers"],
         "from": "WzAr"
+    },
+    "Bumb": {
+        "group": "collab",
+        "names": {
+            "jap": "バンブルビー",
+            "eng": "Bumblebee",
+            "chi": ""
+        },
+        "stat": [""],
+        "attr": ["def","right","BX","transformers"],
+        "from": "KnSh"
+    },
+    "Shoc": {
+        "group": "collab",
+        "names": {
+            "jap": "ショックウェーブ",
+            "eng": "Shockwave",
+            "chi": ""
+        },
+        "stat": [""],
+        "attr": ["sta","right","BX","transformers"],
+        "from": "VpTl"
     }
 }

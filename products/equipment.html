@@ -5,9 +5,6 @@
     main {
         max-width:1000px;
     }
-    section:not(:target) {
-        display:none;
-    }
     summary {
         line-height: 1.5 !important;
     }
@@ -16,19 +13,19 @@
 <nav>
     <menu>
         <li><a href='../products/'>陀螺</a>
-        <li><a href='#launchers'>發射器</a>
-        <li><a href='#others'>其他</a>
+        <li><a href='?launchers'>發射器</a>
+        <li><a href='?others'>其他</a>
     </menu>
     <form class="LED"></form>
 </nav>
 
 <main class=groups>
-    <section id=launchers>
+    <section hidden id=launchers>
         <h1 hidden>發射器</h1>
         <h2>拉線型</h2>
         <h2>拉條型</h2>
     </section>
-    <section id=others>
+    <section hidden id=others>
         <h1 hidden>用具</h1>
         <h2>手把及輔助</h2>
         <h2>對戰盤</h2>
@@ -70,8 +67,8 @@ class Group {
                 E('picture', {style: {
                     background: `url(${img.src}) center / ${img.style.width || (img.style || 150) + '%'}`
                 }})
-            ]),
-            E('p', {innerHTML: Q(`[id='${eng}']`)?.innerHTML ?? ''}),
+            ], {id: eng}),
+            E('p', [Q(`[id='${eng}']`)?.content ?? '']),
             E('ol.boards')
         ]);
         details.Q('summary').addEventListener('click', async () => {
@@ -119,14 +116,17 @@ class Board {
 }
 Q('main').prepend(DB().then(() => {
     DB.get('meta', 'parts').then(meta => Bey.import(meta.general)); //for preview
-    (onhashchange = async () => {
-        let place = Q(`#${location.hash.substring(1)}`);
-        Filter.hidden = place.id == 'others';
-        if (place.Q(`details`)) return;
-        (await DB.get('product', place.id)).reverse().forEach(({eng, ...rest}) => 
+    let place = Q(`#${location.search.substring(1)}`);
+    place.hidden = false;
+    Filter.hidden = place.id == 'others';
+    DB.get('product', place.id).then(items => {
+        items.reverse().forEach(({eng, ...rest}) => 
             place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
         );
-    })();
+        (onhashchange = () => Q('summary', summary => 
+            summary.id == decodeURI(location.hash.substring(1)) && [summary.click(), summary.scrollIntoView()]
+        ))();
+    });
     Q('main').onclick = ev => ev.target.tagName == 'CODE' ? 
         ev.target.closest('li').classList.contains('Lm') ? 
             window.open(ev.target.parentElement.Q('img').src) : 
