@@ -81,13 +81,8 @@ section {
             sub {line-height: 0; margin-left: .15em;}
         }
         &.history button::before {content: '\e009';}
-        &.products button::before {content: '\e001';}
-        a {
-            -webkit-user-drag: none;
-            &[href^='//'] {color: var(--accent);}
-            &[href^='//']::before {content: '\e023';}
-        }
-        &.parts button::before, &.links a:not([class=''])::before {
+        &.preview button::before {content: '\e001';}
+        &.preview button[data-path]::before {
             content: '';
             width: 1.4em; height: 1.4em; display: inline-block;
             vertical-align: -.35em;
@@ -96,6 +91,11 @@ section {
         :is(.ratchet,.bit)::before {
             background: var(--img) center / contain no-repeat !important;
             filter: saturate(0) brightness(99) brightness(80%);
+        }
+        a {
+            -webkit-user-drag: none;
+            &[href^='//'] {color: var(--accent);}
+            &[href^='//']::before {content: '\e023';}
         }
     }
     table {margin: .5em auto;}
@@ -246,13 +246,18 @@ button:has(+#beginner) {
     h3 {
         font-size: 2em; letter-spacing: .5em;
     }
+    h4 {
+        font-size: 1.25em;
+        border-bottom: .1em dotted;
+        text-align: left;
+    }
     img {
         max-width: min(calc(var(--w,100)*1%),calc(var(--w,100)/100*20em));
     }
     a img {
         height: 8em;
     }
-    a[href^=https]::before {
+    a[href*=youtu]::before {
         content: ''; color: var(--accent);
     }
 }

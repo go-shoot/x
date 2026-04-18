@@ -86,11 +86,7 @@ class Input {
     })
     static events () {
         Input.field.onfocus = async () => CACHE ??= await new Cache();
-        Input.field.oninput = () => {
-            clearTimeout(Search.timer);
-            Input.field.value.trim() && (Search.timer = setTimeout(new Search, 500));
-        }
-        onhashchange = () => location.hash && new Search(location.hash.substring(1));
+        Input.field.oninput = () => Input.field.value.trim() && new Search();
     }
 }
 Input.events();
@@ -98,12 +94,12 @@ class Search {
     constructor(query) {
         (CACHE ? Promise.resolve() : new Cache()).then(cache => {
             CACHE ??= cache;
-            query && (Input.field.value = decodeURI(query));
-            let targets = new Input().targets;
-            this.show('parts', targets);
-            targets = [...targets.free].join('');
-            this.show('links', targets);
-            this.show('products', targets);
+            Search.query = query ? Input.field.value = decodeURI(query) : Input.field.value.trim();
+            this.targets = new Input().targets;
+            let parts = this.find('parts');
+            this.targets = [...this.targets.free].join('');
+            Q('#search .preview').replaceChildren(...this.find('products'), ...parts);
+            Q('#search .links').replaceChildren(...this.find('links'));
         });
     }
     static for = {
@@ -127,9 +123,8 @@ class Search {
         abbr: (abbr, set) => set?.has(abbr),
         name: (names, set) => names?.chi.split(' ').some(n => set?.has(Markup.remove(n)))
     }
-    show = Search.show
-    static show = (what, query) => Q(`#search .${what}`).replaceChildren(...Search.results[what](query))
-    static results = {
+    find = what => Search.find[what](this.targets)
+    static find = {
         parts: query => {
             let parts = Search.for.specific(query);
             return [...new Set([...parts, ...Search.for.general(query, parts.length ? 5 : 50)])]
@@ -140,39 +135,49 @@ class Search {
         ,
         products: query => /^[a-z]xg?-?\d{2,3}$/i.test(query) ?
             [new Result('code', {code: query.toUpperCase().replace(/(?<![\d-])(?=\d+)/, '-')})] : []
-        ,
-        history: results => results.map(item => E('button', item, {onclick: () => new Search(item)}))
+    }
+    static history = {
+        show: items => Q('#search .history').replaceChildren(...items.map(item => 
+            E('button', item, {onclick: () => new Search(item)})
+        )),
+        add: item => {
+            let history = [...new Set([item, ...Storage('history') || []])].slice(0, 10);
+            Search.history.show(history);
+            Storage('history', history);
+            gtag('event', item.toLowerCase());
+        }
     }
     static events () {
-        Search.show('history', Storage('history') || []);
-        Q('#search').onclick = ev => ev.target.matches('ol:not(.history) *') ? Search.add.history() : '';
+        Search.history.show(Storage('history') || []);
+        Q('#search').onclick = ev => {
+            ev.target.matches('ol:not(.history) *') && Search.history.add(Search.query);
+            ev.target.matches('ol.preview button') && (ev.target.dataset.path ?
+                new Preview(['tile', 'cell'], {path: ev.target.dataset.path.split(',')}, ev) : 
+                new Preview(['cell', 'image'], {code: ev.target.innerText}, ev)
+            );
+            ev.target.matches('ol.links a[href^="//"]') && 
+                gtag('event', `LINK-${ev.target.href.substring(2,18)}`);
+        }
+        Q('a[href^="?"]', a => a.onclick = ev => {
+            ev.preventDefault();
+            window.history.pushState({}, '', a.href);
+            new Search(location.search.substring(1));
+        });
     }
-    static add = {history: () => {
-        let history = Storage('history') || [];
-        history = [...new Set(history.toSpliced(0, 0, Input.field.value.trim()))].slice(0, 10);
-        Search.show('history', history);
-        Storage('history', history);
-        gtag('event', Input.field.value.trim().toLowerCase());
-    }}
 }
 Search.events();
 class Result {
     constructor(type, item) {return this[type](item);}
+    code = ({code}) => E('li>button', code)
     part = ({path, group, abbr, names}) => 
-        E(`li>button.${path[0]}.${path[2] ? path[1] : group}`, 
+        E(`li>button.${path[0]}.${path[2] ? path[1] : group}`, {dataset: {path}},
             [path[2] == 'over' ? '↑' : path[2] == 'assist' ? '↓' : '', ...Markup('cell', names?.chi || abbr)],
-            {onclick: ev => new Preview(['tile', 'cell'], {path}, ev)}
         )
     link = ({text, href}) =>
         E('li>a', text, {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
-            href, target: href.startsWith('//') ? '_blank' : '',
-            onclick: () => href.startsWith('//') ? gtag('event', `LINK-${href.substring(2,18)}`) : ''
+            href, target: href.startsWith('//') ? '_blank' : ''
         })
-    code = ({code}) =>
-        E('li>button', code, 
-            {onclick: ev => new Preview(['cell', 'image'], {code}, ev)}
-        )
 }
 
 import {Shohin} from './include/utilities.js'
@@ -183,6 +188,7 @@ const plugins = {
     followup: async () => {
         CACHE ??= await new Cache();
         Shohin.after();
+        location.search && new Search(location.search.substring(1));
     }
 };
 Q('header').after(DB(plugins).then(() => {
