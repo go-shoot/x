@@ -409,7 +409,7 @@ dialog {
             border-bottom: .15em dotted;
             padding: .6em .5em; margin: 0;
         }
-        img:first-of-type~img:not([src*=detail]) {
+        img:first-of-type~img:not([src*=detail]):not([src*=twimg]) {
             grid-column: initial;
         }
     }
