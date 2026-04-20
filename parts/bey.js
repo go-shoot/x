@@ -169,6 +169,10 @@ class Preview {
     
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
+        if (/^BXA-\d+$/.test(dataset.code))
+            return Preview.dialog.Q('#images').append(
+                ...Maps.images.find(dataset.code).map(src => E('img', {src: `//pbs.twimg.com/media/${src}?format=jpg&name=large`}))
+            ); 
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
         Preview.dialog.Q('#images').append(
             ...video?.split(',').map(vid => E('a', {href: `//youtu.be/${vid}?start=60`})) ?? [],
