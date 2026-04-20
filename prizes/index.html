@@ -50,12 +50,6 @@ Object.assign(Prize, {
     ),
     event () {
         FilterForm.event(Prize.all);
-        onclick = ev => {
-            let h4 = ev.target.closest('h4')?.cloneNode(true);
-            if (!h4) return;
-            h4.Q('code')?.remove();
-            navigator.clipboard.writeText(Markup.reverse(h4.innerText));
-        }
         let target = Q(`[id='${decodeURI(location.hash.substring(1))}']`);
         target?.scrollIntoView();
         target?.classList.add('target');

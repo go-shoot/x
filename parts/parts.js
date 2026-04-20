@@ -92,18 +92,19 @@ const Magnifier = () => {
         E('continuous-knob', {min: .75, max: 2, value: Storage('pref')?.knob || 1}, E('i.center', '')),
         ...E.radios([.54, .81, 1.6].map((value, i) => ({id: `mag${i}`, name: 'mag', value}) ))
     ]));
-    Q(`#${Storage('pref')?.button || 'mag1'}`).checked = true;
+    Q(`#${Storage('pref')?.button || 'mag1'}`).click();
     Magnifier.events();
 };
 Object.assign(Magnifier, {
     events () {
         Q('.magnifier').oninput = ({target}) => {
+            if (innerWidth <= 630 && target.tagName != 'INPUT') return;
             E(Parts.place).set({'--font': target.value});
-            Storage('pref', target instanceof HTMLInputElement ? {button: target.id} : {knob: target.value});
+            Storage('pref', target.tagName == 'INPUT' ? {button: target.id} : {knob: target.value});
         }
         new ResizeObserver(Magnifier.switch).observe(Q('nav'));
     },
-    switch: () => E(Parts.place).set({'--font': (innerWidth > 630 ? Q('continuous-knob') : Q('[name=mag]:checked')).value})
+    switch: () => E(Parts.place).set({'--font': Q(innerWidth > 630 ? 'continuous-knob' : '[name=mag]:checked').value})
 });
 
 const Sorter = () => {

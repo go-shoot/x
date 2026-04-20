@@ -198,7 +198,7 @@
             font-size: .6em;
             text-align: right; line-height: 1.1;
             white-space: pre;
-            margin-left: 1em;
+            margin: 0 0 .1em 1em;
         }
         dd {
             font-size: 1.6em; font-style: italic;
@@ -332,6 +332,7 @@ table {
         text-align: left; line-height: 2;
         z-index: 1;
 
+        &:first-child {color: var(--line);}
         &[headers=blade] {min-width: 11em;}
         &:is([headers=ratchet],[abbr]:has(+:not([headers]))) {
             min-width: 2em;

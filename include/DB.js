@@ -66,33 +66,30 @@ customElements.define('db-state', Indicator);
 const DB = (plugins = {}) => Object.assign(DB, {indicator: new DB.indicator, plugins});
 Object.assign(DB, {
     outdate: 'V', current: 'X', indicator: Indicator,
-    stores: [
-        'bit', 'ratchet', 'blade',
-        ...[...new O(LINES)].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade.${line}`)
-    ],
     then: callback => Object.assign(DB.indicator, {callback}),
     format: {
         store (store) {
+            if (store === true) return DB.format.store([...DB.os.parts, ...DB.os.others]);
             if (Array.isArray(store)) return store.map(DB.format.store);
             store = store.replace('part-', '').replace(/^.X$/, 'blade.$&');
-            return DB.stores.includes(store) ? store.toUpperCase() : store;
+            return DB.os.parts.includes(store) ? store.toUpperCase() : store;
         },
-        part: (part, store) => ({...part, comp: store.split('.')[0], ...store.includes('.') ? {line: store.split('.')[1]} : {}})
+        part: (part, store) => ({...part, 
+            comp: store.split('.')[0], 
+            ...store.includes('.') ? {line: store.split('.')[1]} : {}
+        })
     },
-
     replace: (before = DB.outdate, after = DB.current) => indexedDB.databases()
         .then(dbs => dbs.find(db => db.name == before) && DB.open(before).then(DB.discard))
         .then(() => DB.open(after))
     ,
-    discard: handler => DB.transfer.out().catch(() => {})
-        .then(() => new Promise(res => {
-            DB.db.close();
-            Object.assign(indexedDB.deleteDatabase(DB.db.name), {        
-                onsuccess: () => res(DB.db = null),
-                onblocked: handler ?? console.error
-            });
-        }))
-    ,
+    discard: handler => new Promise(res => {
+        DB.db.close();
+        Object.assign(indexedDB.deleteDatabase(DB.db.name), {        
+            onsuccess: () => res(DB.db = null),
+            onblocked: handler ?? console.error
+        });
+    }),
     transfer: {
         out: () => DB.get.all('user').then(data => sessionStorage.user = JSON.stringify(data)),
         in: () => DB.put('user', JSON.parse(sessionStorage.user ?? '[]').map((item, i) => ({[`sheet-${i+1}`] : item})))
@@ -106,7 +103,7 @@ Object.assign(DB, {
             if (ev.target.result.name != DB.current) 
                 return ev.target.result;
             DB.db = ev.target.result;
-            if (ev.type == 'success' && DB.stores.some(s => !DB.db.objectStoreNames.contains(s.toUpperCase())))
+            if (ev.type == 'success' && DB.os.parts.some(s => !DB.db.objectStoreNames.contains(s.toUpperCase())))
                 return DB.db.close().then(() => DB.open(DB.db.version + 1));
 
             ev.type == 'upgradeneeded' && DB.setup(ev);
@@ -119,17 +116,19 @@ Object.assign(DB, {
     update: () => (fresh && !index ? Promise.resolve() : DB.fetch.updates())
         .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
         .then(() => Storage('no-update-jsons', Date.now() + 5*60*1000))
-        .catch(er => navigator.onLine ? console.error(er) : DB.indicator.classList = 'offline')
+        .catch(er => /Abort||failed/i.test(er.message) ? DB.indicator.classList = 'offline' : console.error(er))
     ,
     setup (ev) {
-        ['product','meta','user'].forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
-        DB.stores.map(s => DB.db.objectStoreNames.contains(s.toUpperCase()) || 
+        DB.os.others.forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
+        DB.os.parts.map(s => DB.db.objectStoreNames.contains(s.toUpperCase()) || 
             DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
-        DB._tx = Transaction(ev.target.transaction);
-        return DB.transfer.in();
+        DB.tx.bind(ev.target.transaction);
     },
     fetch: {
-        updates: () => fetch(`/x/db/-update.json`).then(resp => resp.json())
+        aborter: new AbortController(),
+        timer: () => DB.fetch.timer = setTimeout(() => DB.fetch.aborter.abort(), 3000),
+        updates: () => DB.fetch.timer() && fetch(`/x/db/-update.json`, {signal: DB.fetch.aborter.signal})
+            .then(resp => clearTimeout(DB.fetch.timer) || resp.json())
             .then(({news, ...files}) => {
                 DB.plugins.announce?.(news);
                 return files;
@@ -152,32 +151,59 @@ Object.assign(DB, {
             'part-blade': '', 'part-ratchet': '', 'part-bit': '', 'part-blade-collab': json => DB.put.parts(json, 'blade'),
             'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(Transform.to.grouped(parts), `blade.${line}`))),
             'meta': json => DB.put('meta', json),
-            'prod-equipment': json => DB.put('product', json),
+            'prod-gear': json => DB.put('product', json),
             'prod-keihin': beys => DB.put('product', {keihins: beys}),
             'prod-beys': beys => DB.put('product', {beys: beys.map(Transform.to.RB())}),
         },
-        files: arr => Promise.all(arr.map(([{value: file}, {value: json}]) => DB.cache.file(file, json)))
+        files: ar => ar.length && DB.prepare.tx(true, 'rw') && 
+            Promise.all(ar.map(([{value: file}, {value: json}]) => DB.cache.file(file, json)))
             .then(() => DB.indicator.update(true))
         ,
         file: (file, json) => (DB.cache.actions[file] || DB.put.parts)(json, file)
             .then(() => Storage('DB', {[file]: Math.round(new Date / 1000)} ))
     },
-    store (store) {
-        store = DB.format.store(store);
-        DB._tx?.objectStoreNames.contains(store) || (DB._tx = new Transaction(store));
-        return DB._tx.objectStore(store);
+    prepare: {
+        tx (stores, mode) {
+            stores = [DB.format.store(stores)].flat();
+            if (!DB._tx || mode == 'rw' && DB._tx.mode != 'readwrite' 
+                || stores.some(s => !DB._tx.objectStoreNames.contains(s))) {
+                DB.tx.bind(DB.db.transaction(stores, mode == 'rw' ? 'readwrite' : 'readonly'));
+                DB.indicator.innerText += `new ${DB._tx.mode} tx: ${stores}\n`;
+            }
+            return DB._tx;
+        },
+        os (store, mode) {
+            try {
+                return DB.prepare.tx(store, mode).objectStore(DB.format.store(store));
+            }
+            catch (e) {
+                DB._tx = null; 
+                return DB.prepare.os(store, mode);
+            }
+        }
+    },
+    tx: {
+        bind: (tx = DB._tx) => (DB._tx = tx) && (tx.oncomplete = tx.onabort = tx.onerror = () => DB._tx = null),
+    },
+    os: {
+        parts: [
+            'bit', 'ratchet', 'blade',
+            ...[...new O(LINES)].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade.${line}`)
+        ],
+        others: ['product', 'meta', 'user'],
     },
     delete (store, value) {
-        store = DB.store(store);
+        store = DB.prepare.os(store, 'rw');
         return new Promise(res => store.index('group').getAll(IDBKeyRange.only(value))
             .onsuccess = ev => res(ev.target.result.forEach(({abbr}) => store.delete(abbr))));
     },
-    get: (...path) => new Promise(res => DB.store(path.slice(0, path.length/2).join('.')).get(path.slice(path.length/2).join('.'))
+    get: (...path) => new Promise(res => DB.prepare.os(path.slice(0, path.length/2).join('.'))
+        .get(path.slice(path.length/2).join('.'))
         .onsuccess = ({target: {result}}) => res(result?.abbr ? DB.format.part(result, path[0]) : result))
     ,
     put: (store, items) => Array.isArray(items) ?
         Promise.all(items.map(item => DB.put(store, item))) :
-        items && new Promise(res => DB.store(store).put(...items.abbr ? [items] : Object.entries(items)[0].reverse())
+        items && new Promise(res => DB.prepare.os(store, 'rw').put(...items.abbr ? [items] : Object.entries(items)[0].reverse())
             .onsuccess = () => res(DB.put.success()))
 });
 Object.assign(DB.put, {
@@ -185,21 +211,16 @@ Object.assign(DB.put, {
     success: () => DB.indicator.update()
 });
 Object.assign(DB.get, {
-    all: store => new Promise(res => DB.store(store).getAll()
+    all: store => new Promise(res => DB.prepare.os(store).getAll()
         .onsuccess = ev => res(ev.target.result.map(p => p.abbr ? DB.format.part(p, store) : p)))
     ,
-    parts: detailed => Promise.all(DB.stores.map(store => DB.get.all(store).then(parts => [store, parts])))
+    parts: detailed => DB.prepare.tx(DB.os.parts) && 
+        Promise.all(DB.os.parts.map(store => DB.get.all(store).then(parts => [store, parts])))
         .then(parts => Transform.to.dict(parts, detailed))
     ,
     essentials: detailed => Promise.all([DB.get('meta', 'parts'), DB.get.parts(detailed)])
         .then(([meta, parts]) => [new O(meta), parts])
 });
-
-const Transaction = function(txORstore) {
-    return this instanceof Transaction ? 
-        Transaction(DB.db.transaction(txORstore, 'readwrite')) : 
-        Object.assign(txORstore, {oncomplete: () => DB._tx = null, onabort: () => DB._tx = null, onerror: () => DB._tx = null});
-};
 const Transform = {
     to: {
         grouped: parts => ({...new O(parts)

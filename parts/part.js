@@ -97,6 +97,7 @@ class Bit extends Part {
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
 class Tile extends HTMLElement {
+    static observer = new IntersectionObserver(entries => entries.forEach(en => en.isIntersecting && en.target.fill()));
     constructor(Part) {
         super();
         let {path, group, attr, classes} = Part;
@@ -105,6 +106,7 @@ class Tile extends HTMLElement {
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
             E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
         );
+        Tile.observer.observe(this);
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: [...path.slice(0, -1), group, classes, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
@@ -112,10 +114,6 @@ class Tile extends HTMLElement {
             hidden: true,
             onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
         });
-    }
-    static observedAttributes = ['hidden']
-    attributeChangedCallback() {
-        !this.hidden && this.fill();
     }
     fill () {
         this.hidden &&= false;
@@ -149,8 +147,7 @@ class Tile extends HTMLElement {
     }
     static hue = {};
     static icons = new O([
-        [/^[A-Z]+X$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
-//        [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
+        [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
         [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
         [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
         [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]

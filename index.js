@@ -162,6 +162,7 @@ class Search {
             ev.preventDefault();
             window.history.pushState({}, '', a.href);
             new Search(location.search.substring(1));
+            Q('#search').scrollIntoView();
         });
     }
 }

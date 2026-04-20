@@ -44,6 +44,7 @@ diamond-grid {
         
         &:only-child {transform: none;}
     }
+    a[href] {color: green !important;}
     em {
         grid-area: type;
         color: #fbfbfd; font-size: .9em;
@@ -56,13 +57,12 @@ diamond-grid {
             line-height: 1.2;
         }
     }
-    a {
+    em+a {
         grid-area: desc;
         font-size: .7em;
         margin: .3em auto;
         line-height: 1.2;
         max-width: 12em;
-        &[href] {color: green !important;}
     }
     div {
         grid-area: img;
@@ -98,7 +98,7 @@ diamond-grid {
             &:empty::before {content:'　';}
         }
         small {scale: .95 1;}
-        small,span {letter-spacing: -.05em;}
+        small,a {letter-spacing: -.05em;}
         small.tight {letter-spacing: -.15em;}
     }
     h4:lang(zh) {

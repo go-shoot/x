@@ -118,7 +118,7 @@
 
         code {
             line-height: 1.4em;
-            font-size: .85em; color: deepskyblue;
+            font-size: .85em; color: var(--theme);
             cursor: pointer;    
         }
     }
@@ -224,8 +224,8 @@ details.stretch {
     &.showing {transform: none; max-height:50em;}
     
     summary {
-        position: absolute !important; left: 1.5em; bottom: -1.5em; 
-        width: 1.2em; height: 2.4em; 
+        position: absolute !important; left: 1em; bottom: -1.5em; 
+        width: 1.5em; height: 2.4em; 
         border-bottom-left-radius: 9em; border-bottom-right-radius: 9em; 
         background: var(--theme); color: black; 
         display: flex; flex-direction: column; justify-content: end; 
