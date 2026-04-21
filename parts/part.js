@@ -97,7 +97,9 @@ class Bit extends Part {
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
 class Tile extends HTMLElement {
-    static observer = new IntersectionObserver(entries => entries.forEach(en => en.isIntersecting && en.target.fill()));
+    static observer = new IntersectionObserver(entries => entries.forEach(en => 
+        en.isIntersecting && en.target.fill() && Tile.observer.unobserve(en.target)
+    ));
     constructor(Part) {
         super();
         let {path, group, attr, classes} = Part;
