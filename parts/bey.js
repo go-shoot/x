@@ -165,7 +165,7 @@ class Preview {
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
 
-    tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile))
+    tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile.fill()))
     
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
