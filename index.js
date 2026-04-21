@@ -210,6 +210,7 @@ Q('header').after(DB(plugins).then(() => {
         localStorage.clear(), sessionStorage.clear(),
         navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
     ]).then(() => {
+        gtag('event', 'RESET');
         onbeforeunload = () => scrollTo(0, 0);
         location.reload();
     }).catch(er => {

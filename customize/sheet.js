@@ -74,7 +74,7 @@ Object.assign(App, {
             return Promise.all(canvases.map(can => can ? doc.embedPng(can.toDataURL("image/png", 1.0)) : null));
         }).then(images => {
             images.flatMap((im, i) => im ? Array(amount[i]).fill(im) : []).forEach((image, i) => {
-                let scaled = image.scale(.291 * (Q('#mag').checked ? 1.03 : 1));
+                let scaled = image.scale(.291 * (Q('#mag').checked ? 1.035 : 1));
                 pages[Math.floor(i/12)].drawImage(image, {
                     x: 20 + i % 6 * (12.5 + scaled.width),
                     y: 84.5 + (1 - Math.floor(i/6) % 2) * (20 + scaled.height),
@@ -88,12 +88,26 @@ Object.assign(App, {
             App.switch(location.hash);
         }).catch(er => document.body.append(er) ?? console.error(er));
     },
+    warn () {
+        Q('.message').classList.add('active');
+        setTimeout(() => Q('.active')?.classList.remove('active'), 2000);
+    },
     events () {
         PointerInteraction.events([
-            ['#layers label', {click: click => click.for(2).to(() => Layers.solo(true))}],
+            ['#layers label', {
+                click: click => click.for(2).to(() => Layers.solo(true))
+            }],
             [Q('[name=br]'), {
                 click: click => click.for(2).to((_, target) => target.value == 20 && target.set.value({v: 255}))
             }],
+            [Q('#sample'), {
+                click: click => click.for(1).to(() => App.warn()),
+                hold: hold => hold.for(2).to(() => App.sample())
+            }],
+            [Q('#delete'), {
+                click: click => click.for(1).to(() => App.warn()),
+                hold: hold => hold.for(2).to(() => Layers.delete())
+            }]
         ]);
         E(Q('form')).set({
             oncontextmenu: () => false,
@@ -102,7 +116,6 @@ Object.assign(App, {
         E(Q('#layer')).set({
             onchange: Layers.switch,
             onclick: ev => ev.target.id == 'create' ? Layers.create(ev) : ['up', 'down'].includes(ev.target.id) ? Layers.move(ev) : null,
-            onpointerdown: ev => ev.target.id == 'delete' && Layers.delete(ev)
         });
         E(Q('#control-image')).set({
             oninput: Controls.get,
@@ -118,7 +131,7 @@ Object.assign(App, {
         Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);
         Q('#control').oninput = Controls.get;
         
-        Q('#export,#download,#sample', button => button.onclick = App[button.id]);
+        Q('#export,#download', button => button.onclick = App[button.id]);
         Q('#import').onchange = App.import;
 
         onkeydown = ev => {
@@ -202,7 +215,7 @@ const Layers = {
         Layers.selected.dataset.type ? Controls.put() : Controls.show(0);
         Q('.solo') && Draw();
     },
-    create (ev) {
+    create () {
         let label = Layers.label();
         Layers.labels[0].before(label);
         label.click();
@@ -210,15 +223,10 @@ const Layers = {
         Controls.reset();
         Controls.show(0);
     },
-    delete (ev) {
-        Q('.message').classList.add('active');
-        setTimeout(() => Q('.active').classList.remove('active'), 2000);
-        let timer = setTimeout(() => {
-            Layers.selected.remove();
-            Layers.labels[0].click();
-            Draw();
-        }, 2000);
-        ev.target.onpointerup = () => clearTimeout(timer);
+    delete () {
+        Layers.selected.remove();
+        Layers.labels[0].click();
+        Draw();
     },
     move (ev) {
         let current = Layers.selected, scrollTop = Layers.fieldset.scrollTop;

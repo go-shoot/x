@@ -40,7 +40,7 @@ Object.assign(Table, {
         Q('thead').onclick = Table.sort;
 
         Q('.links').onclick = ({target: {tagName, href, parentElement}}) => tagName == 'A' ? 
-            gtag('event', `link-${href.includes('obake') ? 'ob' : 'ph'}-${parentElement.title}`) : '';
+            gtag('event', `LINK-${href.includes('obake') ? 'OB' : 'PH'}-${parentElement.title}`) : '';
         new MutationObserver(([{target}]) => target.title == '' && [...target.children].forEach((a, i) => 
             a.href = ['//beyblade.phstudy.org', 'http://obakeblader.com/?s=入手法'][i]
         )).observe(Q('.links'), {attributeFilter: ['title']});

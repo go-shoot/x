@@ -27,12 +27,13 @@ nav {
         display: inline-block; line-height: 1.3rem;
     }
     .toggle {
-        display: none; /*inline-flex;*/
+        display: inline-flex;
         font-size: calc(1.3em/2.25);
         vertical-align: middle;
         margin-right: .25em;
     }
-    .toggle+small {font-size: .8em; display: none;}
+    .toggle+small {font-size: .8em;}
+    .toggle:has(:checked)~#download {background: var(--accent);}
 }
 main {
     max-width: 30em;
