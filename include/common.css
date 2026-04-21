@@ -101,7 +101,7 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
     html {font-size: 20px;}
 }
 
-x-part { /*initial style before part.css*/
+x-part:not([hidden]) { /*initial style before part.css*/
     display: inline-block; width: 15em; height: 15em;
     opacity: 0;
 }

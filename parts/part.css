@@ -1,4 +1,4 @@
-:host {
+:host(:not([hidden])) {
     --icon: 1.6em;
     aspect-ratio: 1;
     display: inline-grid !important;
