@@ -16,6 +16,10 @@ const Maps = {
         ['BXG-09', {alias: 'BXG-14'}],
         ['BXG-07', {_: true, detail: '${no}_(1|2)'}],
         ['BX-08', {detail: '${no}_(r|g|y)', more: '${no}_(r|g|y)'}],
+        ['BXA-03', ['HGXKuyobQAAhnhs','HGXKuyobsAAtyvi']],
+        ['BXA-04', ['HGXKuyzaAAIiYO7','HGXKuyTaEAAWha-']],
+        ['BXA-05', ['HGXMoV8aIAAOqFD','HGXMoV3aAAEwAbp']],
+        ['BXA-06', ['HGXMoV2aAAEyHph','HGXMoV7aAAMOKKm']],
     ]),
     lowercase: {
         BXG: n => new Set([1,4,7,14,31,32,11,18,19]).has(parseInt(n)),
