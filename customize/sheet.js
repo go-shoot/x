@@ -101,11 +101,9 @@ Object.assign(App, {
                 click: click => click.for(2).to((_, target) => target.value == 20 && target.set.value({v: 255}))
             }],
             [Q('#sample'), {
-                click: click => click.for(1).to(() => App.warn()),
                 hold: hold => hold.for(2).to(() => App.sample())
             }],
             [Q('#delete'), {
-                click: click => click.for(1).to(() => App.warn()),
                 hold: hold => hold.for(2).to(() => Layers.delete())
             }]
         ]);
@@ -127,10 +125,10 @@ Object.assign(App, {
                 Q('#picker').showPopover();
             }
         });
-        Q('#control-color').oninput = Controls.get;
+        Q('#control-color').oninput = Q('#control').oninput = Controls.get;
         Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);
-        Q('#control').oninput = Controls.get;
         
+        Q('#sample,#delete', button => button.onclick = App.warn);
         Q('#export,#download', button => button.onclick = App[button.id]);
         Q('#import').onchange = App.import;
 
