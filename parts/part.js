@@ -98,43 +98,35 @@ class Bit extends Part {
 }
 class Tile extends HTMLElement {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
-        en.isIntersecting && en.target.fill() && Tile.observer.unobserve(en.target)
+        en.isIntersecting && [en.target.fill(), Tile.observer.unobserve(en.target)]
     ));
     constructor(Part) {
         super();
-        let {path, group, attr, classes} = Part;
-        this.Part = Part;
-        this.attachShadow({mode: 'open'}).append(
-            E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
-            E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
-        );
         Tile.observer.observe(this);
+        this.attachShadow({mode: 'open'});
+        let {path, group, attr, classes} = this.Part = Part;
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: [...path.slice(0, -1), group, classes, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
-            style: {opacity: 0},
-            hidden: true,
             onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
         });
     }
+    connectedCallback() {
+        !this.shadowRoot.childElementCount && (this.hidden = !this.closest('dialog'));
+    }
     fill () {
-        this.hidden &&= false;
-        !this.shadowRoot.Q('object') && this.html();
-        return this;
-    };
-    html () {
-        Q('#triangle') || Tile.triangle();
-        let {path, desc, from} = this.html.Part = this.Part;
+        let {path, desc, from} = this.fill.Part = this.Part;
         this.shadowRoot.append(
-            Q('#triangle').cloneNode(true),
-            E('object', {data: this.html.background()}),
+            E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
+            E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
+            E('object', {data: this.fill.background(getComputedStyle(this).getPropertyValue('--hue'))}),
             E('figure>img', {src: `/x/img/${path.join('/')}.png`}),
             E('slot'),
-            E('ul', this.html.icons()),
+            E('ul', this.fill.icons()),
             E('p', desc),
-            ...this.html.stat(),
-            ...this.html.names(),
-            E('svg', {viewBox: '-75 -75 150 150'}, META.types.map(t => E(`use.${t}`, {href: '#triangle'}))),
+            ...this.fill.stat(),
+            ...this.fill.names(),
+            (typeof Tile.svg == 'object' ? Tile.svg : Tile.svg()).cloneNode(true)
         );
         from &&= from.split('.');
         from &&= path.toSpliced(-from.length, from.length , ...from);
@@ -147,7 +139,6 @@ class Tile extends HTMLElement {
         '/x/parts/': (path, ev) => new Preview('cell', {path}, ev),
         '/x/products/': path => Table.search(path)
     }
-    static hue = {};
     static icons = new O([
         [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
         [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
@@ -155,20 +146,14 @@ class Tile extends HTMLElement {
         [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
     ], {left: '\ue01d', right: '\ue01e'});
 }
-Object.assign(Tile.prototype.html, {
-    background () {
-        let {comp, attr} = this.Part;
-        let selector = `.${comp}${attr?.includes('fused') ? '.fused' : ''}`;
-        Tile.hue[selector] ??= [...document.styleSheets]
-            .filter(({href}) => href && new URL(href).host == location.host).flatMap(css => [...css.cssRules])
-            .find(rule => rule.selectorText == selector).styleMap.get('--hue')[0];
-
-        let spin = attr?.includes('left') ^ attr?.includes('right');
+Object.assign(Tile.prototype.fill, {
+    background (hue) {
+        let {attr} = this.Part;
+        let unispin = attr?.includes('left') ^ attr?.includes('right');
         let param = {
-            hue: Tile.hue[selector],
-            ...spin ? {[attr?.find(a => a == 'left' || a == 'right')]: ''} : {}
+            hue, ...unispin ? {[attr?.find(a => a == 'left' || a == 'right')]: ''} : {}
         };
-        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;
+        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;
         //return `/x/parts/bg.svg#${new URLSearchParams(param)}`;
     },
     icons () {
@@ -201,16 +186,19 @@ Object.assign(Tile.prototype.html, {
         ];
     },
 });
-Tile.triangle = () => {
+Tile.svg = () => {
     let [r1, r2] = [.75, 1], corner = {side: {}};
     corner.side.x = r1 / Math.tan(Math.PI / 8);
     corner.side.y = corner.side.x * Math.SQRT1_2;
     corner.top = r2 / Math.SQRT2;
-    document.body.append(E('svg>defs>path', {id: 'triangle', d: 
-        `M ${corner.side.x-10},-10 A ${r1},${r1},0,0,0,${corner.side.y-10},${corner.side.y-10}
-        L -${corner.top},-${corner.top} A ${r2},${r2},0,0,0,${corner.top},-${corner.top}
-        L ${10-corner.side.y},${corner.side.y-10} A ${r1},${r1},0,0,0,${10-corner.side.x},-10 Z`
-    }));
+    return Tile.svg = E('svg', {viewBox: '-75 -75 150 150'}, [
+        E('defs>path#triangle', {d: `
+            M ${corner.side.x-10},-10 A ${r1},${r1},0,0,0,${corner.side.y-10},${corner.side.y-10}
+            L -${corner.top},-${corner.top} A ${r2},${r2},0,0,0,${corner.top},-${corner.top}
+            L ${10-corner.side.y},${corner.side.y-10} A ${r1},${r1},0,0,0,${10-corner.side.x},-10 Z`
+        }),
+        ...META.types.map(t => E(`use.${t}`, {href: '#triangle'}))
+    ]);
 };
 customElements.define('x-part', Tile);
 

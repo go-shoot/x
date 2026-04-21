@@ -1,7 +1,7 @@
 :host {
-    min-width: 15em; max-width: 15em; min-height: 15em; max-height: 15em;
     --icon: 1.6em;
-    display: inline-grid;
+    aspect-ratio: 1;
+    display: inline-grid !important;
     grid-template: 2em auto .1em .9em .9em / var(--icon) calc(50% - var(--icon)) auto var(--icon) var(--icon);
     padding: .3em .4em; margin: .1rem;
     overflow: hidden;

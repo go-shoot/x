@@ -94,18 +94,12 @@ Object.assign(App, {
     },
     events () {
         PointerInteraction.events([
-            ['#layers label', {
-                click: click => click.for(2).to(() => Layers.solo(true))
-            }],
             [Q('[name=br]'), {
                 click: click => click.for(2).to((_, target) => target.value == 20 && target.set.value({v: 255}))
             }],
-            [Q('#sample'), {
-                hold: hold => hold.for(2).to(() => App.sample())
-            }],
-            [Q('#delete'), {
-                hold: hold => hold.for(2).to(() => Layers.delete())
-            }]
+            ['#layers label', {click: click => click.for(2).to(() => Layers.solo(true))}],
+            [Q('#sample'), {hold: hold => hold.for(2).to(App.sample)}],
+            [Q('#delete'), {hold: hold => hold.for(2).to(Layers.delete)}]
         ]);
         E(Q('form')).set({
             oncontextmenu: () => false,
@@ -125,12 +119,15 @@ Object.assign(App, {
                 Q('#picker').showPopover();
             }
         });
-        Q('#control-color').oninput = Q('#control').oninput = Controls.get;
-        Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);
-        
-        Q('#sample,#delete', button => button.onclick = App.warn);
-        Q('#export,#download', button => button.onclick = App[button.id]);
+        Q('nav').onclick = ev => {
+            if (ev.target.id == 'sample')
+                return Layers.labels.length > 1 ? App.warn() : App.sample();
+            ['export', 'download'].includes(ev.target.id) && App[ev.target.id];
+        }
         Q('#import').onchange = App.import;
+        Q('#delete').onclick = App.warn;
+        Q('#control-color').oninput = Q('#control').oninput = Controls.get;
+        Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);        
 
         onkeydown = ev => {
             if (ev.target.tagName.includes('KNOB')) 
