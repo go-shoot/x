@@ -40,7 +40,7 @@ class Shohin {
         let {bit, names: {chi, jap}} = new Bey(this.abbr);
         let h4 = this.div.Q('h4');
         h4.Q('strong:nth-of-type(1)').innerText = jap;
-        h4.Q('strong:nth-of-type(2)').innerText = chi;
+        h4.Q('strong:nth-of-type(2)').replaceChildren(E('a', {href: `?${chi}`}, chi));
         this.div.Q('h5').prepend(Shohin.ruby(bit.attr[0]));
     }
     images () {

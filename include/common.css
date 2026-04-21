@@ -378,7 +378,6 @@ dialog {
     a:not([href*=youtu]):empty::before {
         font-size: 1.2rem;
     }
-    a[href^='//']::before {content: '\e023';}
     #tiles x-part {
         font-size: 1.2em;
     }
@@ -396,6 +395,7 @@ dialog {
         * {
             grid-column: 1/-1;
         }
+        a[href^='//']::before {content: '\e023';}
         a[href*=youtu]::before {
             content: '';
             display: block; width: 3em; height: 3em;

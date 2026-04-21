@@ -38,7 +38,7 @@ Cache.prepare = {
 }
 class Input {
     constructor() {
-        this.value = Input.field.value;
+        this.value = Search.query = Markup.reverse(Input.field.value.trim());
         this.targets = {};
         this.match();
         this.postprocess();
@@ -55,8 +55,8 @@ class Input {
             (targets.free ??= new Set()).add(text);
             ['ratchet', 'bit', 'subblade'].forEach(item => matching(item, text, matched));
             !matched._ && matching('abbr', text);
-            text = text.replace(new RegExp([...Input.regexp.values()].map(r => r.source).join('|'), 'g'), '');
-            text && (targets.free ??= new Set()).add(text);
+            text.replace(new RegExp([...Input.regexp.values()].map(r => r.source).join('|'), 'g'), '')
+                .split(/([一-龢]+)/).forEach(t => t && t != '⬧' && targets.free.add(t));
         });
     }
     postprocess (targets = this.targets) {
@@ -94,7 +94,7 @@ class Search {
     constructor(query) {
         (CACHE ? Promise.resolve() : new Cache()).then(cache => {
             CACHE ??= cache;
-            Search.query = query ? Input.field.value = decodeURI(query) : Input.field.value.trim();
+            query && (Input.field.value = decodeURI(query));
             this.targets = new Input().targets;
             let parts = this.find('parts');
             this.targets = [...this.targets.free].join('');
@@ -158,12 +158,13 @@ class Search {
             ev.target.matches('ol.links a[href^="//"]') && 
                 gtag('event', `LINK-${ev.target.href.substring(2,18)}`);
         }
-        Q('a[href^="?"]', a => a.onclick = ev => {
+        document.onclick = ev => {
+            if (!ev.target.matches('a[href^="?"]')) return;
             ev.preventDefault();
-            window.history.pushState({}, '', a.href);
+            window.history.pushState({}, '', ev.target.href);
             new Search(location.search.substring(1));
             Q('#search').scrollIntoView();
-        });
+        };
     }
 }
 Search.events();

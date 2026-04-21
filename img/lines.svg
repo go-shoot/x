@@ -4,7 +4,7 @@
     </style>
     <use id="BX" href="#BX-s" fill="#71bce9"/>
     <use id="UX" href="#UX-s" fill="#ee7800"/>
-    <use id="CX" href="#CX-s" fill="#e4007f"/>
+    <use id="CX" href="#CX-s" fill="#f42597"/>
     <use id="expand" href="#expand-s"/>
     <defs>
       <path id="X" d="M140.835 0h-34.447l40.23 69.806 17.223-29.887L140.835 0Zm37.468 124.788 24.25 42.079H237l-41.474-71.966-17.223 29.887ZM201.306 0l-96.162 166.867h34.447L235.753 0h-34.447Z"></path>
