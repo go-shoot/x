@@ -163,7 +163,7 @@ class Search {
             ev.preventDefault();
             window.history.pushState({}, '', ev.target.href);
             new Search(location.search.substring(1));
-            Q('#search').scrollIntoView();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         };
     }
 }
