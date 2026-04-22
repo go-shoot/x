@@ -171,7 +171,10 @@ class Preview {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
         if (/^BXA-\d+$/.test(dataset.code))
             return Preview.dialog.Q('#images').append(
-                ...Maps.images.find(dataset.code).map(src => E('img', {src: `//pbs.twimg.com/media/${src}?format=jpg&name=large`}))
+                ...Maps.images.find(dataset.code).map(src => E('img', {
+                    loading: 'lazy',
+                    src: `//pbs.twimg.com/media/${src}?format=jpg&name=large`
+                }))
             ); 
         let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
         Preview.dialog.Q('#images').append(
@@ -202,7 +205,10 @@ class Preview {
         src: (type, code, markup, amount) => 
             [...markup ? Markup.replace(markup, 'image', {no: code}) : [code]]
                 .flatMap(code => this.#image.format[type](code, amount))
-                .map(src => E('img', {src: src.replace(/^(?!\/).+$/, `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/$&.png`)}))
+                .map(src => E('img', {
+                    loading: 'lazy',
+                    src: src.replace(/^(?!\/).+$/, `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/$&.png`)
+                }))
         ,
         format: {
             main: code => `${code}@1`,
