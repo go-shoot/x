@@ -212,7 +212,7 @@
             "eng": "Ironman",
             "chi": "鐵甲奇俠 鋼鐵人"
         },
-        "stat": ["32+"],
+        "stat": ["34-"],
         "attr": ["def","right","BX","marvel"],
         "from": "KnSh"
     },
@@ -245,7 +245,7 @@
             "eng": "Captain America",
             "chi": "美國隊長"
         },
-        "stat": ["33-"],
+        "stat": ["32+"],
         "attr": ["att","right","BX","marvel"],
         "from": "DrSw"
     },
@@ -278,7 +278,7 @@
             "eng": "Miles Morales",
             "chi": "終極蜘蛛人"
         },
-        "stat": ["31="],
+        "stat": ["32-"],
         "attr": ["sta","right","BX","marvel"],
         "from": "WzAr"
     },
@@ -289,7 +289,7 @@
             "eng": "Green Goblin",
             "chi": "綠惡魔"
         },
-        "stat": ["32="],
+        "stat": ["32-"],
         "attr": ["sta","right","BX","marvel"],
         "from": "WzAr"
     },
@@ -344,7 +344,7 @@
             "eng": "General Grievous",
             "chi": "葛里維斯將軍"
         },
-        "stat": ["31-"],
+        "stat": ["31="],
         "attr": ["def","right","BX","star-wars"],
         "from": "RhHr"
     },
@@ -388,7 +388,7 @@
             "eng": "Grogu",
             "chi": ""
         },
-        "stat": [""],
+        "stat": ["33+"],
         "attr": ["def","right","BX","star-wars"],
         "from": "RhHr"
     },
@@ -399,7 +399,7 @@
             "eng": "Snowtrooper",
             "chi": ""
         },
-        "stat": [""],
+        "stat": ["34-"],
         "attr": ["def","right","BX","star-wars"],
         "from": "RhHr"
     },
@@ -443,7 +443,7 @@
             "eng": "Starscream",
             "chi": "星星叫 天王星"
         },
-        "stat": ["29+"],
+        "stat": ["30+"],
         "attr": ["sta","right","BX","transformers"],
         "from": "WzAr"
     },
@@ -454,7 +454,7 @@
             "eng": "Bumblebee",
             "chi": ""
         },
-        "stat": [""],
+        "stat": ["32-"],
         "attr": ["def","right","BX","transformers"],
         "from": "KnSh"
     },
@@ -465,7 +465,7 @@
             "eng": "Shockwave",
             "chi": ""
         },
-        "stat": [""],
+        "stat": ["32+"],
         "attr": ["sta","right","BX","transformers"],
         "from": "VpTl"
     }
