@@ -122,7 +122,7 @@ Object.assign(App, {
         Q('nav').onclick = ev => {
             if (ev.target.id == 'sample')
                 return Layers.labels.length > 1 ? App.warn() : App.sample();
-            ['export', 'download'].includes(ev.target.id) && App[ev.target.id];
+            ['export', 'download'].includes(ev.target.id) && App[ev.target.id]();
         }
         Q('#import').onchange = App.import;
         Q('#delete').onclick = App.warn;
