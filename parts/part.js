@@ -176,7 +176,7 @@ Object.assign(Tile.prototype.fill, {
     },
     stat () {
         let {comp, stat, date, attr} = this.Part;
-        let terms = META[comp][attr?.includes('fused') ? 'terms.fused' : 'terms'];
+        let terms = META[comp][comp == 'bit' && attr?.includes('fused') ? 'terms.fused' : 'terms'];
         return [
             date ? E('strong', date) : '',
             E('dl', stat.flatMap((s, i) => E('div', [
