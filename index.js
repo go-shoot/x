@@ -159,9 +159,10 @@ class Search {
                 gtag('event', `LINK-${ev.target.href.substring(2,18)}`);
         }
         document.onclick = ev => {
-            if (!ev.target.matches('a[href^="?"]')) return;
+            let a = ev.target.closest('a[href^="?"]');
+            if (!a) return;
             ev.preventDefault();
-            window.history.pushState({}, '', ev.target.href);
+            window.history.pushState({}, '', a.href);
             new Search(location.search.substring(1));
             window.scrollTo({top: 0, behavior: 'smooth'});
         };
