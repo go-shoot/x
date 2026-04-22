@@ -217,14 +217,16 @@ time {
 :is(time.seeing,dfn)::before {
     --stop: 100%;
 }
-.scroller,section {
+.scroller,.scroller>*,section {
     transition: transform .4s;
 }
 .scroller:nth-of-type(odd):not(.seeing) {
     transform: translateX(-100%);
+    &>* {transform: scale(0);}
 }
 .scroller:nth-of-type(even):not(.seeing) {
     transform: translateX(100%);
+    &>* {transform: scale(0);}
 }
 
 button:has(+#beginner) {

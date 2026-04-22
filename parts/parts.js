@@ -108,7 +108,8 @@ Object.assign(Magnifier, {
 });
 
 const Sorter = () => {
-    Q('nav').append(new FilterForm.fieldset(new O((Sorter.use ??= ['name','time','weight']).map(by => [by, Sorter.icons[by]])), {legend: '排序'}));
+    Sorter.use ??= ['name','time','weight'];
+    Q('nav').append(new FilterForm.fieldset(new O(Sorter.use.map(by => [by, Sorter.icons[by]])), {legend: '排序'}));
     Sorter.events();
     let checked = Q(`#${Storage('pref')?.sort || 'name'},#${Sorter.use[2]}`, [])[0];
     checked.checked = true;

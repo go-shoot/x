@@ -24,7 +24,7 @@ class Shohin {
     ])
     static figure = imgORsrc => E('figure', [
         E('a', '🖼️', {href: typeof imgORsrc == 'string' ? imgORsrc : imgORsrc.src}), 
-        typeof imgORsrc == 'string' ? E('img', {src: imgORsrc}) : imgORsrc
+        typeof imgORsrc == 'string' ? E('img', {src: imgORsrc, loading: 'lazy'}) : imgORsrc
     ])
     static zip = (texts, images) => texts.reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), images)
     static type = {att: 'ATTACK', bal: 'BALANCE', sta: 'STAMINA', def: 'DEFENSE'}
@@ -68,7 +68,7 @@ class Keihin {
             E('em', Keihin.type[type]), 
             E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note), //DMM
             E('div', [
-                E('figure>img', {src, style: typeof style == 'object' ? style : {width: style + '%'}}), 
+                E('figure>img', {src, loading: 'lazy', style: typeof style == 'object' ? style : {width: style + '%'}}), 
                 E('h4', {lang: 'ja'}, [
                     E('code', code.includes('?') ? '' : Markup.figure(code).replace(/_.+$/, '')), 
                     E('a', {href: `//google.com/search?q="${jap}" ${ver?.[0] ?? ''}`, target: '_blank'}, jap), 
