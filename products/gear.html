@@ -97,7 +97,7 @@ class Board {
         return E('li', [
             E('div', ...code.split(' ').flatMap(c => [E('code', Markup.nobreak(c)), ' '])),
             E('figure>img', {
-                src: this.src(code, src), alt: code, 
+                src: this.src(code, src), alt: code, loading: 'lazy',
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
             }),
             ...classes?.split(' ').map(c => Board.winder[c]?.cloneNode(true) ?? '') ?? []
