@@ -1,7 +1,7 @@
 
 import DB from '../include/DB.js'
 import { Bey, Preview } from './bey.js';
-import { Markup } from '../include/utilities.js';
+import { Markup, Glossary } from '../include/utilities.js';
 import Table from '../products/products.js';
 
 let META, PARTS;
@@ -97,17 +97,18 @@ class Bit extends Part {
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
 class Tile extends HTMLElement {
-    static observer = new IntersectionObserver(entries => entries.forEach(en => 
-        en.isIntersecting && [en.target.fill(), Tile.observer.unobserve(en.target)]
-    ));
+    static observer = new IntersectionObserver(entries => {
+        entries.forEach(en => en.isIntersecting && en.target.fill());
+        Glossary();
+    });
     constructor(Part) {
         super();
         Tile.observer.observe(this);
         this.attachShadow({mode: 'open'});
-        let {path, group, attr, classes} = this.Part = Part;
+        let {path, group, attr} = this.Part = Part;
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
-            classList: [...path.slice(0, -1), group, classes, ...attr?.filter(a => !/^.X$/.test(a)) ?? []],
+            classList: [...new Set([...path.slice(0, -1), group, ...attr])],
             onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
         });
     }
@@ -119,7 +120,7 @@ class Tile extends HTMLElement {
         this.shadowRoot.append(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
             E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
-            E('object', {data: this.fill.background(getComputedStyle(this).getPropertyValue('--hue'))}),
+            E('object', {data: this.fill.background(E(this).get('--hue'))}),
             E('figure>img', {src: `/x/img/${path.join('/')}.png`}),
             E('slot'),
             E('ul', this.fill.icons()),
@@ -134,6 +135,7 @@ class Tile extends HTMLElement {
             from ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
+        Tile.observer.unobserve(this);
     }
     static #onclick = {
         '/x/parts/': (path, ev) => new Preview('cell', {path}, ev),
@@ -221,25 +223,20 @@ class Cell {
         return tds;
     }
 
-    static fill = (lang, td) => [td ?? Q('td[abbr]')].flat().forEach(async td => {
-        let {path} = td?.Part ?? {};
-        if (!td || path[0] == 'ratchet') return;
-        let next = td.nextElementSibling;
-        (next.headers ? td : next).replaceChildren(...await Cell.#html(lang, td.Part, JSON.parse(td.dataset.mode ?? null)));
-    })
-    static async #html (lang, part, mode) {
-        let {names} = part;
-        if (!names) return [];
-        let limit = Cell.#limit[lang]?.at(part.path.slice(0, -1));
+    static fill = (lang, td) => [td ?? Q('td[abbr]')].flat().forEach(td => {
+        let {path, names} = td.Part, {mode} = td.dataset;
+        if (path[0] == 'ratchet') return;
         let name = names[lang] || names.eng;
-        if (mode &&= Markup('cell', mode[lang]))
-            name = mode.length > 1 && name.includes(' ') ? 
-                name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`;
+        mode = Markup('cell', JSON.parse(mode ?? '""')[lang]);
+        mode.length && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
+            name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`);
         name = Markup('cell', name);
-        return names[lang]?.length >= (typeof limit == 'number' ? limit : 99) ? [E('small', name)] : name;
-    }
-    static colSpan = {blade: path => !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : ''}
+        let limit = Cell.#limit[lang]?.at(path.slice(0, -1)) ?? 99;        
+        let next = td.nextElementSibling;
+        (next.headers ? td : next).replaceChildren(...names[lang]?.length >= limit ? [E('small', name)] : name);
+    });
     static #limit = {jap: new O({bit: 7})};
+    static colSpan = {blade: path => !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : ''}
 }
 Part.blade = Blade, Part.ratchet = Ratchet, Part.bit = Bit;
 export {Part, Tile, Cell};
