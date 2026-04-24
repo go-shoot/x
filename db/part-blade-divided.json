@@ -2,7 +2,7 @@
     "over": {
         "P": {
             "names": {"jap":"ピーク", "eng":"Peak"},
-            "stat": [],
+            "stat": ["3+"],
             "desc": "重量集中在一處的形狀可調整Blade的重心。",
             "attr": ["bal","right"]
         },
@@ -28,7 +28,7 @@
     "assist": {
         "O": {
             "names": {"jap":"オッド", "eng":"Odd"},
-            "stat": [],
+            "stat": ["5-"],
             "desc": "非對稱構造一併持有連打攻擊刃及圓形化解刃。",
             "attr": ["bal","right"]
         },
@@ -237,7 +237,7 @@
     "metal": {
         "Dl": {
             "names": {"jap":"デルタ", "eng":"Delta", "chi":""},
-            "stat": [""],
+            "stat": ["28-"],
             "desc": "一併持有攻擊的刃及防禦的刃，左右形狀相異的兩枚刃。",
             "attr": ["bal","right"]
         },
