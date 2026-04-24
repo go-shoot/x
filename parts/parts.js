@@ -35,7 +35,7 @@ Object.assign(Parts, {
         Sorter.sort(Sorter.checked);
         Filter.form.onchange();
     },
-    finally: () => Q('.loading').classList.remove('loading'),
+    finally: () => Parts.place.classList.remove('loading'),
     
     switch (groupORpart) {
         let [group, part] = typeof groupORpart == 'string' ? [groupORpart] : [, groupORpart.Part];
