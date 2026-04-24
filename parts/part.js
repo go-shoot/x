@@ -108,7 +108,7 @@ class Tile extends HTMLElement {
         let {path, group, attr} = this.Part = Part;
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
-            classList: [...new Set([...path.slice(0, -1), group, ...attr])],
+            classList: ['loading', ...path.slice(0, -1), group, ...attr.filter(a => !/^.X$/.test(a))], //BX vs collab
             onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
         });
     }
@@ -135,6 +135,7 @@ class Tile extends HTMLElement {
             from ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
+        this.classList.remove('loading');
         Tile.observer.unobserve(this);
     }
     static #onclick = {

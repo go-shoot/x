@@ -1,11 +1,9 @@
-:host(:not([hidden])) {
+:host(:not([hidden])) { /* &common.css:114 */
     --icon: 1.6em;
     aspect-ratio: 1;
-    display: inline-grid !important;
     grid-template: 2em auto .1em .9em .9em / var(--icon) calc(50% - var(--icon)) auto var(--icon) var(--icon);
-    padding: .3em .4em; margin: .1rem;
+    padding: .3em .4em;
     overflow: hidden;
-    position: relative;
     cursor: pointer;
     opacity: 1 !important; transition: opacity .5s;
 
