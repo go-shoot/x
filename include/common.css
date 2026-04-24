@@ -123,8 +123,7 @@ x-part { /*initial style before part.css*/
         &::before {
             content: '\e005' !important; font-size: 2rem;
             animation: spin 1s infinite;
-            position: absolute; inset: 0;
-            display: flex; justify-content: center; align-items: center;
+            place-self: center;
         }
     }
 }
