@@ -71,7 +71,7 @@ class Keihin {
                 E('figure>img', {src, loading: 'lazy', style: typeof style == 'object' ? style : {width: style + '%'}}), 
                 E('h4', {lang: 'ja'}, [
                     E('code', code.includes('?') ? '' : Markup.figure(code).replace(/_.+$/, '')), 
-                    E('a', {href: `//google.com/search?q="${jap}" ${ver?.[0] ?? ''}`, target: '_blank'}, jap), 
+                    E('a', /^\w+$/.test(jap) ? {} : {href: `//google.com/search?q="${jap}" ${ver?.[0] ?? ''}`, target: '_blank'}, jap), 
                     E('small', ver?.[0] ? {
                         classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
                         innerHTML: ver[0]

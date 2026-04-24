@@ -42,10 +42,10 @@
     四塊分別是：<dl><dt><ruby>Long Side Panel<rt>ロングサイドパネル</ruby><dd>放四根手指用<dt><ruby>Grip Panel<rt>グリップパネル</ruby><dd>掌心用的平坦形<dt><ruby>Short Side Panel<rt>ショートサイドパネル</ruby><dd>放姆指用<dt><ruby>Hybrid Panel<rt>ハイグリップパネル</ruby><dd>一端的突起減少滑手</dl>
 </template>
 <template id="xtreme stadium">
-    下方兩側為2分 <ruby>Over Zone<rt>オーバーゾーン</rt></ruby>，中間為3分 <ruby>Xtreme Zone<rt>エクストリームゾーン</rt></ruby>。
+    下方兩側為2分 <ruby>Over Zone<rt>オーバーゾーン</rt></ruby>，中間為3分 <ruby>Xtreme Zone<rt>エクストリームゾーン</rt></ruby>。只要陀螺從洞口離開，不論主動或被動，並沒有再<ruby>返回對戰盤<rt>Reverse</rt></ruby>，對手即可得分。
 </template>
 <template id="wide xtreme stadium">
-    上方兩個角落為3分Xtreme Zone，下方中間為2分Over Zone。最後一顆生存的陀螺為勝，依其餘兩顆如何落敗而加總得分。例如兩顆陀螺互相碰撞後分別從2分區及3分區離開對戰盤，剩餘的一顆就取得5分。
+    上方兩個角落為3分Xtreme Zone，下方中間為2分Over Zone。最後一顆生存的陀螺為勝，依其餘兩顆如何落敗而加總得分。例如兩顆陀螺分別從2分區及3分區離開對戰盤，剩餘的一顆就取得5分。
 </template>
 
 
@@ -128,8 +128,8 @@ Q('main').prepend(DB().then(() => {
         ))();
     });
     Q('main').onclick = ev => ev.target.tagName == 'CODE' ? 
-        ev.target.closest('li').classList.contains('Lm') ? 
-            window.open(ev.target.parentElement.Q('img').src) : 
+        ev.target.closest('li.Lm') ? 
+            window.open(ev.target.closest('li').Q('img').src) : 
             new Preview('image', {code: ev.target.innerText}, ev) 
         : '';
 }));
