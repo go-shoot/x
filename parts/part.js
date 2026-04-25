@@ -115,9 +115,6 @@ class Tile extends HTMLElement {
             onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
         });
     }
-    connectedCallback() {
-        !this.shadowRoot.childElementCount && (this.hidden = !this.closest('dialog'));
-    }
     fill () {
         let {path, desc, from} = this.fill.Part = this.Part;
         this.shadowRoot.append(
