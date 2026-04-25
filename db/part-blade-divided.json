@@ -236,8 +236,8 @@
     },
     "metal": {
         "Dl": {
-            "names": {"jap":"デルタ", "eng":"Delta", "chi":""},
-            "stat": ["28-"],
+            "names": {"jap":"デルタ", "eng":"Delta", "chi":"三極 極變"},
+            "stat": ["28="],
             "desc": "一併持有攻擊的刃及防禦的刃，左右形狀相異的兩枚刃。",
             "attr": ["bal","right"]
         },

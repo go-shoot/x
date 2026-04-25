@@ -97,10 +97,13 @@ class Bit extends Part {
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
 class Tile extends HTMLElement {
-    static observer = new IntersectionObserver(entries => {
-        entries.forEach(en => en.isIntersecting && en.target.fill());
-        Glossary();
-    });
+    static observer = new IntersectionObserver(entries => entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.fill();
+        en.target.classList.remove('loading');
+        Glossary(en.target.shadowRoot);
+        Tile.observer.unobserve(en.target);
+    }));
     constructor(Part) {
         super();
         Tile.observer.observe(this);
@@ -135,8 +138,6 @@ class Tile extends HTMLElement {
             from ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
-        this.classList.remove('loading');
-        Tile.observer.unobserve(this);
     }
     static #onclick = {
         '/x/parts/': (path, ev) => new Preview('cell', {path}, ev),

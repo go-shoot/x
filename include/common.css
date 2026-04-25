@@ -114,7 +114,6 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 x-part { /*initial style before part.css*/
     display: inline-grid; width: 15em; height: 15em;
     margin: .1rem;
-    position: relative;
     opacity: 0;
     
     &.loading {

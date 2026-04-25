@@ -15,7 +15,7 @@ class Cache {
             return Promise.all(Cache.flatten(PARTS).map(p => p.revise('tile')));
         }).then(parts => ({...CACHE,
             parts: parts.map(p => p.push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]].join(' ')}))
-        }))
+        }));
     }
     static link = ([comp, line, group], title, label) => ({                        
         keywords: ['零件','部件','組件','圖鑑', ...title.split(/[【⬧】]/)],

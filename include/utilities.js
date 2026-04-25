@@ -175,6 +175,8 @@ const Transition = {
 }
 
 const Glossary = async (where = document) => {
+    let p = [where.Q('p'), where.Q('x-part', []).map(part => part.sQ('p'))].flat(9).filter(el => el);
+    if (!p.length) return;
     if (!Q('#glossary')) {
         addEventListener('click', ev => {
             let clicked = ev.composedPath()[0];
@@ -182,12 +184,12 @@ const Glossary = async (where = document) => {
         }, {capture: true});
         Q('body').append(E('aside#glossary', {popover: 'hint'}));
     }
-    let p = [where.Q('p'), where.Q('x-part', []).map(part => part.shadowRoot.Q('p'))].flat(9).filter(el => el);
-    if (!p.length) return;
-    Glossary.search(p, await DB.get('meta', 'glossary'));    
+    (Glossary.defs ? Promise.resolve() : DB.get('meta', 'glossary'))
+    .then(defs => Glossary.defs ??= defs)
+    .catch(() => '').finally(() => setTimeout(() => Glossary.search(p)));
 }
 Object.assign(Glossary, {
-    search: (texts, glossary) => texts.forEach(p => {
+    search: texts => texts.forEach(p => {
         const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, 
             node => NodeFilter[node.parentElement.tagName == 'U' ? 'FILTER_REJECT' : 'FILTER_ACCEPT']);
         let node;
@@ -195,16 +197,16 @@ Object.assign(Glossary, {
             const texts = node.nodeValue.split(/(\w[\w ]*\w)/);
             if (texts.length <= 1) continue;
             const fragment = new DocumentFragment;
-            fragment.append(...texts.map(text => text in glossary ? E('u', text) : new Text(text)));
+            fragment.append(...texts.map(text => text in Glossary.defs ? E('u', text) : new Text(text)));
             node.replaceWith(fragment);
         }
     }),    
-    lookup: async (ev, term) => {
+    lookup: (ev, term) => {
         ev.stopPropagation();
         clearTimeout(Glossary.timer);
         let aside = Q('#glossary');
         aside.innerHTML = '';
-        let [jap, def] = (await DB.get('meta', 'glossary'))[term];  //ev.target changes after await
+        let [jap, def] = Glossary.defs[term];  //ev.target changes after await
         E(aside).set({
             '--left': `${ev.clientX}px`, '--top': `${ev.clientY}px`
         }, [
