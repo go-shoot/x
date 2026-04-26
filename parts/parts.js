@@ -29,21 +29,20 @@ Object.assign(Parts, {
     ).then(parts => Parts.place.replaceChildren(...parts.filter(p => p))),
 
     async after () {
-        let hash = decodeURI(location.hash.substring(1));
-        Parts.switch(hash && Q(`x-part[id='${hash}']`) || hash);
+        Parts.switch();
         Sorter.checked == 'time' ? await Sorter.time.order(COMP) : Sorter.time.order(COMP);
         Sorter.sort(Sorter.checked);
-        Filter.form.onchange();
     },
     finally: () => Parts.place.classList.remove('loading'),
     
-    switch (groupORpart) {
-        let [group, part] = typeof groupORpart == 'string' ? [groupORpart] : [, groupORpart.Part];
-        group ??= part.classes || part.path[2] || part.group;
+    switch (what) { // #part #group .group _
+        what = decodeURI((what || location.hash).substring(1));
+        let tile = Q(`x-part[id='${what}']`);
+        let group = tile ? tile.Part.path[2] || tile.Part.group : what;
         group && Q(`#group input`, input => input.checked = input.value == `.${group}`);
-        group ||= Q('#group input:checked').value?.substring(1);
-        Parts.info(group);
-        typeof groupORpart == 'object' && Parts.focus(groupORpart);
+        Filter.form.onchange();
+        Parts.info(group || Q('#group input:checked').value?.substring(1));
+        tile && Parts.focus(tile);
     },
     info (group) {
         document.title = document.title.replace(/^.*?(?= 🙼 )/, META.title?.[group] ?? META.title ?? '').replaceAll(/(?<! )⬧(?! )/g, ' $& ');
@@ -56,7 +55,7 @@ Object.assign(Parts, {
         setTimeout(() => tile.scrollIntoView(), 500);
     }
 });
-onhashchange = () => Parts.after();
+onhashchange = () => Parts.switch();
 
 const Filter = function(which) {
     if (this instanceof Filter) 
@@ -72,7 +71,7 @@ Object.assign(Filter, {
             legend: {group: {click: Filter.multi}},
             action: {group: ev => {
                 history.replaceState(null, '', ' '); //remove #
-                Parts.switch(ev.target.value.substring(1));
+                Parts.switch(ev.target.value);
             }},
             single: true
         });
@@ -110,9 +109,8 @@ const Sorter = () => {
     Sorter.use ??= ['name','time','weight'];
     Q('nav').append(new FilterForm.fieldset(new O(Sorter.use.map(by => [by, Sorter.icons[by]])), {legend: '排序'}));
     Sorter.events();
-    let checked = Q(`#${Storage('pref')?.sort || 'name'},#${Sorter.use[2]}`, [])[0];
-    checked.checked = true;
-    Sorter.checked = checked.id;
+    let input = Q(`#${Storage('pref')?.sort || 'name'},#${Sorter.use[2]}`, [])[0];
+    [Sorter.checked, input.checked] = [input.id, true];
 }
 Object.assign(Sorter, {
     sort: by => Parts.place.append(...[...Parts.place.children].sort((a, b) => Sorter.by[by](a.Part, b.Part))),

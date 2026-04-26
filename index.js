@@ -11,30 +11,25 @@ class Cache {
         return Promise.all([DB.get.essentials(true), DB.get('meta', 'search')])
         .then(([[meta, PARTS], links]) => {
             Part.import(meta.general, PARTS);
-            CACHE = {links: Cache.prepare.links(links, meta)};
+            CACHE = {links: [
+                ...links,
+                ...new O(LINES).flatMap(([line, {divided}]) => 
+                    Cache.link(['blade', ...divided ? [line] : ['', line]], line)
+                ),
+                Cache.link(['ratchet'], '核輪⬧固鎖輪盤'), Cache.link(['bit'], '軸心')
+            ]};
             return Promise.all(Cache.flatten(PARTS).map(p => p.revise('tile')));
         }).then(parts => ({...CACHE,
             parts: parts.map(p => p.push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]].join(' ')}))
         }));
     }
-    static link = ([comp, line, group], title, label) => ({                        
-        keywords: ['零件','部件','組件','圖鑑', ...title.split(/[【⬧】]/)],
+    static link = ([comp, line, group], title) => ({                        
+        keywords: ['零件','部件','組件','圖鑑', comp, ...title.split(/[【⬧】]/)],
         href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
-        text: (label || title).match(/[一-龥]+⬧?[一-龥]+/)?.[0] || label || title
+        text: title
     })
     static flatten = parts => parts instanceof O ? [...parts.values()].map(Cache.flatten).flat() : parts
     static types = {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}
-}
-Cache.prepare = {
-    links: (links, {general, ...meta}) => links.concat(
-        ...[...new O(meta)].map(([comp, obj]) => [
-            Cache.link([comp], (obj.所有 ?? obj.一體).title),
-            [...obj].filter(([, obj]) => obj.group).map(([line, {title, group}]) => line.endsWith('X') ? 
-                [...title].map(([sub, title]) => Cache.link([comp, line, sub], title)) : 
-                [...group].map(([group, {label}]) => Cache.link([comp, , group], title, label))
-            )
-        ]).flat(9)
-    ),
 }
 class Input {
     constructor() {
@@ -85,7 +80,7 @@ class Input {
         abbr: /(?<![A-z])[A-z]{1,2}(?![A-z\-])/
     })
     static events () {
-        Input.field.onfocus = async () => CACHE ??= await new Cache();
+        Input.field.onfocus = async () => console.log(CACHE ??= await new Cache());
         Input.field.oninput = () => Input.field.value.trim() && new Search();
     }
 }
