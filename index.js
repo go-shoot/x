@@ -95,7 +95,7 @@ class Search {
             let parts = this.find('parts');
             this.targets = [...this.targets.free].join('');
             Q('#search .preview').replaceChildren(...this.find('products'), ...parts);
-            Q('#search .links').replaceChildren(Search.bey ? new Result('weight', Search.bey) : '', ...this.find('links'));
+            Q('#search .links').replaceChildren(/*Search.bey ? new Result('weight', Search.bey) : '', */...this.find('links'));
         });
     }
     static for = {
