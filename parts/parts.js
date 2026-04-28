@@ -153,5 +153,5 @@ Sorter.time = {
         );
     })
 }
-Sorter.weight = {adjust: {'+': .2, '=': 0, '-': -.2}};
+Sorter.weight = {adjust: {'+': .3, '=': 0, '-': -.3}};
 export default Parts

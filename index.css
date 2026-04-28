@@ -97,6 +97,7 @@ section {
             &[href^='//'] {color: var(--accent);}
             &[href^='//']::before {content: '\e023';}
         }
+        b {font-weight: bold;}
     }
     table {margin: .5em auto;}
 }

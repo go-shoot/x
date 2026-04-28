@@ -230,7 +230,7 @@ const Transform = {
         dict (parts, detailed) {
             let OBJ = new O;
             parts.forEach(([comp, parts]) => comp.includes('.') ?
-                OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))]) : 
+                OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))], detailed) : 
                 OBJ[comp] = new O(OBJ[comp] ?? {}, parts.map(part => {
                     part.abbr.includes('.') && ([part.group, part.abbr] = part.abbr.split('.'));
                     part = new (Part[comp] ?? Part.blade)(part);

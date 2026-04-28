@@ -1,5 +1,5 @@
 import DB from './include/DB.js'
-import {Preview} from './parts/bey.js'
+import {Bey, Preview} from './parts/bey.js'
 import {Part} from './parts/part.js'
 import {Markup} from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
@@ -20,7 +20,7 @@ class Cache {
             ]};
             return Promise.all(Cache.flatten(PARTS).map(p => p.revise('tile')));
         }).then(parts => ({...CACHE,
-            parts: parts.map(p => p.push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]].join(' ')}))
+            parts: parts.map(p => p.push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]]}))
         }));
     }
     static link = ([comp, line, group], title) => ({                        
@@ -36,7 +36,7 @@ class Input {
         this.value = Search.query = Markup.reverse(Input.field.value.trim());
         this.targets = {};
         this.match();
-        this.postprocess();
+        this.extend();
     }
     match (targets = this.targets) {
         let matching = (item, text, matched = {_: ''}) => {
@@ -54,7 +54,7 @@ class Input {
                 .split(/([一-龢]+)/).forEach(t => t && t != '⬧' && targets.free.add(t));
         });
     }
-    postprocess (targets = this.targets) {
+    extend (targets = this.targets) {
         targets.ratchet &&= new Set(
             [...targets.ratchet].map(r => r.replace(/(?<!-)(?=\d{2}$)/, '-'))
         );
@@ -71,16 +71,17 @@ class Input {
             (targets.assist ??= new Set()).add(a.at(-1));
             a.at(-2) && (targets.over ??= new Set()).add(a.at(-2));
         });
+        (targets.bit || []).forEach(b => b.length > 1 && targets.bit.add(b[1]));
     }
     static field = Q('[type=search]')
     static regexp = new O({
         ratchet: /\w-?\d{2}(?!\d)/,
-        bit: /(?<=\d{2})[A-z]+$/,
+        bit: /[A-z]{1,2}$/,
         subblade: /[A-z]{1,2}(?=\w-?\d{2})|(?<=[一-龥])[A-z]{1,2}/,
         abbr: /(?<![A-z])[A-z]{1,2}(?![A-z\-])/
     })
     static events () {
-        Input.field.onfocus = async () => console.log(CACHE ??= await new Cache());
+        Input.field.onfocus = async () => CACHE ??= await new Cache();
         Input.field.oninput = () => Input.field.value.trim() && new Search();
     }
 }
@@ -94,19 +95,15 @@ class Search {
             let parts = this.find('parts');
             this.targets = [...this.targets.free].join('');
             Q('#search .preview').replaceChildren(...this.find('products'), ...parts);
-            Q('#search .links').replaceChildren(...this.find('links'));
+            Q('#search .links').replaceChildren(Search.bey ? new Result('weight', Search.bey) : '', ...this.find('links'));
         });
     }
     static for = {
-        specific: (targets) => CACHE.parts.filter(({path, names}) =>
-            ['ratchet', 'bit', 'assist', 'over'].some(comp => 
-                comp == (path[2] || path[0]) && Search.match.abbr(path.at(-1), targets[comp])
-            ) ||
-            ['blade', 'chip', 'main', 'metal'].some(comp => 
-                comp == (path[2] || path[0]) && Search.match.name(names, targets.free)
-            )
-        ),
-        general: (targets, amount) => 
+        specific: (targets) => CACHE.parts.filter(part => part.only.name() ? 
+            Search.match.name(part.names, targets.free) : 
+            Search.match.abbr(part.path.at(-1), targets[part.path[2] || part.path[0]])
+        ).sort((p1, p2) => p2.abbr.length - p1.abbr.length),
+        generic: (targets, amount) => 
             new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
             .search({$or: [...targets.free].map(text => ({
                 $or: [{abbr: text}, {$and: text.split(/(?=\W)/).map(t => ({all: t}))}]
@@ -115,15 +112,16 @@ class Search {
             .map(r => r.item)
     }
     static match = {
-        abbr: (abbr, set) => set?.has(abbr),
+        abbr: (abbr, set) => set?.has(abbr.toUpperCase()),
         name: (names, set) => names?.chi.split(' ').some(n => set?.has(Markup.remove(n)))
     }
     find = what => Search.find[what](this.targets)
     static find = {
         parts: query => {
             let parts = Search.for.specific(query);
-            return [...new Set([...parts, ...Search.for.general(query, parts.length ? 5 : 50)])]
-            .map(item => new Result('part', item))
+            parts = new Set([...parts, ...Search.for.generic(query, parts.length ? 5 : 50)]);
+            Search.bey = Bey.build.from([...parts]);
+            return [...parts].map(item => new Result('part', item));
         },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
@@ -176,6 +174,7 @@ class Result {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
             href, target: href.startsWith('//') ? '_blank' : ''
         })
+    weight = ({name, weight}) => ''//E('li', [` 重量估算【${name}】`, E('b', weight)])
 }
 
 import {Shohin} from './include/utilities.js'

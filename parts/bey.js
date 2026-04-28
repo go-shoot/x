@@ -10,11 +10,14 @@ class Bey {
     constructor(bey) {
         if (typeof bey == 'string') {
             this.abbr.to.parts(bey).to.names();
-        }
-        if (Array.isArray(bey)) {
+        } else if (Array.isArray(bey)) {
             let [code, type, abbr, ...others] = bey;
             this.abbr.to.parts(this.abbr = abbr);
             this.row = new Row(this, code, type, others);
+        } else {
+            Object.assign(this, bey);
+            this.parts.to.names();
+            return {name: this.names.chi, weight: this.weight()};
         }
     }
     abbr = {to: {parts: abbr => {
@@ -47,7 +50,33 @@ class Bey {
         names.jap = [names.jap, Markup.nobreak(this.ratchet.abbr), this.bit.abbr].flat().join('');
         this.names = names;
     }}}
+    weight = () => {
+        let adjust = {'+': .3, '=': 0, '-': -.3};
+        let sum = [this.blade, this.ratchet, this.bit].flat().reduce((sum, p) => 
+            sum += p?.stat ? parseInt(p.stat[0]) + adjust[p.stat[0].at(-1)] : 0
+        , 0);
+        return Math.round(sum) + (sum % 1 > .5 ? '-' : sum % 1 > .1 ? '+' : '=');
+    }
     static comps = ['blade', 'ratchet', 'bit']
+    static build = {from: parts => {
+        if (parts.length > 10) return;
+        let known = (comp, part) => comp == (part.path[2] || part.path[0]) && part.stat[0], bey = [];
+        bey[0] = Part.blade.CX[4].map(sb => parts.find(part => known(sb, part)));
+        bey[0].includes(undefined) && (bey[0] = Part.blade.CX[3].map(sb => parts.find(part => known(sb, part))));
+        bey[0].includes(undefined) && (bey[0] = parts.find(part => known('blade', part)));
+        if (!bey[0]) return;
+        [bey[1], bey[2]] = [parts.find(part => known('ratchet', part)), parts.find(part => known('bit', part))];
+        let assemblable = Bey.assemblable.some(checks => checks.every((c, i) => c(bey[i])));
+        return assemblable ?
+            new Bey({blade: bey[0], ratchet: bey[1] ?? new Part.ratchet, bit: bey[2] ?? new Part.bit}) :
+        bey[0].length ?
+            new Bey({blade: bey[0], ratchet: new Part.ratchet, bit: new Part.bit}) : '';
+    }}
+    static assemblable = [
+        [p => p.length || !p.attr.includes('fused'), p => p, p => p && !p.attr.includes('fused')],
+        [p => !p.length && p?.attr.includes('fused'), p => !p, p => p && !p.attr.includes('fused')],
+        [p => p.length || !p.attr.includes('fused'), p => !p, p => p?.attr.includes('fused')],
+    ]
 }
 class Row {
     constructor(bey, code, classes, others) {
