@@ -120,7 +120,7 @@ class Search {
         parts: query => {
             let parts = Search.for.specific(query);
             parts = new Set([...parts, ...Search.for.generic(query, parts.length ? 5 : 50)]);
-            Search.bey = Bey.build.from([...parts]);
+            //Search.bey = Bey.build.from([...parts]);
             return [...parts].map(item => new Result('part', item));
         },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
