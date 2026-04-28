@@ -15,8 +15,8 @@ nav {
     }
     small {color: var(--on);}
     input {
-        width: 4.5em; height: 1.3rem;
-        margin: 0 .2em 0 .3em;
+        width: 4.6em; height: 1.3rem;
+        margin: 0 .2em 0 .3em; padding: .1em;
         vertical-align: middle;
     }
     button,label:not(.toggle) {
@@ -32,7 +32,11 @@ nav {
         vertical-align: middle;
         margin-right: .25em;
     }
-    .toggle+small {font-size: .8em;}
+    .toggle+small {
+        font-size: .8em;
+        margin-left: -.6em;
+        position: relative; z-index: 1;
+    }
     .toggle:has(:checked)~#download {background: var(--accent);}
 }
 main {

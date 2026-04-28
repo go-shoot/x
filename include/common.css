@@ -239,7 +239,6 @@ nav {
     menu {
         display: flex; 
         height: min-content;
-        margin: .1em .1em 0 0;
         position: relative;
         z-index: 2;
 
