@@ -1,5 +1,18 @@
 {
-   "AgRm": {
+    "BtGs": {
+        "group": "hasbro",
+        "names": {
+            "jap": "バットガスト",
+            "eng": "BatGust",
+            "chi": "",
+            "aka": "蝙蝠"
+        },
+        "stat": ["39="],
+        "desc": "",
+        "attr": ["BX","bal","right"],
+        "from": "WhWv"
+    },
+    "AgRm": {
         "group": "hasbro",
         "names": {
             "jap": "イージスランパート",
@@ -11,7 +24,7 @@
         "desc": "",
         "attr": ["UX","def","right","fused"]
     },
-   "ShSr": {
+    "ShSr": {
         "group": "hasbro",
         "names": {
             "jap": "シノビシュリケン",
