@@ -13,6 +13,7 @@ class Part {
         this.path = [this.constructor.name.toLowerCase(), this.abbr];
         return this.constructor == Part ? new Part[this.comp](json) : this;
     }
+    get subcomp () {return this.path[2] || this.path[0]};
     *[Symbol.iterator] () {
         for (const value of Object.values(this)) 
             yield typeof value == 'object' ? 
@@ -206,11 +207,11 @@ customElements.define('x-part', Tile);
 class Cell {
     constructor(Part) {
         Part.revise('cell');
-        let {abbr, path, attr} = Part;
+        let {abbr, subcomp, path, attr} = Part;
         let single = Part.only.name() || Part.only.abbr();
         let tds = [E('td'), !abbr || single ? '' : E('td')];
         E(tds[0]).set({
-            headers: path[2] ?? path[0],
+            headers: subcomp,
             ...Cell.colSpan[path[0]]?.(path) || (!abbr && !single ? {colSpan: 2} : {}),
         });
         if (abbr == null) return tds;

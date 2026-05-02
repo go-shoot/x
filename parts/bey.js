@@ -16,7 +16,7 @@ class Bey {
             this.row = new Row(this, code, type, others);
         } else {
             Object.assign(this, bey);
-            this.parts.to.names();
+            this.parts.to.names(true);
             return {name: this.names.chi, weight: this.weight()};
         }
     }
@@ -35,44 +35,42 @@ class Bey {
         this.line ??= /^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '';
         return this.parts;
     }}}
-    parts = {to: {names: () => {
-        let names = {};
-        names.chi = new O({...['', '']}).append(...[this.blade].flat().map(b => 
-            Markup.remove(b?.names?.chi ?? b?.abbr)?.replace(/^(?!.+ ).*/, '$& $&').split(' ')
-        ));
-        names.chi = [...new Set([...names.chi.values()])].filter(n => n);
-        names.chi.length > 1 ? 
-            names.chi[0] = names.chi[0].replace(/[^一-龢]+$/, '') : /^[^一-龢]+$/.test(names.chi[0]) && (names.chi = '');
-        names.chi &&= [names.chi.join('⬧'), Markup.nobreak(this.ratchet.abbr), this.bit.abbr].join('');
-
-        names.jap = Array.isArray(this.blade) ? 
-            this.blade.map((b, i, ar) => ar[0] && ar[1] && i >= 2 ? b.abbr : b?.names?.jap) : this.blade.names.jap,
-        names.jap = [names.jap, Markup.nobreak(this.ratchet.abbr), this.bit.abbr].flat().join('');
-        this.names = names;
+    parts = {to: {names: (substitute = false) => {
+        let blade = [this.blade].flat();
+        let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('')
+            + Markup.nobreak(this.ratchet.abbr) + (this.bit.abbr ?? '');
+        this.names = {
+            chi: Markup.remove([
+                blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
+                blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
+            ].filter(n => n).join('⬧')) + others,
+            jap: blade.map(b => b.only.name() ? b.names?.jap : '').join('') + others
+        };
+        (this.names.chi == others) && (this.names.chi = substitute ? blade.map(b => b.abbr).join('.') + others : '');
     }}}
     weight = () => {
         let adjust = {'+': .3, '=': 0, '-': -.3};
         let sum = [this.blade, this.ratchet, this.bit].flat().reduce((sum, p) => 
             sum += p?.stat ? parseInt(p.stat[0]) + adjust[p.stat[0].at(-1)] : 0
         , 0);
-        return Math.round(sum) + (sum % 1 > .5 ? '-' : sum % 1 > .1 ? '+' : '=');
+        return Math.round(sum) + (sum % 1 >= .9 ? '≈' : sum % 1 >= .5 ? '−' : sum % 1 > .1 ? '+' : '≈');
     }
     static comps = ['blade', 'ratchet', 'bit']
     static build = {from: parts => {
         if (parts.length > 10) return;
-        let known = (comp, part) => comp == (part.path[2] || part.path[0]) && part.stat[0], bey = [];
+        let known = (comp, part) => comp == (part.subcomp) && part.stat[0], bey = [];
         bey[0] = Part.blade.CX[4].map(sb => parts.find(part => known(sb, part)));
         bey[0].includes(undefined) && (bey[0] = Part.blade.CX[3].map(sb => parts.find(part => known(sb, part))));
         bey[0].includes(undefined) && (bey[0] = parts.find(part => known('blade', part)));
         if (!bey[0]) return;
         [bey[1], bey[2]] = [parts.find(part => known('ratchet', part)), parts.find(part => known('bit', part))];
-        let assemblable = Bey.assemblable.some(checks => checks.every((c, i) => c(bey[i])));
-        return assemblable ?
+        let valid = Bey.valid.some(checks => checks.every((c, i) => c(bey[i])));
+        return valid ?
             new Bey({blade: bey[0], ratchet: bey[1] ?? new Part.ratchet, bit: bey[2] ?? new Part.bit}) :
         bey[0].length ?
             new Bey({blade: bey[0], ratchet: new Part.ratchet, bit: new Part.bit}) : '';
     }}
-    static assemblable = [
+    static valid = [
         [p => p.length || !p.attr.includes('fused'), p => p, p => p && !p.attr.includes('fused')],
         [p => !p.length && p?.attr.includes('fused'), p => !p, p => p && !p.attr.includes('fused')],
         [p => p.length || !p.attr.includes('fused'), p => !p, p => p?.attr.includes('fused')],

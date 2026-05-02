@@ -39,17 +39,15 @@ class Input {
         this.extend();
     }
     match (targets = this.targets) {
-        let matching = (item, text, matched = {_: ''}) => {
+        let matching = (item, text) => {
             let match = Input.regexp[item].exec(text)?.[0];
-            match && (matched._ ||= true) && (targets[item] ??= new Set()).add(match);
+            match && (targets[item] ??= new Set()).add(match);
         }
         this.value.split(/[ ,]/).forEach(text => {
             if (!text) return;
-            let matched = {_: false}; //pass by reference
             text = text.toUpperCase();
             (targets.free ??= new Set()).add(text);
-            ['ratchet', 'bit', 'subblade'].forEach(item => matching(item, text, matched));
-            !matched._ && matching('abbr', text);
+            [...Input.regexp.keys()].forEach(item => matching(item, text));
             text.replace(new RegExp([...Input.regexp.values()].map(r => r.source).join('|'), 'g'), '')
                 .split(/([一-龢]+)/).forEach(t => t && t != '⬧' && targets.free.add(t));
         });
@@ -63,22 +61,22 @@ class Input {
                 [/^(.{2})(.+)$/.exec(n).slice(1, 3), /^(.+)(.{2})$/.exec(n).slice(1, 3)] : n
             )
         ].flat(9));
-        (targets.abbr || []).forEach(a => {
-            (targets.subblade ??= new Set()).add(a);
-            (targets.bit ??= new Set()).add(a);
-        });
-        (targets.subblade || []).forEach(a => {
-            (targets.assist ??= new Set()).add(a.at(-1));
-            a.at(-2) && (targets.over ??= new Set()).add(a.at(-2));
-        });
-        (targets.bit || []).forEach(b => b.length > 1 && targets.bit.add(b[1]));
+        let comp = ['over', 'assist', 'bit'];
+        targets.complex ?
+            targets.complex.forEach(t =>
+                /^(.)?(.)(..)$/.exec(t).slice(1).forEach((a, i) => (targets[comp[i]] ??= new Set()).add(a))
+            ) :
+            targets.subblade?.forEach(b => b.length > 1 ?
+                [...b].forEach((a, i) => (targets[comp[i]] ??= new Set()).add(a)) :
+                (targets.assist ??= new Set()).add(b)
+            );
     }
     static field = Q('[type=search]')
     static regexp = new O({
         ratchet: /\w-?\d{2}(?!\d)/,
+        complex: /[A-z]{3,4}$/,
         bit: /[A-z]{1,2}$/,
-        subblade: /[A-z]{1,2}(?=\w-?\d{2})|(?<=[一-龥])[A-z]{1,2}/,
-        abbr: /(?<![A-z])[A-z]{1,2}(?![A-z\-])/
+        subblade: /(?<![A-z])[A-z]{1,2}(?!-)/
     })
     static events () {
         Input.field.onfocus = async () => CACHE ??= await new Cache();
@@ -95,21 +93,21 @@ class Search {
             let parts = this.find('parts');
             this.targets = [...this.targets.free].join('');
             Q('#search .preview').replaceChildren(...this.find('products'), ...parts);
-            Q('#search .links').replaceChildren(/*Search.bey ? new Result('weight', Search.bey) : '', */...this.find('links'));
+            let bey = Bey.build.from([...Result.parts]);
+            Q('#search .links').replaceChildren(bey ? new Result('weight', bey) : '', ...this.find('links'));
         });
     }
     static for = {
-        specific: (targets) => CACHE.parts.filter(part => part.only.name() ? 
+        specific: targets => CACHE.parts.filter(part => part.only.name() ? 
             Search.match.name(part.names, targets.free) : 
-            Search.match.abbr(part.path.at(-1), targets[part.path[2] || part.path[0]])
-        ).sort((p1, p2) => p2.abbr.length - p1.abbr.length),
-        generic: (targets, amount) => 
+            Search.match.abbr(part.path.at(-1), targets[part.subcomp])
+        ),
+        generic: ({free}, amount) => 
             new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
-            .search({$or: [...targets.free].map(text => ({
+            .search({$or: [...free].map(text => ({
                 $or: [{abbr: text}, {$and: text.split(/(?=\W)/).map(t => ({all: t}))}]
             }) )}) 
-            .slice(0, amount)
-            .map(r => r.item)
+            .slice(0, amount).map(r => r.item)
     }
     static match = {
         abbr: (abbr, set) => set?.has(abbr.toUpperCase()),
@@ -118,9 +116,8 @@ class Search {
     find = what => Search.find[what](this.targets)
     static find = {
         parts: query => {
-            let parts = Search.for.specific(query);
-            parts = new Set([...parts, ...Search.for.generic(query, parts.length ? 5 : 50)]);
-            //Search.bey = Bey.build.from([...parts]);
+            let parts = Search.for.specific(query).sort((p1, p2) => (p1.only.name() - p2.only.name()));
+            Result.parts = parts = new Set([...parts, ...Search.for.generic(query, parts.length ? 5 : 50)]);
             return [...parts].map(item => new Result('part', item));
         },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
@@ -174,7 +171,7 @@ class Result {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
             href, target: href.startsWith('//') ? '_blank' : ''
         })
-    weight = ({name, weight}) => ''//E('li', [` 重量估算【${name}】`, E('b', weight)])
+    weight = ({name, weight}) => E('li', [` 重量估算【${name}】`, E('b', weight)])
 }
 
 import {Shohin} from './include/utilities.js'
@@ -244,3 +241,4 @@ Q('video', video => E(video).set({
         setTimeout(() => swapped = false, 1000 * sec);
     }
 }));
+location.host.includes('127.0.0.1') && Q('#search').after(...['長矛0-70z','長矛m-85z','長矛op','蒼龍勇氣S6‑60V','蒼龍勇氣Sm‑85V','蒼龍勇氣Sop','蒼龍勇氣wtr','獨角三變po6‑60V','獨角三變poop','獨角三變pom-85v'].map(a=>E('a',a,{href:'?'+a})))
