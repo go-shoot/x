@@ -305,7 +305,7 @@ nav {
     content: '';
     display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 
-    filter: saturate(0) brightness(99) brightness(80%);
+    filter: saturate(0) brightness(99) brightness(.8);
 }
 menu {
     li a {

@@ -153,7 +153,7 @@
     content: '';
     width: 1.4em;
     background: url(../img/blade/CX/chip/Dr.png) center / contain no-repeat;
-    filter: saturate(0) brightness(99) drop-shadow(0 0 .1em var(--on));
+    filter: saturate(0) brightness(99) brightness(.8) drop-shadow(0 0 .1em var(--on));
 }
 :host(.chip) ul::before,:host(.ratchet) ul li,:host li:has(img[alt=types]) {
     margin-right: auto;

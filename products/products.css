@@ -121,7 +121,7 @@ details:has(#filter) {
         position: relative;
         font-size: .9em;
         
-        &.¬ img {filter: saturate(0) brightness(99) brightness(80%);}
+        &.¬ img {filter: saturate(0) brightness(99) brightness(.8);}
     }
     fieldset:not(#line) label::after {
         content: '';

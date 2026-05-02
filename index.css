@@ -90,7 +90,7 @@ section {
         }
         :is(.ratchet,.bit)::before {
             background: var(--img) center / contain no-repeat !important;
-            filter: saturate(0) brightness(99) brightness(80%);
+            filter: saturate(0) brightness(99) brightness(.8);
         }
         a {
             -webkit-user-drag: none;
