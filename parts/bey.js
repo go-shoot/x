@@ -53,7 +53,7 @@ class Bey {
         let sum = [this.blade, this.ratchet, this.bit].flat().reduce((sum, p) => 
             sum += p?.stat ? parseInt(p.stat[0]) + adjust[p.stat[0].at(-1)] : 0
         , 0);
-        return Math.round(sum) + (sum % 1 >= .9 ? '≈' : sum % 1 >= .5 ? '−' : sum % 1 > .1 ? '+' : '≈');
+        return Math.round(sum) + (sum % 1 >= .849 ? '≈' : sum % 1 >= .499 ? '−' : sum % 1 > .149 ? '+' : '≈');
     }
     static comps = ['blade', 'ratchet', 'bit']
     static build = {from: parts => {
