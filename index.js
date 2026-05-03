@@ -90,9 +90,8 @@ class Search {
             CACHE ??= cache;
             query && (Input.field.value = decodeURI(query));
             this.targets = new Input().targets;
-            let parts = this.find('parts');
+            Q('#search .preview').replaceChildren(...this.find('products'), ...this.find('parts'));
             this.targets = [...this.targets.free].join('');
-            Q('#search .preview').replaceChildren(...this.find('products'), ...parts);
             let bey = Bey.build.from([...Result.parts]);
             Q('#search .links').replaceChildren(bey ? new Result('weight', bey) : '', ...this.find('links'));
         });
@@ -123,8 +122,9 @@ class Search {
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
         ,
-        products: query => /^[a-z]xg?-?\d{2,3}$/i.test(query) ?
-            [new Result('code', {code: query.toUpperCase().replace(/(?<![\d-])(?=\d+)/, '-')})] : []
+        products: ({free}) => [...free].map(t => /^[a-z]xg?-?\d{2,3}$/i.test(t) ?
+            new Result('code', {code: t.toUpperCase().replace(/(?<![\d-])(?=\d+)/, '-')}) : ''
+        )
     }
     static history = {
         show: items => Q('#search .history').replaceChildren(...items.map(item => 

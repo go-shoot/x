@@ -405,17 +405,6 @@
         "attr": ["def","right","BX","star-wars"],
         "from": "RhHr"
     },
-    "Snow": {
-        "group": "collab",
-        "names": {
-            "jap": "スノートルーパー",
-            "eng": "Snowtrooper",
-            "chi": ""
-        },
-        "stat": ["34-"],
-        "attr": ["def","right","BX","star-wars"],
-        "from": "RhHr"
-    },
     "Opme": {
         "group": "collab",
         "names": {

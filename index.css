@@ -64,7 +64,7 @@ section {
             width: 100%;
             border-radius: 9em;
             font-size: 1.2em;
-            padding: .2em .5em; margin: .2em 0;
+            padding: .2em .5em; margin: .2em .1em;
         }
     }
     ol:not(:empty) {
