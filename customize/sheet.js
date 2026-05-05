@@ -13,6 +13,7 @@ const App = () => {
         Layers.frame = img;
         return App.load(location.hash ||= '#1');
     }).then(App.loading);
+    Q('[name=mag]').value = Storage('pref')?.print || 100;
     PDFLib.A4 = PDFLib.PageSizes.A4.sort((a, b) => a - b);
 }
 Object.assign(App, {
@@ -60,11 +61,11 @@ Object.assign(App, {
         Layers.solo(false);
         fetch('./sample.json').then(resp => resp.json()).then(Layers.put).then(App.loading);    
     },
-    download () {
+    print () {
         App.loading(true);
         Layers.solo(false);
         let pdf, pages = [];
-        let amount = [...Q('#download+input').value];    
+        let amount = [...Q('#print+input').value];    
         Promise.all([PDFLib.PDFDocument.create(), App.stage(true)]).then(([doc]) => {
             pdf = doc;
             let canvases = App.designs.map(a => a.canvas);
@@ -74,9 +75,9 @@ Object.assign(App, {
             return Promise.all(canvases.map(can => can ? doc.embedPng(can.toDataURL("image/png", 1.0)) : null));
         }).then(images => {
             images.flatMap((im, i) => im ? Array(amount[i]).fill(im) : []).forEach((image, i) => {
-                let scaled = image.scale(.291 * (Q('#mag').checked ? 1.035 : 1));
+                let scaled = image.scale(.291 * Q('[name=mag]').value / 100);
                 pages[Math.floor(i/12)].drawImage(image, {
-                    x: 20 + i % 6 * (12.5 + scaled.width),
+                    x: 16 + i % 6 * (12 + scaled.width),
                     y: 84.5 + (1 - Math.floor(i/6) % 2) * (20 + scaled.height),
                     width: scaled.width, height: scaled.height,
                 });
@@ -122,7 +123,11 @@ Object.assign(App, {
         Q('nav').onclick = ev => {
             if (ev.target.id == 'sample')
                 return Layers.labels.length > 1 ? App.warn() : App.sample();
-            ['export', 'download'].includes(ev.target.id) && App[ev.target.id]();
+            ['export', 'print'].includes(ev.target.id) && App[ev.target.id]();
+        }
+        Q('[name=mag]').oninput = ev => {
+            Storage('pref', {print: ev.target.value});
+            Q('#print').classList.toggle('accent', ev.target.value > 100);
         }
         Q('#import').onchange = App.import;
         Q('#delete').onclick = App.warn;

@@ -5,6 +5,9 @@ nav {
         white-space: nowrap; 
         text-align: right;
 
+        .right & {
+            margin-right: .3rem;
+        }
         &:first-of-type {
             grid-area: 1/4;
             align-self: center;
@@ -26,18 +29,12 @@ nav {
         font-size: .9em;
         display: inline-block; line-height: 1.3rem;
     }
-    .toggle {
-        display: inline-flex;
-        font-size: calc(1.3em/2.25);
-        vertical-align: middle;
-        margin-right: .25em;
-    }
-    .toggle+small {
+    continuous-knob {
+        grid-area: 1/3/3/4; place-self: center end;
+        margin-right: .4em; 
         font-size: .8em;
-        margin-left: -.6em;
-        position: relative; z-index: 1;
     }
-    .toggle:has(:checked)~#download {background: var(--accent);}
+    #print.accent {background: var(--accent);}
 }
 main {
     max-width: 30em;
