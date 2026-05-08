@@ -2,11 +2,12 @@ const Storage = (key, obj) => !obj ?
     JSON.parse(localStorage[key] ?? 'null') : 
     localStorage[key] = Array.isArray(obj) ? JSON.stringify(obj) : typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
 
-const LINES = {
+let LINES = {
     CX: {color: "#f42597", title: "Custom Line", divided: true},
     UX: {color: "#ee7800", title: "Unique Line"},
     BX: {color: "#71bce9", title: "Basic Line"}
 };
+typeof O != 'undefined' && (LINES = new O(LINES));
 
 (() => {
     const unsupported = document.head.appendChild(document.createElement('style'));
@@ -60,14 +61,13 @@ Object.assign(Menu, {
         E('a', {href: '/x/parts/?blade=CX'}),
         E('a', {href: '/x/prizes/'})
     ],
-    lines: () => [...new O(LINES)]
-        .filter(([_, {divided}]) => divided)
+    lines: () => LINES.filter(([_, {divided}]) => divided)
         .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
 });
 
 addEventListener('DOMContentLoaded', () => {
     Menu();
-    new CSSStyleSheet().replace(new O(LINES).flatMap(([line, {color}]) => 
+    new CSSStyleSheet().replace(LINES.flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('')).then(css => document.adoptedStyleSheets.push(css));
     

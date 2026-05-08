@@ -1,39 +1,34 @@
 import DB from '../include/DB.js'
+import { Bey } from '../parts/bey.js';
 import { Part } from '../parts/part.js';
 import { FilterForm, Transition } from '../include/utilities.js';
 
-let META, PARTS;
-let [COMP, LINE] = [...new URLSearchParams(location.search)][0] ?? [];
+let PARTS, PATH = ([...new URLSearchParams(location.search)][0] ?? []).filter(_ => _);
 
-const Parts = () => Parts.firstly().then(Parts.before).then(Parts.display).then(Parts.after).then(Parts.finally);
-Object.assign(Parts, {
+const Catalog = () => Catalog.firstly().then(Catalog.before).then(Catalog.display).then(Catalog.after).then(Catalog.finally);
+Object.assign(Catalog, {
+    place: Q('section'),
     async firstly () {
-        gtag('event', LINE || COMP.toUpperCase());
-        Parts.place = Q('section');
+        gtag('event', PATH[1] || PATH[0].toUpperCase());
         Magnifier();
-        [META, PARTS] = await DB.get.essentials(true);
-        Part.import(META.general, PARTS);
-        Object.assign(Sorter, {...META[COMP].sorter ?? {}});
-        Object.assign(Filter, {
-            legend: META[COMP].所有 ? '所有' : '一體',
-            types: META.general.types,
-            ...{...META[COMP]}.filter ?? {}
-        });
-        META = META[COMP][LINE || Filter.legend];
-        Object.assign(Filter, {...META.filter});
+        PARTS = Part.import(...await DB.get.essentials(true)).parts;
+        let meta = JSON.parse(Q(`[title=${PATH[0]}]`).innerText);
+        Filter.legend = meta.所有 ? '所有' : '一體';
+        Object.assign(Filter, meta.filter, meta[PATH[1] || Filter.legend].filter);
+        Object.assign(Sorter, meta.sorter);
     },
     before: () => Promise.all([Filter(), Sorter()]),
-    display: () => Promise.all([...
-            LINE ? PARTS.blade[LINE].flatMap(([_, subs]) => [...subs.values()]) : PARTS[COMP].values()
-        ].map(part => part.tile?.())
-    ).then(parts => Parts.place.replaceChildren(...parts.filter(p => p))),
+    display: () => Promise.all(
+        [...PARTS.at(PATH).flatMap(([_, inner]) => inner instanceof Part ? inner : [...inner.values()])]
+        .map(P => P.tile?.())
+    ).then(tiles => Catalog.place.replaceChildren(...tiles.filter(t => t))),
 
     async after () {
-        Parts.switch();
-        Sorter.checked == 'time' ? await Sorter.time.order(COMP) : Sorter.time.order(COMP);
+        Catalog.switch();
+        Sorter.checked == 'time' ? await Sorter.time.order(PATH[0]) : Sorter.time.order(PATH[0]);
         Sorter.sort(Sorter.checked);
     },
-    finally: () => Parts.place.classList.remove('loading'),
+    finally: () => Catalog.place.classList.remove('loading'),
     
     switch (what) { // #part #group .group _
         what = decodeURI((what || location.hash).substring(1));
@@ -41,13 +36,13 @@ Object.assign(Parts, {
         let group = tile ? tile.Part.path[2] || tile.Part.group : what;
         group && Q(`#group input`, input => input.checked = input.value == `.${group}`);
         Filter.form.onchange();
-        Parts.info(group || Q('#group input:checked').value?.substring(1));
-        tile && Parts.focus(tile);
+        Catalog.info(group || Q('#group input:checked').value?.substring(1));
+        tile && Catalog.focus(tile);
     },
     info (group) {
-        document.title = document.title.replace(/^.*?(?= 🙼 )/, META.title?.[group] ?? META.title ?? '').replaceAll(/(?<! )⬧(?! )/g, ' $& ');
-        let info = COMP + (LINE ? `.${LINE}` : '');
-        Q('details').hidden = !(Q('details p').innerHTML = Q(`[id='${info}']`)?.innerHTML);
+        document.title = document.title.replace(/^.*?(?= 🙼 )/, (PATH[1] ? `〖${PATH[1]}〗` : '') 
+            + Object.values(Part.names[group] || (PATH[1] ? {_: '未出'} : Part.names[PATH[0]])).join(' ⬧ ').replace(' ', ' ⬧ '));
+        Q('details p', p => p.hidden = p.id != (PATH[1] || PATH[0]));
     },
     focus (tile) {
         Q('.target')?.classList.remove('target');
@@ -55,41 +50,41 @@ Object.assign(Parts, {
         setTimeout(() => tile.scrollIntoView(), 500);
     }
 });
-onhashchange = () => Parts.switch();
+onhashchange = () => Catalog.switch();
 
 const Filter = function(which) {
     if (this instanceof Filter) 
         return new FilterForm.fieldset(...Filter.content[which](), {name: which});
-    Filter.form.classList.add(COMP);
+    Filter.form.classList.add(PATH[0]);
     Filter.form.append(...['group', ...Filter.use ?? []].map(f => new Filter(f)));
     Filter.events();
 };
 Object.assign(Filter, {
     form: document.forms[0],
     events () {
-        FilterForm.event(Parts.place.children, {
+        FilterForm.event(Catalog.place.children, {
             legend: {group: {click: Filter.multi}},
             action: {group: ev => {
                 history.replaceState(null, '', ' '); //remove #
-                Parts.switch(ev.target.value);
+                Catalog.switch(ev.target.value);
             }},
             single: true
         });
     },
     content: {
-        group:  () => [new O(Filter.groups), {legend: LINE || Filter.legend, checked: false}],
+        group:  () => [new O(Filter.groups), {legend: PATH[1] || Filter.legend, checked: false}],
         joint:  () => [new O(['normal', 'simple'].map(t => [t, E('img', {src: `../img/joint.svg#${t}`})] )), {legend: '類型'}],
-        type:   () => [new O(Filter.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
+        type:   () => [new O(Part.types.map(t => [t, E('img', {src: `../img/types.svg#${t}`})] )), {legend: '類型', negate: true}],
         spin:   () => [new O({left: '\ue01d', right: '\ue01e'}), {legend: '迴轉'}],
         prefix: () => [new O({'¬': '–', ...Filter.variety}), {legend: '變化'}],
     }
 });
 
 const Magnifier = () => {
-    Q('nav').append(E(`div.magnifier`, [
+    Q('.magnifier').append(
         E('continuous-knob', {min: .75, max: 2, value: Storage('pref')?.knob || 1}, E('i.center', '')),
         ...E.radios([.54, .81, 1.6].map((value, i) => ({id: `mag${i}`, name: 'mag', value}) ))
-    ]));
+    );
     Q(`#${Storage('pref')?.button || 'mag1'}`).click();
     Magnifier.events();
 };
@@ -97,12 +92,12 @@ Object.assign(Magnifier, {
     events () {
         Q('.magnifier').oninput = ({target}) => {
             if (innerWidth <= 630 && target.tagName != 'INPUT') return;
-            E(Parts.place).set({'--font': target.value});
+            E(Catalog.place).set({'--font': target.value});
             Storage('pref', target.tagName == 'INPUT' ? {button: target.id} : {knob: target.value});
         }
         new ResizeObserver(Magnifier.switch).observe(Q('nav'));
     },
-    switch: () => E(Parts.place).set({'--font': Q(innerWidth > 630 ? 'continuous-knob' : '[name=mag]:checked').value})
+    switch: () => E(Catalog.place).set({'--font': Q(innerWidth > 630 ? 'continuous-knob' : '[name=mag]:checked').value})
 });
 
 const Sorter = () => {
@@ -113,7 +108,7 @@ const Sorter = () => {
     [Sorter.checked, input.checked] = [input.id, true];
 }
 Object.assign(Sorter, {
-    sort: by => Parts.place.append(...[...Parts.place.children].sort((a, b) => Sorter.by[by](a.Part, b.Part))),
+    sort: by => Catalog.place.append(...[...Catalog.place.children].sort((a, b) => Sorter.by[by](a.Part, b.Part))),
     events: () => Q('.sorter').onchange = ({target: input}) => {
         Transition.allow.for(() => Sorter.sort(input.id));
         input.checked && Storage('pref', {sort: input.id});
@@ -129,10 +124,6 @@ Object.assign(Sorter, {
         height: (p, q) => parseInt(p.stat[3] || 999) - parseInt(q.stat[3] || 999),
         time: (p, q) => (q.order ?? 999) - (p.order ?? 999)
     },
-    index: {
-        whole: {blade: 0, ratchet: 1, bit: 2},
-        blade: {chip: 0, main: 1, metal: 1, over: 2, assist: -1}
-    },
     icons: {name: '\ue034', time: '\ue035', weight: '\ue036', height: '\ue047'}
 });
 Sorter.time = {
@@ -140,18 +131,20 @@ Sorter.time = {
         let setOrder = (list, path) => [...new Set(list)].forEach((abbr, i) => 
             abbr && PARTS.at([...path, abbr])?.push({order: i})
         );
-        let list = beys.reverse().map(bey => bey[2].split(' ')[Sorter.index.whole[comp]]);            
-        if (!LINE)
-            return setOrder(list.flat(), [comp]);
+        let list = beys.reverse().map(bey => bey[2].split(' ')[Bey.comps.indexOf(comp)]); 
+        if (!PATH[1])
+            return setOrder(list.flat().filter(abbr => !abbr.includes('.')), PATH);
 
-        list = list.map(blade => blade.split('.'));
-        new O(Sorter.index.blade).each(([sub, index]) => 
-            setOrder(list
-                .filter(blade => ['chip','assist'].includes(sub) || blade.length == (sub == 'main' ? 3 : 4))
-                .map(blade => blade.at(index)), 
-            [comp, LINE, sub])
+        list = list.map(comp => comp.split('.')).filter(comp => comp.length > 1);
+        Array.prototype.on ??= function(d) {
+            if (Number.isInteger(d)) return this.at(d);
+            const i = d * this.length;
+            return this[Math.abs(i - Math.round(i)) < 0.01 ? Math.round(i) : i];
+        }   
+        new O(Part[PATH[0]].sub[PATH[1]].index).each(([sub, index]) => 
+            setOrder(list.map(comp => comp.on(index)), [...PATH, sub])
         );
     })
 }
 Sorter.weight = {adjust: {'+': .3, '=': 0, '-': -.3}};
-export default Parts
+export default Catalog

@@ -1,7 +1,7 @@
 {
   "part-blade":        "2026/04/25 23:20:00",
   "part-blade-divided":"2026/04/25 23:20:00",
-  "meta":              "2026/04/30 21:25:00",
+  "meta":              "2026/05/08 10:22:00",
   "part-blade-collab": "2026/04/30 21:25:00",
   "prod-beys":         "2026/04/30 21:25:00",
   "part-bit":          "2026/04/30 21:25:00",
@@ -9,20 +9,6 @@
   "prod-keihin":       "2026/04/16 21:20:00",
   "part-ratchet":      "2026/03/28 20:31:00",
   "news": {
-     "2026-04-25":[{
-      "code":"CX-17 random booster","name":["ユニコーンデルタPO3-60GU","Unicorn Delta PO 3-60GU"],
-      "type":"bal",
-      "imgs":["https://m.media-amazon.com/images/S/aplus-media-library-service-media/987db583-f5e3-4680-a4d7-5e680869fb56.__CR0,0,970,600_PT0_SX970_V1___.jpg"],
-      "desc":["透過旋轉【Peak】Over blade 再裝上【Delta】Metal blade 的不同位置而切換成攻、防、平 3 種 style",
-      "【Odd】Assist blade 也是左右不同的設計"]
-    }, {
-      "code":"UX-19 starter","name":["バレットグリフォンH","Bullet Griffon H"],"type":"bal",
-      "imgs":[],
-      "desc":["首個Blade—Ratchet一體型陀螺","對戰時分身成平軸攻擊型的「Bullet」及防禦型「本體」","勝負以本體決定"]
-    },{
-      "code":"BXG-61 booster","bey":"ScSp 0-70 Z","ver":["メタルコート:マゼンタ","Metal Coat: Magenta"],
-      "desc":["先於Beyblade Bar發售，後成為App抽獎購買品"]
-    }],
     "2026-05-16":[{
       "code":"BX-49 starter","name":["ドランストライク4-50FF","Dran Strike 4-50FF"],"type":"att",
       "imgs":["https://i.redd.it/g43za0bfrdug1.jpeg"]

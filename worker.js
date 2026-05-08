@@ -1,8 +1,6 @@
 self.addEventListener('install', ev => {
     self.skipWaiting();
-    ev.waitUntil(
-        caches.open('X').then(cache => cache.addAll([Head.url]))
-    );
+    ev.waitUntil(actions.init());
 });
 self.addEventListener('activate', ev => ev.waitUntil(clients.claim()));
 self.addEventListener('fetch', ev => ev.respondWith((() => {
@@ -35,14 +33,12 @@ const actions = ([key, value]) => (actions[key]?.[value] ?? actions[key]?._)?.(v
 Object.assign(actions, {
     delete: {
         parts: () => fetch('db/-update.json').then(() => caches.delete('X/parts')),
-        cache: () => fetch('db/-update.json').then(() => caches.delete('X')).then(() => actions.update.head()),
+        cache: () => fetch('db/-update.json').then(() => caches.delete('X')).then(() => actions.init()),
         _: file => fetch('db/-update.json')
             .then(() => caches.open('X'))
             .then(cache => cache.keys().then(reqs => reqs.forEach(req => new RegExp(`\\.${file}$`).test(req.url) && cache.delete(req))))
     },
-    update: {
-        head: () => caches.open('X').then(cache => cache.add(Head.url)),
-    }
+    init: () => caches.open('X').then(cache => cache.add(Head.url))
 });
 
 const is = {

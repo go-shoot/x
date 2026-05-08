@@ -4,50 +4,52 @@ import { Bey, Preview } from './bey.js';
 import { Markup, Glossary } from '../include/utilities.js';
 import Table from '../products/products.js';
 
-let META, PARTS;
+let PARTS;
 class Part {
-    static import = (meta, parts) => ([META, PARTS] = [meta, parts]) && Bey.import(meta, parts);
-    constructor(json = {names: {}}) {
+    constructor(json = {}) {
         Object.keys(this).forEach(k => Object.defineProperty(this, k, {enumerable: false}));
         this.push(json);
+        this.abbr?.includes('.') && ([this.group, this.abbr] = this.abbr.split('.'));
         this.path = [this.constructor.name.toLowerCase(), this.abbr];
         return this.constructor == Part ? new Part[this.comp](json) : this;
     }
-    get subcomp () {return this.path[2] || this.path[0]};
     *[Symbol.iterator] () {
         for (const value of Object.values(this)) 
             yield typeof value == 'object' ? 
                 Object.values(value).filter(v => typeof v != 'function') : value;
     }
+    get all () {return [...new Set([...this].flat(9)), {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}[[...this.attr][0]]];}
+    get subcomp () {return this.path[2] || this.path[0];}
+    only = {
+        abbr: () => this.path[0] == 'ratchet',
+        name: () => Part.named.includes(this.subcomp)
+    }
+    push = json => Object.assign(this, json, {attr: new Set([...this.attr ?? [], ...json.attr ?? []])})
     keep (...fields) {
         for (const key of Object.keys(this))
             !fields.includes(key) && typeof this[key] != 'function' && delete this[key];
         return this;
     }
-    push = json => Object.assign(this, json, json.abbr?.includes('.') ? 
-        {group: json.abbr.split('.')[0], abbr: json.abbr.split('.')[1]} : {}
-    )
+    revise (where, base, pref) {
+        this.constructor.revisions[where]?.forEach?.(what => this[what] = this.revised[what](base, pref));
+        return this;
+    }
+    href = () => `/x/parts/` + Part.href.join(this.path, '?=#.')
+    static href = {
+        join: (path, joiner) => [...path].map((p, i) => `${joiner[joiner.length/path.length*i]}${p}`).join(''),
+    }
+    cell = () => new Cell(this)
     async tile () {
         let {path, stat} = this;
         !stat && this.push(await DB.get(...path));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
     }
-    cell = () => new Cell(this)
-
-    revise (where, base, pref) {
-        this.constructor.revisions[where]?.forEach?.(what => this[what] = this.revised[what](base, pref));
-        return this;
-    }
-    only = {
-        abbr: () => this.path[0] == 'ratchet',
-        name: () => this.path[0] == 'blade' && [undefined, 'chip', 'main', 'metal'].includes(this.path[2])
-    }
-    href = () => `/x/parts/` + Part.href.join(this.path, '?=#.')
-    static href = {
-        join: (path, joiner) => [...path].map((p, i) => `${joiner[joiner.length/path.length*i]}${p}`).join(''),
-    }
 }
+Part.import = ({part, blade, bit, tile}, Parts) => Object.assign(Part, part) && 
+    Object.assign(Blade, {...blade, sub: new O(blade.sub)}) && Object.assign(Bit, bit) && Object.assign(Tile, tile) && 
+    Bey.import(PARTS = Parts);
+
 class Blade extends Part {
     constructor(json) {
         super(json);
@@ -55,45 +57,44 @@ class Blade extends Part {
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
     revised = {
-        attr: () => ['over', 'metal'].includes(this.group) || this.group == 'UX' && this.attr.includes('fused') ?
-            [...this.attr, 'expand'] : this.attr
+        attr: () => ['over', 'metal'].includes(this.group) || this.group == 'UX' && this.attr.has('fused') ?
+            this.attr.add('expand') : this.attr
     }
     static revisions = {tile: ['attr']};
-    static CX = {3: ['chip', 'main', 'assist'], 4: ['chip', 'metal', 'over', 'assist']}
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
     revise = (where = 'cell') => super.revise(where, where == 'tile' && {stat: [, ...this.abbr.split('-')]});
     revised = {
-        group: () => META.ratchet.height.find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
+        group: () => new O(Tile.ratchet.height).find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
             let [blade, height] = this.abbr.split('-');
             let {tens, digit} = Ratchet.eng;
             return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
         },
-        attr: () => this.attr ??= ['normal'],
+        attr: () => this.attr.has('simple') ? this.attr : this.attr.add('normal'),
         stat: base => this.stat.length === 1 ? [...this.stat, ...base.stat.slice(1)] : this.stat
     }
     static revisions = {tile: ['group', 'names', 'attr', 'stat']};
     static eng = {
         digit: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
-        tens: ['', '', '', '', 'fourty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+        tens: ['', '', '', '', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
     }
 }
 class Bit extends Part {
     constructor(json) {super(json);}
     async revise (where = 'cell') {
-        if (Bit.revisions[where].every(p => this[p])) return this;
-        let [, pref, base] = new RegExp(`^([${META.bit.prefix}]+)([^a-z].*)$`).exec(this.abbr);
+        if (!this.abbr || Bit.revisions[where].every(p => this[p])) return this;
+        let [, pref, base] = new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr);
         Bit.revisions[where].some(p => !PARTS.bit[base][p]) && PARTS.bit[base].push(await DB.get('bit', base));
         return super.revise(where, PARTS.bit[base], pref);
     }
     revised = {
         group: base => base.group,
-        names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => META.bit.prefix[p])),
-        attr: (base, pref) => [...this.attr ?? [], ...base.attr, ...pref],
+        names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
+        attr: (base, pref) => new Set([...this.attr, ...base.attr, ...pref]),
         stat: base => this.stat.length < 3 ? this.stat.toSpliced(1, 0, ...base.stat.slice(1,3)) : this.stat,
-        desc: (base, pref) => [...pref].map(p => META.bit.prefix[p].desc).join('、') + `的【${base.abbr}】Bit${this.desc ? `，${this.desc}` : '。'}`,
+        desc: (base, pref) => [...pref].map(p => Bit.prefix[p].desc).join('、') + `的〔${base.abbr}〕Bit${this.desc ? `，${this.desc}` : '。'}`,
     }
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
 }
@@ -112,7 +113,7 @@ class Tile extends HTMLElement {
         let {path, group, attr} = this.Part = Part;
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
-            classList: ['loading', ...path.slice(0, -1), group, ...attr.filter(a => !/^.X$/.test(a))], //BX vs collab
+            classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
             onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
         });
     }
@@ -151,34 +152,33 @@ class Tile extends HTMLElement {
 Object.assign(Tile.prototype.fill, {
     background (hue) {
         let {attr} = this.Part;
-        let unispin = attr?.includes('left') ^ attr?.includes('right');
-        let param = {
-            hue, ...unispin ? {[attr?.find(a => a == 'left' || a == 'right')]: ''} : {}
+        let unispin = attr.has('left') ^ attr.has('right');
+        let param = {hue, 
+            ...unispin ? {[[...attr].find(a => a == 'left' || a == 'right')]: ''} : {}
         };
-        return `/x/parts/bg.svg?${new URLSearchParams(param)}`;
-        //return `/x/parts/bg.svg#${new URLSearchParams(param)}`;
+        return `/x/img/tile.svg#${new URLSearchParams(param)}`;
     },
     icons () {
         let {line, group, attr} = this.Part;
-        return [...new Set([line, group, ...attr ?? []])].map(a => {
+        return [...new Set([line, group, ...attr])].map(a => {
             let content = Tile.icons.find(a, {evaluate: true});
             return content ? E('li', typeof content == 'string' ? {title: a} : {}, content) : '';
         });
     },
     names () {
         let {path, group, names, attr} = this.Part;
-        let divide = {eng: !['collab', 'hasbro'].includes(group)};
-        divide.chi = divide.eng && !attr.includes('BSB');
+        let segment = {eng: !['collab', 'hasbro'].includes(group)};
+        segment.chi = segment.eng && !attr.has('BSB');
         return [
             this.Part.only.name() ? 
-                Markup('tile', names.chi, divide.chi)?.map(els => E('h5.chi', els)) ?? '' : 
+                Markup('tile', names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
                 E('h4', Markup.figure(path.at(-1))), 
-            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup('tile', names[l], divide.eng)[0])) : ''
+            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup('tile', names[l], segment.eng)[0])) : ''
         ].flat(9);
     },
     stat () {
         let {comp, stat, date, attr} = this.Part;
-        let terms = META[comp][comp == 'bit' && attr?.includes('fused') ? 'terms.fused' : 'terms'];
+        let terms = Tile[comp][comp == 'bit' && attr.has('fused') ? 'terms.fused' : 'terms'];
         return [
             date ? E('strong', date) : '',
             E('dl', stat.flatMap((s, i) => E('div', [
@@ -199,16 +199,16 @@ Tile.svg = () => {
             L -${corner.top},-${corner.top} A ${r2},${r2},0,0,0,${corner.top},-${corner.top}
             L ${10-corner.side.y},${corner.side.y-10} A ${r1},${r1},0,0,0,${10-corner.side.x},-10 Z`
         }),
-        ...META.types.map(t => E(`use.${t}`, {href: '#triangle'}))
+        ...Part.types.map(t => E(`use.${t}`, {href: '#triangle'}))
     ]);
 };
 customElements.define('x-part', Tile);
 
 class Cell {
-    constructor(Part) {
-        Part.revise('cell');
-        let {abbr, subcomp, path, attr} = Part;
-        let single = Part.only.name() || Part.only.abbr();
+    constructor(P) {
+        P.revise('cell');
+        let {abbr, subcomp, path, attr} = P;
+        let single = P.only.name() || P.only.abbr();
         let tds = [E('td'), !abbr || single ? '' : E('td')];
         E(tds[0]).set({
             headers: subcomp,
@@ -217,15 +217,14 @@ class Cell {
         if (abbr == null) return tds;
         E(tds[0]).set({
             abbr, innerText: abbr || '', 
-            ...attr?.includes('fused') ? {classList: 'fused'} : {},
+            ...attr.has('fused') ? {classList: 'fused'} : {},
         });
-        tds.forEach(td => td && (td.Part = Part));
+        tds.forEach(td => td && (td.Part = P));
         return tds;
     }
-
-    static fill = (lang, td) => [td ?? Q('td[abbr]')].flat().forEach(td => {
+    static fill = (lang, td = Q('td[abbr]')) => [td].flat().forEach(td => {
+        if (!td || td.Part.only.abbr()) return;
         let {path, names} = td.Part, {mode} = td.dataset;
-        if (path[0] == 'ratchet') return;
         let name = names[lang] || names.eng;
         mode = Markup('cell', JSON.parse(mode ?? '""')[lang]);
         mode.length && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
@@ -238,5 +237,8 @@ class Cell {
     static #limit = {jap: new O({bit: 7})};
     static colSpan = {blade: path => !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : ''}
 }
-Part.blade = Blade, Part.ratchet = Ratchet, Part.bit = Bit;
+Part = new Proxy(
+    Object.assign(Part, {Blade, Ratchet, Bit}), 
+    {get: (obj, prop) => obj[Bey.comps.includes(prop) ? prop[0].toUpperCase() + prop.slice(1) : prop]}
+);
 export {Part, Tile, Cell};

@@ -11,23 +11,22 @@ class Shohin {
             );
         return this.div = E('div', [
             E('h5', [type ? Shohin.ruby(type) : '', header]),
-            E('h4', [
-                E('strong', Markup.nobreak(name?.[0])), E('small', ver?.[0] ?? ''),
-                E('strong', Markup.nobreak(name?.[1])), E('small', ver?.[1] ?? '')
-            ]),
+            E('h4', [0,1].flatMap(i => [
+                E('strong', Markup.nobreak(name?.[i])), 
+                E('small', ver?.[i] ?? '')
+            ])),
             ...content
         ], {classList: [`scroller`, Shohin.classes.find(header, {default: 'Lm'})]});
     }
-    static ruby = type => E(`ruby.below.${type}`, [
-        E('img', {src: `img/types.svg#${type}`}), 
-        E('rt', Shohin.type[type])
-    ])
+    static zip = (texts, images) => texts.reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), images)
     static figure = imgORsrc => E('figure', [
         E('a', '🖼️', {href: typeof imgORsrc == 'string' ? imgORsrc : imgORsrc.src}), 
         typeof imgORsrc == 'string' ? E('img', {src: imgORsrc, loading: 'lazy'}) : imgORsrc
     ])
-    static zip = (texts, images) => texts.reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), images)
-    static type = {att: 'ATTACK', bal: 'BALANCE', sta: 'STAMINA', def: 'DEFENSE'}
+    static ruby = type => E(`ruby.below.${type}`, [
+        E('img', {src: `img/types.svg#${type}`}), 
+        E('rt', {att: 'ATTACK', bal: 'BALANCE', sta: 'STAMINA', def: 'DEFENSE'}[type])
+    ])
     static classes = new O([
         [/(stadium|entry) set/i, 'SS'],
         [/組合|Set/i, 'St'],
@@ -41,13 +40,13 @@ class Shohin {
         let h4 = this.div.Q('h4');
         h4.Q('strong:nth-of-type(1)').innerText = jap;
         h4.Q('strong:nth-of-type(2)').replaceChildren(E('a', {href: `?${chi}`}, chi));
-        this.div.Q('h5').prepend(Shohin.ruby(bit.attr[0]));
+        this.div.Q('h5').prepend(Shohin.ruby([...bit.attr][0]));
     }
     images () {
         let [code, type] = this.div.Q('h5').innerText.match(/(?<=\n?).+$/)[0].split(/(?<=\d) /);
         let figures = [
             ...this.div.Q('figure', []),
-            ...new Preview('news', {code: code.replace('-', ''), type}).map(img => Shohin.figure(img))
+            ...new Preview('news', {code: code.replace('-', ''), type}).map(Shohin.figure)
         ];
         this.div.replaceChildren(
             this.div.Q('h5'), this.div.Q('h4'), 
@@ -80,9 +79,8 @@ class Keihin {
             ]),
             E('h4', {lang: 'zh'}, [chi || '　', E('small', ver?.[1] ?? '')]),
             E('time', Markup.figure(date))
-        ], {id: Keihin.id(bey, ver)});
+        ], {dataset: {abbr: bey}});
     }
-    static id = (bey, ver) => `${bey.split(' ')[0]}${ver ? `–${ver[1].match(/\w+(?!.*:)|\w+$/)?.[0]}` : ''}`
     static type = new O({t: '比賽', d: '抽獎', m: '限定商品', g: '贈品'})
 }
 
@@ -175,7 +173,7 @@ const Transition = {
 }
 
 const Glossary = async (where = document) => {
-    let p = [where.Q('p'), where.Q('x-part', []).map(part => part.sQ('p'))].flat(9).filter(el => el);
+    let p = [where.Q('p'), where.Q('x-part', []).map(tile => tile.sQ('p'))].flat(9).filter(el => el);
     if (!p.length) return;
     if (!Q('#glossary')) {
         addEventListener('click', ev => {

@@ -48,33 +48,43 @@ section {
 }
 
 #search {
-    width: 100%; max-width: 30em;
+    display: flex; flex-wrap: wrap; justify-content: end;
+    max-width: 30em;
+    padding-bottom: .5em;
     transition: opacity .5s;
 
-    &:not(:has(a[href*='/products/'])) {opacity: 0;}
+    &>a:last-of-type {margin-right: .3rem;}
+    search {margin: .2rem;}
+    ol {padding-left: .2rem;}
+
+    &:not(:has(a[href*='products'])) {opacity: 0;}
+    &>a {margin-left: 1em;}
     search {
-        display: flex; flex-wrap: wrap; justify-content: end;
-    
-        a {
-            margin-left: 1em;
-    
-            &:last-of-type {margin-right: .5em;}
+        display: flex; height: 2em;
+
+        div {
+            width: 2.5em; height: 3em;
+            margin-right: .2em;
+            align-self: center;
+            overflow: scroll;
+            mask-image: linear-gradient(transparent,black 20% 80%,transparent);
+
+            ul {padding: .75em 0 .35em 0;}
         }
         input {
-            width: 100%;
+            width: 100%; 
             border-radius: 9em;
             font-size: 1.2em;
-            padding: .2em .5em; margin: .2em .1em;
+            padding: .2em .5em;
         }
     }
     ol:not(:empty) {
         display: flex; gap: 1em;
+        min-width: 100%;
         font-size: .85em; white-space: nowrap;
-        margin-left: .5em;
+        mask-image: linear-gradient(to right,black 95%,transparent);
 
-        ::before {
-            margin-right: .2em;
-        }
+        ::before {margin-right: .2em;}
         button {
             color: var(--theme);
 
@@ -99,7 +109,6 @@ section {
         }
         b {font-weight: bold;}
     }
-    table {margin: .5em auto;}
 }
 
 #products {
@@ -130,6 +139,7 @@ section {
         }
         rt {
             text-align: center;
+            text-transform: uppercase;
             color: var(--type); font-size: .7em;
         }
     }

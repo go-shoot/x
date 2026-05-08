@@ -4,17 +4,17 @@
         "ver":["メタルコート：ゴールド","Metal Coat: Gold"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/g3_gift1_2026.webp",{"width":"128%","left":"51%"}]
     },
-    "BXH-?1_01":{
+    "BXH-25_01":{
         "type":"t", "date":"2026-05", "note":"G1大會冠軍獎品", 
         "ver":["メタルコート：ゴールド","Metal Coat: Gold"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2026_1.webp",{"width":"190%","top":"45%"}]
     },
-    "BXH-?1_02":{
+    "BXH-25_02":{
         "type":"t", "date":"2026-05", "note":"G1大會亞軍獎品", 
         "ver":["メタルコート：シルバー","Metal Coat: Silver"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2026_2.webp",{"width":"190%","top":"45%"}]
     },
-    "BXH-?1_03":{
+    "BXH-25_03":{
         "type":"t", "date":"2026-05", "note":"G1大會季軍獎品", 
         "ver":["メタルコート：ブロンズ","Metal Coat: Bronze"],
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/event/_image/gp_pre2026_3.webp",{"width":"190%","top":"45%"}]

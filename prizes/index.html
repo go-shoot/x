@@ -1,5 +1,5 @@
 <title>景品</title>
-<script src=../include/common.js></script>
+<script defer src=../include/common.js></script>
 <script src=https://aeoq.github.io/diamond-grid/script.js type=module></script>
 <link rel=stylesheet href=prize.css>
 
@@ -21,41 +21,34 @@
 </main>
 
 <script type="module">
-import { Bey } from '../parts/bey.js'
-import { FilterForm, Keihin, Markup } from '../include/utilities.js'
+import { Part } from '../parts/part.js'
+import { FilterForm, Keihin } from '../include/utilities.js'
 
 const Prize = () => Prize.before().then(Prize.display).then(Prize.after);
 Object.assign(Prize, {
-    before: () => Promise.all([
-        DB.get.essentials(), DB.get('product', 'beys'), DB.get('product', 'keihins')
-    ]).then(([[meta, parts], beys, keihins]) => Bey.import(meta.general, parts) && 
-        beys.filter(([, classes]) => classes.includes('Lm'))
+    async before () {
+        Part.import(...await DB.get.essentials());
+        let [beys, keihins] = await Promise.all([DB.get('product', 'beys'), DB.get('product', 'keihins')]);
+        return beys.filter(([, classes]) => classes.includes('Lm'))
             .map(([code, _, bey]) => ({code, bey, ...keihins[code]}))
-    ),
+    },
     display (keihins) {
-        let {true: parts, false: beys} = Object.groupBy(keihins, ({bey}) => bey.includes('/') || !bey.includes(' '));
-        [beys, parts] = [beys.map(b => new Keihin(b)), parts.map(p => new Keihin(p))];
-        Prize.all = [...beys, ...parts];
+        Prize.all = keihins.map(k => new Keihin(k));
+        let {true: parts, false: beys} = Object.groupBy(Prize.all, k => /^[^ ]$|\//.test(k.dataset.abbr));
         Q('#beys').append(...beys);
         Q('#parts').append(...parts);
     },
     after () {
         Prize.filter();
-        Prize.event();
+        FilterForm.event(Prize.all);
         Q('.loading').classList.remove('loading');
     },
     filter: () => Q('nav form').append(
         new FilterForm.fieldset(Prize.icons, {name: 'type'}), 
         new FilterForm.fieldset(Prize.lines, {name: 'line', negate: true})
     ),
-    event () {
-        FilterForm.event(Prize.all);
-        let target = Q(`[id='${decodeURI(location.hash.substring(1))}']`);
-        target?.scrollIntoView();
-        target?.classList.add('target');
-    },
     icons: new O({'keihin-m': '\ue001', 'keihin-g': '\ue002', 'keihin-d': '\ue02f', 'keihin-t': '\ue031'}),
-    lines: new O(LINES).map(([line]) => [line, E('img', {src: `../img/lines.svg#${line}`})]),
+    lines: LINES.map(([line]) => [line, E('img', {src: `../img/lines.svg#${line}`})]),
 });
 Q('main').prepend(DB().then(Prize));
 </script>

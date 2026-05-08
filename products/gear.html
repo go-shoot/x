@@ -1,6 +1,6 @@
 
 <title>發射器 / 對戰盤 / 工具 / 配件</title>
-<script src=../include/common.js></script>
+<script defer src=../include/common.js></script>
 <style>
     main {
         max-width:1000px;
@@ -33,7 +33,7 @@
 </main>
 
 <template id="winder launcher (+)">
-    由最長起排名是：<ul><li><ruby>Long Winder<rt>ロングワインダー</ruby><li><ruby>Dragon Winder<rt>ドラゴンワインダー</ruby></ol>
+    由最長起排名是：<ol class="default"><li><ruby>Long Winder<rt>ロングワインダー</ruby><li><ruby>Dragon Winder<rt>ドラゴンワインダー</ruby></ol>
 </template>
 <template id="rubber custom grip">
     四塊分別是：<dl><dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> L<dd>放四根手指用<dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> M<dd>容易握的平坦形<dt><ruby>Rubber Side Panel<rt>ラバーサイドパネル</ruby> S<dd>放姆指用<dt><ruby>Rubber Grip Panel<rt>ラバーグリップパネル</ruby><dd>一端的突起減少滑手</dl>
@@ -50,17 +50,17 @@
 
 
 <script type="module">
-import DB from '../include/DB.js';
-import {Bey, Preview} from '../parts/bey.js';
-import {FilterForm, Markup} from '../include/utilities.js';
+import DB from '../include/DB.js'
+import { Preview } from '../parts/bey.js'
+import { FilterForm, Markup } from '../include/utilities.js'
 
 const Filter = new FilterForm.fieldset(new O({'l':'', 'r':''}));
 Q('nav form').append(Filter);
 
 class Group {
-    constructor({eng, jap, desc, colors}) {
-        let img = new Board(colors[1] || colors[0]).Q('img');
-        let details = E('details', [
+    constructor({eng, jap, desc, colors: items}) {
+        let img = new Board(items[1] || items[0]).Q('img');
+        this.details = E('details', [
             E('summary', [
                 E('h3', `${jap}${String.fromCharCode(10)}${eng}`),
                 E('small', desc),
@@ -68,20 +68,21 @@ class Group {
                     background: `url(${img.src}) center / ${img.style.width || (img.style || 150) + '%'}`
                 }})
             ], {id: eng}),
-            E('p', [Q(`[id='${eng}']`)?.content ?? '']),
+            E('p', Q(`[id='${eng}']`)?.content ?? ''),
             E('ol.boards')
         ]);
-        details.Q('summary').addEventListener('click', async () => {
-            let beys = await DB.get('product', 'beys');
-            details.Q('ol').append(...colors.map(item => new Board(item,              
-                /BX[CH]/.test(item[0]) ? 'Lm' :
-                beys.find(([code]) => code.includes(item[0].split(' ')[0]))?.[1].split(' ')[0] ?? 'B'
-            )));
-            FilterForm.event(Q('.boards li'));
-            document.forms[0].onreset();
-        }, {once: true});
-        return details;
+        this.details.Q('summary').addEventListener('click', () => this.show(items), {once: true});
+        return this.details;
     }
+    show = items => DB.get('product', 'beys').then(beys => {
+        let type = new Map(beys.map(([code, classes]) => [code.split('_')[0], classes.split(' ')[0]]));
+        this.details.Q('.boards').append(...items.map(item => {
+            let code = item[0].split(' ')[0];
+            return new Board(item, /BX[CH]/.test(code) ? 'Lm' : type.get(code) ?? 'B')
+        }));
+        FilterForm.event(Q('.boards li'));
+        document.forms[0].onreset();
+    })
     static location = {
         launchers: eng => eng.includes('string') ? 1 : 2,
         others: eng => eng.includes('stadium') ? 2 : 1
@@ -93,19 +94,19 @@ class Board {
         let img = typeof content.at(-1) == 'object' ? content.pop() : [];
         let {true: src, false: style} = Object.groupBy(img, c => typeof c == 'string');
         [src, style] = [src?.[0], style?.[0]];
-        let [code, classes] = content;
+        let [codes, classes] = content.map(c => c?.split(' '));
         return E('li', [
-            E('div', ...code.split(' ').flatMap(c => [E('code', Markup.nobreak(c)), ' '])),
+            E('div', ...codes.flatMap(c => [E('code', Markup.nobreak(c)), ' '])),
             E('figure>img', {
-                src: this.src(code, src), alt: code, loading: 'lazy',
+                src: Board.src(codes[0], src), alt: codes[0], loading: 'lazy',
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}
             }),
-            ...classes?.split(' ').map(c => Board.winder[c]?.cloneNode(true) ?? '') ?? []
-        ], {classList: classes + (type ? ' ' + type : '')});
+            ...classes?.map(c => Board.winder[c]?.cloneNode(true) ?? '') ?? []
+        ], {classList: [...classes ?? [], type]});
     }
-    src = (code, src) => {
+    static src = (code, src) => {
         src = !src || /^\d/.test(src) ? 
-            code.split(' ')[0].replace('-', '') + (src ? `_${src.padStart(2, '0')}` : '') + '@1' : src;
+            code.replace('-', '') + (src ? `_${src.padStart(2, '0')}` : '') + '@1' : src;
         return /^[A-Z]X[A-Z]?\d/i.test(src) ? 
             `//beyblade.takaratomy.co.jp/beyblade-x/lineup/_image/${src}.png` : src;
     }
@@ -115,7 +116,6 @@ class Board {
     }
 }
 Q('main').prepend(DB().then(() => {
-    DB.get('meta', 'parts').then(meta => Bey.import(meta.general)); //for preview
     let place = Q(`#${location.search.substring(1)}`);
     place.hidden = false;
     Filter.hidden = place.id == 'others';
@@ -123,9 +123,12 @@ Q('main').prepend(DB().then(() => {
         items.reverse().forEach(({eng, ...rest}) => 
             place.Q(`h2:nth-of-type(${Group.location[place.id](eng)})`).after(new Group({eng, ...rest}))
         );
-        (onhashchange = () => Q('summary', summary => 
-            summary.id == decodeURI(location.hash.substring(1)) && [summary.click(), summary.scrollIntoView()]
-        ))();
+        (onhashchange = () => Q('summary', summary => {
+            if (summary.id == decodeURI(location.hash.substring(1))) {
+                summary.click();
+                summary.scrollIntoView();
+            }
+        }))();
     });
     Q('main').onclick = ev => ev.target.tagName == 'CODE' ? 
         ev.target.closest('li.Lm') ? 

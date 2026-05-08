@@ -8,58 +8,59 @@ class Indicator extends HTMLElement {
         Indicator.#css.then(css => this.attachShadow({mode: 'open'}).adoptedStyleSheets = [css]);
     }
     connectedCallback() {
-        [this.progress, this.total] = [0, Storage('DB')?.count || 100];
-        Q('link[href$="common.css"]') && DB.replace().catch(er => this.error(er)).then(this.callback).then(Glossary);
+        this.total = Storage('DB')?.count || 100;
+        Q('link[href$="common.css"]') && 
+            DB.replace().catch(er => this.error(er, 'db') || Promise.reject())
+            .then(this.callback).catch(er => this.error(er, 'ex')).then(Glossary);
+        this.onclick = () => this.classList == 'ex-error' && location.reload();
     }
     attributeChangedCallback(_, __, state) {
         if (state == 'success') {
-            E(this).set({'--p': 40 - 225 + '%'});
+            this.title = '更新成功';
+            E(this).set({'--p': '-350%', '--hue': 'lime'});
+            setTimeout(() => this.hidden = true, 3000);
             this.progress > (Storage('DB')?.count ?? 0) && Storage('DB', {count: this.progress});
-            this.timer = setTimeout(() => this.hidden = true, 3000);
-        } else
-            clearTimeout(this.timer);
-        E(this).set({'--hue': state == 'success' ? 'lime' : 'deeppink'});
-        this.title = state == 'success' ? '更新成功' : state == 'offline' ? '離線' : '';
+        } else {
+            state == 'offline' && (this.title = '離線');
+            E(this).set({'--hue': 'red'});
+            this.hidden = false;
+        }
     }
-    init(files) {console.log(files);
-        if (!files.length) return this.hidden = true;
-        this.setAttribute('progress', this.progress = 0);
-        return this.title = '更新中';
+    update (signal) {
+        signal === true || ++this.progress == this.total ?
+            this.progress ? this.classList = 'success' : this.title = '更新中' :
+            this.progress ? E(this).set({'--p': -150 - 200 * this.progress / this.total + '%'}) : this.hidden = true;
+        this.setAttribute('progress', this.progress ||= 0);
+        return true;
     }
-    update(finish) {
-        finish || ++this.progress == this.total ?
-            this.classList = 'success' : 
-            E(this).set({'--p': 40 - 225 * this.progress / this.total + '%'});
-        this.setAttribute('progress', this.progress);
-    }
-    error(er) {
-        console.error(...[er].flat());
-        Q('.loading') && (Q('.loading').innerText = er);
-        this.classList = 'error';
+    error (er, type) {
+        if (!er) return;
+        console.error(er);
+        [this.title, this.classList] = [er, `${type}-error`];
     }
     static observedAttributes = ['class'];
     static #css = new CSSStyleSheet().replace(`
-    :host(:not([progress]):not([class]))::before {display:none;}
+    :host(:not([progress]):not([class]))::before {display: none;}
     :host {
-        position:relative;
-        background:radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%) text;
-        display:block;
-        pointer-events:none;
+        position: relative;
+        background: radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%) text;
+        display: block;
     }
     :host([style*='--hue']) {
-        background:var(--hue) text;
+        background: var(--hue) text;
     }
     :host([title])::after {
-        content:attr(title) ' ' attr(progress);
-        position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-        color:var(--on); font-size:.9em;
-        width:4.7rem;
+        content: attr(title) ' ' attr(progress);
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+        color: var(--on); mix-blend-mode: difference;
+        width: 100%;
     }
     :host::before {
-        font-size:5rem; color:transparent;
-        content:'\\e006';
+        font-size: 5rem; color: transparent;
+        content: '\\e006';
     }
-    :host(.offline)::before {content:'\\e007';}`);
+    :host(.offline)::before {content: '\\e007';}
+    :host(.ex-error)::before {content: '';}`);
 };
 customElements.define('db-state', Indicator);
 
@@ -132,13 +133,13 @@ Object.assign(DB, {
             .then(({news, ...files}) => {
                 DB.plugins.announce?.(news);
                 return files;
-            })
+            }).catch(() => DB.indicator.classList = 'ex-error')
         ,
-        files: files => DB.indicator.init(files) && Promise.all(files.map(DB.fetch.file)),
+        files: files => DB.indicator.update(files.length && true) && Promise.all(files.map(DB.fetch.file)),
         file: file => fetch(`/x/db/${file}.json`)
             .then(resp => Promise.allSettled([
                 file, resp.json(), 
-                fresh || file == 'part-blade-collab' && DB.delete('blade','hasbro'),
+                fresh || file == 'part-blade-collab' && DB.delete('blade','collab'),
                 fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
     },
@@ -168,7 +169,6 @@ Object.assign(DB, {
             if (!DB._tx || mode == 'rw' && DB._tx.mode != 'readwrite' 
                 || stores.some(s => !DB._tx.objectStoreNames.contains(s))) {
                 DB.tx.bind(DB.db.transaction(stores, mode == 'rw' ? 'readwrite' : 'readonly'));
-                DB.indicator.innerText += `new ${DB._tx.mode} tx: ${stores}\n`;
             }
             return DB._tx;
         },
@@ -188,7 +188,7 @@ Object.assign(DB, {
     os: {
         parts: [
             'bit', 'ratchet', 'blade',
-            ...[...new O(LINES)].filter(([_, {divided}]) => divided).flatMap(([line]) => `blade.${line}`)
+            ...LINES.filter(([_, {divided}]) => divided).flatMap(([line]) => `blade.${line}`)
         ],
         others: ['product', 'meta', 'user'],
     },
@@ -218,8 +218,8 @@ Object.assign(DB.get, {
         Promise.all(DB.os.parts.map(store => DB.get.all(store).then(parts => [store, parts])))
         .then(parts => Transform.to.dict(parts, detailed))
     ,
-    essentials: detailed => Promise.all([DB.get('meta', 'parts'), DB.get.parts(detailed)])
-        .then(([meta, parts]) => [new O(meta), parts])
+    essentials: detailed => Promise.all([DB.get('meta', 'general'), DB.get.parts(detailed)])
+        .then(([meta, parts]) => [meta, parts])
 });
 const Transform = {
     to: {
@@ -233,9 +233,9 @@ const Transform = {
                 OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))], detailed) : 
                 OBJ[comp] = new O(OBJ[comp] ?? {}, parts.map(part => {
                     part.abbr.includes('.') && ([part.group, part.abbr] = part.abbr.split('.'));
-                    part = new (Part[comp] ?? Part.blade)(part);
-                    detailed || part.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
-                    return [part.abbr, part];
+                    let P = new (Part[comp] ?? Part.Blade)(part);
+                    detailed || P.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
+                    return [P.abbr, P];
                 }))
             );
             return OBJ;

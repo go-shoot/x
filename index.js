@@ -1,35 +1,32 @@
 import DB from './include/DB.js'
-import {Bey, Preview} from './parts/bey.js'
-import {Part} from './parts/part.js'
-import {Markup} from './include/utilities.js'
+import { Bey, Preview } from './parts/bey.js'
+import { Part } from './parts/part.js'
+import { Markup } from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
-Q('search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['產品', '部件', '景品'][i]}`) && a));
+Q('#search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['產品', '部件', '景品'][i]}`) && a));
+Q('search ul').append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.svg#${l}`})));
 
 let CACHE;
 class Cache {
     constructor() {
         return Promise.all([DB.get.essentials(true), DB.get('meta', 'search')])
         .then(([[meta, PARTS], links]) => {
-            Part.import(meta.general, PARTS);
+            Part.import(meta, PARTS);
             CACHE = {links: [
                 ...links,
-                ...new O(LINES).flatMap(([line, {divided}]) => 
+                ...LINES.flatMap(([line, {divided}]) => 
                     Cache.link(['blade', ...divided ? [line] : ['', line]], line)
                 ),
                 Cache.link(['ratchet'], '核輪⬧固鎖輪盤'), Cache.link(['bit'], '軸心')
             ]};
-            return Promise.all(Cache.flatten(PARTS).map(p => p.revise('tile')));
-        }).then(parts => ({...CACHE,
-            parts: parts.map(p => p.push({all: [...new Set([...p].flat()), Cache.types[p.attr[0]]]}))
-        }));
+            return Promise.all(Cache.flatten(PARTS).map(P => P.revise('tile')));
+        }).then(Parts => ({...CACHE, parts: Parts}));
     }
-    static link = ([comp, line, group], title) => ({                        
-        keywords: ['零件','部件','組件','圖鑑', comp, ...title.split(/[【⬧】]/)],
-        href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`, 
-        text: title
+    static link = ([comp, line, group], text) => ({text,
+        keywords: ['零件','部件','組件','圖鑑', comp, text],
+        href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`
     })
-    static flatten = parts => parts instanceof O ? [...parts.values()].map(Cache.flatten).flat() : parts
-    static types = {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}
+    static flatten = Parts => Parts instanceof O ? [...Parts.values()].map(Cache.flatten).flat() : Parts
 }
 class Input {
     constructor() {
@@ -80,7 +77,10 @@ class Input {
     })
     static events () {
         Input.field.onfocus = async () => CACHE ??= await new Cache();
-        Input.field.oninput = () => Input.field.value.trim() && new Search();
+        Input.field.oninput = () => {
+            !/^.XG?/i.test(Input.field.value) && (Input.field.inputmode = 'text');
+            Input.field.value.trim() && new Search();
+        }
     }
 }
 Input.events();
@@ -96,18 +96,16 @@ class Search {
             Q('#search .links').replaceChildren(bey ? new Result('weight', bey) : '', ...this.find('links'));
         });
     }
-    static for = {
-        specific: targets => CACHE.parts.filter(part => part.only.name() ? 
-            Search.match.name(part.names, targets.free) : 
-            Search.match.abbr(part.path.at(-1), targets[part.subcomp])
-        ),
-        generic: ({free}, amount) => 
-            new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
-            .search({$or: [...free].map(text => ({
-                $or: [{abbr: text}, {$and: text.split(/(?=\W)/).map(t => ({all: t}))}]
-            }) )}) 
-            .slice(0, amount).map(r => r.item)
-    }
+    static precisely = targets => CACHE.parts.filter(P => P.only.name() ? 
+        Search.match.name(P.names, targets.free) : 
+        Search.match.abbr(P.path.at(-1), targets[P.subcomp])
+    )
+    static generally = ({free}, amount) => 
+        new Fuse(CACHE.parts, {keys: ['abbr', 'all'], threshold: .35})
+        .search({$or: [...free].map(text => ({
+            $or: [{abbr: text}, {$and: text.split(/(?=\W)/).map(t => ({all: t}))}]
+        }) )}) 
+        .slice(0, amount).map(r => r.item)
     static match = {
         abbr: (abbr, set) => set?.has(abbr.toUpperCase()),
         name: (names, set) => names?.chi.split(' ').some(n => set?.has(Markup.remove(n)))
@@ -115,9 +113,9 @@ class Search {
     find = what => Search.find[what](this.targets)
     static find = {
         parts: query => {
-            let parts = Search.for.specific(query).sort((p1, p2) => (p1.only.name() - p2.only.name()));
-            Result.parts = parts = new Set([...parts, ...Search.for.generic(query, parts.length ? 5 : 50)]);
-            return [...parts].map(item => new Result('part', item));
+            let Parts = Search.precisely(query).sort((P1, P2) => (P1.only.name() - P2.only.name()));
+            Result.parts = Parts = new Set([...Parts, ...Search.generally(query, Parts.length ? 5 : 50)]);
+            return [...Parts].map(item => new Result('part', item));
         },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
@@ -127,9 +125,7 @@ class Search {
         )
     }
     static history = {
-        show: items => Q('#search .history').replaceChildren(...items.map(item => 
-            E('button', item, {onclick: () => new Search(item)})
-        )),
+        show: items => Q('#search .history').replaceChildren(...items.map(item => E('button', item))),
         add: item => {
             let history = [...new Set([item, ...Storage('history') || []])].slice(0, 10);
             Search.history.show(history);
@@ -140,13 +136,18 @@ class Search {
     static events () {
         Search.history.show(Storage('history') || []);
         Q('#search').onclick = ev => {
+            if (ev.target.matches('ul img')) {
+                Input.field.value = new URL(ev.target.src).hash.substring(1);
+                Input.field.inputmode = 'numeric';
+                return Input.field.focus();
+            }
+            ev.target.matches('ol.history *') && new Search(ev.target.innerText);
             ev.target.matches('ol:not(.history) *') && Search.history.add(Search.query);
             ev.target.matches('ol.preview button') && (ev.target.dataset.path ?
                 new Preview(['tile', 'cell'], {path: ev.target.dataset.path.split(',')}, ev) : 
                 new Preview(['cell', 'image'], {code: ev.target.innerText}, ev)
             );
-            ev.target.matches('ol.links a[href^="//"]') && 
-                gtag('event', `LINK-${ev.target.href.substring(2,18)}`);
+            ev.target.matches('ol.links a[href^="//"]') && gtag('event', `LINK-${ev.target.href.substring(8,25)}`);
         }
         document.onclick = ev => {
             let a = ev.target.closest('a[href^="?"]');

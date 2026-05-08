@@ -3,10 +3,8 @@ import { Part, Cell } from './part.js';
 import { Glossary, Markup, Transition, Keihin } from '../include/utilities.js';
 import Maps from '../products/maps.js';
 
-let META, PARTS;
-
+let PARTS, Blade, Ratchet, Bit;
 class Bey {
-    static import = (meta, parts) => ([META, PARTS] = [meta, parts]) && Object.assign(window, {meta, parts});
     constructor(bey) {
         if (typeof bey == 'string') {
             this.abbr.to.parts(bey).to.names();
@@ -23,21 +21,19 @@ class Bey {
     abbr = {to: {parts: abbr => {
         abbr = new O(abbr.split(' ').map((a, i) => [Bey.comps[i], a]));
         ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp]);
-
-        this.line = META.blade.delimiter.find(([, char]) => 
-            (abbr.blade = [abbr.blade].flat()[0].split(char)).length > 1
-        )?.[0];
+        
+        let line = Blade.sub.find(([, {delim}]) => (abbr.blade = abbr.blade.split(delim)).length > 1)?.[0];
         if (abbr.blade.length > 1) {
-            let subs = Part.blade[this.line][abbr.blade.length];
-            this.blade = abbr.blade.map((b, i) => PARTS.blade[this.line][subs[i]][b] ?? new Part.blade({group: subs[i]}));
+            let subs = Blade.sub[line][abbr.blade.length];
+            this.blade = abbr.blade.map((b, i) => PARTS.blade[line][subs[i]][b] ?? new Blade({group: subs[i]}));
         } else
-            this.blade = PARTS.blade[abbr.blade[0]] ?? new Part.blade;
-        this.line ??= /^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '';
+            this.blade = PARTS.blade[abbr.blade[0]] ?? new Blade;
+        this.line = line || (/^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '');
         return this.parts;
     }}}
-    parts = {to: {names: (substitute = false) => {
+    parts = {to: {names: (fallback = false) => {
         let blade = [this.blade].flat();
-        let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('')
+        let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
             + Markup.nobreak(this.ratchet.abbr) + (this.bit.abbr ?? '');
         this.names = {
             chi: Markup.remove([
@@ -46,36 +42,45 @@ class Bey {
             ].filter(n => n).join('⬧')) + others,
             jap: blade.map(b => b.only.name() ? b.names?.jap : '').join('') + others
         };
-        (this.names.chi == others) && (this.names.chi = substitute ? blade.map(b => b.abbr).join('.') + others : '');
+        (this.names.chi == others) && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
     }}}
     weight = () => {
         let adjust = {'+': .3, '=': 0, '-': -.3};
-        let sum = [this.blade, this.ratchet, this.bit].flat().reduce((sum, p) => 
-            sum += p?.stat ? parseInt(p.stat[0]) + adjust[p.stat[0].at(-1)] : 0
+        let sum = [this.blade, this.ratchet, this.bit].flat().reduce((sum, P) => 
+            sum += P?.stat ? parseInt(P.stat[0]) + adjust[P.stat[0].at(-1)] : 0
         , 0);
         return Math.round(sum) + (sum % 1 >= .849 ? '≈' : sum % 1 >= .499 ? '−' : sum % 1 > .149 ? '+' : '≈');
     }
     static comps = ['blade', 'ratchet', 'bit']
-    static build = {from: parts => {
-        if (parts.length > 10) return;
-        let known = (comp, part) => comp == (part.subcomp) && part.stat[0], bey = [];
-        bey[0] = Part.blade.CX[4].map(sb => parts.find(part => known(sb, part)));
-        bey[0].includes(undefined) && (bey[0] = Part.blade.CX[3].map(sb => parts.find(part => known(sb, part))));
-        bey[0].includes(undefined) && (bey[0] = parts.find(part => known('blade', part)));
+    static build = {from: Parts => {
+        if (Parts.length > 10) return;
+        let bey = [];
+        let exist = (P, comp, line) => comp == P.subcomp && (line ? line == P.path[1] : true) && P.stat[0]; //only weighted
+        line: for (let [line, obj] of Blade.sub)
+            for (let [_, subs] of obj) {
+                Array.isArray(subs) && (bey[0] = subs.map(sb => Parts.find(Part => exist(Part, sb, line))));            
+                if (!bey[0].includes(undefined)) break line;
+            }
+        bey[0].includes(undefined) && (bey[0] = Parts.find(Part => exist(Part, 'blade')));
         if (!bey[0]) return;
-        [bey[1], bey[2]] = [parts.find(part => known('ratchet', part)), parts.find(part => known('bit', part))];
-        let valid = Bey.valid.some(checks => checks.every((c, i) => c(bey[i])));
+        [bey[1], bey[2]] = ['ratchet', 'bit'].map(comp => Parts.find(Part => exist(Part, comp)));
+        let valid = Bey.valid.every(rules => rules.some(checks => checks.every((c, i) => c ? c(bey[i]) : true)));
         return valid ?
-            new Bey({blade: bey[0], ratchet: bey[1] ?? new Part.ratchet, bit: bey[2] ?? new Part.bit}) :
+            new Bey({blade: bey[0], ratchet: bey[1] ?? new Ratchet, bit: bey[2] ?? new Bit}) :
         bey[0].length ?
-            new Bey({blade: bey[0], ratchet: new Part.ratchet, bit: new Part.bit}) : '';
+            new Bey({blade: bey[0], ratchet: new Ratchet, bit: new Bit}) : '';
     }}
-    static valid = [
-        [p => p.length || !p.attr.includes('fused'), p => p, p => p && !p.attr.includes('fused')],
-        [p => !p.length && p?.attr.includes('fused'), p => !p, p => p && !p.attr.includes('fused')],
-        [p => p.length || !p.attr.includes('fused'), p => !p, p => p?.attr.includes('fused')],
-    ]
+    static valid = [[
+        [P => P.length || !P.attr.has('fused'), P => P, P => P && !P.attr.has('fused')],
+        [P => !P.length && P?.attr.has('fused'), P => !P, P => P && !P.attr.has('fused')],
+        [P => P.length || !P.attr.has('fused'), P => !P, P => P?.attr.has('fused')],
+    ], [
+        [P => !P.length && P?.attr.has('simple'), P => P?.attr.has('simple')],
+        [P => P.length || !P.attr.has('simple')]
+    ]]
 }
+Bey.import = Parts => ([PARTS, {Blade, Ratchet, Bit}] = [Parts, Part]) && Object.assign(window, {parts: Parts});
+
 class Row {
     constructor(bey, code, classes, others) {
         let [video, more] = ['string', 'object'].map(t => others.find(o => typeof o == t));
@@ -129,16 +134,16 @@ class Search {
         }));
     }
     lookup (string) {
-        this.query = this.#search.deep(string.split(' ')).map(([comp, parts]) => [comp, new A(
-            [...parts.filter(([, part]) => part instanceof Part).keys()], 
-            {...parts.filter(([, part]) => !(part instanceof Part)).map(([line, subs]) => 
-                [line, subs.map(([s, parts]) => [s, [...parts.keys()]]).filter(([, parts]) => parts.length)]
+        this.query = this.#search.deep(string.split(' ')).map(([comp, Parts]) => [comp, new A(
+            [...Parts.filter(([, P]) => P instanceof Part).keys()], 
+            {...Parts.filter(([, P]) => !(P instanceof Part)).map(([line, subs]) => 
+                [line, subs.map(([s, Parts]) => [s, [...Parts.keys()]]).filter(([, abbrs]) => abbrs.length)]
             )}
         )]);
     }
     #search = {
-        deep: (target, parts = PARTS) => parts.map(([comp, parts]) => [comp, parts.filter(([, part], i, arr) => 
-            part instanceof Part ? this.#search.match(target, part) : arr[i][1] = this.#search.deep(target, part)
+        deep: (target, Parts = PARTS) => Parts.map(([comp, Parts]) => [comp, Parts.filter(([, P], i, arr) => 
+            P instanceof Part ? this.#search.match(target, P) : arr[i][1] = this.#search.deep(target, P)
         )]),
         match: (target, {abbr, names = {}}) => Array.isArray(target) ?
             target.some(t => this.#search.match(t, {abbr, names})) :
@@ -154,10 +159,10 @@ class Search {
             let single = q.blade instanceof A ? [...q.blade] : typeof q.blade == 'string' ? q.blade : null;
             let divided = q.blade instanceof A ? {...q.blade} : typeof q.blade == 'object' ? q.blade : null;
             single?.length && this.regexp.push(new RegExp(`^${Search.#or(single)}`, 'u'));
-            divided && META.blade.delimiter.each(([line, char]) => 
-                new O(Part.blade[line]).each(([_, subs]) => 
-                    new O(divided[line]).each(([sub]) => subs.includes(sub) 
-                        && this.regexp.push(new RegExp(`^${subs.map(sub => Search.#or(divided[line][sub])).join(`\\${char}`)} `, 'u'))
+            divided && Blade.sub.each(([line, {delim}]) => 
+                new O(Blade.sub[line]).each(([_, subs]) => Array.isArray(subs) && 
+                    Object.keys(divided[line]).forEach(sub => subs.includes(sub) && 
+                        this.regexp.push(new RegExp(`^${subs.map(sub => Search.#or(divided[line][sub])).join(`\\${delim}`)} `, 'u'))
                     )
                 )
             );

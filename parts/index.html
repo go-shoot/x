@@ -1,5 +1,5 @@
 <title>部件</title>
-<script src=../include/common.js></script>
+<script defer src=../include/common.js></script>
 <script type=module src=https://aeoq.github.io/drag-knob/script.js></script>
 <link rel=stylesheet href=parts.css>
 <link rel=stylesheet href=../parts/part.css>
@@ -16,42 +16,101 @@ ukenagashi: 卸走/開  inashi: 化解
     <form>
         <output name="count"></output>
     </form>
+    <div class="magnifier"></div>
 </nav>
 
 <main>
-    <details class="stretch" hidden open>
+    <details class="stretch" open>
         <summary onclick="return false">&#xe026;</summary>
-        <p></p>
+        <p id="blade">
+            &#xe03c;：與所示的Blade有相同形狀的塑膠下層<br>
+            <img src="../img/joint.svg#simple">：只能裝上簡化型Ratchet<br>
+            <i class="fused blade" style="color:hsl(var(--hue),80%,50%)">■</i>：Ratchet一體型
+        </p>
+        <p id="CX">
+            <img style="width:49%; max-width:20em" src="//beyblade.takaratomy.co.jp/beyblade-x/guide/_image/pict17_3@2x.png">
+            <img style="width:49%; max-width:20em" src="//beyblade.takaratomy.co.jp/beyblade-x/guide/_image/pict17_expand@2x.webp"><br>
+            能以三層結構 <ruby>Lock Chip<rt>ロックチップ</rt></ruby>—<ruby>Main Blade<rt>メインブレード</rt></ruby>—<ruby>Assist Blade<rt>アシストブレード</rt></ruby> 或<br>
+            四層結構 <ruby>Lock Chip<rt>ロックチップ</rt></ruby>—<ruby>Over Blade<rt>オーバーブレード</rt></ruby>—<ruby>Metal Blade<rt>メタルブレード</rt></ruby>—<ruby>Assist Blade<rt>アシストブレード</rt></ruby> 方式組裝。<br>
+            同一款塑膠Lock Chip可在官方比賽中使用多個，但含金屬的同一款則只能使用一個。<br><br>
+            &#xe03c;：與所示的Main Blade有相同形狀的金屬下層
+        </p>
+        <p id="ratchet">
+            高度單位為dmm，10 dmm＝1 mm。（<ruby>d<rt>deci</rt></ruby>＝1/10、<ruby>m<rt>milli</rt></ruby>＝1/1000）<br>
+            <img src="../img/joint.svg#simple"> 表示屬<ruby>簡化型<rt>Simple type</rt></ruby>：即不論所裝上之Bit的粗度，Burst抵禦性都是統一至「較鬆」。
+        </p>
+        <p id="bit">
+            Gear齒愈多，X Dash時的速度就愈快，但迴轉速度下降也加快。<br>
+            Shaft部指與Ratchet機關接觸部分，目前以最小直徑計算，愈粗就愈難被擊至爆裂。<br>
+            <i class="fused bit" style="color:hsl(var(--hue),80%,50%)">■</i>：Ratchet一體型
+        </p>
     </details>
     <section class="loading"></section>
 </main>
 
-<template id="blade">
-    &#xe03c;：與所示的Blade有相同形狀的塑膠下層<br>
-    <img src="../img/joint.svg#simple">：只能裝上簡化型Ratchet<br>
-    <i class="fused blade" style="color:hsl(var(--hue),80%,50%)">■</i>：Ratchet 一體型
-</template>
-<template id="blade.CX">
-    <img style="width:49%; max-width:20em" src="https://beyblade.takaratomy.co.jp/beyblade-x/guide/_image/pict17_3@2x.png">
-    <img style="width:49%; max-width:20em" src="https://beyblade.takaratomy.co.jp/beyblade-x/guide/_image/pict17_expand@2x.webp"><br>
-    能以三層結構 <ruby>Lock Chip<rt>ロックチップ</rt></ruby>—<ruby>Main Blade<rt>メインブレード</rt></ruby>—<ruby>Assist Blade<rt>アシストブレード</rt></ruby> 或<br>
-    四層結構 <ruby>Lock Chip<rt>ロックチップ</rt></ruby>—<ruby>Over Blade<rt>オーバーブレード</rt></ruby>—<ruby>Metal Blade<rt>メタルブレード</rt></ruby>—<ruby>Assist Blade<rt>アシストブレード</rt></ruby> 方式組裝。<br>
-    同一款塑膠Lock Chip可在官方比賽中使用多個，但含金屬的同一款則只能使用一個。<br><br>
-    &#xe03c;：與所示的Main Blade有相同形狀的金屬下層
-</template>
-<template id="ratchet">
-    高度單位為dmm，10 dmm＝1 mm。（<ruby>d<rt>deci</rt></ruby>＝1/10、<ruby>m<rt>milli</rt></ruby>＝1/1000）<br>
-    <img src="../img/joint.svg#simple"> 表示屬<ruby>簡化型<rt>Simple type</rt></ruby>：即不論所裝上之Bit的粗度，Burst抵禦性都是統一至「較鬆」。
-</template>
-<template id="bit">
-    Gear齒愈多，X Dash時的速度就愈快，但迴轉速度下降也加快。<br>
-    Shaft部指與Ratchet機關接觸部分，目前以最小直徑計算，愈粗就愈難被擊至爆裂。<br>
-    <i class="fused bit" style="color:hsl(var(--hue),80%,50%)">■</i>：Ratchet 一體型
-</template>
-
-<script type=module>
+<script type="module">
 import DB from '../include/DB.js'
-import Parts from './parts.js'
-Q('.stretch').after(DB().then(location.search && Parts));
+import Catalog from './parts.js'
+Q('.stretch').after(DB().then(location.search && Catalog));
 Q('menu li:has(.blade)').before(...Menu.lines());
+</script>
+<script title="blade" type="application/json">
+{
+    "filter": {"use": ["type","spin"]},
+    "一體": {
+        "filter": {
+            "groups": {
+                "UX": {"label": "UX", "checked": true},
+                "BX": {"label": "BX", "checked": true},
+                "remake": {"label": "復刻"},
+                "collab": {"label": "聯名"},
+                "hasbro": {"label": "未出"}
+            }
+        }
+    },
+    "CX": {
+        "filter": {
+            "groups": {
+                "chip": {"label": "Chip"},
+                "main": {"label": "Main"},
+                "over": {"label": "Over"},
+                "metal": {"label": "Metal", "checked": true},
+                "assist": {"label": "Assist"},
+                "hasbro": {"label": "未出"}
+            },
+            "multi": false
+        }
+    }
+}
+</script>
+<script title="ratchet" type="application/json">
+{
+    "所有": {
+        "filter": {
+            "groups": {
+                "low":  {"label": "▃", "checked": true},
+                "mid":  {"label": "▅", "checked": true},
+                "high": {"label": "▇", "checked": true}
+            },
+            "use": ["joint"]
+        }
+    }
+}
+</script>
+<script title="bit" type="application/json">
+{
+    "filter": {"use": ["type","prefix"]},
+    "sorter": {"use": ["name","time","height"]},
+    "所有": {
+        "filter": {
+            "groups": {
+                "flat":  {"label": "\ue019", "checked": true},
+                "sharp": {"label": "\ue01a", "checked": true},
+                "round": {"label": "\ue01b", "checked": true},
+                "multi": {"label": "\ue01c", "checked": true}
+            },
+            "variety": {"H,L,U":"\ue047","M,R":"\ue04a","B,F,T":"\ue049","G":"\ue048","D,W":"\ue04b"}
+        }
+    }
+}
 </script>
