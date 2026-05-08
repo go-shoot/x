@@ -36,10 +36,10 @@ class Bey {
         let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
             + Markup.nobreak(this.ratchet.abbr) + (this.bit.abbr ?? '');
         this.names = {
-            chi: Markup.remove([
+            chi: Markup.remove([...new Set([
                 blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
                 blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
-            ].filter(n => n).join('⬧')) + others,
+            ].filter(n => n))].join('⬧')) + others,
             jap: blade.map(b => b.only.name() ? b.names?.jap : '').join('') + others
         };
         (this.names.chi == others) && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
