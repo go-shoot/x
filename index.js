@@ -112,10 +112,13 @@ class Search {
     }
     find = what => Search.find[what](this.targets)
     static find = {
-        parts: query => {
-            let Parts = Search.precisely(query).sort((P1, P2) => (P1.only.name() - P2.only.name()));
-            Result.parts = Parts = new Set([...Parts, ...Search.generally(query, Parts.length ? 5 : 50)]);
-            return [...Parts].map(item => new Result('part', item));
+        parts (query) {
+            let precise = Search.precisely(query).sort((P1, P2) => (P1.only.name() - P2.only.name()));
+            let general = Search.generally(query, precise.length ? 5 : 50);
+            general.forEach(P => P.precise = false); 
+            precise.forEach(P => P.precise = true);
+            Result.parts = new Set([...precise, ...general]);
+            return [...Result.parts].map(item => new Result('part', item));
         },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
@@ -242,4 +245,4 @@ Q('header').after(DB(plugins).then(async () => {
         }
     }));
 })();
-location.host.includes('127.0.0.1') && Q('#search').after(...['長矛0-70z','長矛m-85z','長矛op','蒼龍勇氣S6‑60V','蒼龍勇氣Sm‑85V','蒼龍勇氣Sop','蒼龍勇氣wtr','獨角三變po6‑60V','獨角三變poop','獨角三變pom-85v'].map(a=>E('a',a,{href:'?'+a})))
+location.host.includes('127.0.0.1') && Q('#search').after(...['長矛0-70z','長矛m-85z','長矛op','蒼龍勇氣S6‑60V','蒼龍勇氣Sm‑85V','蒼龍勇氣Sop','蒼龍勇氣wtr','獨角三變po6‑60V','獨角三變poop','龍王閃擊pom-85v'].map(a=>E('a',a,{href:'?'+a})))

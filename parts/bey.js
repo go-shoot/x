@@ -56,12 +56,12 @@ class Bey {
         if (Parts.length > 10) return;
         let bey = [];
         let exist = (P, comp, line) => comp == P.subcomp && (line ? line == P.path[1] : true) && P.stat[0]; //only weighted
-        line: for (let [line, obj] of Blade.sub)
-            for (let [_, subs] of obj) {
-                Array.isArray(subs) && (bey[0] = subs.map(sb => Parts.find(Part => exist(Part, sb, line))));            
-                if (!bey[0].includes(undefined)) break line;
-            }
-        bey[0].includes(undefined) && (bey[0] = Parts.find(Part => exist(Part, 'blade')));
+        let matched = [...Blade.sub].flatMap(([line, obj]) => [...obj.values()].map(subs => 
+            Array.isArray(subs) && subs.map(sb => Parts.find(Part => exist(Part, sb, line)))
+        )).filter(Parts => Parts);
+        bey[0] = matched.find(Parts => Parts.every(P => P?.precise)) ?? 
+                 matched.find(Parts => Parts.every(P => P)) ?? 
+                 Parts.find(Part => exist(Part, 'blade'));
         if (!bey[0]) return;
         [bey[1], bey[2]] = ['ratchet', 'bit'].map(comp => Parts.find(Part => exist(Part, comp)));
         let valid = Bey.valid.every(rules => rules.some(checks => checks.every((c, i) => c ? c(bey[i]) : true)));
