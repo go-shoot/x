@@ -179,26 +179,27 @@ import {Shohin} from './include/utilities.js'
 const plugins = {
     announce: news => new O(news).each(([date, beys]) => 
         Q('#products').append(E('time', {title: date}), ...beys.map(bey => new Shohin(bey)))
-    ),
-    followup: async () => {
-        CACHE ??= await new Cache();
-        Shohin.after();
-        location.search && new Search(location.search.substring(1));
-    }
+    )
 };
-Q('header').after(DB(plugins).then(() => {
+Q('header').after(DB(plugins).then(async () => {
+    CACHE ??= await new Cache();
+    Shohin.after();
+    location.search && new Search(location.search.substring(1));
+
     const observer = new IntersectionObserver(entries => entries.forEach(entry => 
         entry.target.classList.toggle('seeing', entry.isIntersecting)
     ));
     Q('header,section,time,.scroller', el => observer.observe(el));
+}));
+
+(() => {
     new O({cache: 30, parts: 60}).each(([cache, days]) =>
-        Date.now() > Storage(`no-update-${cache}`) 
-        && fetch(`sw/?delete=${cache}`) 
-        && Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000)
+        Date.now() > Storage(`no-update-${cache}`) && 
+        fetch(`sw/?delete=${cache}`).then(() => Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000))
     );
 
-    const reset = message => Promise.all([
-        DB.discard(ev => message.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
+    const reset = span => Promise.all([
+        DB.discard(ev => span.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
         caches.delete('X'), caches.delete('X/parts'), caches.delete('X/fonts'),
         localStorage.clear(), sessionStorage.clear(),
         navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
@@ -207,11 +208,12 @@ Q('header').after(DB(plugins).then(() => {
         onbeforeunload = () => scrollTo(0, 0);
         location.reload();
     }).catch(er => {
-        message.innerText = er;
+        span.innerText = er;
         console.error(er)
     });
-    import('https://aeoq.github.io/pointer-interaction/script.js')
-    .then(({default: PI}) => PI.events({
+
+    const PI = 'https://aeoq.github.io/pointer-interaction/script.js';
+    import(PI).then(({default: PI}) => PI.events({
         '.scroller,#search ol': {scroll: {x: true}},
         '#reset': {
             drop: {onto: 'i:last-child'},
@@ -221,25 +223,23 @@ Q('header').after(DB(plugins).then(() => {
             lift: PI => PI.onto && reset(PI.target.nextElementSibling),
         }
     }))
-    .catch(() => caches.open('X')
-        .then(cache => cache.delete('https://aeoq.github.io/pointer-interaction/script.js'))
-    );
-}));
+    .catch(() => caches.open('X').then(cache => cache.delete(PI)));
 
-Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
-Q('#reboot form').onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
+    Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
+    Q('#reboot form').onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
 
-let swapped, sec = 1;
-Q('video', video => E(video).set({
-    '--crossfade': sec,
-    ontimeupdate: ev => {
-        if (swapped || ev.target.duration - ev.target.currentTime > sec) return;
-        let next = ev.target.autoplay ? ev.target.nextElementSibling : ev.target.previousElementSibling;
-        next.play();
-        next.style.opacity = 1;
-        ev.target.style.opacity = 0;
-        swapped = true;
-        setTimeout(() => swapped = false, 1000 * sec);
-    }
-}));
+    let swapped, sec = 1;
+    Q('video', video => E(video).set({
+        '--crossfade': sec,
+        ontimeupdate: ev => {
+            if (swapped || ev.target.duration - ev.target.currentTime > sec) return;
+            let next = ev.target[`${ev.target.autoplay ? 'next' : 'previous'}ElementSibling`];
+            next.play();
+            next.style.opacity = 1;
+            ev.target.style.opacity = 0;
+            swapped = true;
+            setTimeout(() => swapped = false, 1000 * sec);
+        }
+    }));
+})();
 location.host.includes('127.0.0.1') && Q('#search').after(...['長矛0-70z','長矛m-85z','長矛op','蒼龍勇氣S6‑60V','蒼龍勇氣Sm‑85V','蒼龍勇氣Sop','蒼龍勇氣wtr','獨角三變po6‑60V','獨角三變poop','獨角三變pom-85v'].map(a=>E('a',a,{href:'?'+a})))

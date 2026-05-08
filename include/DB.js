@@ -9,36 +9,30 @@ class Indicator extends HTMLElement {
     }
     connectedCallback() {
         this.total = Storage('DB')?.count || 100;
+        this.onclick = () => this.classList == 'error-ex' && location.reload();
         Q('link[href$="common.css"]') && 
-            DB.replace().catch(er => this.error(er, 'db') || Promise.reject())
+            DB.replace().catch(er => this.error(er, 'db'))
             .then(this.callback).catch(er => this.error(er, 'ex')).then(Glossary);
-        this.onclick = () => this.classList == 'ex-error' && location.reload();
-    }
-    attributeChangedCallback(_, __, state) {
-        if (state == 'success') {
-            this.title = '更新成功';
-            E(this).set({'--p': '-350%', '--hue': 'lime'});
-            setTimeout(() => this.hidden = true, 3000);
-            this.progress > (Storage('DB')?.count ?? 0) && Storage('DB', {count: this.progress});
-        } else {
-            state == 'offline' && (this.title = '離線');
-            E(this).set({'--hue': 'red'});
-            this.hidden = false;
-        }
     }
     update (signal) {
         signal === true || ++this.progress == this.total ?
-            this.progress ? this.classList = 'success' : this.title = '更新中' :
+            this.progress ? this.complete() : this.title = '更新中' :
             this.progress ? E(this).set({'--p': -150 - 200 * this.progress / this.total + '%'}) : this.hidden = true;
         this.setAttribute('progress', this.progress ||= 0);
         return true;
     }
-    error (er, type) {
-        if (!er) return;
-        console.error(er);
-        [this.title, this.classList] = [er, `${type}-error`];
+    complete () {
+        [this.title, this.classList] = ['更新成功', 'completed'];
+        setTimeout(() => this.hidden = true, 3000);
+        this.progress > (Storage('DB')?.count ?? 0) && Storage('DB', {count: this.progress});
     }
-    static observedAttributes = ['class'];
+    error (er, type) {
+        if (er) {
+            er == 'offline' ? ([er, type] = ['離線', er]) : console.error(er);
+            [this.title, this.classList, this.hidden] = [er, `error-${type}`, false];
+        }
+        return Promise.reject();
+    }
     static #css = new CSSStyleSheet().replace(`
     :host(:not([progress]):not([class]))::before {display: none;}
     :host {
@@ -46,21 +40,25 @@ class Indicator extends HTMLElement {
         background: radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%) text;
         display: block;
     }
-    :host([style*='--hue']) {
-        background: var(--hue) text;
+    :host::before {
+        font-size: 5rem; color: transparent;
+        content: '\\e006';
+    }
+    :host(.error-offline)::before {content: '\\e007';}
+    :host(.error-ex)::before {content: '';}
+    :host(.completed) {
+        background: lime text;
+        --p: 350%;
+    }
+    :host([class|=error]) {
+        background: red text;
     }
     :host([title])::after {
         content: attr(title) ' ' attr(progress);
         position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
         color: var(--on); mix-blend-mode: difference;
         width: 100%;
-    }
-    :host::before {
-        font-size: 5rem; color: transparent;
-        content: '\\e006';
-    }
-    :host(.offline)::before {content: '\\e007';}
-    :host(.ex-error)::before {content: '';}`);
+    }`);
 };
 customElements.define('db-state', Indicator);
 
@@ -110,14 +108,12 @@ Object.assign(DB, {
             ev.type == 'upgradeneeded' && DB.setup(ev);
             fresh = ev.oldVersion === 0;
             let skip = location.host == 'go-shoot.github.io' && Date.now() < Storage('no-update-jsons');
-            return (!skip || index ? DB.update() : Promise.resolve())
-                .then(() => DB.plugins.followup?.()).catch(console.error)
+            return (!skip || index) && DB.update();
         })
     ,
     update: () => (fresh && !index ? Promise.resolve() : DB.fetch.updates())
         .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
         .then(() => Storage('no-update-jsons', Date.now() + 5*60*1000))
-        .catch(er => /Abort||failed/i.test(er.message) ? DB.indicator.classList = 'offline' : console.error(er))
     ,
     setup (ev) {
         DB.os.others.forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
@@ -129,11 +125,12 @@ Object.assign(DB, {
         aborter: new AbortController(),
         timer: () => DB.fetch.timer = setTimeout(() => DB.fetch.aborter.abort(), 3000),
         updates: () => DB.fetch.timer() && fetch(`/x/db/-update.json`, {signal: DB.fetch.aborter.signal})
+            .catch(() => DB.indicator.error('offline'))
             .then(resp => clearTimeout(DB.fetch.timer) || resp.json())
             .then(({news, ...files}) => {
                 DB.plugins.announce?.(news);
                 return files;
-            }).catch(() => DB.indicator.classList = 'ex-error')
+            }).catch(er => DB.indicator.error(er, 'ex'))
         ,
         files: files => DB.indicator.update(files.length && true) && Promise.all(files.map(DB.fetch.file)),
         file: file => fetch(`/x/db/${file}.json`)

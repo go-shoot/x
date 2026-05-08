@@ -77,8 +77,8 @@ main {
             content: '\e02a';
             position: absolute; left: 50%; top: 50%; transform: translate(-50%,-48%);
             z-index: -1;
-            background: conic-gradient(salmon,orange,yellow,yellowgreen,springgreen ,cyan,dodgerblue,mediumslateblue,violet,salmon);
-            background-clip: text; color: transparent;
+            background: conic-gradient(salmon,orange,yellow,yellowgreen,springgreen,cyan,dodgerblue,mediumslateblue,violet,salmon) text; 
+            color: transparent;
             font-size: 1.5em;
         }
     }
