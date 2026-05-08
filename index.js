@@ -78,7 +78,7 @@ class Input {
     static events () {
         Input.field.onfocus = async () => CACHE ??= await new Cache();
         Input.field.oninput = () => {
-            !/^.XG?/i.test(Input.field.value) && (Input.field.inputmode = 'text');
+            !/^.XG?/i.test(Input.field.value) && (Input.field.inputMode = 'text');
             Input.field.value.trim() && new Search();
         }
     }
@@ -138,7 +138,7 @@ class Search {
         Q('#search').onclick = ev => {
             if (ev.target.matches('ul img')) {
                 Input.field.value = new URL(ev.target.src).hash.substring(1);
-                Input.field.inputmode = 'numeric';
+                Input.field.inputMode = 'numeric';
                 return Input.field.focus();
             }
             ev.target.matches('ol.history *') && new Search(ev.target.innerText);

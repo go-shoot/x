@@ -9,7 +9,7 @@
                 "metal": {"chi": "金屬刃 鋼鐵戰刃", "eng": "METAL BLADE", "jap": "メタルブレード"},
                 "assist": {"chi": "支援刃 輔助戰刃", "eng": "ASSIST BLADE", "jap": "アシストブレード"},
                 "ratchet": {"chi": "核輪 固鎖輪盤", "eng": "RATCHET", "jap": "ラチェット"},
-                "bit": {"chi": "軸心", "eng": "Bit", "jap": "ビット"}
+                "bit": {"chi": "軸心", "eng": "BIT", "jap": "ビット"}
             },
             "named": ["blade","chip","main","metal"],
             "types": ["att","bal","sta","def"]
