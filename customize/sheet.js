@@ -84,7 +84,7 @@ Object.assign(App, {
             });
             return pdf.save();
         }).then(doc => {
-            gtag('event', 'EXPORT-PDF');
+            gtag('event', `EXPORT-PDF-${Q('[name=mag]').value / 100}`);
             open(URL.createObjectURL(new Blob([doc], { type: 'application/pdf' })))
             App.switch(location.hash);
         }).catch(er => document.body.append(er) ?? console.error(er));
