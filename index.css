@@ -55,7 +55,7 @@ section {
 
     &>a:last-of-type {margin-right: .3rem;}
     search {margin: .2rem;}
-    ol {padding-left: .2rem;}
+    ol {padding: 0 1rem 0 .2rem;}
 
     &:not(:has(a[href*='products'])) {opacity: 0;}
     &>a {margin-left: 1em;}
