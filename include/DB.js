@@ -30,6 +30,7 @@ class Indicator extends HTMLElement {
         if (er) {
             er == 'offline' ? ([er, type] = ['離線', er]) : console.error(er);
             [this.title, this.classList, this.hidden] = [er, `error-${type}`, false];
+            gtag('event',`ERROR-${er.message?.substring(10,50)}`);
         }
         return Promise.reject();
     }
