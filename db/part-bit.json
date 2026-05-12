@@ -153,6 +153,13 @@
         "stat": ["2=",12,77,102],
         "desc": "降低陀螺重心，以支援在低位置的反擊。"
     },
+    "Nr": {
+        "group": "ball",
+        "names": {"jap": "ナロー", "eng": "Narrow"},
+        "stat": ["",10],
+        "desc": " ",
+        "attr": ["sta"]
+    },
     "O": {
         "group": "round",
         "names": {"jap": "オーブ", "eng": "Orb"},

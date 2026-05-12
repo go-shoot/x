@@ -23,6 +23,12 @@
             "stat": ["4-"],
             "desc": "薄且順滑的形狀減輕空氣抵抗，維持迴轉力。",
             "attr": ["sta","right","bbb"]
+        },
+        "O": {
+            "names": {"jap":"アウター", "eng":"Outer"},
+            "stat": [""],
+            "desc": "",
+            "attr": ["sta","right"]
         }
     },
     "assist": {
@@ -130,6 +136,11 @@
         }
     },
     "chip":{
+        "Br": {
+            "names": {"jap":"ブラキオ", "eng":"Brachio"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
         "Un": {
             "names": {"jap":"ユニコーン", "eng":"Unicorn", "chi":"獨角"},
             "stat": ["2-"],
@@ -235,6 +246,12 @@
         }
     },
     "metal": {
+        "Wh": {
+            "names": {"jap":"ウィップ", "eng":"Whip"},
+            "stat": [""],
+            "desc": "",
+            "attr": ["sta","right"]
+        },
         "Dl": {
             "names": {"jap":"デルタ", "eng":"Delta", "chi":"三極 極變"},
             "stat": ["28="],
