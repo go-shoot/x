@@ -108,7 +108,7 @@ class Search {
         .slice(0, amount).map(r => r.item)
     static match = {
         abbr: (abbr, set) => set?.has(abbr.toUpperCase()),
-        name: (names, set) => names?.chi.split(' ').some(n => set?.has(Markup.remove(n)))
+        name: (names, set) => names?.chi?.split(' ').some(n => set?.has(Markup.remove(n)))
     }
     find = what => Search.find[what](this.targets)
     static find = {
