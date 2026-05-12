@@ -154,7 +154,7 @@
         "desc": "降低陀螺重心，以支援在低位置的反擊。"
     },
     "Nr": {
-        "group": "ball",
+        "group": "round",
         "names": {"jap": "ナロー", "eng": "Narrow"},
         "stat": ["",10],
         "desc": " ",
