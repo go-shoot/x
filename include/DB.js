@@ -140,7 +140,6 @@ Object.assign(DB, {
             .then(resp => Promise.allSettled([
                 file, resp.json(), 
                 DB.fresh || file == 'part-blade-collab' && DB.delete('blade','collab'),
-                DB.fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
     },
     filter: {

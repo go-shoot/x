@@ -200,7 +200,7 @@ Q('header').after(DB(plugins).then(async () => {
         ).target.src).hash.substring(1)) && Input.field.oninput()
     , {root: ul, threshold: [1]});
     ul.Q('img', img => scrolling.observe(img));
-    ul.scrollTop = ul.scrollHeight/3 - 8;
+    ul.scrollTop = ul.scrollHeight*.28;
 }));
 
 (() => {
