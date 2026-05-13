@@ -91,15 +91,6 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 :defined,:defined::before,:defined::after {
     visibility: visible;
 }
-@media (max-width:630px) and (orientation:portrait) {
-    html {font-size: 4vw;}
-}
-@media (max-width:630px) and (orientation:landscape) {
-    html {font-size: 3vw;}
-}
-@media (min-width:631px) {
-    html {font-size: 20px;}
-}
 
 .RB {--hue: 0; --s-adj: -100%;} 
 .SS {--hue: 235; --lum: 50%;} 
@@ -169,6 +160,7 @@ img[src*='lines.svg'][src$=X] {aspect-ratio: 1.485;}
 :active-view-transition-type(down)::view-transition-image-pair(root) {--x: 0; --y: 1;}
 .pause-page::view-transition-old(root),.pause-page::view-transition-new(root) {animation: none;}
 html {
+    font-size: clamp(14px,4vw,20px);
     background: var(--backdrop); --backdrop: hsl(var(--hue),30%,5%); 
     --overlay1: hsla(var(--hue),20%,15%,.9); --overlay2: hsla(var(--hue),10%,25%,.9);
     color: var(--on); --on: #ccc;
@@ -180,9 +172,8 @@ html {
 body {
     margin: 0;
     text-align: center; -webkit-text-size-adjust: 100%;
-}
-body:has(db-state[title=更新中]) {
-    pointer-events: none;
+
+    &:has(db-state[title=更新中]) {pointer-events: none;}
 }
 html,body {
     overscroll-behavior-y: none;
@@ -194,9 +185,7 @@ main {
     margin: 5em auto 1em auto;
 
     nav.bottom+& {margin: 0 auto 5em auto;}
-}
-db-state:not([hidden])~main {
-    margin-top: 1em;
+    db-state:not([hidden])~& {margin-top: 1em;}
 }
 a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filter)) button,details:has(#filter) summary {
     color: var(--theme);

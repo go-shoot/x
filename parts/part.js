@@ -16,9 +16,9 @@ class Part {
     *[Symbol.iterator] () {
         for (const value of Object.values(this)) 
             yield typeof value == 'object' ? 
-                Object.values(value).filter(v => typeof v != 'function') : value;
+                Object.values(value).filter(v => typeof v != 'function').map(v => v.split?.(' ') ?? v) : value;
     }
-    get all () {return [...new Set([...this].flat(9)), {att: '攻擊', def: '防禦', sta: '持久', bal: '平衡'}[[...this.attr][0]]];}
+    get all () {return [...new Set([...this].flat(9).filter(p => p)), Part.types.chi[[...this.attr][0]]];}
     get subcomp () {return this.path[2] || this.path[0];}
     only = {
         abbr: () => this.path[0] == 'ratchet',
@@ -45,6 +45,10 @@ class Part {
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
     }
+    static types = Object.assign(['att','bal','sta','def'], {
+        chi: {att:'攻擊', def:'防禦', sta:'持久', bal:'平衡'},
+        eng: {att:'ATTACK', def:'DEFENSE', sta:'STAMINA', bal:'BALANCE'}
+    })
 }
 Part.import = ({part, blade, bit, tile}, Parts) => Object.assign(Part, part) && 
     Object.assign(Blade, {...blade, sub: new O(blade.sub)}) && Object.assign(Bit, bit) && Object.assign(Tile, tile) && 
@@ -84,7 +88,7 @@ class Ratchet extends Part {
 class Bit extends Part {
     constructor(json) {super(json);}
     async revise (where = 'cell') {
-        if (!this.abbr || Bit.revisions[where].every(p => this[p])) return this;
+        if (!this.abbr || Bit.revisions[where].every(p => this[p] != undefined)) return this;
         let [, pref, base] = new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr);
         Bit.revisions[where].some(p => !PARTS.bit[base][p]) && PARTS.bit[base].push(await DB.get('bit', base));
         return super.revise(where, PARTS.bit[base], pref);

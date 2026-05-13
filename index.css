@@ -62,14 +62,12 @@ section {
     search {
         display: flex; height: 2em;
 
-        div {
+        ul {
             width: 2.5em; height: 3em;
-            margin-right: .2em;
+            margin-right: .2em; padding: .75em 0 .35em 0;
             align-self: center;
             overflow: scroll;
             mask-image: linear-gradient(transparent,black 20% 80%,transparent);
-
-            ul {padding: .75em 0 .35em 0;}
         }
         input {
             width: 100%; 

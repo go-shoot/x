@@ -183,8 +183,7 @@ class Preview {
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
         Transition.popover('show', ev, Preview.dialog);
-        [what].flat().reduce((prom, w) => prom.then(() => this[w]({code, bey, path})), Promise.resolve())
-        .then(() => Glossary(Preview.dialog));
+        Promise.all([what].flat().map(w => this[w]({code, bey, path}))).then(() => Glossary(Preview.dialog));
     }
     cell = ({path, code}) => new Search(code || path).then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [

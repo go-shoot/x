@@ -1,6 +1,5 @@
 import { Part } from "../parts/part.js";
 import { Glossary } from "./utilities.js";
-let fresh, index = location.pathname == '/x/';
 class Indicator extends HTMLElement {
     constructor(callback) {
         super();
@@ -107,12 +106,15 @@ Object.assign(DB, {
                 return DB.db.close().then(() => DB.open(DB.db.version + 1));
 
             ev.type == 'upgradeneeded' && DB.setup(ev);
-            fresh = ev.oldVersion === 0;
-            let skip = location.host == 'go-shoot.github.io' && Date.now() < Storage('no-update-jsons');
-            return (!skip || index) && DB.update();
+            DB.fresh = ev.oldVersion === 0;
+            let [index, expired] = [location.pathname == '/x/', Date.now() > Storage('no-update-jsons')];
+            return DB.update({skip: {
+                all: !index && location.host == 'go-shoot.github.io' && !expired,
+                check: !index && DB.fresh
+            }});
         })
     ,
-    update: () => (fresh && !index ? Promise.resolve() : DB.fetch.updates())
+    update: ({skip}) => skip.all || Promise.try(() => skip.check || DB.fetch.updates())
         .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
         .then(() => Storage('no-update-jsons', Date.now() + 5*60*1000))
     ,
@@ -137,13 +139,13 @@ Object.assign(DB, {
         file: file => fetch(`/x/db/${file}.json`)
             .then(resp => Promise.allSettled([
                 file, resp.json(), 
-                fresh || file == 'part-blade-collab' && DB.delete('blade','collab'),
-                fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
+                DB.fresh || file == 'part-blade-collab' && DB.delete('blade','collab'),
+                DB.fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
     },
     filter: {
         files: files => Object.keys(DB.cache.actions)
-            .filter(f => fresh ? true : new Date(files[f]) / 1000 > (Storage('DB')?.[f] || 0))
+            .filter(f => DB.fresh ? true : new Date(files[f]) / 1000 > (Storage('DB')?.[f] || 0))
     },
     cache: {
         actions: {

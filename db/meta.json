@@ -11,8 +11,7 @@
                 "ratchet": {"chi": "核輪 固鎖輪盤", "eng": "RATCHET", "jap": "ラチェット"},
                 "bit": {"chi": "軸心", "eng": "BIT", "jap": "ビット"}
             },
-            "named": ["blade","chip","main","metal"],
-            "types": ["att","bal","sta","def"]
+            "named": ["blade","chip","main","metal"]
         },
         "blade": {
             "sub": {

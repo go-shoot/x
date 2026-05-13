@@ -28,11 +28,11 @@ Object.assign(App, {
     save: () => Layers.modified && DB.put('user', {[`sheet-${location.hash.substring(1)}`]: Layers.get()}),
     load: hash => DB.get('user', `sheet-${hash.substring(1)}`).then(layers => layers ? Layers.put(layers) : App.reset()),
     stage (design) {
-        if (design === true)
-            return App.designs.reduce((prom, a) => prom.then(() => a.canvas ? 
-                Promise.resolve(a.href == location.href && App.stage(a)) :
+        if (design === true) 
+            return Promise.all(App.designs.map(a => a.canvas ? 
+                a.href == location.href && App.stage(a) :
                 App.load(a.getAttribute('href')).then(() => App.stage(a))
-            ), Promise.resolve());
+            ));
         (design.canvas ??= MAIN.con.canvas.cloneNode(true)).getContext('2d').drawImage(MAIN.con.canvas, 0, 0);
     },
     switch (ev) {

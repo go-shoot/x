@@ -86,13 +86,14 @@ class Input {
 Input.events();
 class Search {
     constructor(query) {
-        (CACHE ? Promise.resolve() : new Cache()).then(cache => {
+        return Promise.try(() => CACHE || new Cache()).then(cache => {
             CACHE ??= cache;
             query && (Input.field.value = decodeURI(query));
+            this.preferred = Q('search ul').classList[0];
             this.targets = new Input().targets;
             Q('#search .preview').replaceChildren(...this.find('products'), ...this.find('parts'));
             this.targets = [...this.targets.free].join('');
-            let bey = Bey.build.from([...Result.parts]);
+            let bey = Bey.build.from(Result.parts);
             Q('#search .links').replaceChildren(bey ? new Result('weight', bey) : '', ...this.find('links'));
         });
     }
@@ -110,15 +111,16 @@ class Search {
         abbr: (abbr, set) => set?.has(abbr.toUpperCase()),
         name: (names, set) => names?.chi?.split(' ').some(n => set?.has(Markup.remove(n)))
     }
-    find = what => Search.find[what](this.targets)
+    find = what => Search.find[what](this.targets, this.preferred)
     static find = {
-        parts (query) {
-            let precise = Search.precisely(query).sort((P1, P2) => (P1.only.name() - P2.only.name()));
+        parts (query, preferred) {
+            let score = P => !P.only.name() || P.comp == 'blade' && (P.line || (/^.X$/.test(P.group) ? P.group : 'BX')) == preferred;
+            let precise = Search.precisely(query);
             let general = Search.generally(query, precise.length ? 5 : 50);
             general.forEach(P => P.precise = false); 
             precise.forEach(P => P.precise = true);
-            Result.parts = new Set([...precise, ...general]);
-            return [...Result.parts].map(item => new Result('part', item));
+            Result.parts = [...new Set([...precise, ...general])].sort((P1, P2) => score(P2) - score(P1));
+            return Result.parts.map(P => new Result('part', P));
         },
         links: query => new Fuse(CACHE.links, {keys: ['keywords', 'text'], threshold: .4})
             .search(query).slice(0, 5).map(({item}) => new Result('link', item))
@@ -189,10 +191,16 @@ Q('header').after(DB(plugins).then(async () => {
     Shohin.after();
     location.search && new Search(location.search.substring(1));
 
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => 
+    const seeing = new IntersectionObserver(entries => entries.forEach(entry => 
         entry.target.classList.toggle('seeing', entry.isIntersecting)
     ));
-    Q('header,section,time,.scroller', el => observer.observe(el));
+    Q('header,section,time,.scroller', el => seeing.observe(el));
+    const ul = Q('search ul'), scrolling = new IntersectionObserver(entries => 
+        (ul.classList = new URL(entries.reduce((prev, entry) => 
+            entry.intersectionRatio > prev.intersectionRatio ? entry : prev
+        ).target.src).hash.substring(1)) && Input.field.oninput()
+    , {root: ul, threshold: [1]});
+    ul.Q('img', img => scrolling.observe(img));
 }));
 
 (() => {

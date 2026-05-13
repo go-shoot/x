@@ -1,6 +1,6 @@
 import DB from "./DB.js";
 import { Bey, Preview } from "../parts/bey.js";
-
+import { Part } from "../parts/part.js";
 class Shohin {
     constructor({code: header, name, bey, ver, imgs, desc, type}) {
         bey && (this.abbr = bey);
@@ -25,7 +25,7 @@ class Shohin {
     ])
     static ruby = type => E(`ruby.below.${type}`, [
         E('img', {src: `img/types.svg#${type}`}), 
-        E('rt', {att: 'ATTACK', bal: 'BALANCE', sta: 'STAMINA', def: 'DEFENSE'}[type])
+        E('rt', Part.types.eng[type])
     ])
     static classes = new O([
         [/(stadium|entry) set/i, 'SS'],
@@ -182,9 +182,8 @@ const Glossary = async (where = document) => {
         }, {capture: true});
         Q('body').append(E('aside#glossary', {popover: 'hint'}));
     }
-    (Glossary.defs ? Promise.resolve() : DB.get('meta', 'glossary'))
-    .then(defs => Glossary.defs ??= defs)
-    .catch(() => '').finally(() => setTimeout(() => Glossary.search(p)));
+    Glossary.defs ??= await DB.get('meta', 'glossary').catch(() => '');
+    setTimeout(() => Glossary.search(p));
 }
 Object.assign(Glossary, {
     search: texts => texts.forEach(p => {
