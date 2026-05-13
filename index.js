@@ -152,6 +152,7 @@ class Search {
                 new Preview(['tile', 'cell'], {path: ev.target.dataset.path.split(',')}, ev) : 
                 new Preview(['cell', 'image'], {code: ev.target.innerText}, ev)
             );
+            ev.target.matches('ol.links button') && ev.target.parentElement.bey.preview(ev);
             ev.target.matches('ol.links a[href^="//"]') && gtag('event', `LINK-${ev.target.href.substring(8,25)}`);
         }
         document.onclick = ev => {
@@ -168,16 +169,14 @@ Search.events();
 class Result {
     constructor(type, item) {return this[type](item);}
     code = ({code}) => E('li>button', code)
-    part = ({path, group, abbr, names}) => 
-        E(`li>button.${path[0]}.${path[2] ? path[1] : group}`, {dataset: {path}},
-            [path[2] == 'over' ? '↑' : path[2] == 'assist' ? '↓' : '', ...Markup('cell', names?.chi || abbr)],
-        )
+    part = ({path, line, group, abbr, names}) => 
+        E(`li>button.${path[0]}.${line || group}`, {dataset: {path}}, Markup('cell', names?.chi || abbr))
     link = ({text, href}) =>
         E('li>a', text, {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
             href, target: href.startsWith('//') ? '_blank' : ''
         })
-    weight = ({name, weight}) => E('li', [` 重量估算【${name}】`, E('b', weight)])
+    weight = bey => Object.assign(E('li>button', [` 重量估算【${bey.names.chi}】`, E('b', bey.weight)]), {bey})
 }
 
 import {Shohin} from './include/utilities.js'
@@ -201,6 +200,7 @@ Q('header').after(DB(plugins).then(async () => {
         ).target.src).hash.substring(1)) && Input.field.oninput()
     , {root: ul, threshold: [1]});
     ul.Q('img', img => scrolling.observe(img));
+    ul.scrollTop = ul.scrollHeight/3 - 8;
 }));
 
 (() => {

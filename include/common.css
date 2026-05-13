@@ -383,8 +383,9 @@ dialog {
     }
     #tiles x-part {
         font-size: 1.2em;
+        margin: .5em;
     }
-    #cells table,#tiles x-part {
+    #cells table {
         margin: .5em auto;
     }
     #tiles:not(:has(x-part)) a,#images:empty,p:empty {

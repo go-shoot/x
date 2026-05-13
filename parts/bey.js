@@ -15,7 +15,6 @@ class Bey {
         } else {
             Object.assign(this, bey);
             this.parts.to.names(true);
-            return {name: this.names.chi, weight: this.weight()};
         }
     }
     abbr = {to: {parts: abbr => {
@@ -44,13 +43,14 @@ class Bey {
         };
         (this.names.chi == others) && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
     }}}
-    weight = () => {
+    get weight () {
         let adjust = {'+': .3, '=': 0, '-': -.3};
         let sum = [this.blade, this.ratchet, this.bit].flat().reduce((sum, P) => 
             sum += P?.stat ? parseInt(P.stat[0]) + adjust[P.stat[0].at(-1)] : 0
         , 0);
         return Math.round(sum) + (sum % 1 >= .849 ? '≈' : sum % 1 >= .499 ? '−' : sum % 1 > .149 ? '+' : '≈');
     }
+    preview = ev => new Preview('tile', Bey.comps.flatMap(c => this[c]).map(P => ({path: P.path})), ev);
     static comps = ['blade', 'ratchet', 'bit']
     static build = {from: Parts => {
         if (Parts.length > 10) return;
@@ -176,14 +176,17 @@ class Search {
     static #or = abbrs => abbrs?.length ? `(?:${[abbrs].flat().filter(a => typeof a == 'string').join('|')})` : '[^.]+?'
 }
 class Preview {
-    constructor(what, {type, code, bey, path}, ev) {
-        if (what == 'news')
+    constructor(kind, what, ev) {
+        ev && Transition.popover('show', ev, Preview.dialog);
+        if (Array.isArray(what)) 
+            return what.forEach(s => new Preview(kind, s));
+        let {type, code, bey, path} = what;
+        if (kind == 'news')
             return [
                 ...this.#image.src('main', code),
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
-        Transition.popover('show', ev, Preview.dialog);
-        Promise.all([what].flat().map(w => this[w]({code, bey, path}))).then(() => Glossary(Preview.dialog));
+        Promise.all([kind].flat().map(w => this[w]({code, bey, path}))).then(() => Glossary(Preview.dialog));
     }
     cell = ({path, code}) => new Search(code || path).then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [
@@ -196,7 +199,7 @@ class Preview {
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
 
-    tile = ({path}) => PARTS.at(path).tile().then(tile => Q('#tiles').append(tile))
+    tile = ({path}) => PARTS.at(path).tile?.().then(tile => Q('#tiles').append(tile))
     
     image (tdORcode) {
         let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
