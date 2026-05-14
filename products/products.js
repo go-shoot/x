@@ -88,8 +88,6 @@ const Links = {
         ].forEach((href, i) => Links.div.children[i].href = href);
     },
     events () {
-        Links.div.onclick = ({target: {tagName, href, parentElement}}) => tagName == 'A' ? 
-            gtag('event', `LINK-${href.includes('obake') ? 'OB' : 'PH'}-${parentElement.title}`) : '';
         new MutationObserver(([{target}]) => target.title == '' && [...target.children].forEach((a, i) => 
             a.href = ['//beyblade.phstudy.org', 'http://obakeblader.com/?s=入手法'][i]
         )).observe(Links.div, {attributeFilter: ['title']});

@@ -135,7 +135,7 @@ class Search {
             let history = [...new Set([item, ...Storage('history') || []])].slice(0, 10);
             Search.history.show(history);
             Storage('history', history);
-            gtag('event', item.toLowerCase());
+            gtag('event', 'search', {search_term: item.toLowerCase()});
         }
     }
     static events () {
@@ -153,7 +153,6 @@ class Search {
                 new Preview(['cell', 'image'], {code: ev.target.innerText}, ev)
             );
             ev.target.matches('ol.links button') && ev.target.parentElement.bey.preview(ev);
-            ev.target.matches('ol.links a[href^="//"]') && gtag('event', `LINK-${ev.target.href.substring(8,25)}`);
         }
         document.onclick = ev => {
             let a = ev.target.closest('a[href^="?"]');

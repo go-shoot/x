@@ -29,7 +29,7 @@ class Indicator extends HTMLElement {
         if (er) {
             er == 'offline' ? ([er, type] = ['離線', er]) : console.error(er);
             [this.title, this.classList, this.hidden] = [er, `error-${type}`, false];
-            gtag('event',`ERROR-${er.message?.substring(10,50) ?? er}`);
+            gtag('event', 'ERROR', {message: er.message ?? er});
         }
         return Promise.reject();
     }
@@ -126,7 +126,7 @@ Object.assign(DB, {
     },
     fetch: {
         aborter: new AbortController(),
-        timer: () => DB.fetch.timer = setTimeout(() => DB.fetch.aborter.abort(), 3000),
+        timer: () => DB.fetch.timer = setTimeout(() => DB.fetch.aborter.abort(), 5000),
         updates: () => DB.fetch.timer() && fetch(`/x/db/-update.json`, {signal: DB.fetch.aborter.signal})
             .catch(() => DB.indicator.error('offline'))
             .then(resp => clearTimeout(DB.fetch.timer) || resp.json())

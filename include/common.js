@@ -14,14 +14,14 @@ typeof O != 'undefined' && (LINES = new O(LINES));
     unsupported.textContent = `
 html::before {
     content: '請重新整理\\A如問題持續，需更新／換瀏覽器／iOS 系統\\A\\A若你正在使用社交平台，請在右上方選項中，以 Safari / Chrome 等開啟' attr(title);
-    color: white; transition: color .5s 2s;
     font-size: 3em; white-space: pre-wrap;
     display: flex; justify-content: center; align-items: center;
-    background: black; 
     padding: .25em;
     position: fixed; inset: 0;
     z-index: 9;
-    @starting-style {color: black;}
+    color: white; background: black; 
+    transition: color .5s 3s, background 3s;
+    @starting-style {color: black; background: white;}
 }`;
     navigator.serviceWorker?.register('/x/worker.js', {scope: '/x/'})
     .then(() => document.querySelector('link[href$="common.css"]') ? 
