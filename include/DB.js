@@ -27,9 +27,10 @@ class Indicator extends HTMLElement {
     }
     error (er, type) {
         if (er) {
-            er == 'offline' ? ([er, type] = ['離線', er]) : console.error(er);
+            er == 'offline' ? 
+                [er, type] = ['離線', er] : 
+                console.error(er) ?? gtag('event', 'ERROR', {MESSAGE: er.message});
             [this.title, this.classList, this.hidden] = [er, `error-${type}`, false];
-            gtag('event', 'ERROR', {message: er.message ?? er});
         }
         return Promise.reject();
     }

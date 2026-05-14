@@ -19,9 +19,9 @@ html::before {
     padding: .25em;
     position: fixed; inset: 0;
     z-index: 9;
-    color: white; background: black; 
-    transition: color .5s 3s, background 3s;
-    @starting-style {color: black; background: white;}
+    color: white; background: gray; 
+    transition: color .5s 3s, background 3s .5s;
+    @starting-style {color: black; background: black;}
 }`;
     navigator.serviceWorker?.register('/x/worker.js', {scope: '/x/'})
     .then(() => document.querySelector('link[href$="common.css"]') ? 

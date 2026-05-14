@@ -1,5 +1,5 @@
 {
-  "part-blade":        "2026/05/13 11:40:00",
+  "part-blade":        "2026/05/14 23:01:00",
   "meta":              "2026/05/13 11:40:00",
   "part-blade-collab": "2026/05/13 12:52:00",
   "part-blade-divided":"2026/05/12 23:55:00",
@@ -11,8 +11,7 @@
   "news": {
     "2026-05-16":[{
       "code":"BX-49 starter","name":["ドランストライク4-50FF","Dran Strike 4-50FF"],"type":"att",
-      "imgs":["https://i.redd.it/g43za0bfrdug1.jpeg"]
-      ,"desc":["以金屬連繫中央，提高剛性，作連續攻擊"]
+      "desc":["以金屬連繫中央，提高剛性，作連續攻擊"]
       }],
     "2026-05-30":[{
       "code":"BXG-51 booster","bey":"Dr.Br.S 6-60 V","ver":["メタルコート:ブラック","Metal Coat: Black"]
@@ -24,7 +23,7 @@
     {
       "code":"CX-18 random booster select","name":["ブラキオウィップOW5-70Nr","Brachio Whip OW5-70Nr"],"type":"sta",
       "desc":["以腕龍為motif","〔Outer〕Over Blade及〔Whip〕都是圓滑外重心","〔Narrow〕Bit：十齒小球軸"],
-      "imgs": ["https://preview.redd.it/meet-braciowhip-ow-5-70nr-v0-z7awk2o6pp0h1.jpeg?width=1080&crop=smart&auto=webp&s=e6fe641b5a1670dc474b6619a136aa1a06a679a8"]
+      "imgs":["https://m.media-amazon.com/images/I/713NbKuawIL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/71JmpF1VFHL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61HfVSPOhFL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/a3b2f405-3879-4595-850d-05e53d5282f5.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/bea11cad-771a-40d6-a2c4-9ce627ee1f86.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/0119758f-fb74-4036-96f6-0d89212f645b.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
     },{
       "code":"BX-51 string launcher"
     }],

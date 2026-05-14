@@ -135,7 +135,7 @@ class Search {
             let history = [...new Set([item, ...Storage('history') || []])].slice(0, 10);
             Search.history.show(history);
             Storage('history', history);
-            gtag('event', 'search', {search_term: item.toLowerCase()});
+            gtag('event', 'SEARCH', {INPUT: item.toLowerCase()});
         }
     }
     static events () {

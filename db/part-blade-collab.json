@@ -44,9 +44,9 @@
             "chi": "",
             "aka": "光環"
         },
-        "stat": [""],
+        "stat": ["37+"],
         "desc": "",
-        "attr": ["def","right","BX"]
+        "attr": ["def","right","BX","expand"]
     },
     "BsBr": {
         "group": "hasbro",
@@ -56,7 +56,7 @@
             "chi": "",
             "aka": "野牛"
         },
-        "stat": [""],
+        "stat": ["41="],
         "desc": "（2026/10 DMMくじ中會推出）",
         "attr": ["sta","right","UX","fused"]
     },
