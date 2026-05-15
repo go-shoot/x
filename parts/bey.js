@@ -61,7 +61,7 @@ class Bey {
         )).filter(Parts => Parts);
         bey[0] = matched.find(Parts => Parts.every(P => P?.precise)) ?? 
                  matched.find(Parts => Parts.every(P => P)) ??
-                 Parts.find(P => P.precise && exist(P, 'blade'));
+                 Parts.find(P => P.precise && exist(P, 'blade')) ??
                  Parts.find(P => exist(P, 'blade'));
         if (!bey[0]) return;
         [bey[1], bey[2]] = ['ratchet', 'bit'].map(comp => Parts.find(Part => exist(Part, comp)));
