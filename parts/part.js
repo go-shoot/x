@@ -58,8 +58,9 @@ class Blade extends Part {
     constructor(json) {
         super(json);
         let {line, group, abbr, path} = this;
-        this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
+        this.path = line || !abbr && group ? ['blade', line, this.#hasbro[line]?.[group] ?? group, abbr] : path;
     }
+    #hasbro = {CX: {hasbro: 'main'}}
     revised = {
         attr: () => ['over', 'metal'].includes(this.group) || 
             this.group == 'UX' && this.attr.has('fused') || this.attr.has('UX') && this.attr.has('fused') ?

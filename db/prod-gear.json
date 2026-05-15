@@ -5,6 +5,7 @@
         "jap": "ストリングランチャー",
         "desc": "標準拉線型發射器",
         "colors":[
+            ["BX-51","r"],
             ["BXG-62","r",["3"]],["BXG-62","r",["2"]],["BXG-62","r",["1"]],
             ["BXG-39","r",["https://scratch.dmm.com/s3/dmmkuji_long_img/FUQSww6SpjwWNQJ5XcMisya7uu3pvDxk26JkdJ2Y.jpeg",{"width":"230%","left":"30%","top":"443%"}]],
             ["BX-47","l"],

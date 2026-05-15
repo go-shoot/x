@@ -208,8 +208,8 @@ Q('header').after(DB(plugins).then(async () => {
         fetch(`sw/?delete=${cache}`).then(() => Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000))
     );
 
-    const reset = span => Promise.all([
-        DB.discard(ev => span.innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
+    const reset = () => Promise.all([
+        DB.discard(ev => Q('#reboot p').innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
         caches.delete('X'), caches.delete('X/parts'), caches.delete('X/fonts'),
         localStorage.clear(), sessionStorage.clear(),
         navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
@@ -218,19 +218,18 @@ Q('header').after(DB(plugins).then(async () => {
         onbeforeunload = () => scrollTo(0, 0);
         location.reload();
     }).catch(er => {
-        span.innerText = er;
-        console.error(er)
+        Q('#reboot p').innerText = er;
+        console.error(er);
     });
 
     const PI = 'https://aeoq.github.io/pointer-interaction/script.js';
+    const distance = (Q('#reboot div').clientWidth - Q('#reboot i').clientWidth)/2;
     import(PI).then(({default: PI}) => PI.events({
         '.scroller,#search ol': {scroll: {x: true}},
-        '#reset': {
-            drop: {onto: 'i:last-child'},
-            drag: PI => PI.drag.to.translate({x: {
-                min: 0, max: Q('#reboot div').clientWidth - Q('#reset').clientWidth
-            }, y: false}),
-            lift: PI => PI.onto && reset(PI.target.nextElementSibling),
+        '#reboot i': {
+            drop: {onto: 'span'},
+            drag: PI => PI.drag.to.translate({x: {min: distance*-1, max: distance}, y: false}),
+            lift: PI => PI.onto?.id == 'image' ? fetch('sw/?delete=parts') : PI.onto?.id == 'all' ? reset() : '',
         }
     }))
     .catch(() => caches.open('X').then(cache => cache.delete(PI)));
