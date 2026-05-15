@@ -7,8 +7,8 @@
             "chi": "",
             "aka": "蝙蝠"
         },
-        "stat": ["39="],
-        "desc": "",
+        "stat": ["36+"],
+        "desc": "（此乃AI臨時圖）",
         "attr": ["BX","bal","right"],
         "from": "WhWv"
     },
@@ -42,23 +42,11 @@
             "jap": "ヘブンズリング",
             "eng": "HeavensRing",
             "chi": "",
-            "aka": "光環"
+            "aka": "天使 光環"
         },
         "stat": ["37+"],
-        "desc": "",
+        "desc": "（此乃AI臨時圖）",
         "attr": ["def","right","BX","expand"]
-    },
-    "BsBr": {
-        "group": "hasbro",
-        "names": {
-            "jap": "バイソンバロー",
-            "eng": "BisonBurrow",
-            "chi": "",
-            "aka": "野牛"
-        },
-        "stat": ["41="],
-        "desc": "（2026/10 DMMくじ中會推出）",
-        "attr": ["sta","right","UX","fused"]
     },
     "VkHc": {
         "group": "hasbro",

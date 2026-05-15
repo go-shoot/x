@@ -10,6 +10,18 @@
         "desc": "金屬連接至中央能提高剛性；重量級的六枚刃作強烈連打攻擊。",
         "attr": ["att","right","expand"]
     },
+    "BsBr": {
+        "group": "UX",
+        "names": {
+            "jap": "バイソンバロー",
+            "eng": "BisonBurrow",
+            "chi": "",
+            "aka": "野牛"
+        },
+        "stat": ["41="],
+        "desc": "（此乃AI臨時圖・異色版會在2026/10 DMMくじ中推出）",
+        "attr": ["sta","right","UX","fused"]
+    },
    "BlGr": {
         "group": "UX",
         "names": {

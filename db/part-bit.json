@@ -157,7 +157,7 @@
         "group": "round",
         "names": {"jap": "ナロー", "eng": "Narrow"},
         "stat": ["",10],
-        "desc": " ",
+        "desc": "細球狀軸端長久地迴轉；十枚齒Gear於X Dash時減輕持久損失。",
         "attr": ["sta"]
     },
     "O": {
@@ -256,7 +256,7 @@
         "group": "sharp",
         "names": {"jap": "ウェッジ", "eng": "Wedge"},
         "stat": ["2=",10,78,127],
-        "desc": "鈍角的尖銳軸端難以傾斜；十枚齒X Dash時減輕持久損失。",
+        "desc": "鈍角的尖銳軸端難以傾斜；十枚齒Gear於X Dash時減輕持久損失。",
         "attr": ["def"]
     },
     "WW": {

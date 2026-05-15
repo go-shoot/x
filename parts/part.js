@@ -61,7 +61,8 @@ class Blade extends Part {
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
     revised = {
-        attr: () => ['over', 'metal'].includes(this.group) || this.group == 'UX' && this.attr.has('fused') ?
+        attr: () => ['over', 'metal'].includes(this.group) || 
+            this.group == 'UX' && this.attr.has('fused') || this.attr.has('UX') && this.attr.has('fused') ?
             this.attr.add('expand') : this.attr
     }
     static revisions = {tile: ['attr']};
