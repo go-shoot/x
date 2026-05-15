@@ -59,11 +59,10 @@ class Bey {
         let matched = [...Blade.sub].flatMap(([line, obj]) => [...obj.values()].map(subs => 
             Array.isArray(subs) && subs.map(sb => Parts.find(Part => exist(Part, sb, line)))
         )).filter(Parts => Parts);
-        bey[0] = matched.find(Parts => Parts.every(P => P?.precise)) ?? 
-                 matched.find(Parts => Parts.every(P => P)) ?? 
-                 Parts.find(Part => exist(Part, 'blade'));
+        bey[0] = matched.find(Parts => Parts.every(P => P?.precise)) ?? matched.find(Parts => Parts.every(P => P)) ??
+                 Parts.find(P => P.precise && exist(P, 'blade')) ?? Parts.find(P => exist(P, 'blade'));
         if (!bey[0]) return;
-        [bey[1], bey[2]] = ['ratchet', 'bit'].map(comp => Parts.find(Part => exist(Part, comp)));
+        [bey[1], bey[2]] = ['ratchet', 'bit'].map(comp => Parts.find(P => P.precise && exist(P, comp)) ?? Parts.find(P => exist(P, comp)));
         let valid = Bey.valid.every(rules => rules.some(checks => checks.every((c, i) => c ? c(bey[i]) : true)));
         return valid ?
             new Bey({blade: bey[0], ratchet: bey[1] ?? new Ratchet, bit: bey[2] ?? new Bit}) :
