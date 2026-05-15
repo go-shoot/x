@@ -60,7 +60,7 @@ section {
     &:not(:has(a[href*='products'])) {opacity: 0;}
     &>a {margin-left: 1em;}
     search {
-        display: flex; height: 2em;
+        display: flex; height: 2em; width: 100%;
 
         ul {
             width: 2.5em; height: 3em;
@@ -76,7 +76,7 @@ section {
             padding: .2em .5em;
         }
     }
-    ol:not(:empty) {
+    ol {
         display: flex; gap: 1em;
         min-width: 100%;
         font-size: .85em; white-space: nowrap;
