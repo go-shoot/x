@@ -58,9 +58,8 @@ class Blade extends Part {
     constructor(json) {
         super(json);
         let {line, group, abbr, path} = this;
-        this.path = line || !abbr && group ? ['blade', line, this.#hasbro[line]?.[group] ?? group, abbr] : path;
+        this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
-    #hasbro = {CX: {hasbro: 'main'}}
     revised = {
         attr: () => ['over', 'metal'].includes(this.group) || 
             this.group == 'UX' && this.attr.has('fused') || this.attr.has('UX') && this.attr.has('fused') ?
@@ -125,6 +124,9 @@ class Tile extends HTMLElement {
     }
     fill () {
         let {path, desc, from} = this.fill.Part = this.Part;
+        from &&= from.split('.');
+        from &&= path.toSpliced(-from.length, from.length, ...from);
+        from?.length > 3 && (path[2] = from[2]);
         this.shadowRoot.append(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
             E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
@@ -137,10 +139,8 @@ class Tile extends HTMLElement {
             ...this.fill.names(),
             (typeof Tile.svg == 'object' ? Tile.svg : Tile.svg()).cloneNode(true)
         );
-        from &&= from.split('.');
-        from &&= path.toSpliced(-from.length, from.length , ...from);
         this.append(
-            from ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
+            from && from.length != 3 ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
     }
