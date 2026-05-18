@@ -380,6 +380,10 @@ tbody td {
 }
 td[abbr]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
     border-left: solid .5px var(--on);
+    
+    nav:has(#garage:checked):has([value=acquired]:checked)+main &.acquired {
+        border-left-color: var(--backdrop);
+    }
 }
 td[abbr]+td:not([headers]):not(.hide) {
     border-left: solid .5px #999;

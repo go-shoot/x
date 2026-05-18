@@ -33,14 +33,13 @@ Object.assign(Table, {
         E(Table.form).set({
             onreset: Table.reset,
             oninput: ev => ev.target.type == 'search' && Table.search(ev.target.value),
-            onchange: ev => !ev || ev.target.type == 'radio' ? Cell.fill(Table.form.lang.value) : 
-                ev.target.id == 'garage' ? Table.body.classList.toggle('selecting') : '',
+            onchange: ev => !ev || ev.target.type == 'radio' ? Cell.fill(Table.form.lang.value) : ''
         });
         Q('thead').onclick = Table.sort;
         let downtime;
         E(Table.body).set({
             onpointerdown: () => downtime = Date.now(),
-            onclick: ev => !Table.body.matches('.selecting') || ev.target.matches(':first-child') ? 
+            onclick: ev => !Q('#garage:checked') || ev.target.matches(':first-child') ? 
                 Preview.for.table(ev) : 
                 Date.now() - downtime < 500 ? Table.select({tr: ev.target.closest('tr')}) : null
         });
@@ -71,7 +70,7 @@ Object.assign(Table, {
         Filter.form.onreset();
         Links.div.title = '';
     },
-    select ({tr, td, beys}, mode = Q('#mode')?.checked ? 'marked' : 'acquired') {
+    select ({tr, td, beys}, mode = Q('input[name=mode]:checked').value) {
         let selectGroup = td => {
             let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
             return [td, td.headers && sibling.headers ? null : sibling].forEach(td => td?.classList.toggle(mode));
@@ -81,10 +80,10 @@ Object.assign(Table, {
                 let tr = Table.body.children[Table.body.children.length - index];
                 new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][abbr='${abbr}']`)));
             });
-        if (!Table.body.matches('.selecting')) return;
+        if (!Q('#garage:checked')) return;
         if (tr) {
             tr[mode] = !(tr[mode] ?? false);
-            tr.childNodes.forEach(td => td.classList.toggle(mode, tr[mode])); 
+            tr.childNodes.forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 
         } else {
             selectGroup(td);
             tr = td.closest('tr');
