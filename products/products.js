@@ -123,6 +123,8 @@ const Links = {
         ].forEach((href, i) => Links.div.children[i].href = href);
     },
     events () {
+        Links.div.onclick = ev => ev.target.tagName == 'A' ? 
+            gtag('event', 'SEARCH', {COLOR: ev.target.parentElement.title}) : '';
         new MutationObserver(([{target}]) => target.title == '' && [...target.children].forEach((a, i) => 
             a.href = ['//beyblade.phstudy.org', 'http://obakeblader.com/?s=入手法'][i]
         )).observe(Links.div, {attributeFilter: ['title']});
