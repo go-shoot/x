@@ -280,6 +280,7 @@ nav {
     }
     .LED {
         grid-area: 1/2/3/3; place-self: center start;
+        white-space: nowrap;
         
         &:has(>label),:has(>label) {
             display: inline-flex; gap: .25rem;
