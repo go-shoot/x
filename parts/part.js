@@ -98,7 +98,7 @@ class Bit extends Part {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
         attr: (base, pref) => new Set([...this.attr, ...base.attr, ...pref]),
-        stat: base => this.stat.length < 3 ? this.stat.toSpliced(1, 0, ...base.stat.slice(1,3)) : this.stat,
+        stat: base => [this.stat[0], ...base.stat.slice(1, base.stat.length - this.stat.length + 1), ...this.stat.slice(1)],
         desc: (base, pref) => [...pref].map(p => Bit.prefix[p].desc).join('、') + `的〔${base.abbr}〕Bit${this.desc ? `，${this.desc}` : '。'}`,
     }
     static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};

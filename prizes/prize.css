@@ -1,5 +1,5 @@
 nav>a {
-    grid-area: 1/2/3/3; align-self: center;
+    grid-area: 1/4/3/5; align-self: center;
     font-size: .9em; line-height: 1.1;
     width: 3em; height: 3em;
     background: url(https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news_stickerlist_12.png) center / cover;
@@ -15,8 +15,10 @@ nav label:has(:is([name=type],[name=line])) {
     font-size: 1.2em; line-height: 1.2;
 
     &::before {line-height: .7rem;}
-
-    img {width: 1.5em;}
+    img {
+        width: 1.5em;
+        margin-top: .1em;
+    }
 }
 label:has([value$=keihin-t]),.keihin-t {--type: olive;}
 label:has([value$=keihin-d]),.keihin-d {--type: lightslategray;}

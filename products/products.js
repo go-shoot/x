@@ -2,6 +2,8 @@ import DB from '../include/DB.js'
 import { Part, Cell } from '../parts/part.js';
 import { Bey, Preview, Search } from '../parts/bey.js';
 import { FilterForm, Markup } from '../include/utilities.js';
+import Garage from '../customize/garage.js';
+import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 let PARTS;
 const Table = () => Table.before().then(Table.display).then(Table.after);
@@ -17,21 +19,34 @@ Object.assign(Table, {
         .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).row))),
     after () {
         Q('.loading').classList.remove('loading');
+        Table.body.childNodes.forEach((tr, i) => tr.index = Table.body.children.length - i);
         Table.form.onchange();
         Filter.form.onchange();
         window.onresize();
         location.search ? Table.search(decodeURI(location.search.substring(1)).split(/\.|=/)) : FilterForm.count();
+        Garage.get('acquired').then(beys => Table.select({beys}, 'acquired'));
+        Garage.get('marked').then(beys => Table.select({beys}, 'marked'));
     },
     
     form: document.forms[0],
     events () {
         E(Table.form).set({
             onreset: Table.reset,
-            onchange: ev => (!ev || ev.target.type == 'radio') && Cell.fill(Table.form.lang.value),
-            oninput: ev => ev.target.type == 'search' && Table.search(ev.target.value)
+            oninput: ev => ev.target.type == 'search' && Table.search(ev.target.value),
+            onchange: ev => !ev || ev.target.type == 'radio' ? Cell.fill(Table.form.lang.value) : 
+                ev.target.id == 'garage' ? Table.body.classList.toggle('selecting') : '',
         });
-        Table.body.onclick = Preview.for.table;
         Q('thead').onclick = Table.sort;
+        let downtime;
+        E(Table.body).set({
+            onpointerdown: () => downtime = Date.now(),
+            onclick: ev => !Table.body.matches('.selecting') || ev.target.matches(':first-child') ? 
+                Preview.for.table(ev) : 
+                Date.now() - downtime < 500 ? Table.select({tr: ev.target.closest('tr')}) : null
+        });
+        PI.events({
+            'td:not(:first-child)': {hold: hold => hold.for(.5).to((_, target) => Table.select({td: target}))}
+        });
     },
     sort (ev) {
         let [input, index] = [ev.target.Q('input'), Q('th').indexOf(ev.target.closest('th'))];
@@ -55,6 +70,26 @@ Object.assign(Table, {
         [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', tr.hidden = false));
         Filter.form.onreset();
         Links.div.title = '';
+    },
+    select ({tr, td, beys}, mode = Q('#mode')?.checked ? 'marked' : 'acquired') {
+        let selectGroup = td => {
+            let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
+            return [td, td.headers && sibling.headers ? null : sibling].forEach(td => td?.classList.toggle(mode));
+        }
+        if (beys) 
+            return new O(beys).each(([index, parts]) => {
+                let tr = Table.body.children[Table.body.children.length - index];
+                new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][abbr='${abbr}']`)));
+            });
+        if (!Table.body.matches('.selecting')) return;
+        if (tr) {
+            tr[mode] = !(tr[mode] ?? false);
+            tr.childNodes.forEach(td => td.classList.toggle(mode, tr[mode])); 
+        } else {
+            selectGroup(td);
+            tr = td.closest('tr');
+        }
+        Garage.put(mode, tr.index, [...tr.children].reduce((obj, td) => td.matches(`[abbr].${mode}`) ? {...obj, [td.headers]: td.abbr} : obj, {}));
     },
     async search (query) {
         Filter.form.onreset();

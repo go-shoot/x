@@ -192,7 +192,7 @@
 }
 
 .toggle {
-    display: flex; align-items: center;
+    display: inline-flex; align-items: center;
     border: .2rem solid; border-radius: 9em;
     inline-size: 4em; block-size: 2.25em;
     padding: .25em;

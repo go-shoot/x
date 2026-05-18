@@ -405,7 +405,7 @@
             "eng": "DranDagger",
             "chi": "翔龍雙刃 蒼龍利刃"
         },
-        "stat": ["35~"],
+        "stat": ["35="],
         "desc": "六枚攻擊刃擅於連打對手。",
         "attr": ["att","right"]
     },

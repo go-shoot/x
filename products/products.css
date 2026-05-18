@@ -10,6 +10,10 @@ nav {
             font-size: .7rem;
         }
     }
+    label:has(#garage) {grid-area: 1/3/3/4; place-self: center start;}
+    label:has(#garage:not(:checked))+div {display: none;}
+    label:has(#garage:checked)~.LED {display: none;}
+
     label:has(input[type=search]) {
         display: contents;
 
@@ -147,6 +151,10 @@ details:has(#filter) {
 
 tr {
     cursor: pointer;
+}
+tbody.selecting {
+    td.acquired {background: var(--on) !important; color: var(--backdrop) !important;}
+    td.marked {outline: .15em solid yellow;}
 }
 th:not(:has(input:checked))::before {
     text-shadow: none;

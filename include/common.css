@@ -279,13 +279,12 @@ nav {
         }
     }
     .LED {
-        grid-area: 1/3/3/4; align-self: center;
-        display: flex; 
+        grid-area: 1/2/3/3; place-self: center start;
         
-        form& {gap: .5em;}
-        label {
-            display: inline-block; 
-            margin-right: .5rem;
+        &:has(>label),:has(>label) {
+            display: inline-flex; gap: .25rem;
+
+            &:not(:last-of-type) {margin-right: .5em;}
         }
     }
     form:not(.LED) {display: contents;}

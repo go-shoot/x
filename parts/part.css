@@ -203,7 +203,7 @@
             font-size: 1.6em; font-style: italic;
 
             &:has(sup) {margin-right: .35em;}
-            :host(:not(.fused)) &:has(small) {letter-spacing: -.05em;}
+            dl:has(div:nth-child(4) small) div:nth-child(n+3) & {letter-spacing: -.05em;}
         }
     }
     div:nth-child(1) {

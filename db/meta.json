@@ -47,7 +47,7 @@
                 "terms": ["重量", "RING刃數", "BASE高度"]
             },
             "bit": {
-                "terms": ["重量", "GEAR齒數", "SHAFT粗度", "露出高度"],
+                "terms": ["重量", "GEAR齒數", "BURST耐性", "露出高度"],
                 "terms.fused": ["重量", "GEAR齒數", "BASE高度"]
             }
         }

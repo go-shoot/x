@@ -12,6 +12,11 @@
         <li><a href='gear.html?others'>其他</a>
     </menu>
     <form>
+        <!--label><input type="checkbox" id="garage">GARAGE</label>
+        <fieldset class="LED">
+            <label>庫存<input name=mode type=radio value=acquiring checked></label>
+            <label>標記<input name=mode type=radio value=marking></label>
+        </fieldset-->
         <fieldset class="LED">
             <label>中<input name=lang type=radio value=chi checked></label>
             <label>A<input name=lang type=radio value=eng></label>
@@ -50,18 +55,21 @@
         <caption class="loading"></caption>
         <thead>
             <tr>
-                <th class="LED">
+                <th rowspan="2" class="LED">
                     <div><input type="radio" name="sort">CODE</div>
                 </th>
-                <th colspan=6 class="LED blade">
+                <th colspan="6" id="blade" class="LED blade">
                     <div><input type="radio" name="sort">刃擊環⬧鋼鐵戰刃<br>BLADE</div>
                 </th>
-                <th colspan=1 class="LED ratchet">
+                <th colspan="1" id="ratchet" rowspan="2" class="LED ratchet">
                     <div><input type="radio" name="sort">核輪⬧固鎖輪盤<br>RATCHET</div>
                 </th>
-                <th colspan=2 class="LED bit">
+                <th colspan="2" rowspan="2" id="bit" class="LED bit">
                     <div><input type="radio" name="sort">軸心<br>BIT</div>
                 </th>
+            </tr>
+            <tr hidden>
+                <th id="chip"></th><th id="metal"></th><th id="over" colspan="2"></th><th id="assist" colspan="2"></th>
             </tr>
         </thead>
         <tbody></tbody>
