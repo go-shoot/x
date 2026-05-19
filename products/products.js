@@ -19,7 +19,6 @@ Object.assign(Table, {
         .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).row))),
     after () {
         Q('.loading').classList.remove('loading');
-        Table.body.childNodes.forEach((tr, i) => tr.index = Table.body.children.length - i);
         Table.form.onchange();
         Filter.form.onchange();
         window.onresize();
@@ -36,6 +35,7 @@ Object.assign(Table, {
             onchange: ev => !ev || ev.target.type == 'radio' ? Cell.fill(Table.form.lang.value) : ''
         });
         Q('thead').onclick = Table.sort;
+        Q('#copy').onclick = Table.copy;
         let downtime;
         E(Table.body).set({
             onpointerdown: () => downtime = Date.now(),
@@ -52,7 +52,7 @@ Object.assign(Table, {
         input.value == 'on' && (input.value = 1);
         let extract = {
             code: trs => [trs].flat().map(tr => tr.firstChild.innerText.trim()),
-            abbr: trs => [trs].flat().map(tr => tr.dataset.abbr.split(' ')[index - 1])
+            abbr: trs => [trs].flat().map(tr => tr.title.split(' ')[index - 1])
         }
         Table.body.append(...[...Table.body.children].sort((...trs) => {
             let text = extract[index === 0 ? 'code' : 'abbr'](trs);
@@ -62,6 +62,17 @@ Object.assign(Table, {
             return move * input.value;
         }));
         (input.checked = true) && (input.value *= -1);
+    },
+    async search (query) {
+        Filter.form.onreset();
+        query[0] == 'search' && (query = query[1]) && (Q('input[type=search]').value ||= query);
+        typeof query == 'string' && (query = query.trim());
+        if (!query) return Table.reset();
+        let {beys, href} = await new Search(query);
+        [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', !beys.includes(tr)));
+        Links.link(href ? query : '');
+        href && history.replaceState('', '', href);
+        FilterForm.count();
     },
     reset () {
         location.search && history.replaceState('', '', './');
@@ -76,9 +87,9 @@ Object.assign(Table, {
             return [td, td.headers && sibling.headers ? null : sibling].forEach(td => td?.classList.toggle(mode));
         }
         if (beys) 
-            return new O(beys).each(([index, parts]) => {
-                let tr = Table.body.children[Table.body.children.length - index];
-                new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][abbr='${abbr}']`)));
+            return new O(beys).each(([code, parts]) => {
+                let tr = Table.body.Q(`tr[id='${code}']`);
+                new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][title='${abbr}']`)));
             });
         if (!Q('#garage:checked')) return;
         if (tr) {
@@ -88,20 +99,21 @@ Object.assign(Table, {
             selectGroup(td);
             tr = td.closest('tr');
         }
-        Garage.put(mode, tr.index, [...tr.children].reduce((obj, td) => td.matches(`[abbr].${mode}`) ? {...obj, [td.headers]: td.abbr} : obj, {}));
+        Garage.put(mode, tr.id, [...tr.children].reduce((obj, td) => td.matches(`[title].${mode}`) ? {...obj, [td.headers]: td.title} : obj, {}));
     },
-    async search (query) {
-        Filter.form.onreset();
-        query[0] == 'search' && (query = query[1]) && (Q('input[type=search]').value ||= query);
-        typeof query == 'string' && (query = query.trim());
-        if (!query) return Table.reset();
-        let {beys, href} = await new Search(query);
-        [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', !beys.includes(tr)));
-        Links.link(href ? query : '');
-        href && history.replaceState('', '', href);
-        FilterForm.count();
+    copy (ev, mode = Q('input[name=mode]:checked').value) {
+        let csv = Q(`tr:has(.${mode})`, []).map(tr => [
+            tr.matches('.RB') ? tr.id : tr.id.split('_')[0], 
+            ...tr.Q('[headers]').flatMap(td => [
+                td.matches(`.${mode}`) ? td.innerText : '', 
+                ...[...Array((Table.copy.span[td.headers] ?? 1) - 1)].map(_ => '')
+            ])
+        ].join('\t')).join('\n');
+        navigator.clipboard.writeText(csv)
+        .then(() => (ev.target.innerText = '✔️') && setTimeout(() => ev.target.innerText = '複製', 1000));
     }
 });
+Table.copy.span = {main: 2, blade: 4}
 
 const Links = {
     div: Q('.links'),
@@ -169,5 +181,4 @@ Object.assign(Filter, {
         ), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
     ]
 });
-
 export default Table

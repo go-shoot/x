@@ -34,7 +34,7 @@ Object.assign(Prize, {
     },
     display (keihins) {
         Prize.all = keihins.map(k => new Keihin(k));
-        let {true: parts, false: beys} = Object.groupBy(Prize.all, k => /^[^ ]$|\//.test(k.dataset.abbr));
+        let {true: parts, false: beys} = Object.groupBy(Prize.all, k => /^[^ ]$|\//.test(k.title));
         Q('#beys').append(...beys);
         Q('#parts').append(...parts);
     },

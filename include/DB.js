@@ -242,7 +242,6 @@ const Transform = {
             return OBJ;
         },
         RB: subcode => ([code, classes, ...rest], i, list) => {
-            if (!/^RB|Lm/.test(classes)) return [code, classes, ...rest];
             subcode = code == list[i-1]?.[0] ? subcode + 1 : 
                       code == list[i+1]?.[0] ? 1 : 0;
             return [subcode ? code + `_0${subcode}` : code, classes, ...rest];

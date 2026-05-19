@@ -22,7 +22,7 @@ nav {
                 grid-area: 1/2; align-self: end;
                 justify-content: space-around;
             }
-            #export {grid-area: 2/2;}   
+            #copy {grid-area: 2/2;}   
         }
     }
     label:has(#garage:checked)~form :has(input[name=lang]),
@@ -57,13 +57,13 @@ nav {
         grid-area: 2/4;
         font-size: .8em;
     }
-    #export,input[type=search],input[type=reset] {
+    #copy,input[type=search],input[type=reset] {
         place-self: center;
         width: 7rem;
         border: .1rem solid var(--theme); border-radius: 3em;
         height: 1.4rem;
     }
-    #export,label::after,input[type=reset] {
+    #copy,label::after,input[type=reset] {
         background: var(--theme);    
         color: var(--overlay1);
     }

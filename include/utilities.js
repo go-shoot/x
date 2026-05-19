@@ -79,7 +79,7 @@ class Keihin {
             ]),
             E('h4', {lang: 'zh'}, [chi || '　', E('small', ver?.[1] ?? '')]),
             E('time', Markup.figure(date))
-        ], {dataset: {abbr: bey}});
+        ], {title: bey});
     }
     static type = new O({t: '比賽', d: '抽獎', m: '限定商品', g: '贈品'})
 }

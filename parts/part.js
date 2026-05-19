@@ -222,13 +222,13 @@ class Cell {
         });
         if (abbr == null) return tds;
         E(tds[0]).set({
-            abbr, innerText: abbr || '', 
+            title: abbr, innerText: abbr || '', 
             ...attr.has('fused') ? {classList: 'fused'} : {},
         });
         tds.forEach(td => td && (td.Part = P));
         return tds;
     }
-    static fill = (lang, td = Q('td[abbr]')) => [td].flat().forEach(td => {
+    static fill = (lang, td = Q('td[title]')) => [td].flat().forEach(td => {
         if (!td || td.Part.only.abbr()) return;
         let {path, names} = td.Part, {mode} = td.dataset;
         let name = names[lang] || names.eng;

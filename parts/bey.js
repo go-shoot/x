@@ -84,23 +84,21 @@ class Row {
     constructor(bey, code, classes, others) {
         let [video, more] = ['string', 'object'].map(t => others.find(o => typeof o == t));
         this.tr = E('tr', [
-            this.cell(code, classes, video), 
+            this.cell(code, classes), 
             ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
         ].flat(9), {
-            classList: [bey.line, classes],
-            dataset: {abbr: bey.abbr}
+            id: code, title: bey.abbr,
+            classList: [bey.line, classes], dataset: video ? {video} : {},
         });
         this.more(more ?? {});
         return this.tr;  
     }
-    cell (code, classes, video) {
+    cell (code, classes) {
         code = code.split('_');
         return E('td', [
             code[0].replace(/(?<=-)\?\d/, '  ').padStart(6, ' '), 
-            ...code[1] && classes.includes('RB') ? ['​', E('sub', code[1])] : []
-        ], {dataset: {
-            code: classes.includes('RB') ? code[0] : code.join('_'), ...video ? {video} : {}
-        }});
+            code[1] && classes.includes('RB') ? E('sub', code[1]) : ''
+        ]);
     }
     more ({coat, mode, get}) {
         coat && E(this.tr).set({'--coat': coat});
@@ -125,9 +123,9 @@ class Search {
         this.build();
         return Search.beys().then(beys => ({
             beys: beys.filter(bey =>
-                this.regexp.some(r => r.test(bey.dataset?.abbr ?? bey[2])) ||
+                this.regexp.some(r => r.test(bey.title ?? bey[2])) ||
                 typeof query == 'string' && query.length >= 2 && 
-                    this.#search.code(query.split(' '), bey.firstChild?.dataset.code ?? bey[0])
+                    this.#search.code(query.split(' '), bey.id?.split('_')[0] ?? bey[0])
             ),
             href: this.href || `?search=${query}`
         }));
@@ -149,7 +147,7 @@ class Search {
             target.toLowerCase() == abbr.toLowerCase() ||
             !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.remove(n))),
         code: (target, code) => Array.isArray(target) ?
-            target.some(t => this.#search.code(t, code)) : new RegExp(target.replace('-', ''), 'i').test(code.replace('-', ''))
+            target.some(t => this.#search.code(t, code)) : new RegExp(target.replace('-', ''), 'i').test(code.replace(/[- ]/g, ''))
     }
     build () {
         const q = this.query;
@@ -185,7 +183,8 @@ class Preview {
                 ...this.#image.src('main', code),
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
-        Promise.all([kind].flat().map(w => this[w]({code, bey, path}))).then(() => Glossary(Preview.dialog));
+        [kind].flat().reduce((prom, w) => prom.then(() => this[w]({code, bey, path})), Promise.resolve())
+        .then(() => Glossary(Preview.dialog));
     }
     cell = ({path, code}) => new Search(code || path).then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [
@@ -200,32 +199,31 @@ class Preview {
 
     tile = ({path}) => PARTS.at(path).tile?.().then(tile => Q('#tiles').append(tile))
     
-    image (tdORcode) {
-        let dataset = tdORcode instanceof HTMLElement ? tdORcode.dataset : tdORcode;
-        if (/^BXA-\d+$/.test(dataset.code))
+    image ({code}) {
+        if (/^BXA-\d+$/.test(code))
             return Preview.dialog.Q('#images').append(
-                ...Maps.images.find(dataset.code).map(src => E('img', {
+                ...Maps.images.find(code).map(src => E('img', {
                     loading: 'lazy',
                     src: `//pbs.twimg.com/media/${src}?format=jpg&name=large`
                 }))
             ); 
-        let {code, video, lowercase, markup, amount} = this.#image.revisions(dataset);
+        let {code: c, video, lowercase, markup, amount} = this.#image.revisions(code);
         Preview.dialog.Q('#images').append(
-            ...video?.split(',').map(vid => E('a', {href: `//youtu.be/${vid}?start=60`})) ?? [],
-            ...this.#image.src('main', code),
-            ...this.#image.src('more', code, markup.more, amount),
-            ...this.#image.src('detail', lowercase ? code.toLowerCase() : code, markup.detail),
+            ...video?.split(',').map(vid => E('a', {href: `//youtu.be/${vid}?start=60`, target: '_blank'})) ?? [],
+            ...this.#image.src('main', c),
+            ...this.#image.src('more', c, markup.more, amount),
+            ...this.#image.src('detail', lowercase ? c.toLowerCase() : c, markup.detail),
         );
-        /^BXG-\d+$/.test(dataset.code) && location.pathname == '/x/' && setTimeout(() => 
+        /^BXG-\d+$/.test(code) && location.pathname == '/x/' && setTimeout(() => 
             !Preview.dialog.Q('#images img') && Preview.dialog.Q('#images').prepend(E('a', {
-                href: `//google.com/search?q=%22${dataset.code}%22+beyblade`, target: '_blank'
+                href: `//google.com/search?q=%22${code}%22+beyblade`, target: '_blank'
             }))
         , 1000);
     }
     #image = {
-        revisions: ({code, video}) => {
+        revisions: code => {
             code = Markup.reverse(code);
-            video ??= Q(`[data-code='${code}'][data-video]`)?.dataset.video;
+            let video = Q(`tr[id^='${code}'][data-video]`)?.dataset.video;
             let {lowercase, amount} = this.#image.params(code);
             let {alias, _, ...markup} = Maps.images.find(code) ?? {};
             code = (alias || code).replace('-', _ ? '_' : '');
@@ -253,8 +251,8 @@ class Preview {
         table (ev) {
             if (!location.pathname.includes('products')) return;
             new Preview(...ev.target.matches(':first-child') ? ev.target.matches('.Lm td') ? 
-                ['diamond', {code: ev.target.dataset.code, bey: ev.target.parentElement.dataset.abbr}] :
-                ['image', {code: ev.target.dataset.code}] : 
+                ['diamond', {code: ev.target.parentElement.id, bey: ev.target.parentElement.title}] :
+                ['image', {code: ev.target.parentElement.id.split('_')[0]}] : 
                 ['tile', {path: ev.target.Part.path}]
             , ev);
         }

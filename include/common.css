@@ -31,7 +31,7 @@ th,nav dd,summary>*,small {
     font-family: COND, Chiron GoRound TC, sans-serif;
 }
 tr[data-get]::after,
-td:is(:first-child,[headers=ratchet],[abbr]:has(+:not([headers]))),
+td:is(:first-child,[headers=ratchet],[title]:has(+:not([headers]))),
 .boards code {
     font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;
 }
