@@ -1,19 +1,16 @@
-<title>Garge</title>
+<title>Garage</title>
 <script defer src=../include/common.js></script>
 <link rel="stylesheet" href="garage.css">
 <nav>
     <menu></menu>
 </nav>
 <main>
-
+    <h2>CX</h2>
 </main>
+
 
 <script type="module">
     import DB from '../include/DB.js';
     import Garage from './garage.js';
-    Q('main').prepend(DB().then(() => Garage.get('acquired')
-    .then(beys => {
-        Garage.transform(beys);
-        console.log(Garage.parts);
-    })));
+    Q('main').prepend(DB().then(Garage));
 </script>    

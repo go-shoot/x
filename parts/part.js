@@ -20,6 +20,7 @@ class Part {
     }
     get all () {return [...new Set([...this].flat(9).filter(p => p)), Part.types.chi[[...this.attr][0]]];}
     get subcomp () {return this.path[2] || this.path[0];}
+    get weight () {return (w => parseInt(w) + Part.weight.adjust[w.at(-1)])(this.stat[0] || '0=');}
     only = {
         abbr: () => this.path[0] == 'ratchet',
         name: () => Part.named.includes(this.subcomp)
@@ -49,6 +50,7 @@ class Part {
         chi: {att:'攻擊', def:'防禦', sta:'持久', bal:'平衡'},
         eng: {att:'ATTACK', def:'DEFENSE', sta:'STAMINA', bal:'BALANCE'}
     })
+    static weight = {adjust: {'+': .3, '=': 0, '-': -.3}};
 }
 Part.import = ({part, blade, bit, tile}, Parts) => Object.assign(Part, part) && 
     Object.assign(Blade, {...blade, sub: new O(blade.sub)}) && Object.assign(Bit, bit) && Object.assign(Tile, tile) && 

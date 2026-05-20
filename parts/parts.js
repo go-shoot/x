@@ -120,7 +120,7 @@ Object.assign(Sorter, {
             || Sorter.compare(p, q, p => parseInt(p.abbr))
             || Sorter.compare(p, q, p => p.abbr.toLowerCase()),
 
-        weight: (p, q) => Sorter.compare(q, p, p => (w => parseInt(w) + Sorter.weight.adjust[w.at(-1)])(p.stat[0] || '0=')),
+        weight: (p, q) => Sorter.compare(q, p, p => p.weight),
         height: (p, q) => parseInt(p.stat[3] || 999) - parseInt(q.stat[3] || 999),
         time: (p, q) => (q.order ?? 999) - (p.order ?? 999)
     },
@@ -146,5 +146,4 @@ Sorter.time = {
         );
     })
 }
-Sorter.weight = {adjust: {'+': .3, '=': 0, '-': -.3}};
 export default Catalog
