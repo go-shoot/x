@@ -58,7 +58,7 @@ Object.assign(Menu, {
     selectable: () => Q('nav li:not(:has(.current)):not(:last-child)'),
     links: () => [
         E('a', {href: '/x/products/'}),
-        E('a', {href: '/x/parts/?blade=CX'}),
+        E('a', {href: '/x/parts/?blade'}),
         E('a', {href: '/x/prizes/'})
     ],
     lines: () => LINES.filter(([_, {divided}]) => divided)

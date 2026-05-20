@@ -109,8 +109,11 @@ Object.assign(Table, {
                 ...[...Array((Table.copy.span[td.headers] ?? 1) - 1)].map(_ => '')
             ])
         ].join('\t')).join('\n');
-        navigator.clipboard.writeText(csv)
-        .then(() => (ev.target.innerText = '✔️') && setTimeout(() => ev.target.innerText = '複製', 1000));
+        navigator.clipboard.writeText(csv).then(() => {
+            let original = ev.target.innerHTML;
+            ev.target.innerHTML = csv ? '&#xe014;' : '（空白）';
+            setTimeout(() => ev.target.innerHTML = original, 1000);
+        });
     }
 });
 Table.copy.span = {main: 2, blade: 4}
