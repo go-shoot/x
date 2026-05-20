@@ -186,7 +186,7 @@
 :host dl {
     place-self: end;
     display: grid; place-items: center end;
-    grid-template: repeat(3,1.8em) / repeat(2,auto);
+    grid-template: repeat(3,1.7em) / repeat(2,auto); gap: .1em 0;
     margin-right: .2em;
 
     div {
@@ -197,7 +197,7 @@
             font-size: .6em;
             text-align: right; line-height: 1.1;
             white-space: pre;
-            margin: 0 0 .1em 1em;
+            margin: 0 0 .15em 1em;
         }
         dd {
             font-size: 1.6em; font-style: italic;
@@ -342,7 +342,7 @@ table {
             &+td {min-width: 5em;}
         }
         tr[style] &:is([headers=blade],[headers=main],[headers=metal]) {
-            color: var(--coat,transparent);
+            color: var(--coat,transparent) !important;
         }
     }
 }
