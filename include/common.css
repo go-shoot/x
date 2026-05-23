@@ -32,7 +32,7 @@ th,nav dd,summary>*,small {
 }
 tr[data-get]::after,
 td:is(:first-child,[headers=ratchet],[title]:has(+:not([headers]))),
-.boards code {
+.boards code, ul[data-count] li {
     font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;
 }
 @font-face {
@@ -290,7 +290,7 @@ nav {
     }
     form:not(.LED) {display: contents;}
 }
-:is(th,menu a:is(.blade,.ratchet,.bit))::after {
+:is(th,menu a:is(.blade,.ratchet,.bit),h2:is(.blade,.ratchet,.bit))::after {
     content: '';
     display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 

@@ -368,9 +368,7 @@ td {
         line-height: 0;
         margin-right: -.2em;
     }
-    small {
-        letter-spacing: -.05em;
-    }
+    small {letter-spacing: -.05em;}
 }
 
 tbody tr:nth-last-child(1 of :not([hidden],.hidden)) td {
@@ -382,7 +380,7 @@ tbody td {
 td[title]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
     border-left: solid .5px var(--on);    
 }
-nav:has(#garage:checked):has([value=acquired]:checked)+main .acquired {
+nav:has(#garage:checked)+main .acquired {
     border-left-color: var(--backdrop);
     border-top-color: var(--backdrop);
 }

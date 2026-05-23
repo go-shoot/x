@@ -1,14 +1,24 @@
 <title>Garage</title>
 <script defer src=../include/common.js></script>
+<script defer src="https://unpkg.com/html-to-image@latest/dist/html-to-image.js"></script>
 <link rel="stylesheet" href="garage.css">
 <nav>
     <menu></menu>
+    <form>
+        <fieldset class="LED">
+            <label>港<input name=lang type=radio value=hk checked></label>
+            <label>台<input name=lang type=radio value=tw></label>
+            <label>A<input name=lang type=radio value=eng></label>
+            <label>ア<input name=lang type=radio value=jap></label>
+        </fieldset>
+        <button>組裝</button>
+        <a id="export">製圖</a>
+        <button>AI prompt</button>
+    </form>
 </nav>
-<main>
-    <h2>CX</h2>
-</main>
+<main><span></span></main>
 
-
+<link rel="stylesheet" href="../parts/part.css">
 <script type="module">
     import DB from '../include/DB.js';
     import Garage from './garage.js';

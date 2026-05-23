@@ -1,6 +1,7 @@
 import DB from '../include/DB.js'
 import { Part, Tile } from '../parts/part.js';
 import { Markup } from '../include/utilities.js';
+import { Preview } from '../parts/bey.js';
 
 let PARTS;
 const Garage = () => DB.get.essentials(true)
@@ -8,13 +9,18 @@ const Garage = () => DB.get.essentials(true)
         PARTS = Part.import(meta, parts).parts;
         return Garage.get('acquired');
     })
-    .then(beys => {
-        Garage.transform(beys);console.log(Garage.parts);
-        Q('main').append(
-            ...['chip', 'over', 'metal', 'main', 'assist'].map(comp => Garage.element.list(comp)),
-            ...['blade', 'ratchet', 'bit'].flatMap(comp => Garage.element.list(comp))
-        );
+    .then(async beys => {
+        Garage.transform(beys);
+        return Promise.all(['chip', 'over', 'metal', 'main', 'assist', 'blade', 'ratchet', 'bit'].map(comp => Garage.element.list(comp)))
+    })
+    .then(sections => {
+        Q('main').append(...sections.flat());
         Garage.element.events();
+        return DB.get('product', 'beys');
+    })
+    .then(beys => {
+        Garage.fill('hk');
+        Q('ul li', li => li.classList = beys.find(([code]) => code == li.title)?.[1])
     });
 Object.assign(Garage, {
     put (mode, code, content) {
@@ -40,7 +46,7 @@ Object.assign(Garage, {
     sort: {
         blade: ([P1], [P2]) => P2.weight - P1.weight,
         ratchet: ([P1], [P2]) => parseInt(P1.abbr) - parseInt(P2.abbr),
-        bit: ([P1], [P2]) => P1.abbr > P2.abbr ? 1 : -1
+        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 0
     },
     inferior: {
         CX: {
@@ -48,61 +54,85 @@ Object.assign(Garage, {
         },
         blade: P => P.weight < 35,
         ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
-        bit: P => parseInt(P.stat.at(-1)) > 125 || /^[BDGHMRTW]/.test(P.abbr)
+        bit: P => parseInt(P.stat.at(-1)) > 125 || /^[BDGHMRTW]./.test(P.abbr)
     },
+    fill: lang => Q('figure:has(b[lang])>img', img => {
+        let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
+        let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi || PARTS.at(path).names.eng;
+        if (['hk','tw'].includes(lang)) {
+            name = name.split(' ');
+            name = name[['hk','tw'].indexOf(lang)] || name[0];
+        }
+        E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang});
+    })
 });
 Garage.element = {
     events: () => {
-        Q('main').onclick = ev => ev.target.closest('ul')?.classList.toggle('open')
+        Q('main').onclick = ev => {
+            ev.target.matches('ul[data-count] li') && new Preview(['cell', 'image'], {code: ev.target.title.split('_')[0]}, ev);
+            ev.target.matches('figcaption') ? 
+                new Preview('tile', {path: ev.target.previousSibling.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/')}, ev) : 
+                ev.target.closest('ul')?.classList.toggle('open');
+        }
+        Q('nav form').onchange = ev => Garage.fill(ev.target.value);
+        Q('#export').onclick = () => {
+            Q('span').classList = 'loading'; 
+            htmlToImage.toJpeg(Q('main')).then(href => {
+                E('a', {download: '我的庫存.jpg', href}).click();
+                Q('.loading').classList.remove('loading');
+            });
+        }
     },
-    section: comp => Array.isArray(comp) ? comp.map(Garage.element.section) : E(`section#${comp}`, [
-        E('h3', comp), E('ol'), 
-        E('details', [E('summary'), E('ol')])
-    ]),
-    list: comp => {
+    section: comp => Array.isArray(comp) ? comp.map(Garage.element.section) : E(`section#${comp}`, 
+        comp.includes('-') ? {'--line': `url(../img/lines.svg#${comp.split('-')[1]})`} : {}, 
+        [E(`h2.${comp.split('-')[0]}`), E('ol>li>details>summary')]
+    ),
+    list: async comp => {
         let processed, section = Garage.element.section(comp == 'blade' ? ['blade-UX', 'blade-BX'] : comp);
-        let append = (processed, i) => new O({false: 'h3+ol', true: 'details ol'}).each(([type, el]) => 
-            Promise.all(processed[type]?.map(([P, codes]) => Garage.element.item(P, codes)) ?? [])
-            .then(lis => (i != null ? section[i] : section).Q(el).append(...lis))
-        );
+        let add = (processed, i) => {
+            new O({false: 'before', true: 'after'}).each(([type, posi]) => 
+                (i != null ? section[i] : section).Q('li:has(details)')[posi](...processed[type]?.map(([P, codes]) => Garage.element.item(P, codes)) ?? [])
+            );
+        }
         if (comp == 'blade') {
             processed = Object.groupBy([...Garage.parts[comp]].sort(Garage.sort[comp]), ([P]) => P.group == 'UX' || P.attr.has('UX'));
-            processed.true = Object.groupBy(processed.true, ([P]) => Garage.inferior[comp](P));
-            append(processed.true, 0);
-            section[0].Q('summary').innerText = Garage.element.summary[comp] + ` (${processed.true?.true?.length ?? 0})`;
-            processed.false = Object.groupBy(processed.false, ([P]) => Garage.inferior[comp](P));
-            append(processed.false, 1);
-            section[1].Q('summary').innerText = Garage.element.summary[comp] + ` (${processed.false?.true?.length ?? 0})`;
-        } else if (['blade','ratchet','bit'].includes(comp)) {
+            processed.true &&= Object.groupBy(processed.true, ([P]) => Garage.inferior[comp](P));
+            add(processed.true ?? [], 0);
+            section[0].Q('summary').replaceChildren(...Garage.element.summary(comp, processed.true?.true));
+            processed.false &&= Object.groupBy(processed.false, ([P]) => Garage.inferior[comp](P));
+            add(processed.false ?? [], 1);
+            section[1].Q('summary').replaceChildren(...Garage.element.summary(comp, processed.false?.true));
+
+        } else if (['ratchet','bit'].includes(comp)) {
+            comp == 'bit' && (Garage.parts[comp] = await Promise.all([...Garage.parts[comp]].map(async ([P, _]) => [P.attr.size ? P : await P.revise('tile'), _])));
             processed = [...Garage.parts[comp]].sort(Garage.sort[comp]);
             processed = Object.groupBy(processed, ([P]) => Garage.inferior[comp](P))
-            append(processed);
-            section.Q('summary').innerText = Garage.element.summary[comp] + ` (${processed.true?.length ?? 0})`;
+            add(processed);
+            section.Q('summary').replaceChildren(...Garage.element.summary(comp, processed.true));
         } else {
-            processed = [...Garage.parts.CX[comp]].sort(([P1], [P2]) => P2.weight - P1.weight);
+            processed = [...Garage.parts.CX[comp] ?? []].sort(Garage.sort.blade);
             processed = Object.groupBy(processed, ([P]) => Garage.inferior.CX[comp](P));
-            append(processed);
-            section.Q('summary').innerText = Garage.element.summary[comp] + ` (${processed.true?.length ?? 0})`;
+            add(processed);
+            section.Q('summary').replaceChildren(...Garage.element.summary(comp, processed.true));
         }
         return section;
     },
-    item: async (P, codes) => {
-        P.comp == 'bit' && !P.attr.size && await P.revise('tile');
-        return E('li', [
-            E('figure', [
-                E('img', {src: `../img/${P.path.join('/')}.png`}), 
-                E('figcaption', [
-                    ...Tile.prototype.fill.icons.call({Part: P}).map(li => li.matches?.('li:has(img)') ? li.childNodes[0] : E('i', li.childNodes?.[0]))
-                        .filter(ch => ch.matches('i:not(:empty),img[src*=types]')), 
-                    ...(P.only.name() ? P.names.chi || P.names.eng : P.path.at(-1)).split(' ').map(n => E('b', Markup.replace(Markup.remove(n), 'mode')))
-                ]),
+    item: (P, codes) => E('li', [
+        E(`figure`, [
+            E('img', {src: `../img/${P.path.join('/')}.png`}), 
+            E('figcaption', [
+                ...Tile.prototype.fill.icons.call({Part: P}).map(li => li.matches?.('li:has(img)') ? li.childNodes[0] : E('i', li.childNodes?.[0]))
+                    .filter(ch => ch.matches('i:not(:empty),img[src*=types]')), 
+                E('b', P.only.name() ? {lang: ''} : P.path.at(-1))
             ]),
-            E('ul', codes.map(c => E('li', c)), {dataset: {count: codes.length}})
-        ])
-    },
-    summary: {
-        chip: '< 2 g', over: '< 3 g', metal: '< 28 g', main: '< 31 g', assist: '< 6 g',
-        blade: '< 35 g', ratchet: '> 70 dmm', bit: '> 125 dmm／BDGHMRTW系'
-    }
+        ]),
+        E('ul', codes.map(c => E('li', Markup.replace(c, 'mode'), {title: c})), {dataset: {count: codes.length}})
+    ]),
+    summary: (comp, parts = []) => [
+        ({
+            chip: '< 2 g', over: '< 3 g', metal: '< 28 g', main: '< 31 g', assist: '< 6 g',
+            blade: '< 35 g', ratchet: '> 70 dmm', bit: ['> 125 dmm ／', E('br'), '非F/L/U系']
+        })[comp], E('br'), ` [ ${parts.length} ]`
+    ].flat()
 }
 export default Garage;
