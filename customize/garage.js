@@ -127,7 +127,8 @@ Garage.element = {
             ]),
         ]),
         E('select', [E('option', codes.length), ...codes.map(c => E('option', {value: c},
-            c.replace(/_\d+/, sub => [...sub].map(d => String.fromCharCode(d.charCodeAt(0) + 8272)).toSpliced(0, 1, ' ').join('')),
+            Markup('cell', c)
+            //c.replace(/_\d+/, sub => [...sub].map(d => String.fromCharCode(d.charCodeAt(0) + 8272)).toSpliced(0, 1, ' ').join('')),
         ))])
     ]),
     summary: (comp, parts = []) => [

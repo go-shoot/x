@@ -115,7 +115,7 @@ class Search {
             /^\/.+\/\w?$/.test(query) ?
                 this.regexp.push(new RegExp(.../^\/(.+)\/(\w?)$/.exec(query).slice(1))) :
             !/^.X/i.test(query) ?
-                this.lookup(query.replace(/([^\\])?([.*+?^${}()|[\]\\])/g, '$1\\$2')) : '';
+                this.lookup(RegExp.escape(query)) : '';
         } else {
             this.query = query.toReversed().slice(1).reduce((obj, key) => new O({[key]: obj}), query.at(-1));
             this.href = Part.href.join(query, query.length == 4 ? '?..=' : '?=');
