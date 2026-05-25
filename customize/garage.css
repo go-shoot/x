@@ -1,5 +1,6 @@
 h2 {
     display: block;
+    text-align: left;
     margin: .25em .5em;
 
     img {height: 2.5em;}
@@ -22,7 +23,6 @@ h2 {
     }
 }
 section {
-    text-align: left;
     margin-bottom: 1em;
 
     ol {
@@ -30,19 +30,14 @@ section {
         padding: .2rem !important;
         display: flex; flex-wrap: wrap; gap: .3em;
         min-height: 4em;
-    
+        
         >ol:empty+details:has(ol:empty) {display: none;}
     }
     li {
-        position: relative;
-    
         &:has(details) {align-self: center;}
         &:has(details:not([open]))~li {display: none;}
-        &:has(figure) {margin-bottom: .8em;}
-        &:has(.open) {z-index: 1;}
     }
     summary {
-        text-align: center;
         line-height: 1.4; font-size: .9em;
         
         li:has(+li) & {color: var(--theme);}
@@ -52,11 +47,12 @@ section {
 
 figure {
     border-bottom: .2em solid gray; border-radius: .5em;
-    padding: .25em .25em .5em .25em; 
+    padding: .25em;
+    position: relative;
 
     >img {height: 4.8em;}
     figcaption {
-        position: absolute; inset: .25em;
+        position: absolute; inset: .25em .25em .1em .25em;
         display: grid; grid-template: 1em 1fr 1em / 1em 1fr 1em;
         cursor: pointer;
 
@@ -75,24 +71,20 @@ figure {
         }
     }
 }
-ul {
-    height: 1em; overflow: hidden;
-    position: absolute; left: 50%; top: calc(100% - .15em); transform: translateX(-50%);
-    font-size: .9em;
+select {
+    appearance: base-select;
+    border: none; 
+    gap: .2em; padding: 0 .5em;
+    line-height: 1.5;
+    font-size: .8em;
     cursor: pointer;
+    background: gray; color: var(--theme);
+    border-radius: 0 0 .3em .3em;
+    transform: translateY(-.2em);
 
-    &.open {height: auto;}
-    &::before {
-        content: '\e00e\200a'attr(data-count); text-align: center; line-height: 1em;
-        display: block; width: 2.5em; height: 1em; 
-        background: gray; color: var(--theme);
-        margin: 0 auto .2em auto;
-        border-bottom-left-radius: .3em; border-bottom-right-radius: .3em;
-    }
-    li {
-        white-space: nowrap;
+    option {
         background: var(--dark);
-        padding: .2em .5em;
-        font-size: .85em;
+
+        &:not([value]) {display: none;}
     }
 }

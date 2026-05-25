@@ -32,7 +32,7 @@ th,nav dd,summary>*,small {
 }
 tr[data-get]::after,
 td:is(:first-child,[headers=ratchet],[title]:has(+:not([headers]))),
-.boards code, ul[data-count] li {
+.boards code, option {
     font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;
 }
 @font-face {

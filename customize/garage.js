@@ -20,7 +20,7 @@ const Garage = () => DB.get.essentials(true)
     })
     .then(beys => {
         Garage.fill('hk');
-        Q('ul li', li => li.classList = beys.find(([code]) => code == li.title)?.[1])
+        Q('option[value]', option => option.classList = beys.find(([code]) => code == option.value)?.[1])
     });
 Object.assign(Garage, {
     put (mode, code, content) {
@@ -68,11 +68,11 @@ Object.assign(Garage, {
 });
 Garage.element = {
     events: () => {
-        Q('main').onclick = ev => {
-            ev.target.matches('ul[data-count] li') && new Preview(['cell', 'image'], {code: ev.target.title.split('_')[0]}, ev);
-            ev.target.matches('figcaption') ? 
-                new Preview('tile', {path: ev.target.previousSibling.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/')}, ev) : 
-                ev.target.closest('ul')?.classList.toggle('open');
+        Q('main').onclick = ev => ev.target.matches('figcaption') ? 
+            new Preview('tile', {path: ev.target.previousSibling.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/')}, ev) : null;
+        Q('main').onchange = ev => {
+            new Preview(['cell', 'image'], {code: ev.target.value.split('_')[0]}, ev);
+            ev.target.firstChild.selected = true;
         }
         Q('nav form').onchange = ev => Garage.fill(ev.target.value);
         Q('#export').onclick = () => {
@@ -126,7 +126,9 @@ Garage.element = {
                 E('b', P.only.name() ? {lang: ''} : P.path.at(-1))
             ]),
         ]),
-        E('ul', codes.map(c => E('li', Markup.replace(c, 'mode'), {title: c})), {dataset: {count: codes.length}})
+        E('select', [E('option', codes.length), ...codes.map(c => E('option', {value: c},
+            c.replace(/_\d+/, sub => [...sub].map(d => String.fromCharCode(d.charCodeAt(0) + 8272)).toSpliced(0, 1, ' ').join('')),
+        ))])
     ]),
     summary: (comp, parts = []) => [
         ({
