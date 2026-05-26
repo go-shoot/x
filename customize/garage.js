@@ -11,16 +11,25 @@ const Garage = () => DB.get.essentials(true)
     })
     .then(async beys => {
         Garage.transform(beys);
-        return Promise.all(['chip', 'over', 'metal', 'main', 'assist', 'blade', 'ratchet', 'bit'].map(comp => Garage.element.list(comp)))
+        return Promise.all(['chip', 'over', 'metal', 'main', 'assist', 'blade', 'ratchet', 'bit'].map(comp => Garage.list(comp)))
     })
     .then(sections => {
         Q('main').append(...sections.flat());
         Garage.element.events();
+        Q('h2 a', a => {
+            a.classList = a.search.substring(1).split('=')[0];
+            a.hash && !/.X$/.test(a.hash) && (a.title = a.hash.substring(1));
+        });
         return DB.get('product', 'beys');
     })
     .then(beys => {
         Garage.fill('hk');
-        Q('option[value]', option => option.classList = beys.find(([code]) => code == option.value)?.[1])
+        beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
+        Q('option[value]', option => {
+            let bey = beys.get(option.value);
+            bey && (option.classList = bey[0]);
+            option.matches('.Lm') && (option.title = bey[1]);
+        });
     });
 Object.assign(Garage, {
     put (mode, code, content) {
@@ -43,52 +52,8 @@ Object.assign(Garage, {
             });
         });
     },
-    sort: {
-        blade: ([P1], [P2]) => P2.weight - P1.weight,
-        ratchet: ([P1], [P2]) => parseInt(P1.abbr) - parseInt(P2.abbr),
-        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 0
-    },
-    inferior: {
-        CX: {
-            chip: P => P.weight < 2, over: P => P.weight < 3, metal: P => P.weight < 28, main: P => P.weight < 31, assist: P => P.weight < 6
-        },
-        blade: P => P.weight < 35,
-        ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
-        bit: P => parseInt(P.stat.at(-1)) > 125 || /^[BDGHMRTW]./.test(P.abbr)
-    },
-    fill: lang => Q('figure:has(b[lang])>img', img => {
-        let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-        let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi || PARTS.at(path).names.eng;
-        if (['hk','tw'].includes(lang)) {
-            name = name.split(' ');
-            name = name[['hk','tw'].indexOf(lang)] || name[0];
-        }
-        E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang});
-    })
-});
-Garage.element = {
-    events: () => {
-        Q('main').onclick = ev => ev.target.matches('figcaption') ? 
-            new Preview('tile', {path: ev.target.previousSibling.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/')}, ev) : null;
-        Q('main').onchange = ev => {
-            new Preview(['cell', 'image'], {code: ev.target.value.split('_')[0]}, ev);
-            ev.target.firstChild.selected = true;
-        }
-        Q('nav form').onchange = ev => Garage.fill(ev.target.value);
-        Q('#export').onclick = () => {
-            Q('span').classList = 'loading'; 
-            htmlToImage.toJpeg(Q('main')).then(href => {
-                E('a', {download: '我的庫存.jpg', href}).click();
-                Q('.loading').classList.remove('loading');
-            });
-        }
-    },
-    section: comp => Array.isArray(comp) ? comp.map(Garage.element.section) : E(`section#${comp}`, 
-        comp.includes('-') ? {'--line': `url(../img/lines.svg#${comp.split('-')[1]})`} : {}, 
-        [E(`h2.${comp.split('-')[0]}`), E('ol>li>details>summary')]
-    ),
     list: async comp => {
-        let processed, section = Garage.element.section(comp == 'blade' ? ['blade-UX', 'blade-BX'] : comp);
+        let processed, section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
         let add = (processed, i) => {
             new O({false: 'before', true: 'after'}).each(([type, posi]) => 
                 (i != null ? section[i] : section).Q('li:has(details)')[posi](...processed[type]?.map(([P, codes]) => Garage.element.item(P, codes)) ?? [])
@@ -117,6 +82,43 @@ Garage.element = {
         }
         return section;
     },
+    sort: {
+        blade: ([P1], [P2]) => P2.weight - P1.weight,
+        ratchet: ([P1], [P2]) => parseInt(P1.abbr) - parseInt(P2.abbr),
+        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 0
+    },
+    inferior: {
+        CX: {
+            chip: P => P.weight < 2, over: P => P.weight < 3, metal: P => P.weight < 28, main: P => P.weight < 31, assist: P => P.weight < 6
+        },
+        blade: P => P.weight < 35,
+        ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
+        bit: P => /^[BDGHMRTW]./.test(P.abbr)
+    },
+    fill: lang => Q('figure:has(b[lang])>img', img => {
+        let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
+        let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi || PARTS.at(path).names.eng;
+        if (['hk','tw'].includes(lang)) {
+            name = name.split(' ');
+            name = name[['hk','tw'].indexOf(lang)] || name[0];
+        }
+        E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang});
+    })
+});
+Garage.element = {
+    events: () => {
+        Q('main').onclick = ev => ev.target.closest('figure') ? 
+            new Preview(['cell', 'tile'], {path: ev.target.closest('figure').firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/')}, ev) : null;
+        Q('main').onchange = ev => {
+            let option = ev.target.options[ev.target.selectedIndex];
+            option.matches('.Lm') ?
+                new Preview(['cell', 'diamond'], {code: ev.target.value, bey: option.title}, ev) :
+                new Preview(['cell', 'image'], {code: ev.target.value.split('_')[0]}, ev);
+            ev.target.firstChild.selected = true;
+        }
+        Q('nav form').onchange = ev => Garage.fill(ev.target.value);
+    },
+    section: comp => Array.isArray(comp) ? comp.map(Garage.element.section) : E(`section`, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
     item: (P, codes) => E('li', [
         E(`figure`, [
             E('img', {src: `../img/${P.path.join('/')}.png`}), 
@@ -126,15 +128,12 @@ Garage.element = {
                 E('b', P.only.name() ? {lang: ''} : P.path.at(-1))
             ]),
         ]),
-        E('select', [E('option', codes.length), ...codes.map(c => E('option', {value: c},
-            Markup('cell', c)
-            //c.replace(/_\d+/, sub => [...sub].map(d => String.fromCharCode(d.charCodeAt(0) + 8272)).toSpliced(0, 1, ' ').join('')),
-        ))])
+        E('select', [E('option', codes.length), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
     ]),
     summary: (comp, parts = []) => [
         ({
             chip: '< 2 g', over: '< 3 g', metal: '< 28 g', main: '< 31 g', assist: '< 6 g',
-            blade: '< 35 g', ratchet: '> 70 dmm', bit: ['> 125 dmm ／', E('br'), '非F/L/U系']
+            blade: '< 35 g', ratchet: '> 70 dmm', bit: '非F/L/U系'
         })[comp], E('br'), ` [ ${parts.length} ]`
     ].flat()
 }

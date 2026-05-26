@@ -290,7 +290,7 @@ nav {
     }
     form:not(.LED) {display: contents;}
 }
-:is(th,menu a:is(.blade,.ratchet,.bit),h2:is(.blade,.ratchet,.bit))::after {
+:is(th,menu a:is(.blade,.ratchet,.bit),h2 a:not([title]):is(.blade,.ratchet,.bit))::after {
     content: '';
     display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 

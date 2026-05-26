@@ -3,24 +3,22 @@ h2 {
     text-align: left;
     margin: .25em .5em;
 
-    img {height: 2.5em;}
-    &:has(+ol img[src*=CX])::before, &.blade::before {
+    a[href*='#']::before {
         content: '';
-        display: inline-block; width:3em; height: 2em;
-        background: var(--line, url('../img/lines.svg#CX')) center / contain;
+        display: inline-block; width: 3em; height: 2em;
+        background: var(--img-line) center / contain;
         margin-right: .2em;
-        vertical-align: top;
     }
-    &.blade::before {
+    a:not([title])::after {
+        width: 3em; 
+        vertical-align: -.4em;
+    }
+    a[title]::after {
+        content: attr(title); text-transform: uppercase;
+        font-size: 1.5em;
         vertical-align: super;
     }
-    &::after {
-        width: 3em; height: 3em;
-    }
-    &:not(.blade,.ratchet,.bit)::after {
-        content: attr(class); text-transform: uppercase;
-        font-size: 1.5em;
-    }
+    &:has(a[title]) {margin-bottom: .5em;}
 }
 section {
     margin-bottom: 1em;
@@ -45,7 +43,7 @@ section {
     }
 }
 
-figure {
+main figure {
     border-bottom: .2em solid gray; border-radius: .5em;
     padding: .25em;
     position: relative;

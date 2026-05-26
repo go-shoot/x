@@ -1,6 +1,5 @@
 <title>Garage</title>
 <script defer src=../include/common.js></script>
-<script defer src="https://unpkg.com/html-to-image@latest/dist/html-to-image.js"></script>
 <link rel="stylesheet" href="garage.css">
 <nav>
     <menu></menu>
@@ -12,15 +11,40 @@
             <label>ア<input name=lang type=radio value=jap></label>
         </fieldset>
         <button>組裝</button>
-        <a id="export">製圖</a>
         <button>AI prompt</button>
     </form>
 </nav>
-<main><span></span></main>
+<main>
+    <details>
+        <summary>提示</summary>
+        <ul class="default">
+            <li>請到商品頁</li>
+            <li>右邊是圖層操作，每一圖層只可加入一張圖片</li>
+            <li>雙點擊圖層進入開啓／關閉Solo模式</li>
+            <li>把旋鈕向上或下拉動以操作</li>
+            <li>開啓微調後，旋鈕轉速會變慢</li>
+            <li>雙點擊旋鈕以重設／調節至特殊値（先轉動至不同位置後再雙擊會有不同結果）</li>
+            <li>輸出JSON後可作自己的儲存或與他人分享</li>
+            <li>在輸出PDF旁的欄填入每個專案想列印的張數，321030表示專案#1三張、專案#2兩張等（只限0到9）
+            <li>此工具不是圖像編輯器，而是把已預備好的材料堆疊</li>
+        </ul>
+    </details>
+<a href="../parts/?blade=CX#chip"></a>
+    <a href="../parts/?blade=CX#over"></a>
+    <a href="../parts/?blade=CX#metal"></a>
+    <a href="../parts/?blade=CX#main"></a>
+    <a href="../parts/?blade=CX#assist"></a>
+    <a href="../parts/?blade#UX"></a>
+    <a href="../parts/?blade#BX"></a>
+    <a href="../parts/?ratchet"></a>
+    <a href="../parts/?bit"></a>
+</main>
 
-<link rel="stylesheet" href="../parts/part.css">
 <script type="module">
     import DB from '../include/DB.js';
     import Garage from './garage.js';
     Q('main').prepend(DB().then(Garage));
-</script>    
+</script>
+<script src=https://aeoq.github.io/diamond-grid/script.js type=module></script>
+<link rel="stylesheet" href="../parts/part.css">
+<link rel="stylesheet" href="../prizes/prize.css">

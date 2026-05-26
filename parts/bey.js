@@ -147,7 +147,8 @@ class Search {
             target.toLowerCase() == abbr.toLowerCase() ||
             !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.remove(n))),
         code: (target, code) => Array.isArray(target) ?
-            target.some(t => this.#search.code(t, code)) : new RegExp(target.replace('-', ''), 'i').test(code.replace(/[- ]/g, ''))
+            target.some(t => this.#search.code(t, code)) : 
+            new RegExp(RegExp.escape(target.replace('-', '')), 'i').test(code.replace(/[- ]/g, ''))
     }
     build () {
         const q = this.query;
@@ -186,7 +187,7 @@ class Preview {
         [kind].flat().reduce((prom, w) => prom.then(() => this[w]({code, bey, path})), Promise.resolve())
         .then(() => Glossary(Preview.dialog));
     }
-    cell = ({path, code}) => new Search(code || path).then(({beys, href}) => Q('#cells').append(
+    cell = ({path, code}) => new Search(code?.split('_')[0] || path).then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [
             E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
             Preview.thead.cloneNode(true), 

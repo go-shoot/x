@@ -154,7 +154,12 @@ const Transition = {
         Transition.page.pause();
         document.startViewTransition(action).finished.then(Transition.page.resume);
     }},
-    popover: (action, {clientX: x, clientY: y}, popover) => {
+    popover: (action, ev, popover) => {
+        let [x, y] = [ev.clientX, ev.clientY];
+        if (x == null) {
+            let {left, width, top, height} = ev.target.getBoundingClientRect();
+            [x, y] = [left + width/2, top + height/2];
+        };
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
         Transition.page.pause(true);
         let tr = document.startViewTransition();
