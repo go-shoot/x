@@ -258,7 +258,7 @@ class Preview {
             , ev);
         }
     }
-    static dialog = Q('dialog') || Q('body').appendChild(E('dialog', {
+    static dialog = Q('#preview') || Q('body').appendChild(E('dialog#preview', {
         popover: 'auto',
         onclick: ev => {
             Transition.popover('hide', ev, ev.currentTarget);

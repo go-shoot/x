@@ -15,7 +15,7 @@ const Garage = () => DB.get.essentials(true)
     })
     .then(sections => {
         Q('main').append(...sections.flat());
-        Garage.element.events();
+        Garage.events();
         Q('h2 a', a => {
             a.classList = a.search.substring(1).split('=')[0];
             a.hash && !/.X$/.test(a.hash) && (a.title = a.hash.substring(1));
@@ -56,7 +56,7 @@ Object.assign(Garage, {
         let processed, section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
         let add = (processed, i) => {
             new O({false: 'before', true: 'after'}).each(([type, posi]) => 
-                (i != null ? section[i] : section).Q('li:has(details)')[posi](...processed[type]?.map(([P, codes]) => Garage.element.item(P, codes)) ?? [])
+                (i != null ? section[i] : section).Q('li:has(details)')[posi](...processed[type]?.map(([P, codes]) => Garage.element.li(P, codes)) ?? [])
             );
         }
         if (comp == 'blade') {
@@ -89,44 +89,66 @@ Object.assign(Garage, {
     },
     inferior: {
         CX: {
-            chip: P => P.weight < 2, over: P => P.weight < 3, metal: P => P.weight < 28, main: P => P.weight < 31, assist: P => P.weight < 6
+            over: P => P.weight < 3, metal: P => P.weight < 28, 
+            chip: P => P.weight < 2, main: P => P.weight < 31, assist: P => P.weight < 6
         },
         blade: P => P.weight < 35,
         ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
-        bit: P => /^[BDGHMRTW]./.test(P.abbr)
+        bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
-    fill: lang => Q('figure:has(b[lang])>img', img => {
-        let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-        let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi || PARTS.at(path).names.eng;
-        if (['hk','tw'].includes(lang)) {
-            name = name.split(' ');
-            name = name[['hk','tw'].indexOf(lang)] || name[0];
+    events: () => {
+        E(Q('main')).set({
+            onclick: ev => {
+                let path = ev.target.closest('figure')?.firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
+                path && new Preview(['cell', 'tile'], {path}, ev);
+            },
+            onchange: ev => {
+                let option = ev.target.options[ev.target.selectedIndex];
+                option.matches('.Lm') ?
+                    new Preview(['cell', 'diamond'], {code: ev.target.value, bey: option.title}, ev) :
+                    new Preview(['cell', 'image'], {code: ev.target.value.split('_')[0]}, ev);
+                ev.target.firstChild.selected = true;
+            }
+        });
+        Q('nav form').onchange = ev => Garage.fill(ev.target.value);
+        Q('#prompt').onclick = ev => {
+            ev.target.matches('button,textarea') ? ev.stopPropagation() : Q('#prompt').hidePopover();
+            ev.target.id == 'copy' && navigator.clipboard.writeText(Q('textarea').value).then(() => {
+                let original = ev.target.innerHTML;
+                ev.target.innerHTML = '&#xe014;';
+                setTimeout(() => ev.target.innerHTML = original, 1000);
+            });
         }
-        E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang});
-    })
+    },
+    fill (lang) {
+        Q('figure:has(b[lang])>img', img => {
+            let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
+            let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi || PARTS.at(path).names.eng;
+            if (['hk','tw'].includes(lang)) {
+                name = name.split(' ');
+                name = name[['hk','tw'].indexOf(lang)] || name[0];
+            }
+            E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang, title: Markup.remove(PARTS.at(path).names.eng)});
+        });
+        Garage.prompt();
+    },
+    prompt: () => Q('textarea').value = 
+        Q('p[hidden]').textContent + Q('section', []).map(section => Part.names[section.id.split('#')[0]].eng + '：' + 
+            (section.Q('b', []).map(b => b.lang ? `${b.innerText}/${b.title}` : b.innerText).join('、') || '未有')
+        ).join('\n')
 });
 Garage.element = {
-    events: () => {
-        Q('main').onclick = ev => ev.target.closest('figure') ? 
-            new Preview(['cell', 'tile'], {path: ev.target.closest('figure').firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/')}, ev) : null;
-        Q('main').onchange = ev => {
-            let option = ev.target.options[ev.target.selectedIndex];
-            option.matches('.Lm') ?
-                new Preview(['cell', 'diamond'], {code: ev.target.value, bey: option.title}, ev) :
-                new Preview(['cell', 'image'], {code: ev.target.value.split('_')[0]}, ev);
-            ev.target.firstChild.selected = true;
-        }
-        Q('nav form').onchange = ev => Garage.fill(ev.target.value);
-    },
-    section: comp => Array.isArray(comp) ? comp.map(Garage.element.section) : E(`section`, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
-    item: (P, codes) => E('li', [
+    section: comp => Array.isArray(comp) ? 
+        comp.map(Garage.element.section) : 
+        E(`section`, {id: comp}, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
+    li: (P, codes) => E('li', [
         E(`figure`, [
             E('img', {src: `../img/${P.path.join('/')}.png`}), 
-            E('figcaption', [
-                ...Tile.prototype.fill.icons.call({Part: P}).map(li => li.matches?.('li:has(img)') ? li.childNodes[0] : E('i', li.childNodes?.[0]))
-                    .filter(ch => ch.matches('i:not(:empty),img[src*=types]')), 
-                E('b', P.only.name() ? {lang: ''} : P.path.at(-1))
-            ]),
+            E('figcaption', Tile.prototype.fill.icons.call({Part: P})
+                .map(li => li.matches?.('li:has(img)') ? li.childNodes[0] : E('i', li.childNodes?.[0] ?? ''))
+                .filter(ch => ch.matches('i:not(:empty),img[src*=types]'))
+                .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1)))
+            ),
         ]),
         E('select', [E('option', codes.length), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
     ]),

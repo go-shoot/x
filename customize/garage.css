@@ -1,3 +1,24 @@
+button {
+    background: var(--theme); color: var(--overlay1);
+    padding: 0 .5rem;
+    border-radius: 9em;
+
+    &[popovertarget] {grid-area: 1/4;}
+}
+main>details {
+    summary {
+        &::before {content: '▶';}
+        &::after  {content: '◀';}
+        &.loading span,&.loading::before {display: none;}
+    }
+    &[open] summary::before,&[open] summary::after {content: '▼';}
+
+    ul {
+        text-align: left; font-size: .8em;
+        padding: 0 0.5em 0 2em;
+        line-height: 1.4;
+    }
+}
 h2 {
     display: block;
     text-align: left;
@@ -80,8 +101,8 @@ select,::picker(select) {
     left: anchor(center); transform: translateX(-50%);
 }
 select {
-    gap: .2em; padding: 0 .5em;
-    line-height: 1.5;
+    gap: .2em; align-items: center;
+    padding: 0 .5em;
     font-size: .8em;
     cursor: pointer;
     background: gray; color: var(--theme);
@@ -101,4 +122,11 @@ select {
         &:last-child {padding-bottom: .25em;}
         &:not([value]),&::checkmark {display: none;}
     }
+}
+dialog textarea {
+    display: block;
+    width: 90%; height: 80vh;
+    font-size: 1em;
+    outline: none;
+    margin: 1em auto;
 }

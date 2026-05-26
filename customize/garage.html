@@ -10,26 +10,20 @@
             <label>A<input name=lang type=radio value=eng></label>
             <label>ア<input name=lang type=radio value=jap></label>
         </fieldset>
-        <button>組裝</button>
-        <button>AI prompt</button>
+        <button hidden>組裝</button>
+        <button popovertarget="prompt" type="button">AI prompt</button>
     </form>
 </nav>
 <main>
     <details>
         <summary>提示</summary>
         <ul class="default">
-            <li>請到商品頁</li>
-            <li>右邊是圖層操作，每一圖層只可加入一張圖片</li>
-            <li>雙點擊圖層進入開啓／關閉Solo模式</li>
-            <li>把旋鈕向上或下拉動以操作</li>
-            <li>開啓微調後，旋鈕轉速會變慢</li>
-            <li>雙點擊旋鈕以重設／調節至特殊値（先轉動至不同位置後再雙擊會有不同結果）</li>
-            <li>輸出JSON後可作自己的儲存或與他人分享</li>
-            <li>在輸出PDF旁的欄填入每個專案想列印的張數，321030表示專案#1三張、專案#2兩張等（只限0到9）
-            <li>此工具不是圖像編輯器，而是把已預備好的材料堆疊</li>
+            <li>請以<a href="../products/">［商品頁］</a>的 &#xe045; 以選取（如未有出現，重新再進入即可）</li>
+            <li>點擊表格以 ± 整顆陀螺；按住半秒以 ± 單組件</li>
+            <li>［庫存］所選取的能在本頁查看；［標記］僅在商品頁表格有標示，供你日後參考用</li>
         </ul>
     </details>
-<a href="../parts/?blade=CX#chip"></a>
+    <a href="../parts/?blade=CX#chip"></a>
     <a href="../parts/?blade=CX#over"></a>
     <a href="../parts/?blade=CX#metal"></a>
     <a href="../parts/?blade=CX#main"></a>
@@ -39,12 +33,21 @@
     <a href="../parts/?ratchet"></a>
     <a href="../parts/?bit"></a>
 </main>
+<dialog id="prompt" popover="auto">
+    <button id="copy">&#xe038; 複製</button>
+    <textarea></textarea>
+    <p hidden>
+以下是我擁有的Beyblade X組件，請參考如https://www.bbxweekly.com/、Tier list或玩家社區的資訊，替我組合出最強的三顆陀螺，每款組件只能出現一次。
+請留意CX blade需以三層結構Lock Chip+Main Blade+Assist Blade或四層結構Lock Chip+Over Blade+Metal Blade+Assist Blade方式組裝。
+而且部分Blade或Bit可能是Ratchet一體型(Ratchet-integrated)，並不能加上Ratchet；還有部分Blade如ClockMirage只能配搭上Simple ratchet，請查詢清楚，確保現實上能組裝。
+    </p>
+</dialog>
 
 <script type="module">
     import DB from '../include/DB.js';
     import Garage from './garage.js';
     Q('main').prepend(DB().then(Garage));
 </script>
-<script src=https://aeoq.github.io/diamond-grid/script.js type=module></script>
+<script src="https://aeoq.github.io/diamond-grid/script.js" type="module"></script>
 <link rel="stylesheet" href="../parts/part.css">
 <link rel="stylesheet" href="../prizes/prize.css">
