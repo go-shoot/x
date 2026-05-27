@@ -98,6 +98,7 @@ select {
     background: gray; color: var(--theme);
     border-radius: 0 0 .3em .3em;
     transform: translateY(-.2em);
+    max-width: 3.5em; /*ios*/
 
     option {
         display: block;
