@@ -149,7 +149,7 @@ class Search {
             ev.target.matches('ol.history *') && new Search(ev.target.innerText);
             ev.target.matches('ol:not(.history) *') && Search.history.add(Search.query);
             ev.target.matches('ol.preview button') && (ev.target.dataset.path ?
-                new Preview(['tile', 'cell'], {path: ev.target.dataset.path.split(',')}, ev) : 
+                new Preview(['cell', 'tile'], {path: ev.target.dataset.path.split(',')}, ev) : 
                 new Preview(['cell', 'image'], {code: ev.target.innerText}, ev)
             );
             ev.target.matches('ol.links button') && ev.target.parentElement.bey.preview(ev);
