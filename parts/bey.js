@@ -144,7 +144,7 @@ class Search {
         )]),
         match: (target, {abbr, names = {}}) => Array.isArray(target) ?
             target.some(t => this.#search.match(t, {abbr, names})) :
-            target.toLowerCase() == abbr.toLowerCase() ||
+            new RegExp(target, 'i').test(abbr) ||
             !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.remove(n))),
         code: (target, code) => Array.isArray(target) ?
             target.some(t => this.#search.code(t, code)) : 

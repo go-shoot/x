@@ -19,41 +19,33 @@ main>details {
         line-height: 1.4;
     }
 }
-h2 {
-    display: block;
-    text-align: left;
-    margin: .25em .5em;
-
-    a[href*='#']::before {
-        content: '';
-        display: inline-block; width: 3em; height: 2em;
-        background: var(--img-line) center / contain;
-        margin-right: .2em;
-    }
-    a:not([title])::after {
-        width: 3em; 
-        vertical-align: -.4em;
-    }
-    a[title]::after {
-        content: attr(title); text-transform: uppercase;
-        font-size: 1.5em;
-        vertical-align: super;
-    }
-    &:has(a[title]) {margin-bottom: .5em;}
-}
 section {
     margin-bottom: 1em;
 
+    h2 a {
+        display: flex; align-items: center; gap: .2rem;
+        margin: .25rem .5rem;
+    
+        &[href*='#']::before {
+            content: '';
+            width: 3rem; height: 2rem;
+            background: var(--img-line) center / contain;
+        }
+        &:empty::after {width: 3rem;}
+        &:not(:empty) {
+            font-size: 1.25em;
+            margin-bottom: .5rem;
+        }
+    }
     ol {
         background: var(--overlay2);
         padding: .2rem !important;
         display: flex; flex-wrap: wrap; gap: .3em;
         min-height: 4em;
-        
-        >ol:empty+details:has(ol:empty) {display: none;}
     }
     li {
         &:has(details) {align-self: center;}
+        &:first-child:has(details) {margin-left: .25em;}
         &:has(details:not([open]))~li {display: none;}
     }
     summary {
@@ -80,7 +72,6 @@ main figure {
         b {
             grid-area: 3/1/4/4; justify-self: center; align-self: end;
             font-size: .65em; font-weight: bold;
-            text-align: center;
             line-height: 1;
             color: var(--theme);
 
@@ -97,7 +88,6 @@ select,::picker(select) {
 }
 ::picker(select) {
     border-radius: .3em;
-    margin-top: .25em;
     left: anchor(center); transform: translateX(-50%);
 }
 select {
@@ -113,20 +103,18 @@ select {
         display: block;
         background: var(--dark); color: var(--on);
         font-size: .9em;
+        line-height: 1.8em;
 
+        &:not([value]),&::checkmark {display: none;}
         sub {
             line-height: 0;;
             margin-left: .1em;
         }
-        &:nth-child(2) {padding-top: .25em;}
-        &:last-child {padding-bottom: .25em;}
-        &:not([value]),&::checkmark {display: none;}
     }
 }
 dialog textarea {
     display: block;
     width: 90%; height: 80vh;
     font-size: 1em;
-    outline: none;
     margin: 1em auto;
 }

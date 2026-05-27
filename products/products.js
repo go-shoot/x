@@ -103,10 +103,11 @@ Object.assign(Table, {
     },
     copy (ev, mode = Q('input[name=mode]:checked').value) {
         let csv = Q(`tr:has(.${mode})`, []).map(tr => [
+            /^.X$/.test(tr.classList[0]) ? tr.classList[0] : '(不適用)',
             tr.matches('.RB') ? tr.id : tr.id.split('_')[0], 
             ...tr.Q('[headers]').flatMap(td => [
-                td.matches(`.${mode}`) ? td.innerText : '', 
-                ...[...Array((Table.copy.span[td.headers] ?? 1) - 1)].map(_ => '')
+                td.matches(`.${mode}`) ? td.innerText : td.title ? '(未入手)' : '(不適用)', 
+                ...[...Array((Table.copy.span[td.headers] ?? 1) - 1)].map(_ => '(不適用)')
             ])
         ].join('\t')).join('\n');
         navigator.clipboard.writeText(csv).then(() => {

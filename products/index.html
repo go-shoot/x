@@ -84,4 +84,5 @@
 import DB from '../include/DB.js';
 import Table from './products.js';
 Q('.stretch').after(DB().then(Table));
+location.hash=='#t' && (Q('nav [hidden]').hidden=false);
 </script>
