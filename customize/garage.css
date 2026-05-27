@@ -100,6 +100,7 @@ select {
     border-radius: 0 0 .3em .3em;
     transform: translateY(-.2em);
 
+    &:focus {outline: none;}
     option {
         display: block;
         background: var(--dark); color: var(--on);
