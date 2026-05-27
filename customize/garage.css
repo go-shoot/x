@@ -98,7 +98,7 @@ select {
     background: gray; color: var(--theme);
     border-radius: 0 0 .3em .3em;
     transform: translateY(-.2em);
-    max-width: 3.5em; /*ios*/
+    max-width: 3em; outline: none; /*ios*/
 
     option {
         display: block;
@@ -106,11 +106,8 @@ select {
         font-size: .9em;
         line-height: 1.8em;
 
-        &:not([value]),&::checkmark {display: none;}
-        sub {
-            line-height: 0;;
-            margin-left: .1em;
-        }
+        &:not([value]), &::checkmark {display: none;}
+        sub {line-height: 0;}
     }
 }
 dialog textarea {

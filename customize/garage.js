@@ -11,6 +11,7 @@ const Garage = () => DB.get.essentials(true)
         return Garage.get('acquired');
     })
     .then(async beys => {
+        if (!Object.keys(beys).length) return Promise.reject();
         Garage.parts = {CX: {}};
         new O(beys).each(([code, obj]) => Garage.comps.forEach(c => {
             if (!obj[c]) return;
@@ -37,6 +38,7 @@ const Garage = () => DB.get.essentials(true)
             let bey = beys.get(option.value);
             bey && (option.classList = bey[0]);
             option.matches('.Lm') && (option.title = bey[1]);
+            option.matches('.RB') ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
         });
     });
 Object.assign(Garage, {
@@ -77,10 +79,11 @@ Object.assign(Garage, {
     },
     inferior: {
         CX: {
-            over: P => P.weight < 3, metal: P => P.weight < 28, 
-            chip: P => P.weight < 2, main: P => P.weight < 31, assist: P => P.weight < 6
+            chip: P => P.weight && P.weight < 2, 
+            over: P => P.weight && P.weight < 3, metal: P => P.weight && P.weight < 28, 
+            main: P => P.weight && P.weight < 31, assist: P => P.weight && P.weight < 6
         },
-        blade: P => P.weight < 35,
+        blade: P => P.weight && P.weight < 35,
         ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
         bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
