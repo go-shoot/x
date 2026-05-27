@@ -22,8 +22,9 @@ main>details {
 section {
     margin-bottom: 1em;
 
+    h2 {display: block; text-align: left;}
     h2 a {
-        display: flex; align-items: center; gap: .2rem;
+        display: inline-flex; align-items: center; gap: .2rem;
         margin: .25rem .5rem;
     
         &[href*='#']::before {
@@ -98,7 +99,6 @@ select {
     background: gray; color: var(--theme);
     border-radius: 0 0 .3em .3em;
     transform: translateY(-.2em);
-    max-width: 3em; border: none; /*ios*/
 
     option {
         display: block;
@@ -110,6 +110,12 @@ select {
         sub {line-height: 0;}
     }
 }
+@supports (-webkit-appearance: none) and (font: -apple-system-body) {
+    select {
+        appearance: none;
+        max-width: 3em; border: none;
+    }
+  }
 dialog textarea {
     display: block;
     width: 90%; height: 80vh;
