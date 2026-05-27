@@ -54,8 +54,8 @@ const is = {
 const to = {
     random: req => new Request(`${req.url}?${Math.random()}`, req),
     stripped: res => res.url.replace(/[?#].*$/, ''),
-    opaque: req => /takaratomy/.test(req.url) ? {mode: 'no-cors'} : 
-        /aeoq\.github\.io.+\.css$/.test(req.url) ? {mode: 'cors', credentials: 'omit'} : null
+    opaque: req => /takaratomy/.test(req.url) ? {mode: 'no-cors'} :
+        ['fonts.googleapis.com', 'aeoq.github.io'].includes(new URL(req.url).host) ? {credentials: 'omit'} : null
 }
 fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(req))
     .then(res => {
@@ -65,7 +65,7 @@ fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(
         caches.open(is.part(res.url) ? 'X/parts' : is.font(res.url) ? 'X/fonts' : 'X')
         .then(cache => cache.put(to.stripped(res), cloned)); 
         return res;
-    });
+    }).catch(() => '');
 
 const Head = {
     url: '/x/include/head.html',

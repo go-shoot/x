@@ -97,7 +97,7 @@ select {
     font-size: .8em;
     cursor: pointer;
     background: gray; color: var(--theme);
-    border-radius: 0 0 .3em .3em;
+    border-radius: 0 0 .3em .3em; border: none;
     transform: translateY(-.2em);
 
     &:focus {outline: none;}
@@ -111,12 +111,6 @@ select {
         sub {line-height: 0;}
     }
 }
-@supports (-webkit-appearance: none) and (font: -apple-system-body) {
-    select {
-        appearance: none;
-        max-width: 3em; border: none;
-    }
-  }
 dialog textarea {
     display: block;
     width: 90%; height: 80vh;

@@ -10,7 +10,7 @@ class Indicator extends HTMLElement {
         this.total = Storage('DB')?.count || 100;
         this.onclick = () => this.classList == 'error-ex' && location.reload();
         Q('link[href$="common.css"]') && 
-            DB.replace().catch(er => this.error(er, 'db'))
+            DB.replace().catch(er => er == '離線' || this.error(er, 'db'))
             .then(this.callback).catch(er => this.error(er, 'ex')).then(Glossary);
     }
     update (signal) {
@@ -26,13 +26,13 @@ class Indicator extends HTMLElement {
         this.progress > (Storage('DB')?.count ?? 0) && Storage('DB', {count: this.progress});
     }
     error (er, type) {
-        if (er) {
+        if (er && er != '離線') {
             er == 'offline' ? 
                 [er, type] = ['離線', er] : 
                 console.error(er) ?? gtag('event', 'ERROR', {MESSAGE: er.message});
             [this.title, this.classList, this.hidden] = [er, `error-${type}`, false];
         }
-        return Promise.reject();
+        return Promise.reject(er == '離線' ? er : null);
     }
     static #css = new CSSStyleSheet().replace(`
     :host(:not([progress]):not([class]))::before {display: none;}

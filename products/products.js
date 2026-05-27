@@ -84,14 +84,13 @@ Object.assign(Table, {
     select ({tr, td, beys}, mode = Q('input[name=mode]:checked').value) {
         let selectGroup = td => {
             let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
-            return [td, td.headers && sibling.headers ? null : sibling].forEach(td => td?.classList.toggle(mode));
+            [td, td.headers && sibling.headers ? null : sibling].forEach(td => td?.classList.toggle(mode));
         }
-        if (beys) 
-            return new O(beys).each(([code, parts]) => {
-                let tr = Table.body.Q(`tr[id='${code}']`);
-                new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][title='${abbr}']`)));
-            });
-        if (!Q('#garage:checked')) return;
+        beys && new O(beys).each(([code, parts]) => {
+            let tr = Table.body.Q(`tr[id='${code}']`);
+            new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][title='${abbr}']`)));
+        });
+        if (!Q('#garage:checked') || tr.id.includes('?')) return;
         if (tr) {
             tr[mode] = !(tr[mode] ?? false);
             tr.childNodes.forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 

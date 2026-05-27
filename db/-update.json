@@ -5,14 +5,10 @@
   "part-blade-collab": "2026/05/16 14:20:00",
   "part-blade-divided":"2026/05/16 00:10:00",
   "prod-gear":         "2026/05/16 00:10:00",
-  "prod-beys":         "2026/05/13 00:14:00",
-  "prod-keihin":       "2026/05/12 23:55:00",
+  "prod-beys":         "2026/05/27 23:35:00",
+  "prod-keihin":       "2026/05/27 23:35:00",
   "part-ratchet":      "2026/03/28 20:31:00",
   "news": {
-    "2026-05-16":[{
-      "code":"BX-49 starter","name":["ドランストライク4-50FF","Dran Strike 4-50FF"],"type":"att",
-      "desc":["以金屬連繫中央，提高剛性，作連續攻擊"]
-      }],
     "2026-05-30":[{
       "code":"BXG-51 booster","bey":"Dr.Br.S 6-60 V","ver":["メタルコート:ブラック","Metal Coat: Black"]
     }],
