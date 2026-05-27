@@ -98,7 +98,7 @@ select {
     background: gray; color: var(--theme);
     border-radius: 0 0 .3em .3em;
     transform: translateY(-.2em);
-    max-width: 3em; outline: none; /*ios*/
+    max-width: 3em; border: none; /*ios*/
 
     option {
         display: block;

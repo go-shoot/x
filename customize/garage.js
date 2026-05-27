@@ -32,7 +32,7 @@ const Garage = () => DB.get.essentials(true)
         return DB.get('product', 'beys');
     })
     .then(beys => {
-        Q(`input[name=lang][value=${Storage('pref').lang || 'hk'}]`).click();
+        Q(`input[name=lang][value=${Storage('pref')?.lang || 'hk'}]`).click();
         beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
         Q('option[value]', option => {
             let bey = beys.get(option.value);
