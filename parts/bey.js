@@ -174,17 +174,17 @@ class Search {
     static #or = abbrs => abbrs?.length ? `(?:${[abbrs].flat().filter(a => typeof a == 'string').join('|')})` : '[^.]+?'
 }
 class Preview {
-    constructor(kind, what, ev) {
+    constructor(kind, query, ev) {
         ev && Transition.popover('show', ev, Preview.dialog);
-        if (Array.isArray(what)) 
-            return what.forEach(s => new Preview(kind, s));
-        let {type, code, bey, path} = what;
+        if (Array.isArray(query)) 
+            return query.forEach(q => new Preview(kind, q));
+        let {type, code, bey, path} = query;
         if (kind == 'news')
             return [
                 ...this.#image.src('main', code),
                 ...this.#image.src('more', code, '', this.#image.params(code, type).amount),
             ];
-        [kind].flat().reduce((prom, w) => prom.then(() => this[w]({code, bey, path})), Promise.resolve())
+        return [kind].flat().reduce((pr, w) => pr.then(() => this[w]({code, bey, path})), Promise.resolve())
         .then(() => Glossary(Preview.dialog));
     }
     cell = ({path, code}) => new Search(code?.split('_')[0] || path).then(({beys, href}) => Q('#cells').append(

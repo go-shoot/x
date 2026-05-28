@@ -171,9 +171,8 @@ nav:has(#garage:checked)+main table {
 tr {
     cursor: pointer;
 }
-nav:has(#garage:checked)+main td {
-    &.acquired {background: var(--on) !important; color: var(--backdrop);}
-    &.marked {outline: .1em solid yellow; outline-offset: -.2em;}
+nav:has(#garage:checked)+main .marked {
+    outline: .1em solid yellow; outline-offset: -.2em;
 }
 th:not(:has(input:checked))::before {
     text-shadow: none;

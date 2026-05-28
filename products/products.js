@@ -82,20 +82,18 @@ Object.assign(Table, {
         Links.div.title = '';
     },
     select ({tr, td, beys}, mode = Q('input[name=mode]:checked').value) {
-        let selectGroup = td => {
-            let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
-            [td, td.headers && sibling.headers ? null : sibling].forEach(td => td?.classList.toggle(mode));
-        }
         beys && new O(beys).each(([code, parts]) => {
             let tr = Table.body.Q(`tr[id='${code}']`);
-            new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][title='${abbr}']`)));
+            new O(parts).each(([headers, abbr]) => 
+                Cell.group(tr.Q(`[headers='${headers}'][title='${abbr}']`), td => td?.classList.toggle(mode))
+            );
         });
         if (!Q('#garage:checked') || (tr ?? td?.parentElement)?.id.includes('?')) return;
         if (tr) {
             tr[mode] = !(tr[mode] ?? false);
             tr.childNodes.forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 
         } else {
-            selectGroup(td);
+            Cell.group(td, td => td?.classList.toggle(mode));
             tr = td.closest('tr');
         }
         Garage.put(mode, tr.id, [...tr.children].reduce((obj, td) => td.matches(`[title].${mode}`) ? {...obj, [td.headers]: td.title} : obj, {}));

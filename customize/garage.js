@@ -1,5 +1,5 @@
 import DB from '../include/DB.js'
-import { Part, Tile } from '../parts/part.js';
+import { Part, Tile, Cell } from '../parts/part.js';
 import { Markup } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
 
@@ -66,16 +66,17 @@ Object.assign(Garage, {
             Q('option[value]', option => {
                 let bey = beys.get(option.value);
                 bey && (option.classList = bey[0]);
-                bey?.[0] == 'Lm' && (option.title = bey[1]);
-                bey?.[0] == 'RB' ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
+                option.matches('.Lm') && (option.title = bey[1]);
+                option.matches('.RB') ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
             });
         });
     },
 
     sort: {
         blade: ([P1], [P2]) => P2.weight - P1.weight,
-        ratchet: ([P1], [P2]) => parseInt(P1.abbr) - parseInt(P2.abbr),
-        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 0
+        ratchet: ([P1], [P2]) => parseInt(P1.abbr.replace('-', '')) - parseInt(P2.abbr.replace('-', '')),
+        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 
+            P1.abbr > P2.abbr ? 1 : -1
     },
     inferior: {
         CX: {
@@ -89,16 +90,17 @@ Object.assign(Garage, {
     },
     events () {
         E(Q('main')).set({
-            onclick: ev => {
+            async onclick (ev) {
                 let path = ev.target.closest('figure')?.firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-                path && new Preview(['cell', 'tile'], {path}, ev);
+                path && new Preview(['cell', 'tile'], {path}, ev).then(() => Garage.mark(ev.target));
             },
-            onchange: ev => {
-                let option = ev.target.options[ev.target.selectedIndex];
-                option.matches('.Lm') ?
-                    new Preview(['cell', 'diamond'], {code: ev.target.value, bey: option.title}, ev) :
-                    new Preview(['cell', 'image'], {code: ev.target.value.split('_')[0]}, ev);
+            async onchange (ev) {
+                let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
                 ev.target.firstChild.selected = true;
+                await (option.matches('.Lm') ?
+                    new Preview(['cell', 'diamond'], {code, bey: option.title}, ev) :
+                    new Preview(['cell', 'image'], {code: code.split('_')[0]}, ev));
+                Garage.mark(ev.target);
             }
         });
         Q('nav form').onchange = ev => Storage('pref', {lang: ev.target.value}) && Garage.lang(ev.target.value);
@@ -125,6 +127,12 @@ Object.assign(Garage, {
             section.Q('a').innerText = name;
         });
         Garage.prompt();
+    },
+    mark (target) {
+        let comp = target.closest('section').id.split('#')[0];
+        target.closest('li').Q('option[value]', []).forEach(({value}) => 
+            Cell.group(Q(`tr[id='${value}'] [headers=${comp}]`), td => td?.classList.add('acquired'))
+        );
     },
     prompt: () => Q('textarea').value = 
         Q('p[hidden]').textContent + Q('section', []).map(section => Part.names[section.id.split('#')[0]].eng + '：' + 

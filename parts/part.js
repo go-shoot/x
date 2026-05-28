@@ -242,6 +242,10 @@ class Cell {
         let next = td.nextElementSibling;
         (next.headers ? td : next).replaceChildren(...names[lang]?.length >= limit ? [E('small', name)] : name);
     });
+    static group = (td, action) => {
+        let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
+        return [td, td.headers && sibling.headers ? null : sibling].forEach(action);
+    }
     static #limit = {jap: new O({bit: 7})};
     static colSpan = {blade: path => !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : ''}
 }
