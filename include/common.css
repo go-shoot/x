@@ -139,6 +139,7 @@ x-part { /*initial style before part.css*/
 a[href^='/x/products/']::before {content: '';}
 a[href^='/x/prizes/']::before {content: '';}
 a[href^='/x/parts/']::before {content: '';}
+a[href*='garage.html']::before {content: '';}
 img[src*='lines.svg'][src$=X] {aspect-ratio: 1.485;}
 
 @view-transition {navigation: auto;}

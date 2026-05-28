@@ -90,7 +90,7 @@ Object.assign(Table, {
             let tr = Table.body.Q(`tr[id='${code}']`);
             new O(parts).each(([headers, abbr]) => selectGroup(tr.Q(`[headers='${headers}'][title='${abbr}']`)));
         });
-        if (!Q('#garage:checked') || tr.id.includes('?')) return;
+        if (!Q('#garage:checked') || (tr ?? td?.parentElement)?.id.includes('?')) return;
         if (tr) {
             tr[mode] = !(tr[mode] ?? false);
             tr.childNodes.forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 

@@ -2,8 +2,13 @@ https://go-shoot.github.io/x/
 https://go-shoot.github.io/x/products/
 https://go-shoot.github.io/x/products/gear.html?launchers
 https://go-shoot.github.io/x/products/gear.html?others
-https://go-shoot.github.io/x/parts/?blade
-https://go-shoot.github.io/x/parts/?blade=CX
+https://go-shoot.github.io/x/parts/?blade#BX
+https://go-shoot.github.io/x/parts/?blade#UX
+https://go-shoot.github.io/x/parts/?blade=CX#chip
+https://go-shoot.github.io/x/parts/?blade=CX#main
+https://go-shoot.github.io/x/parts/?blade=CX#over
+https://go-shoot.github.io/x/parts/?blade=CX#metal
+https://go-shoot.github.io/x/parts/?blade=CX#assist
 https://go-shoot.github.io/x/parts/?ratchet
 https://go-shoot.github.io/x/parts/?bit
 https://go-shoot.github.io/x/prizes/

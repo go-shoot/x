@@ -4,74 +4,72 @@ import { Markup } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
 
 let PARTS;
-const Garage = () => DB.get.essentials(true)
-    .then(([meta, parts]) => {
+const Garage = () => Garage.before().then(Garage.display).then(Garage.after);
+Object.assign(Garage, {
+    get: mode => DB.get('user', mode).then(beys => Garage[mode] = beys || {}),
+    put: (mode, code, content) => (Garage[mode][code] = content) && DB.put('user', {[mode]: Garage[mode]}),
+
+    async before () {
+        let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]);
+        if (!Object.keys(acquired).length) return Promise.reject();
+        let [hrefs, [meta, parts]] = await Promise.all([resp.text(), DB.get.essentials(true)]);
         PARTS = Part.import(meta, parts).parts;
-        Garage.comps = new Set([...[...Part.Blade.sub.map(([line, obj]) => obj.values())].flat(9), ...Bey.comps]);
-        return Garage.get('acquired');
-    })
-    .then(async beys => {
-        if (!Object.keys(beys).length) return Promise.reject();
-        Garage.parts = {CX: {}};
-        new O(beys).each(([code, obj]) => Garage.comps.forEach(c => {
-            if (!obj[c]) return;
-            let [map, P] = Bey.comps.includes(c) ? 
-                [Garage.parts[c] ??= new Map(), PARTS[c][obj[c]]] : 
-                [Garage.parts.CX[c] ??= new Map(), PARTS.blade.CX[c][obj[c]]];
-            map.get(P)?.push(code) ?? map.set(P, [code]);
+        
+        return new Map(hrefs.split('\n').filter(href => href.includes('parts')).map(href => {
+            let {hash, search} = new URL(href);
+            search = [...new URLSearchParams(search)][0];
+            let [comp, map] = [search[1] ? hash.substring(1) : search[0], new Map()];
+            Object.entries(acquired).forEach(([code, obj]) => {
+                if (!obj[comp]) return;
+                let P = Bey.comps.includes(comp) ? PARTS[comp][obj[comp]] : PARTS.blade.CX[comp][obj[comp]];
+                map.get(P)?.push(code) ?? map.set(P, [code]);
+            });
+            return [comp, map];
         }));
-        return Promise.all([...Garage.comps].map(comp => Garage.list(comp)))
-    })
-    .then(sections => {
-        Q('main').append(...sections.flat());
+    },
+    async display (acquired) {
+        let sortGroupShow = (comp, map, section) => {
+            let sorter = Garage.sort[comp] ?? Garage.sort.blade;
+            let grouper = ([P]) => Bey.comps.includes(comp) ? Garage.inferior[comp](P) : Garage.inferior.CX[comp](P);
+            let parts = Object.groupBy((Array.isArray(map) ? map : [...map ?? []]).sort(sorter), grouper);
+            new O({false: 'before', true: 'after'}).each(([type, posi]) => 
+                section.Q('li:has(details)')[posi](...parts[type]?.map(([P, codes]) => Garage.element.li(P, codes)) ?? [])
+            );
+            section.Q('summary').replaceChildren(...Garage.element.summary(comp, parts.true?.length));
+        };
+        [...acquired].forEach(async ([comp, map]) => {
+            let section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
+            if (comp == 'blade') {
+                let UX = Object.groupBy([...map], ([P]) => P.group == 'UX');
+                sortGroupShow(comp, UX.true, section[0]);
+                sortGroupShow(comp, UX.false, section[1]);
+            } else {
+                comp == 'bit' && (map = await Promise.all(
+                    [...map].map(async ([P, _]) => [P.attr.size ? P : await P.revise('tile'), _])
+                ));
+                sortGroupShow(comp, map, section);
+            }
+            Q('main').append(...[section].flat());
+        });
+    },
+    after () {
         Garage.events();
         Q('h2 a', a => {
             a.classList = a.search.substring(1).split('=')[0];
             a.hash && !/.X$/.test(a.hash) && (a.innerText = a.hash);
         });
-        return DB.get('product', 'beys');
-    })
-    .then(beys => {
-        Q(`input[name=lang][value=${Storage('pref')?.lang || 'hk'}]`).click();
-        beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
-        Q('option[value]', option => {
-            let bey = beys.get(option.value);
-            bey && (option.classList = bey[0]);
-            option.matches('.Lm') && (option.title = bey[1]);
-            option.matches('.RB') ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
+        Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
+        DB.get('product', 'beys').then(beys => {
+            beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
+            Q('option[value]', option => {
+                let bey = beys.get(option.value);
+                bey && (option.classList = bey[0]);
+                bey?.[0] == 'Lm' && (option.title = bey[1]);
+                bey?.[0] == 'RB' ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
+            });
         });
-    });
-Object.assign(Garage, {
-    get: mode => DB.get('user', mode).then(beys => Garage[mode] = beys || {}),
-    put (mode, code, content) {
-        Garage[mode][code] = content;
-        DB.put('user', {[mode]: Garage[mode]});
     },
-    sortGroupAppend: (map, comp, section) => {
-        let sorter = Garage.sort[comp] ?? Garage.sort.blade;
-        let grouper = ([P]) => Bey.comps.includes(comp) ? Garage.inferior[comp](P) : Garage.inferior.CX[comp](P);
-        let parts = Object.groupBy((Array.isArray(map) ? map : [...map ?? []]).sort(sorter), grouper);
-        new O({false: 'before', true: 'after'}).each(([type, posi]) => 
-            section.Q('li:has(details)')[posi](...parts[type]?.map(([P, codes]) => Garage.element.li(P, codes)) ?? [])
-        );
-        section.Q('summary').replaceChildren(...Garage.element.summary(comp, parts.true?.length));
-    },
-    list: async comp => {
-        let section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
-        if (comp == 'blade') {
-            let UX = Object.groupBy([...Garage.parts[comp]].sort(Garage.sort[comp]), ([P]) => P.group == 'UX');
-            Garage.sortGroupAppend(UX.true, 'blade', section[0]);
-            Garage.sortGroupAppend(UX.false, 'blade', section[1]);
-        } else if (['ratchet', 'bit'].includes(comp)) {
-            comp == 'bit' && (Garage.parts[comp] = await Promise.all(
-                [...Garage.parts[comp]].map(async ([P, _]) => [P.attr.size ? P : await P.revise('tile'), _])
-            ));
-            Garage.sortGroupAppend(Garage.parts[comp], comp, section);
-        } else {
-            Garage.sortGroupAppend(Garage.parts.CX[comp], comp, section);
-        }
-        return section;
-    },
+
     sort: {
         blade: ([P1], [P2]) => P2.weight - P1.weight,
         ratchet: ([P1], [P2]) => parseInt(P1.abbr) - parseInt(P2.abbr),
@@ -87,7 +85,7 @@ Object.assign(Garage, {
         ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
         bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
-    events: () => {
+    events () {
         E(Q('main')).set({
             onclick: ev => {
                 let path = ev.target.closest('figure')?.firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
