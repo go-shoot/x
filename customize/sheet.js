@@ -1,7 +1,9 @@
 import DB from '../include/DB.js'
 import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
+
+navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
-const MAIN = {con: Q('canvas').getContext('2d', { alpha: false })};
+const MAIN = {con: Q('canvas').getContext('2d', {alpha: false})};
 const App = () => {
     App.loading(true);
     Controls.show(null);

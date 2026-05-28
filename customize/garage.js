@@ -3,6 +3,7 @@ import { Part, Tile } from '../parts/part.js';
 import { Markup } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
 
+navigator.storage.persist();
 let PARTS;
 const Garage = () => Garage.before().then(Garage.display).then(Garage.after);
 Object.assign(Garage, {
@@ -16,6 +17,7 @@ Object.assign(Garage, {
         PARTS = Part.import(meta, parts).parts;
         
         return new Map(hrefs.split('\n').filter(href => href.includes('parts')).map(href => {
+            Q('main').append(E('a', {href}));
             let {hash, search} = new URL(href);
             search = [...new URLSearchParams(search)][0];
             let [comp, map] = [search[1] ? hash.substring(1) : search[0], new Map()];
