@@ -65,7 +65,7 @@ details {
     summary {
         &::before {content: '▶';}
         &::after  {content: '◀';}
-        &.loading span,&.loading::before {display: none;}
+        &.loading::before {display: none;}
     }
     &[open] summary::before,&[open] summary::after {content: '▼';}
 
@@ -89,14 +89,22 @@ form {
     display: grid; grid-template: repeat(3,auto) 1fr / 1fr auto;
     margin: 0 .2em;
 
-    >:not(#control-image) {padding-top: .5rem;}
-    #type {
-        display: flex; justify-content: center; align-items: center; gap: 1em;
+    >:not(#control-image,#type) {padding-top: .5rem;}
+    .dual {
+        grid-area: 2/1; justify-self: center;
+        color: var(--theme);
+        display: flex;
+        padding: 1rem 0; margin-top: .5rem;
         
-        button {
-            font-size: 2em; color: var(--theme);
-            width: 1em;
+        #control-image & {grid-area: 1/1/2/4;}
+        :not(input) {
+            width: 6rem; height: 4rem;
+            display: flex; align-items: center; justify-content: center;
         }
+        &#type button {font-size: 2em;}
+        #control-image & * {font-size: 1rem !important;}
+        :first-child {border-right: .05rem solid;}
+        :last-child {border-left: .05rem solid;}
     }
     #layer {
         grid-area: 1/2/-1/3;
@@ -124,7 +132,7 @@ form {
                 all: unset; line-height: 1.8em;
             }
             &[data-type=image]:not(:has(img[src]))::before {content: '';}
-            &[data-type=color]:not([style])::before {content: '';}
+            &[data-type=color]:not([style])::before {content: '';}
 
             &:has(img[src]) {display: flex;}
             &:has(input:checked) {
@@ -153,23 +161,6 @@ form {
         border-bottom: .2em solid; padding-bottom: .75em;
         display: grid; grid-template-columns: repeat(3,auto); gap: .3em .5em; justify-content: center;
     }
-    #control-image {
-        div {
-            grid-area: 1/1/2/4; justify-self: center;
-            border-radius: .5rem; border: .15rem solid;
-            color: var(--theme);
-            display: flex;
-            padding: 1em 0; margin-top: .5em;
-
-            :not(input) {
-                width: 6em; height: 4em;
-                font-size: 1rem !important;
-                display: flex; align-items: center; justify-content: center;
-            }
-            label {border-right: .05em solid;}
-            button {border-left: .05em solid;}
-        }
-    }
     #control-color {
         div {
             grid-area: 1/1/2/4;
@@ -187,7 +178,7 @@ form {
         label:has(input[value])::after {
             content: '';
             display: block; width: 1.5em; height: 1.5em;
-            margin: auto;
+            margin: .1em auto 0 auto;
         }
         label:has(input[value=Linear])::after {
             background: linear-gradient(var(--theme),var(--theme-dark));

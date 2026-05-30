@@ -375,6 +375,19 @@
             "stat": ["29="],
             "attr": ["sta","right"],
             "from": "main.Fl"
+        },
+        "Hr": {
+            "names": {"jap":"ハリケーン", "eng":"Hurricane"},
+            "stat": [""],
+            "attr": ["bal","right"],
+            "from": "metal."
+        },
+        "I": {
+            "names": {"jap":"", "eng":""},
+            "stat": [""],
+            "desc": "",
+            "attr": ["bal","right"],
+            "from": "over."
         }
     }
 }}

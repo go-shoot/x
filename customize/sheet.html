@@ -42,11 +42,10 @@
                 <li>此工具不是圖像編輯器，而是把已預備好的材料堆疊</li>
             </ul>
         </details>
-        <fieldset id="type">
+        <div id="type" class="dual">
             <button class="type" id="image">&#xe03a;</button>
-            <span>&#xe041; 選擇 &#xe042;</span>
             <button class="type" id="color"></button>
-        </fieldset>
+        </div>
         <fieldset id="layer">
             <div>
                 <button id="create">&#xe013;</button>
@@ -57,7 +56,7 @@
             <div id="layers"></div>
         </fieldset>
         <fieldset id="control-image">
-            <div>
+            <div class="dual">
                 <label>上載<input type="file" accept="image/*" ></label>
                 <button popovertarget="picker">圖片庫</button>
             </div>

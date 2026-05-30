@@ -91,7 +91,7 @@ Object.assign(Table, {
         if (!Q('#garage:checked') || (tr ?? td?.parentElement)?.id.includes('?')) return;
         if (tr) {
             tr[mode] = !(tr[mode] ?? false);
-            tr.childNodes.forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 
+            [...tr.children].forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 
         } else {
             Cell.group(td, td => td?.classList.toggle(mode));
             tr = td.closest('tr');
@@ -100,13 +100,10 @@ Object.assign(Table, {
     },
     copy (ev, mode = Q('input[name=mode]:checked').value) {
         let csv = Q(`tr:has(.${mode})`, []).map(tr => [
-            /^.X$/.test(tr.classList[0]) ? tr.classList[0] : '(不適用)',
+            /^.X$/.test(tr.classList[0]) ? tr.classList[0] : '-',
             tr.matches('.RB') ? tr.id : tr.id.split('_')[0], 
-            ...tr.Q('[headers]').flatMap(td => [
-                td.matches(`.${mode}`) ? td.innerText : td.title ? '(未入手)' : '(不適用)', 
-                ...[...Array((Table.copy.span[td.headers] ?? 1) - 1)].map(_ => '(不適用)')
-            ])
-        ].join('\t')).join('\n');
+            ...[...tr.childNodes].flatMap(td => Table.copy.cell(td, mode))
+        ].filter(t => t).join('\t')).join('\n');
         navigator.clipboard.writeText(csv).then(() => {
             let original = ev.target.innerHTML;
             ev.target.innerHTML = csv ? '&#xe014;' : '（空白）';
@@ -114,6 +111,15 @@ Object.assign(Table, {
         });
     }
 });
+Table.copy.cell = (td, mode) => {
+    if (td instanceof Text) return ['⇤'];
+    if (!td.headers) return [''];
+    let fusion = Array((Table.copy.span[td.headers] ?? 1) - 1).fill('⇥');
+    if (!td.title) return ['-', ...fusion];
+    if (!td.classList.contains(mode)) return ['(未標記)', ...fusion];
+    let [names, i] = [td.innerText.split('⬧'), ['hk','tw'].indexOf(Storage('pref')?.lang)];
+    return [i >= 0 ? names[i] || names[0] : td.innerText, ...fusion];
+}
 Table.copy.span = {main: 2, blade: 4}
 
 const Links = {

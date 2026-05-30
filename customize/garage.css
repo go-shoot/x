@@ -74,13 +74,16 @@ main figure {
             grid-area: 3/1/4/4; justify-self: center; align-self: end;
             font-size: .65em; font-weight: bold;
             line-height: 1;
-            color: var(--theme);
+            color: var(--theme); text-shadow: 0 0 .5em black;
 
             &:is([lang=hk],[lang=tw],:not([lang])) {
                 font-size: .85em;
                 white-space: nowrap;
             }
         }
+    }
+    &[class] {
+        border-top: .2em solid var(--tier,gray);
     }
 }
 select,::picker(select) {
@@ -96,11 +99,22 @@ select {
     padding: 0 .5em;
     font-size: .8em;
     cursor: pointer;
-    background: gray; color: var(--theme);
-    border-radius: 0 0 .3em .3em; border: none;
-    transform: translateY(-.2em);
-    max-width: 3em;
+    color: var(--theme);
+    border: none;
+    max-width: 3.5em;
 
+    &[name=acquired] {
+        border-radius: 0 0 .3em .3em;
+        transform: translateY(-.2em);
+        background: gray; 
+    }
+    &[name=tier] {
+        border-radius: .3em .3em 0 0;
+        transform: translateY(.2em);
+        background: var(--tier,gray);
+        text-align: center;
+    }
+    &[name=tier]:has(+figure:not([class])) {display: none;}
     &:focus {outline: none;}
     option {
         display: block;

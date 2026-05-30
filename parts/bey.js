@@ -19,7 +19,7 @@ class Bey {
     }
     abbr = {to: {parts: abbr => {
         abbr = new O(abbr.split(' ').map((a, i) => [Bey.comps[i], a]));
-        ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp]);
+        ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp](abbr[comp] == '=' ? {fused: true} : {}));
         
         let line = Blade.sub.find(([, {delim}]) => (abbr.blade = abbr.blade.split(delim)).length > 1)?.[0];
         if (abbr.blade.length > 1) {
@@ -266,10 +266,10 @@ class Preview {
         }
     }, [E('div#cells'), E('div#tiles'), E('div#images'), E('diamond-grid')]));
     static thead = E('thead>tr', [
-        E('th', {title: 'CODE'}), 
-        E('th.blade', {title: 'BLADE', colSpan: 6}),
-        E('th.ratchet', {title: 'RATCHET'}),
-        E('th.bit', {title: 'BIT', colSpan: 2}),
+        E('th', 'CODE'), 
+        E('th.blade', {colSpan: 6}),
+        E('th.ratchet'),
+        E('th.bit', {colSpan: 2}),
     ]);
     static clear = () => [...Preview.dialog?.children].forEach(div => div.innerHTML = '');
 }

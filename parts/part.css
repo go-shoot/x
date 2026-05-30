@@ -299,7 +299,6 @@ table {
         margin-bottom: .2em;
         
         div,&:not(.LED)::before {
-            content: attr(title);
             position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
             z-index: 1;
             mix-blend-mode: difference;
@@ -377,7 +376,10 @@ tbody tr:nth-last-child(1 of :not([hidden],.hidden)) td {
 tbody td {
     border-top: solid .5px var(--on);
 }
-td[title]:not([headers=bit].fused),td:not([headers=blade].fused)+td:empty {
+tbody tr:nth-child(1 of :not([hidden],.hidden)) td {
+    border-top: solid .5px var(--on) !important;
+}
+td[title],td:empty {
     border-left: solid .5px var(--on);    
 }
 #preview .acquired,

@@ -121,14 +121,14 @@ class Tile extends HTMLElement {
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
-            onclick: ev => ev.target.href ? '' : Tile.#onclick[location.pathname]?.(path, ev)
+            onclick: ev => ev.target.href ? '' : this.#onclick[location.pathname]?.(ev)
         });
     }
     fill () {
         let {path, desc, from} = this.fill.Part = this.Part;
         from &&= from.split('.');
         from &&= path.toSpliced(-from.length, from.length, ...from);
-        from?.length > 3 && (path[2] = from[2]);
+        from?.length > 2 && (path[2] = from[2]);
         this.shadowRoot.append(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
             E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
@@ -142,13 +142,13 @@ class Tile extends HTMLElement {
             (typeof Tile.svg == 'object' ? Tile.svg : Tile.svg()).cloneNode(true)
         );
         this.append(
-            from && from.length != 3 ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
+            from && from.at(-1) ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
     }
-    static #onclick = {
-        '/x/parts/': (path, ev) => new Preview('cell', {path}, ev),
-        '/x/products/': path => Table.search(path)
+    #onclick = {
+        '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
+        '/x/products/': () => Table.search(this.Part.path)
     }
     static icons = new O([
         [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
@@ -214,41 +214,41 @@ customElements.define('x-part', Tile);
 
 class Cell {
     constructor(P) {
-        P.revise('cell');
-        let {abbr, subcomp, path, attr} = P;
-        let single = P.only.name() || P.only.abbr();
-        let tds = [E('td'), !abbr || single ? '' : E('td')];
-        E(tds[0]).set({
-            headers: subcomp,
-            ...Cell.colSpan[path[0]]?.(path) || (!abbr && !single ? {colSpan: 2} : {}),
-        });
-        if (abbr == null) return tds;
-        E(tds[0]).set({
-            title: abbr, innerText: abbr || '', 
-            ...attr.has('fused') ? {classList: 'fused'} : {},
-        });
-        tds.forEach(td => td && (td.Part = P));
+        let {abbr, subcomp, attr, fused} = P;
+        if (abbr == null && fused) return E('');
+        let colSpan = Cell.#colSpan.find(P) ?? 1;
+        attr.has('fused') && (colSpan += 1);
+        let tds = [E('td', {headers: subcomp, ...colSpan > 1 ? {colSpan} : {}})];
+        if (abbr == null) return tds; 
+        E(tds[0]).set({title: abbr, innerText: abbr || ''});
+        !P.only.name() && !P.only.abbr() && tds.push(E('td'));
+        tds.forEach(td => td.Part = P);
         return tds;
     }
     static fill = (lang, td = Q('td[title]')) => [td].flat().forEach(td => {
         if (!td || td.Part.only.abbr()) return;
+        td.Part.revise('cell');
         let {path, names} = td.Part, {mode} = td.dataset;
         let name = names[lang] || names.eng;
         mode = Markup('cell', JSON.parse(mode ?? '""')[lang]);
         mode.length && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
             name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`);
         name = Markup('cell', name);
-        let limit = Cell.#limit[lang]?.at(path.slice(0, -1)) ?? 99;        
+        let limit = Cell.#oversize[lang]?.at(path.slice(0, -1)) ?? 99;        
         let next = td.nextElementSibling;
         (next.headers ? td : next).replaceChildren(...names[lang]?.length >= limit ? [E('small', name)] : name);
     });
-    static group = (td, action) => {
+    static group (td, action) {
         if (!td) return;
         let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
-        [td, td.headers && sibling.headers ? null : sibling].forEach(action);
+        [td, td.headers && sibling.headers ? null : sibling].filter(td => td?.title || td?.innerText).forEach(action);
     }
-    static #limit = {jap: new O({bit: 7})};
-    static colSpan = {blade: path => !path[2] ? {colSpan: 6} : path[2] == 'main' ? {colSpan: 3} : ''}
+    static #oversize = {jap: new O({bit: 7})};
+    static #colSpan = new O([
+        [P => P.path[0] == 'blade' && !P.path[2], 6],
+        [P => P.path[0] == 'blade' && P.path[2] == 'main', 3],
+        [P => !P.abbr && !P.only.name() && !P.only.abbr(), 2],
+    ]);
 }
 Part = new Proxy(
     Object.assign(Part, {Blade, Ratchet, Bit}), 

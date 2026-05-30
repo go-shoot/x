@@ -60,6 +60,9 @@ Object.assign(Garage, {
             a.classList = a.search.substring(1).split('=')[0];
             a.hash && !/.X$/.test(a.hash) && (a.innerText = a.hash);
         });
+        let amount = Q('li figure', []).length;
+        gtag('event', 'GARAGE', {amount});
+        if (!amount) return;
         Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
         DB.get('product', 'beys').then(beys => {
             beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
@@ -144,6 +147,7 @@ Garage.element = {
         comp.map(Garage.element.section) : 
         E(`section`, {id: comp}, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
     li: (P, codes) => E('li', [
+        E('select', {name: 'tier'}, [...Array(6)].map((_, i) => E('option', {value: i}, `T${i}`))),
         E(`figure`, [
             E('img', {src: `../img/${P.path.join('/')}.png`}), 
             E('figcaption', Tile.prototype.fill.icons.call({Part: P})
@@ -152,7 +156,7 @@ Garage.element = {
                 .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1)))
             ),
         ]),
-        E('select', [E('option', codes.length), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
+        E('select', {name: 'acquired'}, [E('option', codes.length), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
     ]),
     summary: (comp, length = 0) => [
         ({

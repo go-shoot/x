@@ -190,7 +190,7 @@ main {
 }
 a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filter)) button,details:has(#filter) summary {
     color: var(--theme);
-    text-decoration: none;
+    text-decoration: none; outline: none;
 }
 output {
     color: var(--accent);
@@ -291,7 +291,8 @@ nav {
     }
     form:not(.LED) {display: contents;}
 }
-:is(th,menu a:is(.blade,.ratchet,.bit),h2 a:not([title]):is(.blade,.ratchet,.bit))::after {
+:is(th,menu a):is(.blade,.ratchet,.bit)::after,
+h2 a:not([title]):is(.blade,.ratchet,.bit)::after {
     content: '';
     display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 
