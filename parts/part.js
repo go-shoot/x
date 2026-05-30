@@ -215,7 +215,7 @@ customElements.define('x-part', Tile);
 class Cell {
     constructor(P) {
         let {abbr, subcomp, attr, fused} = P;
-        if (abbr == null && fused) return E('');
+        if (abbr == null && fused) return document.createTextNode('');
         let colSpan = Cell.#colSpan.find(P) ?? 1;
         attr.has('fused') && (colSpan += 1);
         let tds = [E('td', {headers: subcomp, ...colSpan > 1 ? {colSpan} : {}})];
