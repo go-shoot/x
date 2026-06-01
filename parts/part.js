@@ -220,7 +220,7 @@ class Cell {
         attr.has('fused') && (colSpan += 1);
         let tds = [E('td', {headers: subcomp, ...colSpan > 1 ? {colSpan} : {}})];
         if (abbr == null) return tds; 
-        E(tds[0]).set({title: abbr, innerText: abbr || ''});
+        E(tds[0]).set({title: abbr, innerText: abbr || '', ...attr.has('fused') ? {classList: 'fused'} : {}});
         !P.only.name() && !P.only.abbr() && tds.push(E('td'));
         tds.forEach(td => td.Part = P);
         return tds;

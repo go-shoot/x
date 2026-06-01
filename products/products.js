@@ -99,28 +99,42 @@ Object.assign(Table, {
         Garage.put(mode, tr.id, [...tr.children].reduce((obj, td) => td.matches(`[title].${mode}`) ? {...obj, [td.headers]: td.title} : obj, {}));
     },
     copy (ev, mode = Q('input[name=mode]:checked').value) {
-        let csv = Q(`tr:has(.${mode})`, []).map(tr => [
-            /^.X$/.test(tr.classList[0]) ? tr.classList[0] : '-',
-            tr.matches('.RB') ? tr.id : tr.id.split('_')[0], 
-            ...[...tr.childNodes].flatMap(td => Table.copy.cell(td, mode))
-        ].filter(t => t).join('\t')).join('\n');
-        navigator.clipboard.writeText(csv).then(() => {
+        let table = E('table', Q(`tr:has(.${mode})`, []).map(tr => {
+            let [coat, fusedBit] = [E(tr).get('--coat'), tr.Q('[headers=bit].fused')];
+            tr = tr.cloneNode(true); 
+            return E(tr).set([
+                E('td', /^.X$/.test(tr.classList[0]) ? tr.classList[0] : '-'),
+                E('td', tr.matches('.RB') ? tr.id : tr.id.split('_')[0]), 
+                ...[...tr.childNodes].slice(1).filter(td => td instanceof Text || td.headers)
+                    .map(td => td instanceof Text ? fusedBit ? E('td', '⇤') : td : E(td).set({
+                        innerText: Table.to.sheet(td, mode),
+                        colSpan: (Table.span[td.headers] ?? 1) + (td.matches(':not([headers=bit]).fused') ? 1 : 0),
+                        style: Table.coated.includes(td.headers) ? {color: coat} : {}
+                    }))
+            ]);
+        }));
+        let csv = [...table.children].map(tr => [...tr.children].flatMap(td => Table.to.csv(td)).join('\t')).join('\n');
+        navigator.clipboard.write([new ClipboardItem({
+            'text/html': table.outerHTML,
+            'text/plain': csv
+        })]).then(() => {
             let original = ev.target.innerHTML;
             ev.target.innerHTML = csv ? '&#xe014;' : '（空白）';
             setTimeout(() => ev.target.innerHTML = original, 1000);
         });
     }
 });
-Table.copy.cell = (td, mode) => {
-    if (td instanceof Text) return ['⇤'];
-    if (!td.headers) return [''];
-    let fusion = Array((Table.copy.span[td.headers] ?? 1) - 1).fill('⇥');
-    if (!td.title) return ['-', ...fusion];
-    if (!td.classList.contains(mode)) return ['(未標記)', ...fusion];
-    let [names, i] = [td.innerText.split('⬧'), ['hk','tw'].indexOf(Storage('pref')?.lang)];
-    return [i >= 0 ? names[i] || names[0] : td.innerText, ...fusion];
+Table.to = {
+    sheet (td, mode) {
+        if (!td.title) return '-';
+        if (!td.classList.contains(mode)) return '(未標記)';
+        let [names, i] = [td.innerText.split('⬧'), ['hk','tw'].indexOf(Storage('pref')?.lang)];
+        return i >= 0 ? names[i] || names[0] : td.innerText;
+    },
+    csv: td => [td.innerText, ...Array((td.colSpan ?? 1) - 1).fill('⇥')]
 }
-Table.copy.span = {main: 2, blade: 4}
+Table.span = {main: 2, blade: 4};
+Table.coated = ['blade', 'main', 'metal'];
 
 const Links = {
     div: Q('.links'),
