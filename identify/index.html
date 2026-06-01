@@ -1,184 +1,30 @@
 <title>Identify</title>
 <script defer src=../include/common.js></script>
 <script type=module src=https://aeoq.github.io/drag-knob/script.js></script>
-<script async src="https://docs.opencv.org/4.5.4/opencv.js" type="text/javascript" id="opencv-script"></script>
+<script src="https://docs.opencv.org/4.5.4/opencv.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
 <link rel="stylesheet" href="index.css">
 
-<div id="status">Loading AI Alignment Engines...</div>
-<label>UPLOADE<input type="file" id="imageUpload" accept="image/*" disabled></label>
-<label for="bgColor"><input type="color" id="bgColor" value="#FFFFFF" disabled>Pick Color</label>
-<continuous-knob id="thresholdSlider" min="25" max="75" value="28" disabled></continuous-knob>
-<continuous-knob id="erosionSlider" min="0" max="5" value="0" disabled></continuous-knob>
-
-<div class="container">
-    <div class="canvas-container">
-        <canvas id="outputCanvas"></canvas>
-    </div>
-
-    <h3>Identified Matches Gallery</h3>
+<nav>
+    <menu></menu>
+    <label>UPLOAD<input type="file" accept="image/*"></label>
+    <label><input type="color" value="#FFFFFF"></label>
+</nav>
+<main>
+    <p class="loading">AI</p>
+    <continuous-knob id="thresholdSlider" min="25" max="75" value="28"></continuous-knob>
+    <continuous-knob id="erosion" min="0" max="5" value="0"></continuous-knob>
+    <canvas></canvas>
     <div id="resultsGrid"></div>
-</div>
+</main>
 
 <script type="module">
-    const ASSET_FILES = [
-        '/x/img/bit/DB.png', // Transparent PNGs
-        '/x/img/bit/Q.png',
-        '/x/img/bit/C.png',
-        '/x/img/bit/MN.png'
-    ];
-
-    const imageUpload = document.getElementById('imageUpload');
-    const bgColorInput = document.getElementById('bgColor');
-    const colorPickerGroup = document.getElementById('colorPickerGroup');
-    const thresholdSlider = document.getElementById('thresholdSlider');
-    const erosionSlider = document.getElementById('erosionSlider');
-    const statusDiv = document.getElementById('status');
-    const canvas = document.getElementById('outputCanvas');
-    const resultsGrid = document.getElementById('resultsGrid');
-    
-    let originalMat = null;
-
-    E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
-    const Identifier = {};
-    Promise.all([
-        mobilenet.load({ version: 2, alpha: 1.0 }),
-        new Promise(res => Q('#opencv-script').onload = res)
-    ]).then(async ([model]) => {
-        Identifier.model = model;
-        statusDiv.innerText = "AI Loaded. Preloading transparent asset images...";
-        await Promise.all(ASSET_FILES.map(src => E.img(src))).then(imgs => Identifier.assets = imgs);
-        statusDiv.innerText = "System Ready! Upload a collage image.";
-        statusDiv.style.color = "#27ae60";
-        imageUpload.disabled = false;
-        bgColorInput.disabled = false;
-        thresholdSlider.disabled = false;
-        erosionSlider.disabled = false;
-    }).catch(err => {
-        statusDiv.innerText = "Error initializing engines. Ensure a local server environment (CORS).";
-        console.error(err);
-    });
-
-    function hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
-    }
-
-    // Get current background color as CSS string
-    function getCurrentBgColorCSS() {
-        return bgColorInput.value;
-    }
-
-    imageUpload.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            cv.imshow('outputCanvas', cv.imread(img));
-            if (originalMat) originalMat.delete();
-            originalMat = cv.imread(canvas);
-            processAndMatch();
-        };
-    });
-
-    bgColorInput.addEventListener('input', () => originalMat && processAndMatch());
-    thresholdSlider.addEventListener('input', () => originalMat && processAndMatch());
-    erosionSlider.addEventListener('input', () => originalMat && processAndMatch());
-
-    async function processAndMatch() {
-        statusDiv.innerText = "Analyzing features with normalized backgrounds...";
-        statusDiv.style.color = "#2980b9";
-        resultsGrid.innerHTML = ""; 
-
-        let src = originalMat.clone();
-        let thresh = new cv.Mat(), contours = new cv.MatVector(), hierarchy = new cv.Mat();
-        
-        let cutoff = parseInt(thresholdSlider.value);
-        const currentBgColor = getCurrentBgColorCSS();
-
-        Identifier.assets.forEach(img => {
-            let canvas = E('canvas', {width: img.width, height: img.height});
-            let ctx = canvas.getContext('2d');
-            ctx.fillStyle = currentBgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-            img.embedding = Identifier.model.infer(canvas, true);
-            img.dataUrl = canvas.toDataURL();
-        });
-
-        const targetColor = hexToRgb(currentBgColor);
-        let lowRange = [Math.max(0, targetColor.r - cutoff), Math.max(0, targetColor.g - cutoff), Math.max(0, targetColor.b - cutoff), 0];
-        let highRange = [Math.min(255, targetColor.r + cutoff), Math.min(255, targetColor.g + cutoff), Math.min(255, targetColor.b + cutoff), 255];
-        let low = cv.matFromArray(1, 4, cv.CV_8UC1, lowRange);
-        let high = cv.matFromArray(1, 4, cv.CV_8UC1, highRange);
-        cv.inRange(src, low, high, thresh);
-        cv.bitwise_not(thresh, thresh);
-        low.delete(); high.delete();
-
-        let erodeSize = parseInt(erosionSlider.value);
-        if (erodeSize > 0) {
-            let M = cv.Mat.ones(erodeSize, erodeSize, cv.CV_8U);
-            cv.erode(thresh, thresh, M, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
-            M.delete();
-        }
-
-        cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-        cv.imshow('outputCanvas', src);
-
-        const ctx = Q('#outputCanvas').getContext('2d');
-        let area = {min: src.cols * src.rows * .0004, max: src.cols * src.rows * .98}, detected = 0;
-        for (let i = 0; i < contours.size(); ++i) {
-            let cnt = contours.get(i);
-            if (cv.contourArea(cnt) <= area.min || cv.contourArea(cnt) >= area.max) {
-                cnt.delete();
-                continue;
-            }
-            detected++;
-            let {x, y, width, height} = cv.boundingRect(cnt), pad = erodeSize;
-            let [rx, ry] = [Math.max(0, x - pad), Math.max(0, y - pad)];
-            let [rw, rh] = [Math.min(src.cols - rx, width + pad * 2), Math.min(src.rows - ry, height + pad * 2)];
-
-            ctx.strokeStyle = ctx.fillStyle = '#00FF55';
-            ctx.lineWidth = Math.max(2, src.cols / 500);
-            ctx.strokeRect(rx, ry, rw, rh);
-            ctx.font = `bold ${Math.max(12, src.cols / 65)}px sans-serif`;
-            ctx.fillText(`#${detected}`, rx + 4, ry + Math.max(14, src.cols/60));
-
-            let matched = {canvas: E('canvas', {width: rw, height: rh})};
-            matched.canvas.getContext('2d').drawImage(canvas, rx, ry, rw, rh, 0, 0, rw, rh);
-            matched.embedding = Identifier.model.infer(matched.canvas, true);
-            
-            let best = Identifier.assets.reduce((best, img) => {
-                let score = Identifier.compare(matched.embedding, img.embedding);
-                return score > best.score ? ({score, img}) : best
-            }, {score: -1, img: null});
-            best.score > 0.35 && createResultCard(matched.canvas.toDataURL(), best.img.dataUrl, best.score, detected);
-            cnt.delete();
-        }
-        statusDiv.innerText = `Done! Normalized and analyzed ${detected} assets matching the background style.`;
-        statusDiv.style.color = "#27ae60";
-        src.delete(); thresh.delete(); contours.delete(); hierarchy.delete();
-    }
-
-    Identifier.compare = (tensorA, tensorB) => tf.tidy(() => tf.sum(tf.mul(tensorA, tensorB)).div(tf.mul(tf.norm(tensorA), tf.norm(tensorB))).dataSync()[0]);
-
-    function createResultCard(partImgData, assetFlattenedDataUrl, score, id) {
-        const card = document.createElement('div');
-        card.className = 'result-card';
-        card.innerHTML = `
-            <div><strong>Part #${id}</strong></div>
-            <img src="${partImgData}" style="border: 1px dotted #999" title="Cropped Collage Component">
-            <div style="color:#7f8c8d; font-size:0.8em;">Best Match:</div>
-            <img src="${assetFlattenedDataUrl}" title="Asset Flattened Normalization Profile">
-            <div class="match-score">${Math.round(score * 100)}% Match</div>
-        `;
-        resultsGrid.appendChild(card);
-    }
+    import DB from '../include/DB.js';
+    import App from './index.js';
+    App();
 </script>
-
-</body>
-</html>
+<script type="module">
+    import DB from '../include/DB.js';
+    Q('main').after(DB().then(console.log));
+</script>
