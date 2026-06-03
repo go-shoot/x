@@ -1,7 +1,7 @@
 importScripts('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs');
 importScripts('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet');
 
-let MODEL, EMBEDDINGS = [];
+let MODEL, COLLAGE, EMBEDDINGS = [];
 mobilenet.load({version: 2, alpha: 1.0}).then(model => {
     MODEL = model;
     MODEL.compare = (a, b) => tf.tidy(() => tf.sum(tf.mul(a, b)).div(tf.mul(tf.norm(a), tf.norm(b))).dataSync()[0]),
@@ -13,17 +13,16 @@ mobilenet.load({version: 2, alpha: 1.0}).then(model => {
 
 self.onmessage = async ({data}) => {
     if (!MODEL) return self.postMessage({ status: 'ERROR' });
-    if (data.boxes) {
-        const { collage, boxes } = data;
-        let results = boxes.map(([x, y, w, h], i) => {console.log(`box${i}`);
-            let canvas = new OffscreenCanvas(w, h);
-            let ctx = canvas.getContext('2d');
-            ctx.drawImage(collage, x, y, w, h, 0, 0, w, h);
-            let embedding = MODEL.infer(canvas, true);
-            return EMBEDDINGS.map((em, i) => ({i, score: MODEL.compare(embedding, em)})).sort((a, b) => b.score - a.score).slice(0, 5);
-        });
-        collage.close();
-        return self.postMessage(results);
+    if (data.collage) {
+        return COLLAGE = data.collage;
+    }
+    if (data.box) {
+        let [x, y, w, h] = data.box;
+        let cvs = new OffscreenCanvas(w, h);
+        cvs.getContext('2d').drawImage(COLLAGE, x, y, w, h, 0, 0, w, h);
+        let embedding = MODEL.infer(cvs, true);
+        let result = EMBEDDINGS.map((em, i) => ({p: i, score: MODEL.compare(embedding, em)})).sort((a, b) => b.score - a.score);
+        return self.postMessage({b: data.b, result});
     }
     if (data.img) {
         let canvas = new OffscreenCanvas(data.img.width, data.img.height);

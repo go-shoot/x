@@ -8,6 +8,7 @@ class Collage {
         return E.img(URL.createObjectURL(ev.target.files[0])).then(img => {
             [this.img, Collage.cvs.width, Collage.cvs.height] = [img, img.width, img.height];
             this.draw();
+            createImageBitmap(Collage.cvs).then(bitmap => worker.postMessage({collage: bitmap}, [bitmap]));
             return this;
         });
     }
@@ -18,10 +19,14 @@ class Collage {
         this.boxes.forEach(points => {
             let [x0, y0, x1, y1] = points.split(',');
             let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
-            let [bw, bh] = [Math.min(W - bx, x1 - x0 + pad * 2), Math.min(H - by, y1 - y0 + pad * 2)];
+            let [bw, bh] = [Math.min(W - bx, x1 - x0 + App.extend * 2), Math.min(H - by, y1 - y0 + App.extend * 2)];
             ctx.strokeStyle = '#ff3366', ctx.lineWidth = Math.max(2, Math.floor(W / 400));
             ctx.strokeRect(bx, by, bw, bh);
         });
+    }
+    tag ({minX, maxY}, abbr, ctx = Collage.ctx) {
+        ctx.font = '20px Arial', ctx.fillStyle = 'blue';
+        ctx.fillText(abbr, minX, maxY+20);
     }
     likelyBackdrop () {
         let counts = [...this.boxes].map(points => Collage.rgba(...points.split(','))).reduce((report, rgba) => ({...report, [rgba]: (report[rgba] || 0) + 1}), {});
@@ -54,16 +59,6 @@ const Image = {
         objects.sort((a, b) => ((b.maxX - b.minX) * (b.maxY - b.minY)) - ((a.maxX - a.minX) * (a.maxY - a.minY)))
             .forEach(obj => unnested.every(o => obj.maxX < o.minX || obj.minX > o.maxX || obj.maxY < o.minY || obj.minY > o.maxY) && unnested.push(obj));
         return unnested;
-    },
-    tag: ({minX, minY, maxX, maxY}, abbr, cvs = Collage.cvs, ctx = Collage.ctx) => {
-        let [W, H] = [cvs.width, cvs.height];
-        let pad = 4; // Margin safety buffer
-        let [bx, by] = [Math.max(0, minX - pad), Math.max(0, minY - pad)];
-        let [bw, bh] = [Math.min(W - bx, (maxX - minX) + pad * 2), Math.min(H - by, (maxY - minY) + pad * 2)];
-        ctx.strokeStyle = '#ff3366', ctx.lineWidth = Math.max(2, Math.floor(W / 400));
-        ctx.strokeRect(bx-1, by-1, bw+2, bh+2);
-        ctx.font = '50px Arial', ctx.fillStyle = 'blue';
-        abbr && ctx.fillText(abbr, minX, maxY);
     }
 }
 Image.calculate = {
@@ -80,7 +75,7 @@ Image.calculate = {
             visited[idx] = 1;
             cx < minX && (minX = cx); cx > maxX && (maxX = cx); cy < minY && (minY = cy); cy > maxY && (maxY = cy);
     
-            [[cx + 4, cy], [cx - 4, cy], [cx, cy + 4], [cx, cy - 4]].forEach(([nx, ny]) => {
+            [[cx + App.extend, cy], [cx - App.extend, cy], [cx, cy + App.extend], [cx, cy - App.extend]].forEach(([nx, ny]) => {
                 if (!(nx >= 0 && nx < w && ny >= 0 && ny < h)) return;
                 let idx = (ny * w + nx) * 4;
                 let { chroma, luma } = Image.calculate.chroluma(data.slice(idx, idx + 3));
@@ -98,7 +93,7 @@ Image.calculate = {
 const App = () => App.model() && DB.get.essentials()
     .then(([_, Parts]) => {
         let flatten = Parts => Parts instanceof O ? [...Parts.values()].map(flatten).flat() : Parts;
-        PARTS = flatten(Parts);
+        PARTS = flatten(Parts).filter(P => P.constructor.name == 'Bit');
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
         return Promise.all(PARTS.map(P => E.img(`/x/img/${P.path.join('/')}.png`)));
@@ -127,7 +122,7 @@ Object.assign(App, {
             let clickY = (ev.clientY - rect.top) * (ev.target.height / rect.height);
             console.log(App.results.find(([[x, y, width, height]]) =>
                 clickX >= x && clickX <= x + width && clickY >= y && clickY <= y + height
-            )?.[1]);
+            )?.map((r) => r?.[0].abbr));
         };
         Q('#match').onclick = () => App.match();
     },
@@ -146,22 +141,16 @@ Object.assign(App, {
     },
     match () {
         Q('p').classList.add('loading');
-        createImageBitmap(Collage.cvs).then(bitmap => new Promise(res => {
-            worker.postMessage({
-                collage: bitmap,
-                boxes: App.detected.map(obj => [obj.minX, obj.minY, obj.maxX-obj.minX, obj.maxY-obj.minY]),
-            }, [bitmap]);
-            worker.onmessage = ev => Array.isArray(ev.data) && res(ev.data);
-        })).then(results => {
-            console.log(results);
-            App.results = App.detected.map((obj, i) => {
-                Image.tag(obj, PARTS[results[i][0].i].abbr);
-                return [
-                    [obj.minX, obj.minY, obj.maxX-obj.minX, obj.maxY-obj.minY],
-                    ...results[i].map(({i, score}) => [PARTS[i], score])
-                ];
-            });
-        });
+        Promise.all(App.detected.map((box, b) => 
+            new Promise(res => {
+                let handler = ({data}) => b === data.b && [worker.removeEventListener('message', handler), res(data.result)];
+                worker.addEventListener('message', handler);
+                worker.postMessage({b, box: [box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY]}); 
+            }).then(result => {
+                Image.collage.tag(box, PARTS[result[0].p].abbr);
+                App.results.push([[box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY], ...result.map(({p, score}) => [PARTS[p], score])])
+            }))
+        ).then(() => console.log(App.results));
         Q('.loading')?.classList.remove('loading');
     }
 });

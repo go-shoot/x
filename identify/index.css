@@ -1,3 +1,6 @@
 #match.model-ready.embed-ready {
     color: greenyellow;
 }
+#match.model-ready {
+    color: yellow;
+}
