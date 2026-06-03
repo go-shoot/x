@@ -39,7 +39,7 @@
     &[alt=lines][src$=X] {filter: drop-shadow(0 0 var(--glow-size) var(--line));}
 }
 :host use {filter: drop-shadow(0 0 .1em var(--type));} 
-:host figure img {filter: drop-shadow(0 0 .4em hsla(0,0%,100%,.3));}
+:host figure img {filter: drop-shadow(0 0 .4em rgba(255,255,255,.3));}
 
 :host {
     h4 {grid-area: 4/2/6/3;}
@@ -59,7 +59,7 @@
 
 :host object {
     width: 100%;
-    background: hsl(var(--hue),30%,10%);
+    background: var(--backdrop);
 }
 :host h5 {
     line-height: normal; /*index*/
@@ -179,7 +179,7 @@
     margin-left: .05em;
 }
 :host(.ratchet) h4 {
-    color: hsl(var(--hue),70%,50%);
+    color: var(--color);
     margin-left: -.2em;
 }
 

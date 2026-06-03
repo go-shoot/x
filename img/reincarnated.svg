@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -5 120 110">
     <style>
       g:not(:target) {display:none;}
-      #bsb {fill:hsla(0,50%,50%,.3);}
-      #mfb {fill:hsla(200,50%,50%,.3);}
-      #bbb {fill:hsla(50,50%,50%,.3);}
+      #bsb {fill:oklch(.6 .15 20 / .3);}
+      #mfb {fill:oklch(.6 .15 250 / .3);}
+      #bbb {fill:oklch(.6 .15 100 / .3);}
     </style>
     <defs>
         <clipPath id="bsb-clip">

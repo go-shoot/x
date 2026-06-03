@@ -38,7 +38,7 @@ class Indicator extends HTMLElement {
     :host(:not([progress]):not([class]))::before {display: none;}
     :host {
         position: relative;
-        background: radial-gradient(circle at center var(--p),hsla(0,0%,100%,.2) 70%, var(--on) 70%) text;
+        background: radial-gradient(circle at center var(--p),rgba(255,255,255,.2) 70%, var(--on) 70%) text;
         display: block;
     }
     :host::before {

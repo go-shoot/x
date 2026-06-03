@@ -4,19 +4,13 @@
     const Q = el => document.querySelector(el);
     const add = (html, where) => where.insertAdjacentHTML('beforeend', html);
     const root = document.querySelector(':root');
-    root.style.setProperty('--hue', q.hue ?? 60);
-    root.style.setProperty('--base-l', (q.hue == 245 ? 5 : q.hue == 200 ? 2.5 : 0) + '%');
+    root.style.setProperty('--hue', q.hue ?? 110);
     // ]]></script>
     <style>
-    :root {
-        --s:60%;
-        background:hsl(var(--hue),30%,calc(10% + var(--base-l)));
-    }
-    #top-art line:nth-of-type(odd)  {stroke:hsl(var(--hue),var(--s),calc(15% + .02%*var(--i)*var(--i) + var(--base-l)));}
+    :root {background:oklch(.2 .05 var(--hue));}
+    #top-art line:nth-of-type(odd)  {stroke:oklch(calc(20% + .03%*var(--i)*var(--i)) .3 var(--hue));}
     #top-art line:nth-of-type(even) {stroke:transparent;}
     #top-art line {stroke-width:5;}
-
-    #top+path {stroke-width:1.5; stroke:url(#line-art); fill:none;}
 
     .spin use:first-of-type {transform:skew(45deg);}
     .spin use:last-of-type {transform:skew(-45deg);}
@@ -28,14 +22,6 @@
             for (let i = 1; i <= 20; i++)
                 add(`<line x1='${(i-1/2)*s}' x2='${(i-1/2)*s}' y2='15' style='--i:${2.5*i}'/>`, place);
             // ]]></script>
-        </g>
-        <g>
-            <linearGradient id='line-art' gradientUnits='userSpaceOnUse'>
-                <stop offset='0%' stop-color='hsla(var(--hue),70%,calc(50% + var(--base-l)),.2)'/>
-                <stop offset='40%' stop-color='hsl(var(--hue),70%,calc(50% + var(--base-l)))'/>
-                <stop offset='60%' stop-color='hsl(var(--hue),70%,calc(50% + var(--base-l)))'/>
-                <stop offset='90%' stop-color='hsl(var(--hue),70%,calc(60% + var(--base-l)))'/>
-            </linearGradient>
         </g>
         
         <filter id='glow' y='-10' x='-10' filterUnits='userSpaceOnUse'>
@@ -60,9 +46,7 @@
         <use href='#top-art'/>
         <use y='15' href='#top-art'/>
     </g>
-    <!-- <path d='M 0,10 L 10,0 M 0,20 L 20,0 M 0,30 L 30,0'/> -->
-    <polygon points='65,34 85,34 116,65 116,85 85,116 65,116 34,85 34,65' fill='hsla(0,0%,100%,.2)'/>
-    <!-- <polygon points='65,34 85,34 111,60 115,60 130,75 115,90 111,90 85,116 65,116 39,90 35,90 20,75 35,60 39,60' stroke='hsla(0,0%,100%,.8)' fill='hsla(0,0%,100%,.2)'/> -->
+    <polygon points='65,34 85,34 116,65 116,85 85,116 65,116 34,85 34,65' fill='rgba(255,255,255,.2)'/>
     <script>// <![CDATA[
         Q('#top').setAttribute('transform', 'rotate(-45) translate(-55,30)');
         (q.left || q.right) && (Q('#top').classList = 'spin') && Q('use:last-of-type').setAttribute('x', 30);

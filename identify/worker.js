@@ -28,7 +28,7 @@ self.onmessage = async ({data}) => {
     if (data.img) {
         let canvas = new OffscreenCanvas(data.img.width, data.img.height);
         let ctx = canvas.getContext('2d');
-        data.color && (ctx.fillStyle = data.color);
+        data.backdrop && (ctx.fillStyle = `rgba(${data.backdrop})`);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(data.img, 0, 0);
         data.img.close();

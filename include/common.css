@@ -92,24 +92,25 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
     visibility: visible;
 }
 
-.RB {--hue: 0; --s-adj: -100%;} 
-.SS {--hue: 235; --lum: 50%;} 
-.B  {--hue: 10; --lum: 42%;} 
-.S  {--hue: 200; --lum: 38%;} 
-.St {--hue: 290; --s-adj: -10%; --lum: 43%;} 
-.Lm {--hue: 45; --s-adj: 10%; --lum: 33%;} 
+.RB {--hue: 0; --chr: 0;} 
+.SS {--hue: 235;} 
+.B  {--hue: 20;} 
+.S  {--hue: 220;} 
+.St {--hue: 320;} 
+.Lm {--hue: 100;} 
 .RB,.B,.S,.St,.SS,.Lm {
-    --light: hsl(var(--hue),calc(30% + var(--s-adj,0%)),calc(var(--lum,40%) + 5%));
-    --dark:  hsl(var(--hue),calc(40% + var(--s-adj,0%)),calc(var(--lum,40%) - 5%));
+    --light: oklch(.5 var(--chr,.1) var(--hue));
+    --dark:  oklch(.4 var(--chr,.1) var(--hue));
 }
 x-part { /*initial style before part.css*/
     display: inline-grid; width: 15em; height: 15em;
     margin: .1rem;
     opacity: 0;
+    --backdrop: oklch(.2 .05 var(--hue));
     
     &.loading {
         opacity: 1;
-        background: hsl(var(--hue),30%,10%);
+        background: var(--backdrop);
         &::before {
             content: '\e005' !important; font-size: 2rem;
             animation: spin 1s infinite;
@@ -117,20 +118,12 @@ x-part { /*initial style before part.css*/
         }
     }
 }
-.blade {
-    --hue: 55; --l-adj: -5%;
-    --img: url(/x/img/blade/CbDr.png);
-}
-.ratchet {
-    --hue: 175; --l-adj: 0%;
-    --img: url(/x/img/ratchet/6-60.png);
-}
-.bit {
-    --hue: 245; --s-adj: 20%; --l-adj: 15%;
-    --img: url(/x/img/bit/B.png);
-}
-.blade.fused {--hue: 100;}
-.bit.fused {--hue: 200;}
+.blade,.ratchet,.bit {--color: oklch(.8 .3 var(--hue));}
+.blade       {--hue: 110; --img: url(/x/img/blade/CbDr.png);}
+.blade.fused {--hue: 150;}
+.ratchet     {--hue: 190; --img: url(/x/img/ratchet/6-60.png);}
+.bit.fused   {--hue: 210;}
+.bit         {--hue: 270; --img: url(/x/img/bit/B.png);}
 .att,label:has([value$=att]) {--type: #0081e3;}
 .def,label:has([value$=def]) {--type: #009f48;}
 .sta,label:has([value$=sta]) {--type: #f08200;}
@@ -162,13 +155,13 @@ img[src*='lines.svg'][src$=X] {aspect-ratio: 1.485;}
 .pause-page::view-transition-old(root),.pause-page::view-transition-new(root) {animation: none;}
 html {
     font-size: clamp(14px,4vw,20px);
-    background: var(--backdrop); --backdrop: hsl(var(--hue),30%,5%); 
-    --overlay1: hsla(var(--hue),20%,15%,.9); --overlay2: hsla(var(--hue),10%,25%,.9);
-    color: var(--on); --on: #ccc;
+    --backdrop: oklch(.1 .1 var(--hue)); background: var(--backdrop);
+    --overlay1: oklch(.25 .04 var(--hue) / .9); --overlay2: oklch(.4 .02 var(--hue) / .9);
+    --on: #ccc; color: var(--on); 
     text-autospace: normal;
-    --hue: 87; --theme: #b5fb5c; 
+    --hue: 130; --theme: #b5fb5c; 
     --theme-dark: color-mix(in srgb,var(--theme) 35%,black);
-    --accent: hsl(45,90%,48%);
+    --accent: hsl(45, 90%, 48%);
 }
 body {
     margin: 0;
@@ -376,7 +369,7 @@ continuous-knob {
 }
 dialog {
     width: 100%; height: 100%;
-    background: hsla(0,0%,0%,0.8); color: var(--on);
+    background: rgba(0,0,0,.8); color: var(--on);
     border: none;
     padding: 1em 0;
 
