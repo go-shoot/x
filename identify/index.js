@@ -97,7 +97,7 @@ const App = () => App.model() && DB.get.essentials()
         PARTS = flatten(Parts).filter(P => P.constructor.name == 'Bit');
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
-        return Promise.all(PARTS.map(P => hash(`/x/img/${P.path.join('/')}.png`)));
+        return Promise.all(PARTS.map(P => /*E.img*/hash(`/x/img/${P.path.join('/')}.png`)));
     }).then(blobs => {
         Image.assets = blobs;
         Q('.loading')?.classList.remove('loading');
@@ -143,21 +143,21 @@ Object.assign(App, {
     match () {
         Q('p').classList.add('loading');
         Promise.all(App.detected.map((box, b) => 
-            hash({x: box.minX, y: box.minY, w: box.maxX-box.minX, h: box.maxY-box.minY})
-            .then(value => {
-                let result = Image.assets.map((h, i) => ({ d: hash.distance(h, value), abbr: PARTS[i].abbr}))
-                    .sort((a, b) => a.d == null || b.d == null ? 99 : a.d - b.d);
-                Image.collage.tag(box, result.slice(0, 2).map(P => P.abbr));
-                App.results.push([[box.minX, box.minY, box.maxX, box.maxY], ...result]);
-            }))// &&
-            // new Promise(res => {
-            //     let handler = ({data}) => b === data.b && [worker.removeEventListener('message', handler), res(data.result)];
-            //     worker.addEventListener('message', handler);
-            //     worker.postMessage({b, box: [box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY]}); 
-            // }).then(result => {
-            //     Image.collage.tag(box, PARTS[result[0].p].abbr);
-            //     App.results.push([[box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY], ...result.map(({p, score}) => [PARTS[p], score])])
-            // })
+            // hash({x: box.minX, y: box.minY, w: box.maxX-box.minX, h: box.maxY-box.minY})
+            // .then(value => {
+            //     let result = Image.assets.map((h, i) => ({ d: hash.distance(h, value), abbr: PARTS[i].abbr}))
+            //         .sort((a, b) => a.d == null || b.d == null ? 99 : a.d - b.d);
+            //     Image.collage.tag(box, result.slice(0, 2).map(P => P.abbr));
+            //     App.results.push([[box.minX, box.minY, box.maxX, box.maxY], ...result]);
+            // }))// &&
+            new Promise(res => {
+                let handler = ({data}) => b === data.b && [worker.removeEventListener('message', handler), res(data.result)];
+                worker.addEventListener('message', handler);
+                worker.postMessage({b, box: [box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY]}); 
+            }).then(result => {
+                Image.collage.tag(box, PARTS[result[0].p].abbr);
+                App.results.push([[box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY], ...result.map(({p, score}) => [PARTS[p], score])])
+            }))
         );
         Q('.loading')?.classList.remove('loading');
     }

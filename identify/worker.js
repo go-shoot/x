@@ -24,7 +24,7 @@ self.onmessage = async ({data}) => {
         let result = EMBEDDINGS.map((em, i) => ({p: i, score: MODEL.compare(embedding, em)})).sort((a, b) => b.score - a.score);
         return self.postMessage({b: data.b, result});
     }
-    if (data.img) {
+    if (data.img) {console.log(data.i);
         let canvas = new OffscreenCanvas(data.img.width, data.img.height);
         let ctx = canvas.getContext('2d');
         data.backdrop && (ctx.fillStyle = `rgba(${data.backdrop})`);
