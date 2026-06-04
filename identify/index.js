@@ -24,9 +24,9 @@ class Collage {
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
-    tag ({minX, maxY}, abbr, ctx = Collage.ctx) {
+    tag ({minX, minY}, abbr, ctx = Collage.ctx) {
         ctx.font = '20px Arial', ctx.fillStyle = 'blue';
-        ctx.fillText(abbr, minX, maxY+20);
+        ctx.fillText(abbr, minX, minY);
     }
     likelyBackdrop () {
         let counts = [...this.boxes].map(points => Collage.rgba(...points.split(','))).reduce((report, rgba) => ({...report, [rgba]: (report[rgba] || 0) + 1}), {});
@@ -37,6 +37,7 @@ class Collage {
     static ctx = Q('canvas').getContext('2d');
 }
 const Image = {
+    assets: [],
     detect (cvs = Collage.cvs, ctx = Collage.ctx) {
         let [W, H] = [cvs.width, cvs.height];
         let data = ctx.getImageData(0, 0, W, H).data;
@@ -96,11 +97,11 @@ const App = () => App.model() && DB.get.essentials()
         PARTS = flatten(Parts).filter(P => P.constructor.name == 'Bit');
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
-        return Promise.all(PARTS.map(P => E.img(`/x/img/${P.path.join('/')}.png`)));
-    }).then(imgs => {
-        Image.assets = imgs;
+        return Promise.all(PARTS.map(P => hash(`/x/img/${P.path.join('/')}.png`)));
+    }).then(blobs => {
+        Image.assets = blobs;
         Q('.loading')?.classList.remove('loading');
-    }).catch(console.error);
+    });
 
 Object.assign(App, {
     results: [],
@@ -120,9 +121,9 @@ Object.assign(App, {
             let rect = ev.target.getBoundingClientRect();
             let clickX = (ev.clientX - rect.left) * (ev.target.width / rect.width);
             let clickY = (ev.clientY - rect.top) * (ev.target.height / rect.height);
-            console.log(App.results.find(([[x, y, width, height]]) =>
-                clickX >= x && clickX <= x + width && clickY >= y && clickY <= y + height
-            )?.map((r) => r?.[0].abbr));
+            console.log(App.results.find(([[x0, y0, x1, y1]]) =>
+                clickX >= x0 && clickX <= x1 && clickY >= y0 && clickY <= y1
+            ));
         };
         Q('#match').onclick = () => App.match();
     },
@@ -142,16 +143,59 @@ Object.assign(App, {
     match () {
         Q('p').classList.add('loading');
         Promise.all(App.detected.map((box, b) => 
-            new Promise(res => {
-                let handler = ({data}) => b === data.b && [worker.removeEventListener('message', handler), res(data.result)];
-                worker.addEventListener('message', handler);
-                worker.postMessage({b, box: [box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY]}); 
-            }).then(result => {
-                Image.collage.tag(box, PARTS[result[0].p].abbr);
-                App.results.push([[box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY], ...result.map(({p, score}) => [PARTS[p], score])])
-            }))
-        ).then(() => console.log(App.results));
+            hash({x: box.minX, y: box.minY, w: box.maxX-box.minX, h: box.maxY-box.minY})
+            .then(value => {
+                let result = Image.assets.map((h, i) => ({ d: hash.distance(h, value), abbr: PARTS[i].abbr}))
+                    .sort((a, b) => a.d == null || b.d == null ? 99 : a.d - b.d);
+                Image.collage.tag(box, result.slice(0, 2).map(P => P.abbr));
+                App.results.push([[box.minX, box.minY, box.maxX, box.maxY], ...result]);
+            }))// &&
+            // new Promise(res => {
+            //     let handler = ({data}) => b === data.b && [worker.removeEventListener('message', handler), res(data.result)];
+            //     worker.addEventListener('message', handler);
+            //     worker.postMessage({b, box: [box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY]}); 
+            // }).then(result => {
+            //     Image.collage.tag(box, PARTS[result[0].p].abbr);
+            //     App.results.push([[box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY], ...result.map(({p, score}) => [PARTS[p], score])])
+            // })
+        );
         Q('.loading')?.classList.remove('loading');
     }
 });
 export default App;
+const hash = (src, xi, yi) => (typeof src == 'string' ? E.img(src) : Promise.resolve(src.x ? Collage.cvs : src))
+    .then(img => {
+        if (!img) return;
+        let [w, h] = [src.w ?? img.width, src.h ?? img.height].map(l => l * (xi == null && yi == null ? 1 : 1/2));
+        let [x, y] = [(src.x ?? 0) + (xi == 0 || xi == null ? 0 : w), (src.y ?? 0) + (yi == 0 || yi == null ? 0 : h)];
+        let cvs = new OffscreenCanvas(w, h);
+        // let cvs = E('canvas', {width: w, height: h});document.body.append(cvs);
+        let ctx = cvs.getContext('2d');
+        if (typeof src == 'string') {
+            ctx.fillStyle = `rgb(246,245,250)`;
+            ctx.fillRect(0, 0, img.width, img.height);
+        }
+        ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+
+        let fullHash = '';
+        return xi == null && yi == null ? hash(cvs, 0, 0)
+            .then(h => (fullHash += h) && hash(cvs, 0, 1)).then(h => (fullHash += h) && hash(cvs, 1, 0))
+            .then(h => (fullHash += h) && hash(cvs, 1, 1)).then(h => fullHash += h) : 
+            cvs.convertToBlob?.() ?? new Promise(res => cvs.toBlob(res));
+    })
+    .then(blob => typeof blob == 'string' ? blob : blob && pHash.hash(new File([blob], "", { type: "image/jpeg" })))
+    .then(hash => typeof hash == 'string' ? hash : hash ? hash.toHex() : null);
+    
+hash.distance = (...hex) => {
+    if (hex.some(h => !h) || hex[0].length != hex[1].length) return null;
+    let distance = 0;
+    for (let i = 0; i < hex[0].length; i++) {
+        let val = hex.map(h => parseInt(h[i], 16));
+        let xor = val[0] ^ val[1];
+        while (xor > 0) {
+            distance++;
+            xor &= xor - 1;
+        }
+    }
+    return distance;
+}

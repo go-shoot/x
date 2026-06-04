@@ -1,7 +1,7 @@
 importScripts('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs');
 importScripts('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet');
 
-let MODEL, COLLAGE, EMBEDDINGS = [];
+let MODEL, COLLAGE, EMBEDDINGS = [], HASHES = [];
 mobilenet.load({version: 2, alpha: 1.0}).then(model => {
     MODEL = model;
     MODEL.compare = (a, b) => tf.tidy(() => tf.sum(tf.mul(a, b)).div(tf.mul(tf.norm(a), tf.norm(b))).dataSync()[0]),
