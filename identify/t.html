@@ -3,387 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenCV.js Multi-Scale Template Matching Demo</title>
+    <title>Template Matching with OPENCV.JS</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f7;
-            color: #333;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 { text-align: center; color: #111; }
-        .status {
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .loading { background-color: #ffeeba; color: #856404; }
-        .ready { background-color: #d4edda; color: #155724; }
-        .upload-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .upload-box {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            background: #fafafa;
-        }
-        input[type="file"] { margin-top: 10px; }
-        button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #007aff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        button:hover:not(:disabled) { background-color: #0056b3; }
-        .results-container {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .canvas-container {
-            text-align: center;
-            background: #eaeaea;
-            padding: 10px;
-            border-radius: 8px;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        canvas { max-width: 100%; height: auto; border-radius: 4px; }
-        .rank-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .rank-item {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-        }
-        .rank-number {
-            font-weight: bold;
-            color: #007aff;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-        .rank-details {
-            font-size: 14px;
-            margin-top: 4px;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+        h1 { text-align: center; }
+        .controls { text-align: center; margin: 20px 0; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        input[type="file"] { margin: 0 10px; }
+        .preview { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 20px 0; }
+        .preview img { max-width: 200px; max-height: 200px; border: 1px solid #ccc; }
+        table { width: 100%; max-width: 800px; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f0f0f0; }
+        .result { display: flex; flex-direction: column; align-items: center; }
+        .score { font-weight: bold; color: #0066cc; font-size: 1.2em; }
+        canvas { border: 1px solid #000; background: #eee; }
+        .result canvas {max-width: 500px;}
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>Multi-Scale Template Matching</h1>
-    <div id="statusCanvas" class="status loading">Loading OpenCV.js... Please wait.</div>
-
-    <div class="upload-section">
-        <div class="upload-box">
-            <h3>1. Base Image</h3>
-            <input type="file" id="baseImageInput" accept="image/*" disabled>
-        </div>
-        <div class="upload-box">
-            <h3>2. Template Folder</h3>
-            <input type="file" id="templateFolderInput" webkitdirectory directory multiple disabled>
-            <small style="display:block; margin-top:5px; color:#666;">Select a folder containing template images</small>
-        </div>
+    <h1>Template Matching with OpenCV.js</h1>
+    <div class="controls">
+        <button id="runBtn">Run Template Matching</button>
+        <input type="file" id="collageInput" accept="image/*" multiple>
+        <label for="collageInput">Upload Collage(s)</label>
+        <input type="file" id="templatesInput" accept="image/*" multiple>
+        <label for="templatesInput">Upload Templates (PNG with transparency)</label>
+        <input type="range" id="scaleSlider" min="0.1" max="1" step="0.05" value="0.5">
+        <label>Scale Down Templates: <span id="scaleVal">0.5</span></label>
     </div>
 
-    <button id="processBtn" disabled>Find Best Matches</button>
+    <div class="preview" id="collagePreview"></div>
+    <div class="preview" id="templatePreview"></div>
 
-    <div class="results-container">
-        <div>
-            <h3>Visualized Results (Top 5)</h3>
-            <div class="canvas-container">
-                <canvas id="outputCanvas"></canvas>
-            </div>
-        </div>
-        <div>
-            <h3>Top 5 Rankings</h3>
-            <ul id="rankList" class="rank-list">
-                <li style="color: #888; font-style: italic;">No results yet. Upload images and click match.</li>
-            </ul>
-        </div>
-    </div>
-</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Template</th>
+                <th>Best Match Score</th>
+                <th>Position</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+    </table>
 
-<script async src="https://docs.opencv.org/4.10.0/opencv.js" type="text/javascript" id="opencv-script"></script>
+    <canvas id="canvas" width="800" height="600"></canvas>
 
-<script>
-    const statusCanvas = document.getElementById('statusCanvas');
-    const baseImageInput = document.getElementById('baseImageInput');
-    const templateFolderInput = document.getElementById('templateFolderInput');
-    const processBtn = document.getElementById('processBtn');
-    const outputCanvas = document.getElementById('outputCanvas');
-    const rankList = document.getElementById('rankList');
+    <script src="https://docs.opencv.org/4.x/opencv.js"></script>
+    <script>
+        let collage = null;
+        let templates = [];
+        let canvas = null;
+        let ctx = null;
+        let scale = 0.5;
 
-    let baseImageSrc = null;
-    let templateFiles = [];
+        const collageInput = document.getElementById('collageInput');
+        const templatesInput = document.getElementById('templatesInput');
+        const scaleSlider = document.getElementById('scaleSlider');
+        const scaleVal = document.getElementById('scaleVal');
+        const canvasEl = document.getElementById('canvas');
+        const resultsBody = document.getElementById('resultsBody');
 
-    // Colors to draw bounding boxes for top 5 (RGB)
-    const rankColors = [
-        [255, 0, 0, 255],     // 1st: Red
-        [0, 255, 0, 255],     // 2nd: Green
-        [0, 0, 255, 255],     // 3rd: Blue
-        [255, 165, 0, 255],   // 4th: Orange
-        [255, 0, 255, 255]    // 5th: Magenta
-    ];
+        // Update slider value
+        scaleSlider.addEventListener('input', () => {
+            scale = parseFloat(scaleSlider.value);
+            scaleVal.textContent = scale;
+        });
 
-    // Triggered when OpenCV.js is fully loaded
-    window.onOpenCvReady = () => {
-        statusCanvas.innerText = "OpenCV.js is ready!";
-        statusCanvas.className = "status ready";
-        baseImageInput.disabled = false;
-        templateFolderInput.disabled = false;
-    };
-
-    // Check periodically if opencv loaded successfully if onload hook wasn't triggered natively
-    const checkCV = setInterval(() => {
-        if (typeof cv !== 'undefined' && cv.Mat) {
-            clearInterval(checkCV);
-            window.onOpenCvReady();
-        }
-    }, 500);
-
-    // Handle Base Image Upload
-    baseImageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                // Draw initial image to canvas
-                outputCanvas.width = img.width;
-                outputCanvas.height = img.height;
-                const ctx = outputCanvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                baseImageSrc = img;
-                checkReadyToProcess();
-            };
-            img.src = event.target.value || event.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Handle Template Folder Upload
-    templateFolderInput.addEventListener('change', (e) => {
-        // Filter out non-images (like system files or hidden folders)
-        templateFiles = Array.from(e.target.files).filter(file => file.type.startsWith('image/'));
-        checkReadyToProcess();
-    });
-
-    function checkReadyToProcess() {
-        if (baseImageSrc && templateFiles.length > 0) {
-            processBtn.disabled = false;
-        }
-    }
-
-    // Main processing logic
-// ... (Keep the rest of your HTML/CSS and setup the same) ...
-
-processBtn.addEventListener('click', async () => {
-    processBtn.disabled = true;
-    statusCanvas.innerText = "Processing multiple instances... Please wait.";
-    statusCanvas.className = "status loading";
-
-    await new Promise(r => setTimeout(r, 50));
-
-    try {
-        let src = cv.imread(outputCanvas);
-        let srcGray = new cv.Mat();
-        cv.cvtColor(src, srcGray, cv.COLOR_RGBA2GRAY);
-
-        let allCandidates = [];
-        const THRESHOLD = 0.80; // Only accept matches that are 80% similar or higher
-
-        for (let file of templateFiles) {
-            let templateImg = await loadImageAsync(file);
-            let tempMat = cv.imread(templateImg);
-            let tempGray = new cv.Mat();
-            cv.cvtColor(tempMat, tempGray, cv.COLOR_RGBA2GRAY);
-
-            const scales = [.5,.6,0.7, 0.8, 0.9, 1.0]; // Scale range
-
-            for (let scale of scales) {
-                let width = Math.round(tempGray.cols * scale);
-                let height = Math.round(tempGray.rows * scale);
-
-                if (width > srcGray.cols || height > srcGray.rows || width < 10 || height < 10) continue;
-
-                let resizedTemplate = new cv.Mat();
-                let dsize = new cv.Size(width, height);
-                cv.resize(tempGray, resizedTemplate, dsize, 0, 0, cv.INTER_LINEAR);
-
-                let resultMat = new cv.Mat();
-                cv.matchTemplate(srcGray, resizedTemplate, resultMat, cv.TM_CCOEFF_NORMED);
-                
-                // --- LOOP THROUGH ALL PIXELS INSTEAD OF USING minMaxLoc ---
-                let data = resultMat.data32F; // Access raw float data of the match matrix
-                for (let row = 0; row < resultMat.rows; row++) {
-                    for (let col = 0; col < resultMat.cols; col++) {
-                        let score = data[row * resultMat.cols + col];
-                        
-                        if (score >= THRESHOLD) {
-                            allCandidates.push({
-                                fileName: file.name,
-                                score: score,
-                                scale: scale,
-                                x: col,
-                                y: row,
-                                width: width,
-                                height: height
-                            });
-                        }
-                    }
-                }
-
-                resizedTemplate.delete();
-                resultMat.delete();
-            }
-            tempMat.delete();
-            tempGray.delete();
+        // Create temporary canvas for drawing
+        function createCanvas() {
+            canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            ctx = canvas.getContext('2d');
+            return canvas;
         }
 
-        // Sort candidates by score descending
-        allCandidates.sort((a, b) => b.score - a.score);
-
-        // --- NON-MAXIMUM SUPPRESSION (NMS) ---
-        // Groups close/overlapping boxes together so we don't get 50 boxes on 1 object
-        let finalMatches = [];
-        const IOU_THRESHOLD = 0.3; // Overlap allowance (30%)
-
-        for (let candidate of allCandidates) {
-            let keep = true;
-            for (let approved of finalMatches) {
-                if (calculateIOU(candidate, approved) > IOU_THRESHOLD) {
-                    keep = false;
-                    break;
-                }
-            }
-            if (keep) {
-                finalMatches.push(candidate);
-                if (finalMatches.length >= 5) break; // Stop when we hit the top 5 distinct objects
-            }
+        // Clear canvas
+        function clearCanvas() {
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Format data to fit original rendering function
-        let topMatches = finalMatches.map(m => ({
-            fileName: m.fileName,
-            score: m.score,
-            scale: m.scale,
-            pt: { x: m.x, y: m.y },
-            width: m.width,
-            height: m.height
-        }));
+        // Draw image on canvas
+        function drawImage(img, x, y, w, h) {
+            if (!ctx) return;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const tctx = tempCanvas.getContext('2d');
+            tctx.drawImage(img, 0, 0, w, h);
+            ctx.drawImage(tempCanvas, x, y);
+        }
 
-        renderResults(src, topMatches);
-
-        src.delete();
-        srcGray.delete();
-        statusCanvas.innerText = "Matching Complete!";
-        statusCanvas.className = "status ready";
-    } catch (err) {
-        console.error(err);
-        statusCanvas.innerText = "Error encountered.";
-    }
-    processBtn.disabled = false;
-});
-
-// Intersection over Union (IOU) helper to determine box overlaps
-function calculateIOU(boxA, boxB) {
-    let xA = Math.max(boxA.x, boxB.x);
-    let yA = Math.max(boxA.y, boxB.y);
-    let xB = Math.min(boxA.x + boxA.width, boxB.x + boxB.width);
-    let yB = Math.min(boxA.y + boxA.height, boxB.y + boxB.height);
-
-    let interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
-    if (interArea === 0) return 0;
-
-    let boxAArea = boxA.width * boxA.height;
-    let boxBArea = boxB.width * boxB.height;
-    
-    return interArea / (boxAArea + boxBArea - interArea);
-}    // Helper to asynchronously convert file objects to Image Elements
-    function loadImageAsync(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
+        // Load image as HTMLImageElement
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
                 const img = new Image();
+                img.crossOrigin = 'anonymous';
                 img.onload = () => resolve(img);
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
 
-    // Render results back onto the Canvas and generate text list
-    function renderResults(srcMat, topMatches) {
-        rankList.innerHTML = "";
+        // Create OpenCV.js Mat from HTMLImageElement (with color)
+        async function createMatFromImage(img) {
+            const width = img.width;
+            const height = img.height;
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
 
-        topMatches.forEach((match, index) => {
-            let color = rankColors[index] || [255, 255, 255, 255];
-            let cvColor = new cv.Scalar(color[0], color[1], color[2], color[3]);
+            const mat = cv.Mat.zeros(height, width, cv.CV_8UC4);
+            for (let i = 0; i < data.length; i += 4) {
+                mat.data[i] = data[i];     // B
+                mat.data[i + 1] = data[i + 1]; // G
+                mat.data[i + 2] = data[i + 2]; // R
+                mat.data[i + 3] = data[i + 3]; // A
+            }
+            return mat;
+        }
 
-            // Draw rectangle around detected match zone
-            let point1 = new cv.Point(match.pt.x, match.pt.y);
-            let point2 = new cv.Point(match.pt.x + match.width, match.pt.y + match.height);
-            
-            // Thicker lines for higher ranks
-            let thickness = 4 - index > 1 ? 4 - index : 2; 
-            cv.rectangle(srcMat, point1, point2, cvColor, thickness, cv.LINE_8, 0);
+        // Convert to grayscale Mat (faster processing)
+        async function toGray(mat) {
+            const gray = new cv.Mat();
+            cv.cvtColor(mat, gray, cv.COLOR_RGBA2GRAY);
+            return gray;
+        }
 
-            // Build UI text cards
-            let li = document.createElement('li');
-            li.className = "rank-item";
-            li.style.borderLeft = `6px solid rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-            
-            li.innerHTML = `
-                <div class="rank-number">Rank ${index + 1}</div>
-                <div class="rank-details">
-                    <strong>File:</strong> ${match.fileName}<br>
-                    <strong>Confidence Score:</strong> ${(match.score * 100).toFixed(2)}%<br>
-                    <strong>Best Scale Factor:</strong> ${match.scale.toFixed(1)}x<br>
-                    <strong>Location:</strong> X: ${match.pt.x}, Y: ${match.pt.y}
-                </div>
+        // Resize image using OpenCV (using nearest neighbor for speed)
+        async function resizeImage(img, targetW, targetH) {
+            const src = await createMatFromImage(img);
+            const resized = new cv.Mat();
+            cv.resize(src, resized, new cv.Size(targetW, targetH), 0, 0, cv.INTER_NEAREST);
+            src.delete();
+            return resized;
+        }
+
+        // Find best match position and score (grayscale) - FIXED: correct minMaxLoc call (only 1 arg)
+        async function findBestMatch(collageGray, templateGray, templateWidth, templateHeight) {
+            const result = new cv.Mat();
+            cv.matchTemplate(collageGray, templateGray, result, cv.TM_CCOEFF_NORMED);
+
+            // FIXED: minMaxLoc expects exactly 1 argument (the result Mat). Using the full result object is the correct OpenCV.js pattern.
+            const minMaxResult = cv.minMaxLoc(result);
+
+            let maxVal = minMaxResult.maxVal;
+            let maxLoc = minMaxResult.maxLoc;
+
+            result.delete();
+
+            const score = Math.round(maxVal * 100); // percentage
+            const x = Math.round(maxLoc.x);
+            const y = Math.round(maxLoc.y);
+
+            return { score, x, y };
+        }
+
+        // Draw bounding box around best match
+        function drawMatchBox(img, x, y, w, h) {
+            let ctx = document.querySelector('.result canvas').getContext('2d');
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(x, y, w, h);
+        }
+
+        // Render collage preview
+        function renderCollagePreview(urls) {
+            const previewContainer = document.getElementById('collagePreview');
+            previewContainer.innerHTML = '';
+            urls.forEach(url => {
+                loadImage(url).then(img => {
+                    const div = document.createElement('div');
+                    div.className = 'result';
+                    const smallCanvas = document.createElement('canvas');
+                    smallCanvas.width = img.width;
+                    smallCanvas.height = img.height;
+                    const sctx = smallCanvas.getContext('2d');
+                    sctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+                    div.appendChild(smallCanvas);
+                    previewContainer.appendChild(div);
+                });
+            });
+        }
+
+        // Render templates preview
+        function renderTemplatePreview(urls) {
+            const previewContainer = document.getElementById('templatePreview');
+            previewContainer.innerHTML = '';
+            urls.forEach(url => {
+                loadImage(url).then(img => {
+                    const div = document.createElement('div');
+                    div.className = 'result';
+                    const smallCanvas = document.createElement('canvas');
+                    smallCanvas.width = 100;
+                    smallCanvas.height = 100;
+                    const sctx = smallCanvas.getContext('2d');
+                    sctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, 100, 100);
+                    div.appendChild(smallCanvas);
+                    previewContainer.appendChild(div);
+                });
+            });
+        }
+
+        // Clear results table
+        function clearResultsTable() {
+            resultsBody.innerHTML = '';
+        }
+
+        // Add row to results table
+        function addResultRow(templateName, score, x, y, width, height) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${templateName}</td>
+                <td>${score}%</td>
+                <td>(${x}, ${y})</td>
             `;
-            rankList.appendChild(li);
+            resultsBody.appendChild(row);
+        }
+
+        // Main processing function
+        async function runTemplateMatching() {
+            clearCanvas();
+            clearResultsTable();
+            const collageUrls = collageInput.files ? Array.from(collageInput.files).map(f => URL.createObjectURL(f)) : [];
+            const templateUrls = templatesInput.files ? Array.from(templatesInput.files).map(f => URL.createObjectURL(f)) : [];
+
+            if (collageUrls.length === 0 || templateUrls.length === 0) {
+                alert('Please upload at least one collage and one template (PNG recommended).');
+                return;
+            }
+
+            createCanvas();
+            renderCollagePreview(collageUrls);
+            renderTemplatePreview(templateUrls);
+
+            // Load all templates once
+            const templateImages = [];
+            for (let url of templateUrls) {
+                try {
+                    const img = await loadImage(url);
+                    templateImages.push(img);
+                } catch (e) {
+                    console.error('Failed to load template:', url);
+                }
+            }
+
+            // Process each collage
+            let collageImg = await loadImage(collageUrls[0]);
+            collage = await createMatFromImage(collageImg);
+            let collageGray = await toGray(collage);
+
+            for (let url of collageUrls) {
+                try {
+
+                    // Draw original collage on canvas
+                    ctx.drawImage(collageImg, 0, 0);
+
+                    // Process each template
+                    for (let i = 0; i < templateImages.length; i++) {
+                        const templateImg = templateImages[i];
+
+                        // Calculate scaled dimensions
+                        const scaledW = Math.round(templateImg.width * scale);
+                        const scaledH = Math.round(templateImg.height * scale);
+
+                        // Resize template
+                        const scaledMat = await resizeImage(templateImg, scaledW, scaledH);
+                        const scaledGray = await toGray(scaledMat);
+                        const templateWidth = scaledW;
+                        const templateHeight = scaledH;
+
+                        // Convert collage to grayscale once (shared)
+                            // Perform matching
+                            const result = await findBestMatch(collageGray, scaledGray, templateWidth, templateHeight);
+
+                            const score = result.score;
+                            const x = result.x;
+                            const y = result.y;
+
+                            // Draw bounding box
+                            drawMatchBox(collageImg, x, y, templateWidth, templateHeight);
+
+                            // Update table
+                            addResultRow(`Template ${i + 1}`, score, x, y, templateWidth, templateHeight);
+
+                        scaledGray.delete();
+
+                        scaledMat.delete();
+                    }
+                } catch (e) {
+                    console.error('Processing error:', e);
+                }
+            }
+
+            // Re-draw the collage with boxes on the final canvas
+            if (collageImg) {
+                ctx.drawImage(collageImg, 0, 0);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('runBtn').addEventListener('click', runTemplateMatching);
+
+        // Cleanup URLs when files change
+        collageInput.addEventListener('change', () => {
+            clearCanvas();
+            clearResultsTable();
         });
-
-        // Push modified Mat back to HTML canvas view
-        cv.imshow(outputCanvas, srcMat);
-    }
-</script>
-
+        templatesInput.addEventListener('change', () => {
+            clearCanvas();
+            clearResultsTable();
+        });
+    </script>
 </body>
 </html>

@@ -93,14 +93,14 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 }
 
 .RB {--hue: 0; --chr: 0;} 
-.SS {--hue: 235;} 
+.SS {--hue: 280;} 
 .B  {--hue: 20;} 
-.S  {--hue: 220;} 
+.S  {--hue: 230;} 
 .St {--hue: 320;} 
 .Lm {--hue: 100;} 
 .RB,.B,.S,.St,.SS,.Lm {
-    --light: oklch(.5 var(--chr,.1) var(--hue));
-    --dark:  oklch(.4 var(--chr,.1) var(--hue));
+    --light: oklch(.5 var(--chr,.07) var(--hue));
+    --dark:  oklch(.4 var(--chr,.09) var(--hue));
 }
 x-part { /*initial style before part.css*/
     display: inline-grid; width: 15em; height: 15em;
