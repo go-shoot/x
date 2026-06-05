@@ -12,28 +12,26 @@ Object.assign(Garage, {
     put: (mode, code, content) => (Garage[mode][code] = content) && DB.put('user', {[mode]: Garage[mode]}),
 
     async before () {
-        let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]);
-        if (!Object.keys(acquired).length) return (Q('details').open = true) && Promise.reject();
-        let [hrefs, [meta, parts]] = await Promise.all([resp.text(), DB.get.essentials({drop: false})]);
-        PARTS = Part.import(meta, parts).parts;
-
-        let flatten = Parts => Parts instanceof O ? [...Parts.values()].map(flatten).flat() : Parts;
-        let all = Object.groupBy(flatten(PARTS), P => P.subcomp);
-
+        let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]), hrefs;
+        if (!Object.keys(acquired).length) 
+            return (Q('details').open = true) && Promise.reject();
+        [hrefs, PARTS] = await Promise.all([resp.text(), DB.get.essentials({drop: false})]);
         hrefs = hrefs.split('\n').filter(href => href.includes('parts'));
-        return Object.fromEntries(hrefs.map(href => {
-            Q('main').append(E('a', {href}));
+        hrefs.forEach(href => Q('main').append(E('a', {href})));
+
+        let grouped = Object.groupBy(DB.transform(PARTS).to.array(), P => P.subcomp);
+        grouped = new O(hrefs.map(href => {
             let {hash, search} = new URL(href);
             search = [...new URLSearchParams(search)][0];
-            let comp = search[1] ? hash.substring(1) : search[0];
-            let map = new Map(all[comp].map(P => [P, []]));
-            Object.entries(acquired).forEach(([code, obj]) => obj[comp] && 
-                map.get(Bey.comps.includes(comp) ? PARTS[comp][obj[comp]] : PARTS.blade.CX[comp][obj[comp]]).push(code)
-            );
-            return [comp, map];
+            let subcomp = search[1] ? hash.substring(1) : search[0];
+            return [subcomp, new Map(grouped[subcomp].map(P => [P, []]))];
         }));
+        new O(acquired).each(([code, obj]) => [...obj].forEach(([subcomp, abbr]) => 
+            grouped[subcomp].get(Bey.comps.includes(subcomp) ? PARTS[subcomp][abbr] : PARTS.blade.CX[subcomp][abbr]).push(code)
+        ));
+        return grouped;
     },
-    async display (sections) {
+    async display (grouped) {
         let sortGroupShow = (comp, map, section) => {
             let sorter = Garage.sort[comp] ?? Garage.sort.blade;
             let grouper = ([P]) => Bey.comps.includes(comp) ? Garage.inferior[comp](P) : Garage.inferior.CX[comp](P);
@@ -43,7 +41,7 @@ Object.assign(Garage, {
             );
             section.Q('summary').replaceChildren(...Garage.element.summary(comp, parts.true?.length));
         };
-        Object.entries(sections).forEach(async ([comp, map]) => {
+        Object.entries(grouped).forEach(async ([comp, map]) => {
             let section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
             if (comp == 'blade') {
                 let UX = Object.groupBy([...map], ([P]) => P.group == 'UX');
@@ -51,7 +49,7 @@ Object.assign(Garage, {
                 sortGroupShow(comp, UX.false, section[1]);
             } else {
                 comp == 'bit' && (map = await Promise.all(
-                    [...map].map(async ([P, _]) => [P.attr.size ? P : await P.revise('tile'), _])
+                    [...map].map(async ([P, _]) => [P.attr ? P : await P.revise(['attr']), _])
                 ));
                 sortGroupShow(comp, map, section);
             }
@@ -156,7 +154,7 @@ Object.assign(Garage, {
     },
     prompt: () => Q('textarea').value = 
         Q('p[hidden]').textContent + Q('section', []).map(section => Part.names[section.id.split('#')[0]].eng + '：' + 
-            (section.Q('b', []).map(b => b.lang ? `${b.innerText}/${b.title}` : b.innerText).join('、') || '未有')
+            (section.Q('li:not(.unacquired) b', []).map(b => b.lang ? `${b.innerText}/${b.title}` : b.innerText).join('、') || '未有')
         ).join('\n')
 });
 Garage.element = {

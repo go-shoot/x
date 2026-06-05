@@ -27,8 +27,7 @@ import { FilterForm, Keihin } from '../include/utilities.js'
 const Prize = () => Prize.before().then(Prize.display).then(Prize.after);
 Object.assign(Prize, {
     async before () {
-        Part.import(...await DB.get.essentials());
-        let [beys, keihins] = await Promise.all([DB.get('product', 'beys'), DB.get('product', 'keihins')]);
+        let [beys, keihins] = await Promise.all([DB.get('product', 'beys'), DB.get('product', 'keihins'), DB.get.essentials()]);
         return beys.filter(([, classes]) => classes.includes('Lm'))
             .map(([code, _, bey]) => ({code, bey, ...keihins[code]}))
     },

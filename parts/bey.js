@@ -78,7 +78,7 @@ class Bey {
         [P => P.length || !P.attr.has('simple')]
     ]]
 }
-Bey.import = Parts => ([PARTS, {Blade, Ratchet, Bit}] = [Parts, Part]) && Object.assign(window, {parts: Parts});
+Bey.import = PARTS_ => ([PARTS, {Blade, Ratchet, Bit}] = [PARTS_, Part]) && Object.assign(window, {PARTS: PARTS_});
 
 class Row {
     constructor(bey, code, classes, others) {

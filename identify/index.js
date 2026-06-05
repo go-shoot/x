@@ -91,10 +91,9 @@ Image.calculate = {
         worker.postMessage({i, img: bitmap, backdrop}, [bitmap]) 
     }))
 }
-const App = () => App.model() && DB.get.essentials()
+const App = () => App.model() && DB.get.essentials({flat: true})
     .then(([_, Parts]) => {
-        let flatten = Parts => Parts instanceof O ? [...Parts.values()].map(flatten).flat() : Parts;
-        PARTS = flatten(Parts).filter(P => P.constructor.name == 'Bit');
+        PARTS = Parts.filter(P => P.constructor.name == 'Bit');
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
         return Promise.all(PARTS.map(P => /*E.img*/hash(`/x/img/${P.path.join('/')}.png`)));

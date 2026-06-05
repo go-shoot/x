@@ -46,10 +46,17 @@ section {
         min-height: 4em;
     }
     li {
+        &.unacquired {
+            select[name=acquired] {
+                color: var(--on);
+                pointer-events: none;
+            }
+            figure>img {opacity: .5;}
+            figure>:is(img,figcaption) {filter: brightness(.5) grayscale(.5);}
+        }        
         &:not(.selected) {margin: 0 .2em;}
         &:has(details) {align-self: center;}
-        &:first-child:has(details) {margin-left: .25em;}
-        &:has(details:not([open]))~li {display: none;}
+        nav:has(input[value=acquired]:checked)+main &.unacquired, &:has(details:not([open]))~li {display: none;}
     }
     summary {
         line-height: 1.4; font-size: .9em;
@@ -133,13 +140,4 @@ dialog textarea {
     width: 90%; height: 80vh;
     font-size: 1em;
     margin: 1em auto;
-}
-.unacquired {
-    nav:has(input[value=acquired]:checked)+main & {display: none;}
-    figure>:is(img,figcaption) {filter: brightness(.5) grayscale(.5);}
-    figure>img {opacity: .5;}
-    select[name=acquired] {
-        color: var(--on);
-        pointer-events: none;
-    }
 }

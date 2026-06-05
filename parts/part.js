@@ -18,21 +18,20 @@ class Part {
             yield typeof value == 'object' ? 
                 Object.values(value).filter(v => typeof v != 'function').map(v => v.split?.(' ') ?? v) : value;
     }
-    get all () {return [...new Set([...this].flat(9).filter(p => p)), Part.types.chi[[...this.attr][0]]];}
     get subcomp () {return this.path[2] || this.path[0];}
     get weight () {return (w => parseInt(w) + Part.weight.adjust[w.at(-1)])(this.stat[0] || '0=');}
     only = {
         abbr: () => this.path[0] == 'ratchet',
         name: () => Part.named.includes(this.subcomp)
     }
-    push = json => Object.assign(this, json, {attr: new Set([...this.attr ?? [], ...json.attr ?? []])})
+    push = json => Object.assign(this, json, json.attr ? {attr: new Set([...this.attr ?? [], ...json.attr])} : {})
     keep (...fields) {
         for (const key of Object.keys(this))
             !fields.includes(key) && typeof this[key] != 'function' && delete this[key];
         return this;
     }
-    revise (where, base, pref) {
-        this.constructor.revisions[where]?.forEach?.(what => this[what] = this.revised[what](base, pref));
+    revise (type = 'cell', base, pref) {
+        (Array.isArray(type) ? type : this.constructor.revisions[type])?.forEach(prop => this[prop] = this.revised[prop](base, pref));
         return this;
     }
     href = () => `/x/parts/` + Part.href.join(this.path, '?=#.')
@@ -52,9 +51,9 @@ class Part {
     })
     static weight = {adjust: {'+': .3, '=': 0, '-': -.3}};
 }
-Part.import = ({part, blade, bit, tile}, Parts) => Object.assign(Part, part) && 
+Part.import = ({part, blade, bit, tile}, PARTS_) => Object.assign(Part, part) && 
     Object.assign(Blade, {...blade, sub: new O(blade.sub)}) && Object.assign(Bit, bit) && Object.assign(Tile, tile) && 
-    Bey.import(PARTS = Parts);
+    Bey.import(PARTS = PARTS_);
 
 class Blade extends Part {
     constructor(json) {
@@ -71,7 +70,7 @@ class Blade extends Part {
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
-    revise = (where = 'cell') => super.revise(where, where == 'tile' && {stat: [, ...this.abbr.split('-')]});
+    revise = type => super.revise(type, type == 'tile' && {stat: [, ...this.abbr.split('-')]});
     revised = {
         group: () => new O(Tile.ratchet.height).find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
@@ -79,7 +78,7 @@ class Ratchet extends Part {
             let {tens, digit} = Ratchet.eng;
             return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
         },
-        attr: () => this.attr.has('simple') ? this.attr : this.attr.add('normal'),
+        attr: () => this.attr?.has('simple') ? this.attr : (this.attr ??= new Set()).add('normal'),
         stat: base => this.stat.length === 1 ? [...this.stat, ...base.stat.slice(1)] : this.stat
     }
     static revisions = {tile: ['group', 'names', 'attr', 'stat']};
@@ -90,16 +89,19 @@ class Ratchet extends Part {
 }
 class Bit extends Part {
     constructor(json) {super(json);}
-    async revise (where = 'cell') {
-        if (!this.abbr || Bit.revisions[where].every(p => this[p] != undefined)) return this;
-        let [, pref, base] = new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr);
-        Bit.revisions[where].some(p => !PARTS.bit[base][p]) && PARTS.bit[base].push(await DB.get('bit', base));
-        return super.revise(where, PARTS.bit[base], pref);
+    async revise (type) {
+        let props = Array.isArray(type) ? type : Bit.revisions[type];
+        if (!this.abbr || !this.isPartial(props)) return this;
+        let [, pref, base] = this.decompose();
+        PARTS.bit[base].isPartial(props) && PARTS.bit[base].push(await DB.get('bit', base));
+        return super.revise(props, PARTS.bit[base], pref);
     }
+    decompose = () => new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr)
+    isPartial = props => props.some(p => this[p] == null)
     revised = {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
-        attr: (base, pref) => new Set([...this.attr, ...base.attr, ...pref]),
+        attr: (base, pref) => new Set([...this.attr ?? [], ...base.attr, ...pref]),
         stat: base => [this.stat[0], ...base.stat.slice(1, base.stat.length - this.stat.length + 1), ...this.stat.slice(1)],
         desc: (base, pref) => [...pref].map(p => Bit.prefix[p].desc).join('、') + `的〔${base.abbr}〕Bit${this.desc ? `，${this.desc}` : '。'}`,
     }
@@ -168,7 +170,7 @@ Object.assign(Tile.prototype.fill, {
     },
     icons () {
         let {line, group, attr} = this.Part;
-        return [...new Set([line, group, ...attr])].map(a => {
+        return [...new Set([line, group, ...attr ?? []])].map(a => {
             let content = Tile.icons.find(a, {evaluate: true});
             return content ? E('li', typeof content == 'string' ? {title: a} : {}, content) : '';
         });
@@ -217,10 +219,10 @@ class Cell {
         let {abbr, subcomp, attr, fused} = P;
         if (abbr == null && fused) return document.createTextNode('');
         let colSpan = Cell.#colSpan.find(P) ?? 1;
-        attr.has('fused') && (colSpan += 1);
+        attr?.has('fused') && (colSpan += 1);
         let tds = [E('td', {headers: subcomp, ...colSpan > 1 ? {colSpan} : {}})];
         if (abbr == null) return tds; 
-        E(tds[0]).set({title: abbr, innerText: abbr || '', ...attr.has('fused') ? {classList: 'fused'} : {}});
+        E(tds[0]).set({title: abbr, innerText: abbr || '', ...attr?.has('fused') ? {classList: 'fused'} : {}});
         !P.only.name() && !P.only.abbr() && tds.push(E('td'));
         tds.forEach(td => td.Part = P);
         return tds;

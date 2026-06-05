@@ -208,22 +208,19 @@ Object.assign(DB, {
             .onsuccess = () => res(DB.put.success()))
 });
 Object.assign(DB.put, {
-    parts: (parts, file) => DB.put(file, [...new O(parts)].map(([abbr, part]) => ({...part, abbr}))),
+    parts: (parts, file) => DB.put(file, Object.entries(parts).map(([abbr, part]) => ({...part, abbr}))),
     success: () => DB.indicator.update()
 });
 Object.assign(DB.get, {
     all: store => new Promise(res => DB.prepare.os(store).getAll()
         .onsuccess = ev => res(ev.target.result.map(p => p.abbr ? DB.format.part(p, store) : p)))
     ,
-    parts: ({drop, dict} = {}) => DB.prepare.tx(DB.os.parts) && 
+    parts: ({drop} = {}) => DB.prepare.tx(DB.os.parts) && 
         Promise.all(DB.os.parts.map(store => DB.get.all(store).then(parts => [store, parts])))
-        .then(parts => (dict ??= true) ? 
-            Transform(parts).to.dict(drop ??= true) : 
-            parts.flatMap(([comp, parts]) => parts.map(p => Transform(p).to.Part(comp)))
-        )
+        .then(parts => Transform(parts).to.dict(drop ??= true))
     ,
-    essentials: config => Promise.all([DB.get('meta', 'general'), DB.get.parts(config)])
-        .then(([meta, parts]) => [meta, parts])
+    essentials: ({drop, flat} = {}) => Promise.all([DB.get('meta', 'general'), DB.get.parts({drop})])
+        .then(([meta, PARTS]) => (PARTS => flat ? Transform(PARTS).to.array() : PARTS)(Part.import(meta, PARTS).PARTS))
 });
 const Transform = content => ({
     to: {
@@ -248,10 +245,11 @@ const Transform = content => ({
             );
             return OBJ;
         },
+        array: () => content instanceof O ? [...content.values()].map(c => Transform(c).to.array()).flat() : content,
         Part (comp) {
             content.abbr.includes('.') && ([content.group, content.abbr] = content.abbr.split('.'));
             return new (Part[comp] ?? Part.Blade)(content);
         }
     }
 });
-export default window.DB = DB
+export default window.DB = Object.assign(DB, {transform: Transform});

@@ -9,24 +9,23 @@ Q('search ul').append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.svg
 let CACHE;
 class Cache {
     constructor() {
-        return Promise.all([DB.get.essentials({drop: false}), DB.get('meta', 'search')])
-        .then(([[meta, PARTS], links]) => {
-            Part.import(meta, PARTS);
-            CACHE = {links: [
+        return DB.get.essentials({drop: false, flat: true})
+        .then(Parts => Promise.all([DB.get('meta', 'search'), ...Parts.map(P => P.revise('tile'))]))
+        .then(([links, ...Parts]) => CACHE = {
+            links: [
                 ...links,
                 ...LINES.flatMap(([line, {divided}]) => 
                     Cache.link(['blade', ...divided ? [line] : ['', line]], line)
                 ),
                 Cache.link(['ratchet'], '核輪⬧固鎖輪盤'), Cache.link(['bit'], '軸心')
-            ]};
-            return Promise.all(Cache.flatten(PARTS).map(P => P.revise('tile')));
-        }).then(Parts => ({...CACHE, parts: Parts}));
+            ],
+            parts: Parts.map(P => P.push({all: [...new Set([...P].flat(9)), Part.types.chi[[...P.attr][0]]].filter(p => p)}))
+        });
     }
     static link = ([comp, line, group], text) => ({text,
         keywords: ['零件','部件','組件','圖鑑', comp, text],
         href: `/x/parts/?${comp}${line ? `=${line}` : ''}${group ? `#${group}` : ''}`
     })
-    static flatten = Parts => Parts instanceof O ? [...Parts.values()].map(Cache.flatten).flat() : Parts
 }
 class Input {
     constructor() {

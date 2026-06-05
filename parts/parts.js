@@ -11,7 +11,7 @@ Object.assign(Catalog, {
     async firstly () {
         gtag('event', PATH[1] || PATH[0].toUpperCase());
         Magnifier();
-        PARTS = Part.import(...await DB.get.essentials({drop: false})).parts;
+        PARTS = await DB.get.essentials({drop: false});
         let meta = JSON.parse(Q(`[title=${PATH[0]}]`).innerText);
         Filter.legend = meta.所有 ? '所有' : '一體';
         Object.assign(Filter, meta.filter, meta[PATH[1] || Filter.legend].filter);

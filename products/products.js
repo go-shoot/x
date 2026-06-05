@@ -13,7 +13,7 @@ Object.assign(Table, {
         Filter();
         Table.events();
         Links.events();
-        PARTS = Part.import(...await DB.get.essentials()).parts;
+        PARTS = await DB.get.essentials();
     },
     display: () => DB.get('product', 'beys')
         .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).row))),
