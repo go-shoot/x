@@ -93,11 +93,11 @@ input:is([type=checkbox],[type=radio],[type=file]),svg:not([viewBox]),::-webkit-
 }
 
 .RB {--hue: 0; --chr: 0;} 
-.SS {--hue: 280;} 
-.B  {--hue: 20;} 
-.S  {--hue: 230;} 
-.St {--hue: 320;} 
+.B  {--hue: 30;} 
 .Lm {--hue: 100;} 
+.S  {--hue: 230;} 
+.SS {--hue: 280;} 
+.St {--hue: 320;} 
 .RB,.B,.S,.St,.SS,.Lm {
     --light: oklch(.5 var(--chr,.07) var(--hue));
     --dark:  oklch(.4 var(--chr,.09) var(--hue));

@@ -282,5 +282,18 @@ Object.assign(Markup, {
     nobreak: text => text?.replaceAll('-', '‑') ?? '',
     reverse: text => text.replaceAll(/[‑‒]/g, '-')
 });
-
 export {FilterForm, Transition, Shohin, Keihin, Glossary, Markup}
+
+let mu = (text, items, dual = true) => dual ? 
+    text.split(/(?<=.+?) (?=[一-龢].+)/).map(t => mu(t, items, false)) :
+    items.reduce((children, item) => children.flatMap(el => {
+        let [text, replacer, regex, result] = [el?.innerText ?? el, Markup[item]];
+        if (typeof replacer == 'function')
+            result = replacer(text ?? '');
+        else {
+            [regex, replacer] = Markup[item].find(([r]) => r.test(text)) ?? [];
+            result = replacer?.(regex.exec(text)) ?? text;
+        }
+        return el instanceof Element ? E(el).set(result) : result;
+    }), [text]);
+mu('erwe_232r 人人\\一一_add')
