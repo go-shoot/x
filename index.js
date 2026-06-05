@@ -9,7 +9,7 @@ Q('search ul').append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.svg
 let CACHE;
 class Cache {
     constructor() {
-        return Promise.all([DB.get.essentials(true), DB.get('meta', 'search')])
+        return Promise.all([DB.get.essentials({drop: false}), DB.get('meta', 'search')])
         .then(([[meta, PARTS], links]) => {
             Part.import(meta, PARTS);
             CACHE = {links: [

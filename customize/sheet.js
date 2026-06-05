@@ -1,5 +1,5 @@
 import DB from '../include/DB.js'
-import PointerInteraction from 'https://aeoq.github.io/pointer-interaction/script.js';
+import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
@@ -96,7 +96,7 @@ Object.assign(App, {
         setTimeout(() => Q('.active')?.classList.remove('active'), 2000);
     },
     events () {
-        PointerInteraction.events([
+        PI.events([
             [Q('[name=br]'), {
                 click: click => click.for(2).to((_, target) => target.value == 20 && target.set.value({v: 255}))
             }],

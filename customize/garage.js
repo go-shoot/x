@@ -2,34 +2,38 @@ import DB from '../include/DB.js'
 import { Part, Tile, Cell } from '../parts/part.js';
 import { Markup } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
+import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 navigator.storage.persist();
 let PARTS;
-const Garage = () => Garage.before().then(Garage.display).then(Garage.after);
+const Garage = () => Garage.before().then(Garage.display).then(Garage.after).catch(er => er && console.error(er));
 Object.assign(Garage, {
     get: mode => DB.get('user', mode).then(beys => Garage[mode] = beys || {}),
     put: (mode, code, content) => (Garage[mode][code] = content) && DB.put('user', {[mode]: Garage[mode]}),
 
     async before () {
         let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]);
-        if (!Object.keys(acquired).length) return Promise.reject();
-        let [hrefs, [meta, parts]] = await Promise.all([resp.text(), DB.get.essentials(true)]);
+        if (!Object.keys(acquired).length) return (Q('details').open = true) && Promise.reject();
+        let [hrefs, [meta, parts]] = await Promise.all([resp.text(), DB.get.essentials({drop: false})]);
         PARTS = Part.import(meta, parts).parts;
-        
-        return new Map(hrefs.split('\n').filter(href => href.includes('parts')).map(href => {
+
+        let flatten = Parts => Parts instanceof O ? [...Parts.values()].map(flatten).flat() : Parts;
+        let all = Object.groupBy(flatten(PARTS), P => P.subcomp);
+
+        hrefs = hrefs.split('\n').filter(href => href.includes('parts'));
+        return Object.fromEntries(hrefs.map(href => {
             Q('main').append(E('a', {href}));
             let {hash, search} = new URL(href);
             search = [...new URLSearchParams(search)][0];
-            let [comp, map] = [search[1] ? hash.substring(1) : search[0], new Map()];
-            Object.entries(acquired).forEach(([code, obj]) => {
-                if (!obj[comp]) return;
-                let P = Bey.comps.includes(comp) ? PARTS[comp][obj[comp]] : PARTS.blade.CX[comp][obj[comp]];
-                map.get(P)?.push(code) ?? map.set(P, [code]);
-            });
+            let comp = search[1] ? hash.substring(1) : search[0];
+            let map = new Map(all[comp].map(P => [P, []]));
+            Object.entries(acquired).forEach(([code, obj]) => obj[comp] && 
+                map.get(Bey.comps.includes(comp) ? PARTS[comp][obj[comp]] : PARTS.blade.CX[comp][obj[comp]]).push(code)
+            );
             return [comp, map];
         }));
     },
-    async display (acquired) {
+    async display (sections) {
         let sortGroupShow = (comp, map, section) => {
             let sorter = Garage.sort[comp] ?? Garage.sort.blade;
             let grouper = ([P]) => Bey.comps.includes(comp) ? Garage.inferior[comp](P) : Garage.inferior.CX[comp](P);
@@ -39,7 +43,7 @@ Object.assign(Garage, {
             );
             section.Q('summary').replaceChildren(...Garage.element.summary(comp, parts.true?.length));
         };
-        [...acquired].forEach(async ([comp, map]) => {
+        Object.entries(sections).forEach(async ([comp, map]) => {
             let section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
             if (comp == 'blade') {
                 let UX = Object.groupBy([...map], ([P]) => P.group == 'UX');
@@ -51,6 +55,7 @@ Object.assign(Garage, {
                 ));
                 sortGroupShow(comp, map, section);
             }
+            [section].flat().forEach(s => s.Q('summary').title = s.Q('li:has(details)~li:not(.unacquired)', []).length);
             Q('main').append(...[section].flat());
         });
     },
@@ -94,10 +99,16 @@ Object.assign(Garage, {
     events () {
         E(Q('main')).set({
             async onclick (ev) {
+                if (ev.target.matches('main,ol')) return Q('li.selected', li => li.classList.remove('selected'));
+                if (Garage.held) return;
                 let path = ev.target.closest('figure')?.firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
                 path && new Preview(['cell', 'tile'], {path}, ev).then(() => Garage.mark(ev.target));
             },
+            onpointerup: () => setTimeout(() => Garage.held = false),
             async onchange (ev) {
+                if (ev.target.name == 'tier') 
+                    return Q('li.selected', li => li.Q('figure').classList = li.Q('select[name=tier]').value = ev.target.value);
+
                 let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
                 ev.target.firstChild.selected = true;
                 await (option.matches('.Lm') ?
@@ -106,7 +117,7 @@ Object.assign(Garage, {
                 Garage.mark(ev.target);
             }
         });
-        Q('nav form').onchange = ev => Storage('pref', {lang: ev.target.value}) && Garage.lang(ev.target.value);
+        Q('nav form').onchange = ev => ev.target.name == 'lang' && Storage('pref', {lang: ev.target.value}) && Garage.lang(ev.target.value);
         Q('#prompt').onclick = ev => {
             ev.target.matches('button,textarea') ? ev.stopPropagation() : Q('#prompt').hidePopover();
             ev.target.id == 'copy' && navigator.clipboard.writeText(Q('textarea').value).then(() => {
@@ -115,14 +126,20 @@ Object.assign(Garage, {
                 setTimeout(() => ev.target.innerHTML = original, 1000);
             });
         }
+        PI.events({
+            'section li': {
+                hold: hold => hold.for(.5).to((_, target) => (Garage.held = true) && target.classList.toggle('selected'))
+            }
+        });
     },
     lang (lang) {
         let hktw = name => name.split(' ')[['hk','tw'].indexOf(lang)] || name;
         Q('figure:has(b[lang])>img', img => {
             let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-            let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi || PARTS.at(path).names.eng;
+            let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi, l = lang;
+            !name && (name = PARTS.at(path).names.eng) && (l = 'eng');
             ['hk','tw'].includes(lang) && (name = hktw(name));
-            E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang, title: Markup.remove(PARTS.at(path).names.eng)});
+            E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang: l, title: Markup.remove(PARTS.at(path).names.eng)});
         });
         Q('section:has(h2 a:not(:empty))', section => {
             let name = Part.names[section.id][lang] || Part.names[section.id].chi;
@@ -146,7 +163,7 @@ Garage.element = {
     section: comp => Array.isArray(comp) ? 
         comp.map(Garage.element.section) : 
         E(`section`, {id: comp}, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
-    li: (P, codes) => E('li', [
+    li: (P, codes) => E('li', codes.length ? {} : {classList: 'unacquired'}, [
         E('select', {name: 'tier'}, [...Array(6)].map((_, i) => E('option', {value: i}, `T${i}`))),
         E(`figure`, [
             E('img', {src: `../img/${P.path.join('/')}.png`}), 
@@ -156,13 +173,13 @@ Garage.element = {
                 .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1)))
             ),
         ]),
-        E('select', {name: 'acquired'}, [E('option', codes.length), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
+        E('select', {name: 'acquired'}, [E('option', `${codes.length}`), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
     ]),
-    summary: (comp, length = 0) => [
+    summary: comp => [
         ({
             chip: '< 2 g', over: '< 3 g', metal: '< 28 g', main: '< 31 g', assist: '< 6 g',
             blade: '< 35 g', ratchet: '> 70 dmm', bit: '非F/L/U系'
-        })[comp], E('br'), ` [ ${length} ]`
+        })[comp], E('br')
     ].flat()
 }
 export default Garage;

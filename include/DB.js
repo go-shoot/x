@@ -151,11 +151,11 @@ Object.assign(DB, {
     cache: {
         actions: {
             'part-blade': '', 'part-ratchet': '', 'part-bit': '', 'part-blade-collab': json => DB.put.parts(json, 'blade'),
-            'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(Transform.to.grouped(parts), `blade.${line}`))),
+            'part-blade-divided': json => Promise.all(Object.entries(json).map(([line, parts]) => DB.put.parts(Transform(parts).to.grouped(), `blade.${line}`))),
             'meta': json => DB.put('meta', json),
             'prod-gear': json => DB.put('product', json),
             'prod-keihin': beys => DB.put('product', {keihins: beys}),
-            'prod-beys': beys => DB.put('product', {beys: beys.map(Transform.to.RB())}),
+            'prod-beys': beys => DB.put('product', {beys: Transform(beys).to.subcoded()}),
         },
         files: ar => ar.length && DB.prepare.tx(true, 'rw') && 
             Promise.all(ar.map(([{value: file}, {value: json}]) => DB.cache.file(file, json)))
@@ -215,37 +215,43 @@ Object.assign(DB.get, {
     all: store => new Promise(res => DB.prepare.os(store).getAll()
         .onsuccess = ev => res(ev.target.result.map(p => p.abbr ? DB.format.part(p, store) : p)))
     ,
-    parts: detailed => DB.prepare.tx(DB.os.parts) && 
+    parts: ({drop, dict} = {}) => DB.prepare.tx(DB.os.parts) && 
         Promise.all(DB.os.parts.map(store => DB.get.all(store).then(parts => [store, parts])))
-        .then(parts => Transform.to.dict(parts, detailed))
+        .then(parts => (dict ??= true) ? 
+            Transform(parts).to.dict(drop ??= true) : 
+            parts.flatMap(([comp, parts]) => parts.map(p => Transform(p).to.Part(comp)))
+        )
     ,
-    essentials: detailed => Promise.all([DB.get('meta', 'general'), DB.get.parts(detailed)])
+    essentials: config => Promise.all([DB.get('meta', 'general'), DB.get.parts(config)])
         .then(([meta, parts]) => [meta, parts])
 });
-const Transform = {
+const Transform = content => ({
     to: {
-        grouped: parts => ({...new O(parts)
+        subcoded: () => content.map((subcode => ([code, classes, ...rest], i, list) => {
+            subcode = code == list[i-1]?.[0] ? subcode + 1 : 
+                    code == list[i+1]?.[0] ? 1 : 0;
+            return [subcode ? code + `_0${subcode}` : code, classes, ...rest];
+        })()),
+        grouped: () => ({...new O(content)
             .map(([group, parts]) => [group, parts.map(([sym, part]) => [sym, {...part, group}]) ])
             .flatten(([group, abbr, ...others]) => [`${group}.${abbr}`, ...others])
         }),
-        dict (parts, detailed) {
+        dict (drop) {
             let OBJ = new O;
-            parts.forEach(([comp, parts]) => comp.includes('.') ?
-                OBJ.blade[comp.split('.')[1]] = Transform.to.dict([...new O(Object.groupBy(parts, part => part.group))], detailed) : 
+            content.forEach(([comp, parts]) => comp.includes('.') ?
+                OBJ.blade[comp.split('.')[1]] = Transform([...new O(Object.groupBy(parts, part => part.group))]).to.dict(drop) : 
                 OBJ[comp] = new O(OBJ[comp] ?? {}, parts.map(part => {
-                    part.abbr.includes('.') && ([part.group, part.abbr] = part.abbr.split('.'));
-                    let P = new (Part[comp] ?? Part.Blade)(part);
-                    detailed || P.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
+                    let P = Transform(part).to.Part(comp);
+                    drop && P.keep('abbr', 'path', 'line', 'group', 'names', 'attr', 'revised');
                     return [P.abbr, P];
                 }))
             );
             return OBJ;
         },
-        RB: subcode => ([code, classes, ...rest], i, list) => {
-            subcode = code == list[i-1]?.[0] ? subcode + 1 : 
-                      code == list[i+1]?.[0] ? 1 : 0;
-            return [subcode ? code + `_0${subcode}` : code, classes, ...rest];
+        Part (comp) {
+            content.abbr.includes('.') && ([content.group, content.abbr] = content.abbr.split('.'));
+            return new (Part[comp] ?? Part.Blade)(content);
         }
     }
-};
+});
 export default window.DB = DB

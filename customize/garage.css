@@ -1,3 +1,4 @@
+.LED label:nth-child(even) {margin-right: 1em;}
 button {
     background: var(--theme); color: var(--overlay1);
     padding: 0 .5rem;
@@ -41,10 +42,11 @@ section {
     ol {
         background: var(--overlay2);
         padding: .2rem !important;
-        display: flex; flex-wrap: wrap; gap: .3em;
+        display: flex; flex-wrap: wrap; gap: .5em .15em;
         min-height: 4em;
     }
     li {
+        &:not(.selected) {margin: 0 .2em;}
         &:has(details) {align-self: center;}
         &:first-child:has(details) {margin-left: .25em;}
         &:has(details:not([open]))~li {display: none;}
@@ -52,16 +54,16 @@ section {
     summary {
         line-height: 1.4; font-size: .9em;
         
-        li:has(+li) & {color: var(--theme);}
-        &::after {content: ' ▶'; vertical-align: -.1em;}
+        &:not([title='0']) {color: var(--theme);}
+        &::after {content: '[ 'attr(title)' ] ▶'; vertical-align: -.1em;}
     }
 }
-
 main figure {
     border-bottom: .2em solid gray; border-radius: .5em;
     padding: .25em;
     position: relative;
-
+    
+    .selected & {border-left: .2em solid var(--theme); border-right: .2em solid var(--theme);}
     >img {height: 4.8em;}
     figcaption {
         position: absolute; inset: .25em .25em .1em .25em;
@@ -73,11 +75,11 @@ main figure {
         b {
             grid-area: 3/1/4/4; justify-self: center; align-self: end;
             font-size: .65em; font-weight: bold;
-            line-height: 1;
-            color: var(--theme); text-shadow: 0 0 .5em black;
+            line-height: .9rem;
+            color: var(--theme); text-shadow: 0 0 .5em rgba(0,0,0,.2);
 
             &:is([lang=hk],[lang=tw],:not([lang])) {
-                font-size: .85em;
+                font-size: .8em;
                 white-space: nowrap;
             }
         }
@@ -131,4 +133,13 @@ dialog textarea {
     width: 90%; height: 80vh;
     font-size: 1em;
     margin: 1em auto;
+}
+.unacquired {
+    nav:has(input[value=acquired]:checked)+main & {display: none;}
+    figure>:is(img,figcaption) {filter: brightness(.5) grayscale(.5);}
+    figure>img {opacity: .5;}
+    select[name=acquired] {
+        color: var(--on);
+        pointer-events: none;
+    }
 }
