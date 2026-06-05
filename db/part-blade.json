@@ -1,4 +1,16 @@
 {
+    "GlVl": {
+        "group": "UX",
+        "names": {
+            "jap": "グローリーワルキューレ",
+            "eng": "Glory\\Valkyrie",
+            "chi": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["att","right","fused","bbb"],
+        "aka": "戰神"
+    },
    "DrSt": {
         "group": "BX",
         "names": {
@@ -20,7 +32,7 @@
         },
         "stat": ["41="],
         "desc": "（此乃AI臨時圖・異色版會在2026/10 DMMくじ中推出）",
-        "attr": ["sta","right","UX","fused"]
+        "attr": ["sta","right","fused"]
     },
    "BlGr": {
         "group": "UX",

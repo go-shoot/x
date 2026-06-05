@@ -1,4 +1,17 @@
 {
+    "HrSh": {
+        "group": "hasbro",
+        "names": {
+            "jap": "ホルスシャッター",
+            "eng": "HorusShatter",
+            "chi": "",
+            "aka": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["sta","right","BX","expand"],
+        "aka": "荷魯斯 隼"
+    },
     "BtGs": {
         "group": "hasbro",
         "names": {
@@ -9,7 +22,7 @@
         },
         "stat": ["36+"],
         "desc": "（此乃AI臨時圖）",
-        "attr": ["BX","bal","right"],
+        "attr": ["bal","right","BX"],
         "from": "WhWv"
     },
     "AgRm": {
@@ -22,7 +35,7 @@
         },
         "stat": ["33-"],
         "desc": "",
-        "attr": ["UX","def","right","fused"]
+        "attr": ["def","right","UX","fused"]
     },
     "ShSr": {
         "group": "hasbro",
@@ -34,7 +47,7 @@
         },
         "stat": ["37+"],
         "desc": "",
-        "attr": ["UX","bal","right","fused"]
+        "attr": ["bal","right","fused","UX"]
     },
     "HvRn": {
         "group": "hasbro",
