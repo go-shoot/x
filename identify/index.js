@@ -1,7 +1,7 @@
 import DB from "../include/DB.js";
 import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 
-let PARTS;
+let PARTS, Controls = {};
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this)}, onerror: () => res(null)}));
 E.canvas = async (img, bg = 'rgb(246,245,250)') => {
     typeof img == 'string' && (img = await E.img(img));
@@ -39,7 +39,7 @@ class Collage {
         (box ? [box] : this.boxes).forEach(points => {
             let [x0, y0, x1, y1] = points.split(',');
             let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
-            let [bw, bh] = [Math.min(W - bx, x1 - x0 + App.extend * 2), Math.min(H - by, y1 - y0 + App.extend * 2)];
+            let [bw, bh] = [Math.min(W - bx, x1 - x0 + Controls.extend * 2), Math.min(H - by, y1 - y0 + Controls.extend * 2)];
             ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, Math.floor(W / 400));
             ctx.strokeRect(bx, by, bw, bh);
         });
@@ -70,7 +70,7 @@ const Image = {
                 if (visited[idx]) continue;
     
                 let {chroma, luma} = Image.calculate.chroluma(data.slice(idx * 4, idx * 4 + 3));
-                if (chroma > App.chroma || luma > App.luma_min && luma < App.luma_max) {
+                if (chroma > Controls.chroma || luma > Controls.luma_min && luma < Controls.luma_max) {
                     let bounds = Image.calculate.boundary(x, y, W, H, data, visited);
                     let [w, h] = [bounds.x1 - bounds.x0, bounds.y1 - bounds.y0];
                     w > 25 && h > 25 && w < W * 0.2 && h < H * 0.2 && objects.push(bounds);
@@ -96,11 +96,11 @@ Image.calculate = {
             visited[idx] = 1;
             cx < x0 && (x0 = cx); cx > x1 && (x1 = cx); cy < y0 && (y0 = cy); cy > y1 && (y1 = cy);
     
-            [[cx + App.extend, cy], [cx - App.extend, cy], [cx, cy + App.extend], [cx, cy - App.extend]].forEach(([nx, ny]) => {
+            [[cx + Controls.extend, cy], [cx - Controls.extend, cy], [cx, cy + Controls.extend], [cx, cy - Controls.extend]].forEach(([nx, ny]) => {
                 if (!(nx >= 0 && nx < w && ny >= 0 && ny < h)) return;
                 let idx = (ny * w + nx) * 4;
                 let { chroma, luma } = Image.calculate.chroluma(data.slice(idx, idx + 3));
-                (chroma > App.chroma || luma > App.luma_min && luma < App.luma_max) && !visited[ny * w + nx] && stack.push([nx, ny]);
+                (chroma > Controls.chroma || luma > Controls.luma_min && luma < Controls.luma_max) && !visited[ny * w + nx] && stack.push([nx, ny]);
             });
         }
         return { x0, x1, y0, y1, w: x1-x0, h: y1-y0 };
@@ -113,7 +113,7 @@ Image.calculate = {
 }
 const App = () => App.model() && DB.get.essentials({flat: true})
     .then(Parts => {
-        PARTS = Parts.filter(P => P.constructor.name == 'Bit');
+        PARTS = Parts.filter(P => P.constructor.name == 'Ratchet');
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
         return Promise.all(PARTS.map(P => E.img(`/x/img/${P.path.join('/')}.png`)));
@@ -122,19 +122,19 @@ const App = () => App.model() && DB.get.essentials({flat: true})
         if (!img) return {};
         let hash = E.canvas(img).then(cvs => phash(cvs, 16));
 
-        let colored = cv.imread(img), grayed = new cv.Mat(), rgba = new cv.MatVector();
-        cv.cvtColor(colored, grayed, cv.COLOR_RGBA2GRAY);
-        cv.split(colored, rgba);
-        let mask = rgba.get(3);//cv.threshold(mask, mask, 50, 255, cv.THRESH_BINARY);
-        colored.delete(); rgba.delete();
+        // let colored = cv.imread(img), grayed = new cv.Mat(), rgba = new cv.MatVector();
+        // cv.cvtColor(colored, grayed, cv.COLOR_RGBA2GRAY);
+        // cv.split(colored, rgba);
+        // let mask = rgba.get(3);//cv.threshold(mask, mask, 50, 255, cv.THRESH_BINARY);
+        // colored.delete(); rgba.delete();
 
-        let scale = .6;
-        let [w, h] = [Math.floor(grayed.cols * scale), Math.floor(grayed.rows * scale)];
-        let resized = {image: new cv.Mat(), mask: new cv.Mat()};
-        cv.resize(grayed, resized.image, new cv.Size(w, h), 0, 0, cv.INTER_AREA);
-        cv.resize(mask, resized.mask, new cv.Size(w, h), 0, 0, cv.INTER_NEAREST);
-        grayed.delete(); mask.delete();
-
+        // let scale = .6;
+        // let [w, h] = [Math.floor(grayed.cols * scale), Math.floor(grayed.rows * scale)];
+        // let resized = {image: new cv.Mat(), mask: new cv.Mat()};
+        // cv.resize(grayed, resized.image, new cv.Size(w, h), 0, 0, cv.INTER_AREA);
+        // cv.resize(mask, resized.mask, new cv.Size(w, h), 0, 0, cv.INTER_NEAREST);
+        // grayed.delete(); mask.delete();
+        let resized={};
         return {...resized, hash: await hash};
     })))
     .then(assets => {
@@ -152,7 +152,7 @@ Object.assign(App, {
     events () {
         Q('input[type=file]').onchange = ev => new Collage(ev).then(collage => (Image.collage = collage) && App.bound());
         Q('main').oninput = ev => {
-            App[ev.target.id] = ev.target.value;
+            Controls[ev.target.id] = ev.target.value;
             App.bound();
         }
         Collage.cvs.onclick = ev => {
@@ -184,7 +184,7 @@ Object.assign(App, {
         Q('p').classList.add('loading');
         App.results = [];
         //App.match.template();
-        App.match.hash(App.detected);
+        App.match.hash();
         Q('.loading')?.classList.remove('loading');
     }
 });
@@ -208,11 +208,11 @@ App.match.template = () => Image.assets.forEach(({image, mask}, i) => {
     result.delete();
 });
 
-App.match.hash = boxes => Promise.all(boxes.map(box => 
+App.match.hash = (boxes = App.detected) => Promise.all(boxes.map(box => 
     E.canvas({x: box.x0, y: box.y0, w: box.w, h: box.h}).then(cvs => phash(cvs, 16))
 )).then(hashes => 
-    new ResultMatrix('hash', hashes, (h1, h2) => h1.hammingDistance(h2), 5, 'low')
-    .fromOptimum((r, c) => Image.collage.tag(boxes[c], PARTS[r].abbr))
+    Image.collage.results = new ResultMatrix('hash', hashes, (h1, h2) => h1.hammingDistance(h2), 5, 'low')
+    .fromOptimum((r, c) => Image.collage.tag(boxes[c], PARTS[r].abbr)).toBoxMap()
 );
 
 App.match.model = boxes => Promise.all(boxes.map((box, b) => 
@@ -251,8 +251,10 @@ class ResultMatrix {//row: parts  col: boxes
             callback(r, c, value);
             this.done.rows.add(r) && this.done.cols.add(c);
         });
+        return this;
     }
-    toBoxMap () {
-        
-    }
+    toBoxMap = () => new Map(App.detected.map((box, c) => [
+        box,
+        this.data.map((rows, r) => ({r, value: rows[c]})).sort((a, b) => a.value - b.value).slice(0, 5).map(({r}) => PARTS[r].abbr)
+    ]));
 }
