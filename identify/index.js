@@ -1,6 +1,11 @@
 import DB from "../include/DB.js";
 let PARTS;
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this)}, onerror: () => res(null)}));
+E.canvas = src => E.img(src).then(img => {
+    let canvas = E('canvas', {width: img.width, height: img.height});
+    canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+    return canvas;
+});
 //asset ready first
 const worker = new Worker('worker.js');
 class Collage {
@@ -8,19 +13,24 @@ class Collage {
         return E.img(URL.createObjectURL(ev.target.files[0])).then(img => {
             [this.img, Collage.cvs.width, Collage.cvs.height] = [img, img.width, img.height];
             this.draw();
-            createImageBitmap(Collage.cvs).then(bitmap => worker.postMessage({collage: bitmap}, [bitmap]));
+            let colored = cv.imread(img);
+            let grayed = new cv.Mat();
+            cv.cvtColor(colored, grayed, cv.COLOR_RGBA2GRAY);
+            colored.delete();
+            this.matrix = grayed;
+            //createImageBitmap(Collage.cvs).then(bitmap => worker.postMessage({collage: bitmap}, [bitmap]));
             return this;
         });
     }
     boxes = new Set();
-    draw (cvs = Collage.cvs, ctx = Collage.ctx) {
-        ctx.drawImage(this.img, 0, 0);
+    draw (box, color = 'red', cvs = Collage.cvs, ctx = Collage.ctx) {
+        box || ctx.drawImage(this.img, 0, 0);
         let [W, H, pad] = [cvs.width, cvs.height, 4];
-        this.boxes.forEach(points => {
+        (box ? [box] : this.boxes).forEach(points => {
             let [x0, y0, x1, y1] = points.split(',');
             let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
             let [bw, bh] = [Math.min(W - bx, x1 - x0 + App.extend * 2), Math.min(H - by, y1 - y0 + App.extend * 2)];
-            ctx.strokeStyle = '#ff3366', ctx.lineWidth = Math.max(2, Math.floor(W / 400));
+            ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, Math.floor(W / 400));
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
@@ -92,18 +102,26 @@ Image.calculate = {
     }))
 }
 const App = () => App.model() && DB.get.essentials({flat: true})
-    .then(([_, Parts]) => {
+    .then(Parts => {
         PARTS = Parts.filter(P => P.constructor.name == 'Bit');
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
-        return Promise.all(PARTS.map(P => /*E.img*/hash(`/x/img/${P.path.join('/')}.png`)));
-    }).then(blobs => {
-        Image.assets = blobs;
+        return Promise.all(PARTS.map(P => E.img(`/x/img/${P.path.join('/')}.png`)));
+    }).then(imgs => {
+        Image.assets = imgs.map(img => {
+            if (!img) return {};
+            img = cv.imread(img);
+            let [grayed, rgba] = [new cv.Mat(), new cv.MatVector()];
+            cv.cvtColor(img, grayed, cv.COLOR_RGBA2GRAY);
+            cv.split(img, rgba);
+            let mask = rgba.get(3);//cv.threshold(mask, mask, 50, 255, cv.THRESH_BINARY);
+            img.delete(); rgba.delete();
+            return {matrix: grayed, mask};
+        });
         Q('.loading')?.classList.remove('loading');
     });
 
 Object.assign(App, {
-    results: [],
     model: () => new Promise(res => worker.onmessage = ev => {
         if (ev.data.status !== 'READY') return;
         Q('#match').classList = 'model-ready';
@@ -129,8 +147,7 @@ Object.assign(App, {
     bound () {Image.collage.boxes=new Set();
         Image.collage.draw();
         App.detected = Image.detect();
-        App.detected.forEach(obj => Image.collage.boxes.add(`${obj.minX},${obj.minY},${obj.maxX},${obj.maxY}`));
-        Image.collage.draw();
+        App.detected.forEach(obj => Image.collage.draw(`${obj.minX},${obj.minY},${obj.maxX},${obj.maxY}`, 'green'));
         let backdrop = Image.collage.likelyBackdrop();
         if (Image.backdrop != backdrop) {
             Image.backdrop = backdrop;
@@ -141,6 +158,34 @@ Object.assign(App, {
     },
     match () {
         Q('p').classList.add('loading');
+        App.results = [];
+        // Image.assets.forEach(({matrix, mask}, i) => {
+        //     if (!matrix) return;
+        //     let scale = .6;
+        //     let [w, h] = [Math.floor(matrix.cols * scale), Math.floor(matrix.rows * scale)];
+        //     let resized = {matrix: new cv.Mat(), mask: new cv.Mat()};
+        //     cv.resize(matrix, resized.matrix, new cv.Size(w, h), 0, 0, cv.INTER_AREA);
+        //     cv.resize(mask, resized.mask, new cv.Size(w, h), 0, 0, cv.INTER_NEAREST);
+
+        //     let result = new cv.Mat();
+        //     cv.matchTemplate(Image.collage.matrix, resized.matrix, result, cv.TM_CCOEFF_NORMED, resized.mask);
+        //     let {maxVal, maxLoc} = cv.minMaxLoc(result);
+        //     if (maxVal > .4) {
+        //         App.results.push({
+        //             scale, w, h,
+        //             x: maxLoc.x,
+        //             y: maxLoc.y,
+        //             score: maxVal.toFixed(3),
+        //             src: matrix.src
+        //         });
+        //         setTimeout(() => {
+        //             Image.collage.draw(`${maxLoc.x},${maxLoc.y},${maxLoc.x+w},${maxLoc.y+h}`);
+        //             Image.collage.tag({minX: maxLoc.x, minY: maxLoc.y}, PARTS[i].abbr);
+        //         });
+        //     }
+        //     console.log(App.results.at(-1));
+        //     resized.matrix.delete(); resized.mask.delete(); result.delete();
+        // })
         Promise.all(App.detected.map((box, b) => 
             // hash({x: box.minX, y: box.minY, w: box.maxX-box.minX, h: box.maxY-box.minY})
             // .then(value => {
@@ -148,7 +193,7 @@ Object.assign(App, {
             //         .sort((a, b) => a.d == null || b.d == null ? 99 : a.d - b.d);
             //     Image.collage.tag(box, result.slice(0, 2).map(P => P.abbr));
             //     App.results.push([[box.minX, box.minY, box.maxX, box.maxY], ...result]);
-            // }))// &&
+            // })// &&
             new Promise(res => {
                 let handler = ({data}) => b === data.b && [worker.removeEventListener('message', handler), res(data.result)];
                 worker.addEventListener('message', handler);
@@ -156,8 +201,8 @@ Object.assign(App, {
             }).then(result => {
                 Image.collage.tag(box, PARTS[result[0].p].abbr);
                 App.results.push([[box.minX, box.minY, box.maxX-box.minX, box.maxY-box.minY], ...result.map(({p, score}) => [PARTS[p], score])])
-            }))
-        );
+            })
+        ));
         Q('.loading')?.classList.remove('loading');
     }
 });
@@ -167,8 +212,8 @@ const hash = (src, xi, yi) => (typeof src == 'string' ? E.img(src) : Promise.res
         if (!img) return;
         let [w, h] = [src.w ?? img.width, src.h ?? img.height].map(l => l * (xi == null && yi == null ? 1 : 1/2));
         let [x, y] = [(src.x ?? 0) + (xi == 0 || xi == null ? 0 : w), (src.y ?? 0) + (yi == 0 || yi == null ? 0 : h)];
-        let cvs = new OffscreenCanvas(w, h);
-        // let cvs = E('canvas', {width: w, height: h});document.body.append(cvs);
+        //let cvs = new OffscreenCanvas(w, h);
+        let cvs = E('canvas', {width: w, height: h});document.body.append(cvs);
         let ctx = cvs.getContext('2d');
         if (typeof src == 'string') {
             ctx.fillStyle = `rgb(246,245,250)`;
