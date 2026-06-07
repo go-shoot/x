@@ -33,12 +33,12 @@ class Bey {
     parts = {to: {names: (fallback = false) => {
         let blade = [this.blade].flat();
         let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
-            + Markup.nobreak(this.ratchet.abbr) + (this.bit.abbr ?? '');
+            + Markup.upgrade(this.ratchet.abbr, 'nobreak') + (this.bit.abbr ?? '');
         this.names = {
-            chi: Markup.remove([...new Set([
+            chi: Markup.cell([...new Set([
                 blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
                 blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
-            ].filter(n => n))].join('⬧')) + others,
+            ])].join(' ')).join('') + others,
             jap: blade.map(b => b.only.name() ? b.names?.jap : '').join('') + others
         };
         (this.names.chi == others) && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
@@ -145,7 +145,7 @@ class Search {
         match: (target, {abbr, names = {}}) => Array.isArray(target) ?
             target.some(t => this.#search.match(t, {abbr, names})) :
             new RegExp(target, 'i').test(abbr) ||
-            !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.remove(n))),
+            !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.clear(n))),
         code: (target, code) => Array.isArray(target) ?
             target.some(t => this.#search.code(t, code)) : 
             new RegExp(RegExp.escape(target.replace('-', '')), 'i').test(code.replace(/[- ]/g, ''))
@@ -223,7 +223,6 @@ class Preview {
     }
     #image = {
         revisions: code => {
-            code = Markup.reverse(code);
             let video = Q(`tr[id^='${code}'][data-video]`)?.dataset.video;
             let {lowercase, amount} = this.#image.params(code);
             let {alias, _, ...markup} = Maps.images.find(code) ?? {};
@@ -235,7 +234,7 @@ class Preview {
             amount: 9 * (/set|random/i.test(type) || Q(`[data-code='${code}']`)?.length > 2 ? 3 : 1)
         }),
         src: (type, code, markup, amount) => 
-            [...markup ? Markup.replace(markup, 'image', {no: code}) : [code]]
+            [...markup ? Markup.image(markup, {no: code}) : [code]]
                 .flatMap(code => this.#image.format[type](code, amount))
                 .map(src => E('img', {
                     loading: 'lazy',
@@ -267,9 +266,9 @@ class Preview {
     }, [E('div#cells'), E('div#tiles'), E('div#images'), E('diamond-grid')]));
     static thead = E('thead>tr', [
         E('th', 'CODE'), 
-        E('th.blade', {colSpan: 6}),
-        E('th.ratchet'),
-        E('th.bit', {colSpan: 2}),
+        E('th.icon-blade', {colSpan: 6}),
+        E('th.icon-ratchet'),
+        E('th.icon-bit', {colSpan: 2}),
     ]);
     static clear = () => [...Preview.dialog?.children].forEach(div => div.innerHTML = '');
 }

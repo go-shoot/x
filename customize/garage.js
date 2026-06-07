@@ -27,7 +27,8 @@ Object.assign(Garage, {
             return [subcomp, new Map(grouped[subcomp].map(P => [P, []]))];
         }));
         new O(acquired).each(([code, obj]) => [...obj].forEach(([subcomp, abbr]) => 
-            grouped[subcomp].get(Bey.comps.includes(subcomp) ? PARTS[subcomp][abbr] : PARTS.blade.CX[subcomp][abbr]).push(code)
+            grouped[subcomp].get(Bey.comps.includes(subcomp) ? 
+                PARTS[subcomp][abbr] : PARTS.blade.CX[subcomp][abbr]).push(code)
         ));
         return grouped;
     },
@@ -39,7 +40,6 @@ Object.assign(Garage, {
             new O({false: 'before', true: 'after'}).each(([type, posi]) => 
                 section.Q('li:has(details)')[posi](...parts[type]?.map(([P, codes]) => Garage.element.li(P, codes)) ?? [])
             );
-            section.Q('summary').replaceChildren(...Garage.element.summary(comp, parts.true?.length));
         };
         Object.entries(grouped).forEach(async ([comp, map]) => {
             let section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
@@ -53,16 +53,21 @@ Object.assign(Garage, {
                 ));
                 sortGroupShow(comp, map, section);
             }
-            [section].flat().forEach(s => s.Q('summary').title = s.Q('li:has(details)~li:not(.unacquired)', []).length);
+            [section].flat().forEach(s => s.Q('summary').append(...Garage.element.summary(comp)));
             Q('main').append(...[section].flat());
         });
     },
     after () {
+        Garage.count();
         Garage.events();
-        Q('h2 a', a => {
-            a.classList = a.search.substring(1).split('=')[0];
-            a.hash && !/.X$/.test(a.hash) && (a.innerText = a.hash);
-        });
+        Q('section', section => {
+            let a = section.Q('h2 a');
+            E(a).set({
+                classList: `icon-${a.search.substring(1).split('=')[0]}`,
+                innerText: a.hash && !/.X$/.test(a.hash) ? a.hash : ''
+            });
+            section.Q('li', (li, i) => (li.dataset.tier=Math.round(Math.random()*10),li.dataset.order = i));
+        })
         let amount = Q('li figure', []).length;
         gtag('event', 'GARAGE', {amount});
         if (!amount) return;
@@ -76,6 +81,7 @@ Object.assign(Garage, {
                 option.matches('.RB') ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
             });
         });
+        Q('.loading')?.classList.remove('loading');
     },
 
     sort: {
@@ -94,7 +100,13 @@ Object.assign(Garage, {
         ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
         bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
+    count: () => Q('ol', ol => ol.Q('summary').title = ol.Q('li:has(details)~:not(.unacquired)', []).length),
     events () {
+        let observer = new IntersectionObserver(entries => entries.forEach(en => {
+            if (!en.isIntersecting) return;
+            observer.unobserve(en.target);
+        }));
+        Q('section', section => observer.observe(section));
         E(Q('main')).set({
             async onclick (ev) {
                 if (ev.target.matches('main,ol')) return Q('li.selected', li => li.classList.remove('selected'));
@@ -115,7 +127,16 @@ Object.assign(Garage, {
                 Garage.mark(ev.target);
             }
         });
-        Q('nav form').onchange = ev => ev.target.name == 'lang' && Storage('pref', {lang: ev.target.value}) && Garage.lang(ev.target.value);
+        Q('nav form').onchange = ev => {
+            if (ev.target.name == 'lang') 
+                return Storage('pref', {lang: ev.target.value}) && Garage.lang(ev.target.value);
+            let by = ev.target.value == 'tier' ? 'tier' : 'order';
+            Q('ol', ol => {
+                ol.replaceChildren(...[...ol.children].sort((a, b) => a.dataset[by] - b.dataset[by]));
+                by == 'tier' && ol.Q('[data-tier="3"]', [])[0]?.before(ol.Q('li:has(details)'));
+            });
+            Garage.count();
+        }
         Q('#prompt').onclick = ev => {
             ev.target.matches('button,textarea') ? ev.stopPropagation() : Q('#prompt').hidePopover();
             ev.target.id == 'copy' && navigator.clipboard.writeText(Q('textarea').value).then(() => {
@@ -125,7 +146,7 @@ Object.assign(Garage, {
             });
         }
         PI.events({
-            'section li': {
+            'section li:has(figure)': {
                 hold: hold => hold.for(.5).to((_, target) => (Garage.held = true) && target.classList.toggle('selected'))
             }
         });
@@ -137,7 +158,7 @@ Object.assign(Garage, {
             let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi, l = lang;
             !name && (name = PARTS.at(path).names.eng) && (l = 'eng');
             ['hk','tw'].includes(lang) && (name = hktw(name));
-            E(img.nextSibling.Q('b')).set([...Markup('cell', name)], {lang: l, title: Markup.remove(PARTS.at(path).names.eng)});
+            E(img.nextSibling.Q('b')).set([...Markup.cell(name)], {lang: l, title: Markup.clear(PARTS.at(path).names.eng)});
         });
         Q('section:has(h2 a:not(:empty))', section => {
             let name = Part.names[section.id][lang] || Part.names[section.id].chi;
@@ -153,8 +174,9 @@ Object.assign(Garage, {
         );
     },
     prompt: () => Q('textarea').value = 
-        Q('p[hidden]').textContent + Q('section', []).map(section => Part.names[section.id.split('#')[0]].eng + '：' + 
-            (section.Q('li:not(.unacquired) b', []).map(b => b.lang ? `${b.innerText}/${b.title}` : b.innerText).join('、') || '未有')
+        Q('p[hidden]').textContent + Q('section', []).map(section => 
+            Part.names[section.id.split('#')[0]].eng + '：' + 
+            (section.Q('li:not(.unacquired) b', []).map(b => b.innerText + (b.lang ? `/${b.title}` : '')).join('、') || '未有')
         ).join('\n')
 });
 Garage.element = {
@@ -171,13 +193,15 @@ Garage.element = {
                 .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1)))
             ),
         ]),
-        E('select', {name: 'acquired'}, [E('option', `${codes.length}`), ...codes.map(c => E('option', {value: c}, Markup('cell', c)))])
+        E('select', {name: 'acquired'}, [
+            E('option', `${codes.length}`), ...codes.map(c => E('option', {value: c}, Markup.cell(c)))
+        ])
     ]),
     summary: comp => [
-        ({
+        E('span.default', {
             chip: '< 2 g', over: '< 3 g', metal: '< 28 g', main: '< 31 g', assist: '< 6 g',
             blade: '< 35 g', ratchet: '> 70 dmm', bit: '非F/L/U系'
-        })[comp], E('br')
-    ].flat()
+        }[comp]), E('span.tier', '> T3')
+    ]
 }
 export default Garage;

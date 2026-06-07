@@ -96,7 +96,7 @@ class Board {
         [src, style] = [src?.[0], style?.[0]];
         let [codes, classes] = content.map(c => c?.split(' '));
         return E('li', [
-            E('div', ...codes.flatMap(c => [E('code', Markup.nobreak(c)), ' '])),
+            E('div', ...codes.flatMap(c => [E('code', c), ' '])),
             E('figure>img', {
                 src: Board.src(codes[0], src), alt: codes[0], loading: 'lazy',
                 style: typeof style == 'object' ? style : {width: (style || 150) + '%'}

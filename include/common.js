@@ -62,7 +62,7 @@ Object.assign(Menu, {
         E('a', {href: '/x/prizes/'})
     ],
     lines: () => LINES.filter(([_, {divided}]) => divided)
-        .flatMap(([line]) => E('li>a.blade', {href: `?blade=${line}`}))
+        .flatMap(([line]) => E('li>a.icon-blade', {href: `?blade=${line}`}))
 });
 
 addEventListener('DOMContentLoaded', () => {

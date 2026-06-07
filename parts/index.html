@@ -9,9 +9,9 @@ ukenagashi: 卸走/開  inashi: 化解
 -->
 <nav>
     <menu>
-        <li><a href="?blade" class="blade"></a>
-        <li><a href="?ratchet" class="ratchet"></a>
-        <li><a href="?bit" class="bit"></a>
+        <li><a href="?blade" class="icon-blade"></a>
+        <li><a href="?ratchet" class="icon-ratchet"></a>
+        <li><a href="?bit" class="icon-bit"></a>
     </menu>
     <form>
         <output name="count"></output>
@@ -52,7 +52,7 @@ ukenagashi: 卸走/開  inashi: 化解
 import DB from '../include/DB.js'
 import Catalog from './parts.js'
 Q('.stretch').after(DB().then(location.search && Catalog));
-Q('menu li:has(.blade)').before(...Menu.lines());
+Q('menu li:has(.icon-blade)').before(...Menu.lines());
 </script>
 <script title="blade" type="application/json">
 {

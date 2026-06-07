@@ -181,9 +181,9 @@ Object.assign(Tile.prototype.fill, {
         segment.chi = segment.eng && !attr.has('BSB');
         return [
             this.Part.only.name() ? 
-                Markup('tile', names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
-                E('h4', Markup.figure(path.at(-1))), 
-            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup('tile', names[l], segment.eng)[0])) : ''
+                Markup.tile(names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
+                E('h4', Markup.upgrade(path.at(-1), 'figureDash')), 
+            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup.tile(names[l], segment.eng)[0])) : ''
         ].flat(9);
     },
     stat () {
@@ -192,8 +192,8 @@ Object.assign(Tile.prototype.fill, {
         return [
             date ? E('strong', date) : '',
             E('dl', stat.flatMap((s, i) => E('div', [
-                E('dt', s ? i > 0 ? Markup('stat', terms[i]) : terms[i] : ''), 
-                E('dd', typeof s == 'string' ? Markup('stat', s) : s)
+                E('dt', s ? i > 0 ? Markup(terms[i], 'stat') : terms[i] : ''), 
+                E('dd', typeof s == 'string' ? Markup(s, 'stat') : s)
             ])))
         ];
     },
@@ -232,10 +232,10 @@ class Cell {
         td.Part.revise('cell');
         let {path, names} = td.Part, {mode} = td.dataset;
         let name = names[lang] || names.eng;
-        mode = Markup('cell', JSON.parse(mode ?? '""')[lang]);
-        mode.length && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
+        mode = Markup.cell(JSON.parse(mode ?? '""')[lang]);
+        mode[0] && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
             name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`);
-        name = Markup('cell', name);
+        name = Markup.cell(name);
         let limit = Cell.#oversize[lang]?.at(path.slice(0, -1)) ?? 99;        
         let next = td.nextElementSibling;
         (next.headers ? td : next).replaceChildren(...names[lang]?.length >= limit ? [E('small', name)] : name);

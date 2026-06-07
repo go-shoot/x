@@ -118,7 +118,8 @@
         code {
             line-height: 1.4em;
             font-size: .85em; color: var(--theme);
-            cursor: pointer;    
+            white-space: nowrap;
+            cursor: pointer;
         }
     }
     figure {

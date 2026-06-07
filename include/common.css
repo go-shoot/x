@@ -106,7 +106,7 @@ x-part { /*initial style before part.css*/
     display: inline-grid; width: 15em; height: 15em;
     margin: .1rem;
     opacity: 0;
-    --backdrop: oklch(.2 .05 var(--hue));
+    --backdrop: oklch(.25 .03 var(--hue) / .9);
     
     &.loading {
         opacity: 1;
@@ -119,11 +119,11 @@ x-part { /*initial style before part.css*/
     }
 }
 .blade,.ratchet,.bit {--color: oklch(.8 .3 var(--hue));}
-.blade       {--hue: 110; --img: url(/x/img/blade/CbDr.png);}
-.blade.fused {--hue: 150;}
-.ratchet     {--hue: 190; --img: url(/x/img/ratchet/6-60.png);}
+.blade       {--hue: 110;}
+.blade.fused {--hue: 140;}
+.ratchet     {--hue: 180;}
 .bit.fused   {--hue: 210;}
-.bit         {--hue: 270; --img: url(/x/img/bit/B.png);}
+.bit         {--hue: 280;}
 .att,label:has([value$=att]) {--type: #0081e3;}
 .def,label:has([value$=def]) {--type: #009f48;}
 .sta,label:has([value$=sta]) {--type: #f08200;}
@@ -156,7 +156,7 @@ img[src*='lines.svg'][src$=X] {aspect-ratio: 1.485;}
 html {
     font-size: clamp(14px,4vw,20px);
     --backdrop: oklch(.1 .1 var(--hue)); background: var(--backdrop);
-    --overlay1: oklch(.25 .04 var(--hue) / .9); --overlay2: oklch(.4 .02 var(--hue) / .9);
+    --overlay1: oklch(.25 .03 var(--hue) / .9); --overlay2: oklch(.4 .02 var(--hue) / .9);
     --on: #ccc; color: var(--on); 
     text-autospace: normal;
     --hue: 130; --theme: #b5fb5c; 
@@ -284,8 +284,10 @@ nav {
     }
     form:not(.LED) {display: contents;}
 }
-:is(th,menu a):is(.blade,.ratchet,.bit)::after,
-h2 a:not([title]):is(.blade,.ratchet,.bit)::after {
+.icon-blade   {--img: url(/x/img/blade/CbDr.png);}
+.icon-ratchet {--img: url(/x/img/ratchet/6-60.png);}
+.icon-bit     {--img: url(/x/img/bit/B.png);}
+:is(th.LED,.icon-blade,.icon-ratchet,.icon-bit)::after {
     content: '';
     display: inline-block; aspect-ratio: 1; 
     background: var(--img) center / contain no-repeat; 

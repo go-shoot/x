@@ -145,7 +145,7 @@ const Links = {
         comp.eng = comp.eng.replace(' ', '');
         comp.eng == 'MetalBlade' && (comp.eng = 'MainBlade');
         let name = P.only.name() ? {
-            chi: Markup.remove(P.names.chi).replace(' ', ','),
+            chi: Markup.clear(P.names.chi).replace(' ', ','),
             jap: P.names.jap
         } : P.abbr.split('.').at(-1);
         Links.div.title = P.abbr;

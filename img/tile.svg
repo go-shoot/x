@@ -7,8 +7,8 @@
     root.style.setProperty('--hue', q.hue ?? 110);
     // ]]></script>
     <style>
-    :root {background:oklch(.2 .05 var(--hue));}
-    #top-art line:nth-of-type(odd)  {stroke:oklch(calc(20% + .03%*var(--i)*var(--i)) .3 var(--hue));}
+    :root {background:oklch(.25 .03 var(--hue) / .9);}
+    #top-art line:nth-of-type(odd)  {stroke:oklch(calc(20% + .03%*var(--i)*var(--i)) .3 var(--hue) / calc(var(--i)/10));}
     #top-art line:nth-of-type(even) {stroke:transparent;}
     #top-art line {stroke-width:5;}
 

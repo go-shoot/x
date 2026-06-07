@@ -29,7 +29,7 @@ class Cache {
 }
 class Input {
     constructor() {
-        this.value = Search.query = Markup.reverse(Input.field.value.trim());
+        this.value = Search.query = Markup.downgrade(Input.field.value.trim(), 'nobreak');
         this.targets = {};
         this.match();
         this.extend();
@@ -108,7 +108,7 @@ class Search {
         .slice(0, amount).map(r => r.item)
     static match = {
         abbr: (abbr, set) => set?.has(abbr.toUpperCase()),
-        name: (names, set) => names?.chi?.split(' ').some(n => set?.has(Markup.remove(n)))
+        name: (names, set) => names?.chi?.split(' ').some(n => set?.has(Markup.clear(n)))
     }
     find = what => Search.find[what](this.targets, this.preferred)
     static find = {
@@ -168,7 +168,7 @@ class Result {
     constructor(type, item) {return this[type](item);}
     code = ({code}) => E('li>button', code)
     part = ({path, line, group, abbr, names}) => 
-        E(`li>button.${path[0]}.${line || group}`, {dataset: {path}}, Markup('cell', names?.chi || abbr))
+        E(`li>button.${path[0]}.${line || group}`, {dataset: {path}}, Markup.cell(names?.chi || abbr))
     link = ({text, href}) =>
         E('li>a', text, {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
