@@ -168,7 +168,7 @@ class Result {
     constructor(type, item) {return this[type](item);}
     code = ({code}) => E('li>button', code)
     part = ({path, line, group, abbr, names}) => 
-        E(`li>button.${path[0]}.${line || group}`, {dataset: {path}}, Markup.cell(names?.chi || abbr))
+        E(`li>button.icon-${path[0]}.${line || group}`, {dataset: {path}}, Markup.cell(names?.chi || abbr))
     link = ({text, href}) =>
         E('li>a', text, {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',

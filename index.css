@@ -98,7 +98,7 @@ section {
         }
         &.preview button[data-path*=over] {text-decoration: overline;}
         &.preview button[data-path*=assist] {text-decoration: underline; text-underline-offset: .22em;}
-        :is(.ratchet,.bit)::before {
+        :is(.icon-ratchet,.icon-bit)::before {
             background: var(--img) center / contain no-repeat !important;
             filter: saturate(0) brightness(99) brightness(.8);
         }

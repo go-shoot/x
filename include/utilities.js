@@ -232,7 +232,7 @@ const Markup = (text, items, values = false) => {
         let replacer = typeof item == 'string' ? Markup.replacer[item] : item;
         let [before, after] = Array.isArray(replacer) ? replacer : replacer.find(([r]) => r.test(text)) ?? [];
         return typeof after == 'string' ? text.replace(before, after) : after?.(before.exec(text), values) ?? text;
-    }), [text]);
+    }), [text ?? '']);
     return results.length === 1 ? results[0] : results;
 }
 Object.assign(Markup, {
