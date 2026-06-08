@@ -1,24 +1,52 @@
 <title>Identify</title>
 <script defer src="../include/common.js"></script>
-<script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 <script type="module" src="https://aeoq.github.io/drag-knob/script.js"></script>
 <link rel="stylesheet" href="index.css">
 
 <nav>
     <menu></menu>
-    <label>UPLOAD<input type="file" accept="image/*"></label>
-    <label><input type="color" value="#FFFFFF"></label>
+    <fieldset class="LED">
+        <label>修正<input name=mode type=radio value=amend checked></label>
+        <label>預覽<input name=mode type=radio value=preview></label>
+    </fieldset>
+    <form>
+        <div>
+            <label>&#xe03f; 上載<input type="file" accept="image/*"></label>
+            <button>&#xe03e; 下載</button>
+            <button>用作我的TIER LIST</button>
+        </div>
+        <div><button>示例1</button><button>示例2</button><button>示例3</button></div>
+    </form>
 </nav>
 <main style="user-select: none;">
-    <p class="loading">AI</p>
+    <details>
+        <summary class="loading"></summary>
+        <ul class="default">
+            <li>此工具目前只支援以官方圖片製成的組圖，如Tier list。請以［示例］了解</li>
+        </ul>
+    </details>
+    <fieldset class="LED">
+        <label class="icon-blade">
+            <input type="radio" name="comp" value="CX">
+            <img src="../img/lines.svg#CX">
+        </label>
+        <label class="icon-blade">
+            <input type="radio" name="comp" value="blade">
+            <div><img src="../img/lines.svg#BX"><img src="../img/lines.svg#UX"></div></label>
+        <label class="icon-ratchet">
+            <input type="radio" name="comp" value="ratchet">
+        </label>
+        <label class="icon-bit">
+            <input type="radio" name="comp" value="bit">
+        </label>
+    </fieldset>
     <continuous-knob id="luma_min" min="0" max="100" value="2"></continuous-knob>
     <continuous-knob id="luma_max" min="100" max="200" value="100"></continuous-knob>
     <continuous-knob id="chroma" min="0" max="100" value="30"></continuous-knob>
     <continuous-knob id="extend" min="0" max="10" value="4" step="1"></continuous-knob>
     <button id="match">MATCH</button>
     <button id="snap">SNAP</button>
-    <canvas style="max-width:500px"></canvas>
-    <img src="/x/img/bit/A.png">
+    <canvas></canvas>
 </main>
 
 <script type="module">

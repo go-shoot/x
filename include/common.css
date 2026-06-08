@@ -156,7 +156,7 @@ img[src*='lines.svg'][src$=X] {aspect-ratio: 1.485;}
 html {
     font-size: clamp(14px,4vw,20px);
     --backdrop: oklch(.1 .1 var(--hue)); background: var(--backdrop);
-    --overlay1: oklch(.25 .03 var(--hue) / .9); --overlay2: oklch(.4 .02 var(--hue) / .9);
+    --overlay1: oklch(.3 .03 var(--hue) / .9); --overlay2: oklch(.4 .02 var(--hue) / .9);
     --on: #ccc; color: var(--on); 
     text-autospace: normal;
     --hue: 130; --theme: #b5fb5c; 

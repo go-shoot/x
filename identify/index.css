@@ -1,6 +1,36 @@
-#match.model-ready.embed-ready {
-    color: greenyellow;
+
+nav div {
+    justify-self: end;
+    align-self: center;
+
+    &:first-of-type {grid-area: 1/4;}
+    &:last-of-type {grid-area: 2/4;}
+    button,label:not(.toggle) {
+        background: var(--theme); color: black;
+        border-radius: 8em;
+        padding: 0 .5em; margin-left: .5em;
+        font-size: .9em;
+        display: inline-block; line-height: 1.3rem;
+    }
 }
-#match.model-ready {
-    color: yellow;
+
+fieldset {
+    display: flex; justify-content: center; gap: 1em;
+
+    label {
+        position: relative;
+        min-width: 3em; height: 3.5em;
+        display: flex; flex-direction: column;
+
+        img {width: 3em; height: 2em; margin-top: .5em;}
+        &::after {
+            position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+            width: 3em; height: 3em;
+            z-index: -1;
+        }
+    }
+}
+canvas {
+    display: block;
+    width: min(600px,100%);
 }
