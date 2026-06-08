@@ -1,5 +1,5 @@
 console.log(1);
-import {phash} from 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
+importScripts('https://unpkg.com/imagehash-web/dist/imagehash-web.min.js');
 let ASSETS;
 let E = {};
 E.canvas = url => fetch(url).then(resp => resp.blob()).then(blob => createImageBitmap(blob))

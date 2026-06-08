@@ -5,32 +5,62 @@ nav div {
 
     &:first-of-type {grid-area: 1/4;}
     &:last-of-type {grid-area: 2/4;}
-    button,label:not(.toggle) {
-        background: var(--theme); color: black;
-        border-radius: 8em;
-        padding: 0 .5em; margin-left: .5em;
-        font-size: .9em;
-        display: inline-block; line-height: 1.3rem;
-    }
 }
+button,nav div label:not(.toggle) {
+    background: var(--theme); color: black;
+    border-radius: 8em;
+    padding: 0 .5em; margin-left: .5em;
+    font-size: .9em;
+    display: inline-block; line-height: 1.3rem;
+}
+main {
+    margin-bottom: 8em;
 
-fieldset {
-    display: flex; justify-content: center; gap: 1em;
-
-    label {
-        position: relative;
-        min-width: 3em; height: 3.5em;
-        display: flex; flex-direction: column;
-
-        img {width: 3em; height: 2em; margin-top: .5em;}
-        &::after {
-            position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-            width: 3em; height: 3em;
-            z-index: -1;
+    details {
+        summary {
+            &::before {content: '▶';}
+            &::after  {content: '◀';}
+            &.loading::before {display: none;}
+        }
+        &[open] summary::before,&[open] summary::after {content: '▼';}
+    
+        ul {
+            text-align: left; font-size: .8em;
+            padding: 0 0.5em 0 2em;
+            line-height: 1.4;
         }
     }
+    fieldset {
+        display: flex; gap: 1em; justify-content: center;
+        margin: 2em auto;
+    
+        label {
+            position: relative;
+            min-width: 3em; height: 3.5em;
+            display: flex; flex-direction: column;
+    
+            img {width: 3em; height: 2em; margin-top: .5em;}
+            div img:nth-child(2) {margin-left: .5em;}
+            &::after {
+                position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+                width: 3em; height: 3em;
+                z-index: -1;
+            }
+        }
+    }
+    canvas {
+        display: block;
+        width: min(600px,100%);
+        margin: auto;
+    }
 }
-canvas {
-    display: block;
-    width: min(600px,100%);
+aside {
+    position: fixed; bottom: 0;
+    display: flex; gap: .5em; justify-content: center; align-items: end;
+    width: 100%;
+    background: var(--overlay1);
+    font-size: .9em;
+    padding: .5em 0 1em 0;
+
+    continuous-knob::before {font-size: .9em;}
 }

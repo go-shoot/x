@@ -13,16 +13,16 @@
         <div>
             <label>&#xe03f; 上載<input type="file" accept="image/*"></label>
             <button>&#xe03e; 下載</button>
-            <button>用作我的TIER LIST</button>
         </div>
         <div><button>示例1</button><button>示例2</button><button>示例3</button></div>
     </form>
 </nav>
 <main style="user-select: none;">
     <details>
-        <summary class="loading"></summary>
+        <summary class="loading">提示</summary>
         <ul class="default">
-            <li>此工具目前只支援以官方圖片製成的組圖，如Tier list。請以［示例］了解</li>
+            <li>此工具目前只支援以官方圖片製成的組圖，如Tier list。請透過［示例］了解</li>
+            <li>如發現辨識數量不足，請透過拖上／下在下排的旋鈕，增加數量，再進行配對</li>
         </ul>
     </details>
     <fieldset class="LED">
@@ -40,14 +40,18 @@
             <input type="radio" name="comp" value="bit">
         </label>
     </fieldset>
-    <continuous-knob id="luma_min" min="0" max="100" value="2"></continuous-knob>
-    <continuous-knob id="luma_max" min="100" max="200" value="100"></continuous-knob>
-    <continuous-knob id="chroma" min="0" max="100" value="30"></continuous-knob>
-    <continuous-knob id="extend" min="0" max="10" value="4" step="1"></continuous-knob>
-    <button id="match">MATCH</button>
-    <button id="snap">SNAP</button>
+    <button id="match" disabled>配對</button>
+    <p></p>
     <canvas></canvas>
 </main>
+<aside>
+    <continuous-knob title="亮度下限" id="luma_min" min="0" max="100" value="2"></continuous-knob>
+    <continuous-knob title="亮度上限" id="luma_max" min="100" max="200" value="100"></continuous-knob>
+    <continuous-knob title="色度下限" id="chroma" min="0" max="100" value="30"></continuous-knob>
+    <continuous-knob title="Buffer" id="buffer" min="0" max="3" value="1" step="1"></continuous-knob>
+    <continuous-knob title="邊長下限" id="side_min" min="0" max="80" value="2" unit="%"></continuous-knob>
+    <continuous-knob title="邊長上限" id="side_max" min="20" max="100" value="50" unit="%"></continuous-knob>
+</aside>
 
 <script type="module">
     import DB from '../include/DB.js';

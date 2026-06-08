@@ -425,8 +425,9 @@ dialog {
     pointer-events: none;
     border-radius: 1em;
 
+    &:empty {display: none;}
+    &:has(dfn:not(:empty)) {animation: vanish 2s 1s forwards;}
     rt {font-size: .7em;}
     dfn::after {content: '：'; font-style: initial;}
-    &:has(dfn:not(:empty)) {animation: vanish 2s 1s forwards;}
 }
 @keyframes vanish {to {opacity: 0;}}
