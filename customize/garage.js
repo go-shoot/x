@@ -116,11 +116,6 @@ Object.assign(Garage, {
     },
     count: () => Q('ol', ol => ol.Q('summary').title = ol.Q('li:has(details)~:not(.unacquired)', []).length),
     events () {
-        let observer = new IntersectionObserver(entries => entries.forEach(en => {
-            if (!en.isIntersecting) return;
-            observer.unobserve(en.target);
-        }));
-        Q('section', section => observer.observe(section));
         E(Q('main')).set({
             async onclick (ev) {
                 if (ev.target.matches('main,ol')) return Q('li.selected', li => li.classList.remove('selected'));
