@@ -11,7 +11,6 @@
     </fieldset>
     <form>
         <div>
-            <label>&#xe03f; 上載<input type="file" accept="image/*"></label>
             <button>&#xe03e; 下載</button>
         </div>
         <div><button>示例1</button><button>示例2</button><button>示例3</button></div>
@@ -22,29 +21,38 @@
         <summary class="loading">提示</summary>
         <ul class="default">
             <li>此工具目前只支援以官方圖片製成的組圖，如Tier list。請透過［示例］了解</li>
-            <li>如發現辨識數量不足，請透過拖上／下在下排的旋鈕，增加數量，再進行配對</li>
         </ul>
     </details>
-    <fieldset class="LED">
-        <label class="icon-blade">
-            <input type="radio" name="comp" value="CX">
-            <img src="../img/lines.svg#CX">
-        </label>
-        <label class="icon-blade">
-            <input type="radio" name="comp" value="blade">
-            <div><img src="../img/lines.svg#BX"><img src="../img/lines.svg#UX"></div></label>
-        <label class="icon-ratchet">
-            <input type="radio" name="comp" value="ratchet">
-        </label>
-        <label class="icon-bit">
-            <input type="radio" name="comp" value="bit">
-        </label>
-    </fieldset>
-    <button id="match" disabled>配對</button>
-    <p></p>
+    <ol>
+        <li>STEP 1：<label>&#xe010; &#xe03f; 上載<input type="file" accept="image/*"> &#xe00f;</label></li>
+        <li class="inactive" id="select">STEP 2：選擇要辦認的部件
+            <fieldset class="LED">&#xe010; 
+                <label class="icon-blade">
+                    <input type="radio" name="comp" value="CX">
+                    <img src="../img/lines.svg#CX">
+                </label>
+                <label class="icon-blade">
+                    <input type="radio" name="comp" value="blade">
+                    <div><img src="../img/lines.svg#BX"><img src="../img/lines.svg#UX"></div></label>
+                <label class="icon-ratchet">
+                    <input type="radio" name="comp" value="ratchet">
+                </label>
+                <label class="icon-bit">
+                    <input type="radio" name="comp" value="bit">
+                </label>
+            &#xe00f;</fieldset>
+            <p>調整資源圖片背景色中...</p>
+        </li>
+        <li class="inactive" id="adjust">STEP 3：<label>&#xe010; 拖上／下旋鈕以調節敏感度 &#xe00f;</label></li>
+        <li class="inactive" id="execute">
+            STEP 4：<button id="match">&#xe010; 配對 &#xe00f;</button>
+            <p>配對中...</p>
+        </li>
+    </ol>
+    <div><button>&#xe00c;</button><button>&#xe00b;</button></div>
     <canvas></canvas>
 </main>
-<aside>
+<aside id="controls">
     <continuous-knob title="亮度下限" id="luma_min" min="0" max="100" value="2"></continuous-knob>
     <continuous-knob title="亮度上限" id="luma_max" min="100" max="200" value="100"></continuous-knob>
     <continuous-knob title="色度下限" id="chroma" min="0" max="100" value="30"></continuous-knob>

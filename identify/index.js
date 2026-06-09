@@ -1,9 +1,9 @@
 import DB from "../include/DB.js";
 import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 
-let PARTS, Controls = {};
+let PARTS, Controls = {el: Q('#controls')};
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this)}, onerror: () => res(null)}));
-E.canvas = async (img, bg = '246,245,250') => {
+E.canvas = async (img, bg = '246,245,250', flip) => {
     typeof img == 'string' && (img = await E.img(img));
     if (!img) return;
     let cvs = E('canvas', {width: img.w ?? img.width, height: img.h ?? img.height});
@@ -11,6 +11,10 @@ E.canvas = async (img, bg = '246,245,250') => {
     if (img instanceof Node) {
         ctx.fillStyle = `rgba(${bg}`;
         ctx.fillRect(0, 0, img.width, img.height);
+        if (flip) {
+            ctx.translate(img.width, 0);
+            ctx.scale(-1, 1);
+        }
         ctx.drawImage(img, 0, 0, img.width, img.height);
     } else
         ctx.drawImage(App.collage.img, img.x, img.y, img.w, img.h, 0, 0, img.w, img.h);
@@ -25,10 +29,10 @@ class Collage {
             return this;
         });
     }
-    draw (box, color = 'red', cvs = Collage.cvs, ctx = Collage.ctx) {
+    draw (box, color = 'green', cvs = Collage.cvs, ctx = Collage.ctx) {
         if (!box) return ctx.drawImage(this.img, 0, 0);
         let [W, H, pad] = [cvs.width, cvs.height, 4];
-        (box ? [box] : this.boxes).forEach(([x0, y0, x1, y1]) => {
+        (box === true ? this.boxes : [box]).forEach(([x0, y0, x1, y1]) => {
             let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
             let [bw, bh] = [Math.min(W - bx, x1 - x0 + Controls.buffer * 2), Math.min(H - by, y1 - y0 + Controls.buffer * 2)];
             ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, Math.floor(W / 400));
@@ -39,9 +43,9 @@ class Collage {
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
             let middle = Math.floor(widths.length / 2);
-            this.fontSize = (widths.length % 2 !== 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 2;
+            this.fontSize = (widths.length % 2 !== 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 3;
         }
-        ctx.font = `${this.fontSize}px Arial`; ctx.fillStyle = 'blue'; ctx.textAlign = "center";
+        ctx.font = `${Math.max(15, this.fontSize)}px Chiron GoRound TC`; ctx.fillStyle = 'rgb(127,127,127)'; ctx.textAlign = "center";
         ctx.fillText(abbr, x0 + (x1 - x0)/2, y0);
     }
     likelyBackdrop () {
@@ -107,27 +111,45 @@ const App = () => DB.get.essentials({flat: true})
         PARTS = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
-        App.message.classList.remove('loading');
+        Q('.loading')?.classList.remove('loading');
         //worker.postMessage({assets: PARTS.map(P => `/x/img/${P.path.join('/')}.png`)});
     })
 
 Object.assign(App, {
-    message: Q('summary'),
     state (state) {
         if (state) {
-            App.message.classList.add('loading');
-            App.message.innerText = state === 1 ? '調整資源圖片背景色中...' : '配對中...';
+            Q(state === 1 ? '#select' : '#execute').classList.add('loading');
+            Q('#execute').classList.add('inactive');
         } else {
-            App.message.classList.remove('loading');
-            App.message.innerText = '提示';
+            Q('.loading')?.classList.remove('loading');
+            Q('.inactive', li => li.classList.remove('inactive'));
         }
     },
     events () {
         Q('form button', button => button.type = 'button');
-        Q('input[type=file]').onchange = ev => new Collage(ev).then(collage => (App.collage = collage) && App.bound());
-        Q('main').onchange = () => App.collage && App.prepare();
-        Q('#match').onclick = () => App.match();
-        Q('aside').oninput = ev => (Controls[ev.target.id] = ev.target.value) && App.bound();
+        E(Q('main')).set({
+            onchange (ev) {
+                if (ev.target.type == 'file')
+                    return new Collage(ev).then(collage => {
+                        App.collage = collage;
+                        App.bound();
+                        Q('#select').classList.remove('inactive');
+                    });
+                if (ev.target.name == 'comp' && App.collage) {
+                    App.collage.draw(true);
+                    App.prepare();
+                }
+            },
+            onclick (ev) {
+                if (ev.target.closest('#adjust'))
+                    return Controls.el.classList.toggle('active');
+                if (ev.target.id == 'match') {
+                    Controls.el.classList.remove('active');
+                    App.match();
+                }
+            }
+        });
+        Controls.el.oninput = ev => (Controls[ev.target.id] = ev.target.value) && App.bound();
         Collage.cvs.onclick = ev => {
             let rect = ev.target.getBoundingClientRect();
             let clickX = (ev.clientX - rect.left) * (ev.target.width / rect.width);
@@ -151,14 +173,13 @@ Object.assign(App, {
         if (App.assets[group] && backdrop == lastBackdrop) return Promise.resolve();
         
         App.state(1);
-        return Promise.all(
-            PARTS[group].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop)
-            .then(async cvs => cvs ? {hash: await phash(cvs, 16)} : {}))
-        ).then(hashes => {
+        let canvases = PARTS[group].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
+        group == 'bit' && canvases.push(...['F','T','B','N','HN','LF'].map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
+        return Promise.all(canvases.map(prom => prom.then(async cvs => cvs ? {hash: await phash(cvs, 16)} : {})))
+        .then(hashes => {
             App.assets[group] = hashes;
             checked.title = backdrop;
             App.state(0);
-            Q('#match').disabled = false;
         });
     },
     match () {
@@ -174,7 +195,11 @@ Object.assign(App.match, {
         E.canvas({x: x0, y: y0, w: x1-x0, h: y1-y0}).then(cvs => phash(cvs, 16))
     )).then(hashes => 
         new ResultMatrix('hash', hashes, (h1, h2) => h1.hammingDistance(h2), 5, 'low')
-        .fromOptimum((r, c) => App.collage.tag(boxes[c], PARTS[App.group][r].abbr), 70).toBoxMap()
+        .fromOptimum((r, c) => {
+            let P = PARTS[App.group][r];console.log(P);
+            let tag = r >= PARTS.bit.length ? ['F','T','B','N','HN','LF'][r - PARTS.bit.length] : P.abbr;
+            App.collage.tag(boxes[c], tag)
+        }, 100).toBoxMap()
     )
 });
 export default App;
@@ -209,6 +234,6 @@ class ResultMatrix {//row: parts  col: boxes
     toBoxMap = () => App.collage.boxes.map((box, c) => [box,
         this.data.map((rows, r) => ({r, value: rows[c]}))
         .sort((a, b) => a.value - b.value).slice(0, 5)
-        .map(({r}) => PARTS[App.group][r].abbr)
+        .map(({r}) => r >= PARTS.bit.length ? PARTS.bit.find(P => P.abbr == ['F','T','B','N','HN','LF'][r - PARTS.bit.length]) : PARTS[App.group][r])
     ]);
 }
