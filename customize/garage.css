@@ -126,6 +126,7 @@ select {
     text-align: center;
     cursor: pointer;
     max-width: 3.5em;
+    border: none;
 
     &[name=acquired] {
         border-radius: 0 0 .3em .3em;

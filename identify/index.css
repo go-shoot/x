@@ -54,15 +54,36 @@ main {
             }
         }
     }
-    canvas {
-        display: block;
-        width: min(1000px,100%);
-        margin: auto;
+    div {
+        max-width: 1200px; margin: auto;
+        
+        &:has(button) {
+            font-size: 1.5em;
+            text-align: right;
+            padding: 0 .5rem;
+    
+            button {
+                margin-left: .25em;
+
+                div:has(+div canvas[width]) & {
+                    cursor: pointer; color: var(--theme);
+                }
+            }
+        }
+        &:has(canvas) {
+            overflow-x: scroll; 
+            font-size: calc(var(--f)*5vw);
+    
+            canvas {
+                width: min(1200px,20em);
+                margin: auto;
+            }
+        }
     }
 }
 main ol {
     text-align: left;
-    padding: 0 .5em !important; margin: auto !important;
+    padding: 0 .5rem !important; margin: auto !important;
     max-width: 30em;
 
     li {
@@ -75,8 +96,8 @@ main ol {
         &.inactive {pointer-events: none; filter: brightness(.5) saturate(0);}
         &:not(.loading) p {display: none;}
         &::after {width: 100%; text-align: center;}
+        &:not(.inactive) :is(label,button) {cursor: pointer; color: var(--theme);}
     }
-    :is(button,label) {cursor: pointer; color: var(--theme);}
 }
 aside {
     position: fixed; bottom: 0;
@@ -88,5 +109,6 @@ aside {
     transition: transform .5s;
 
     &:not(.active) {transform: translateY(100%);}
+    i {color: var(--theme);}
     continuous-knob::before {font-size: .9em;}
 }

@@ -2,7 +2,10 @@ import DB from "../include/DB.js";
 import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 
 let PARTS, Controls = {el: Q('#controls')};
-E.img = src => new Promise(res => E('img', {src, onload: function() {res(this)}, onerror: () => res(null)}));
+E.img = src => new Promise(res => E('img', {
+    src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
+    onload: function() {res(this)}, onerror: () => res(null)
+}));
 E.canvas = async (img, bg = '246,245,250', flip) => {
     typeof img == 'string' && (img = await E.img(img));
     if (!img) return;
@@ -23,10 +26,13 @@ E.canvas = async (img, bg = '246,245,250', flip) => {
 const worker = new Worker('./worker.js');
 class Collage {
     constructor(ev) {
-        return E.img(URL.createObjectURL(ev.target.files[0])).then(img => {
+        return E.img(typeof ev == 'string' ? ev : URL.createObjectURL(ev.target.files[0]))
+        .then(img => {
             [this.img, Collage.cvs.width, Collage.cvs.height] = [img, img.width, img.height];
             this.draw();
-            return this;
+            App.collage = this;
+            App.bound();
+            Q('#select').classList.remove('inactive');
         });
     }
     draw (box, color = 'green', cvs = Collage.cvs, ctx = Collage.ctx) {
@@ -111,11 +117,15 @@ const App = () => DB.get.essentials({flat: true})
         PARTS = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());
         App.events();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
-        Q('.loading')?.classList.remove('loading');
-        //worker.postMessage({assets: PARTS.map(P => `/x/img/${P.path.join('/')}.png`)});
-    })
-
+        Q('.loading', el => el.classList.remove('loading'));
+    });
 Object.assign(App, {
+    autoflow: ({dataset: {url, comp, ...controls}}) => new Collage(url).then(() => {
+            Q(`input[name=comp][value=${comp}]`).checked = true;
+            Object.entries(controls).forEach(([id, v]) => Q(`#${id}`).set.value({v}));
+            return App.prepare();
+        }).then(() => App.match())
+    ,
     state (state) {
         if (state) {
             Q(state === 1 ? '#select' : '#execute').classList.add('loading');
@@ -127,20 +137,29 @@ Object.assign(App, {
     },
     events () {
         Q('form button', button => button.type = 'button');
+        Q('nav').onclick = ev => {
+            if (ev.target.dataset.url)
+                return App.autoflow(ev.target);
+            if (ev.target.id == 'download')
+                return E('a', {
+                    href: Collage.cvs.toDataURL("image/jpeg"),
+                    download: `${App.group}辦認.jpg`
+                }).click();
+        }
         E(Q('main')).set({
             onchange (ev) {
                 if (ev.target.type == 'file')
-                    return new Collage(ev).then(collage => {
-                        App.collage = collage;
-                        App.bound();
-                        Q('#select').classList.remove('inactive');
-                    });
+                    return new Collage(ev);
                 if (ev.target.name == 'comp' && App.collage) {
                     App.collage.draw(true);
                     App.prepare();
                 }
             },
             onclick (ev) {
+                if (ev.target.name == 'mag')
+                    return E(Q('div:has(canvas)')).set({
+                        '--f': E(Q('div:has(canvas)')).get('--f') + (ev.target.value == '+' ? .1 : -.1)
+                    });
                 if (ev.target.closest('#adjust'))
                     return Controls.el.classList.toggle('active');
                 if (ev.target.id == 'match') {
@@ -199,7 +218,7 @@ Object.assign(App.match, {
             let P = PARTS[App.group][r];console.log(P);
             let tag = r >= PARTS.bit.length ? ['F','T','B','N','HN','LF'][r - PARTS.bit.length] : P.abbr;
             App.collage.tag(boxes[c], tag)
-        }, 100).toBoxMap()
+        }, 150).toBoxMap()
     )
 });
 export default App;
