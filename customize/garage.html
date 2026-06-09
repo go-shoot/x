@@ -42,6 +42,7 @@
     import DB from '../include/DB.js';
     import Garage from './garage.js';
     Q('main').prepend(DB().then(Garage));
+    location.hash='#t'&&Q('nav [hidden]',el=>el.hidden=false);
 </script>
 <script src="https://aeoq.github.io/diamond-grid/script.js" type="module"></script>
 <link rel="stylesheet" href="../parts/part.css">

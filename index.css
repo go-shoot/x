@@ -48,19 +48,17 @@ section {
 }
 
 #search {
-    display: flex; flex-wrap: wrap; justify-content: end;
+    display: flex; flex-wrap: wrap; justify-content: end; gap: 0 1em;
     max-width: 30em;
     padding-bottom: .5em;
     transition: opacity .5s;
 
-    &>a:last-of-type {margin-right: .3rem;}
-    search {margin: .2rem;}
-    ol {padding: 0 1rem 0 .2rem;}
-
     &:not(:has(a[href*='products'])) {opacity: 0;}
-    &>a {margin-left: 1em;}
+    a:nth-last-child(1 of [href^='/x/']),a:has(+search) {margin-right: .3rem;}
+    a+div {flex-basis: 100%; height: 0;}
     search {
         display: flex; height: 2em; width: 100%;
+        margin: .2rem;
 
         ul {
             width: 2.5em; height: 3em;
@@ -78,6 +76,7 @@ section {
     }
     ol {
         display: flex; gap: 1em;
+        padding: 0 1rem 0 .2rem;
         min-width: 100%;
         font-size: .9em; white-space: nowrap;
         mask-image: linear-gradient(to right,black 95%,transparent);
