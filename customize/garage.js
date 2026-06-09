@@ -70,7 +70,7 @@ Object.assign(Garage, {
                 innerText: a.hash && !/.X$/.test(a.hash) ? a.hash : ''
             });
             section.Q('li', (li, i) => li.dataset.order = i);
-        })
+        });
         let amount = Q('li figure', []).length;
         gtag('event', 'GARAGE', {amount});
         if (!amount) return;
@@ -81,18 +81,18 @@ Object.assign(Garage, {
     },
 
     sorter: {
-        blade: ([P1], [P2]) => P2.weight - P1.weight,
+        blade: ([P1], [P2]) => (P2.weight || 0) - (P1.weight || 0),
         ratchet: ([P1], [P2]) => parseInt(P1.abbr.replace('-', '')) - parseInt(P2.abbr.replace('-', '')),
         bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 
             P1.abbr > P2.abbr ? 1 : -1
     },
     inferior: {
         CX: {
-            chip: P => P.weight && P.weight < 2, 
-            over: P => P.weight && P.weight < 3, metal: P => P.weight && P.weight < 28, 
-            main: P => P.weight && P.weight < 31, assist: P => P.weight && P.weight < 6
+            chip: P => !P.weight || P.weight < 2, 
+            over: P => !P.weight || P.weight < 3, metal: P => !P.weight || P.weight < 28, 
+            main: P => !P.weight || P.weight < 31, assist: P => !P.weight || P.weight < 6
         },
-        blade: P => P.weight && P.weight < 35,
+        blade: P => !P.weight || P.weight < 35,
         ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
         bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
@@ -162,7 +162,7 @@ Object.assign(Garage, {
 Object.assign(Garage.events, {
     sort (by) {
         by ??= Q('input[name=sort]:checked').value;
-        Q('ol', ol => {
+        Transition.allow.for(() => Q('ol', ol => {
             if (by == 'default')
                 return ol.replaceChildren(...[...ol.children].sort((a, b) => a.dataset.order - b.dataset.order));
             let more = ol.Q('li:has(details)');
@@ -170,7 +170,7 @@ Object.assign(Garage.events, {
             ol.replaceChildren(...[...ol.children].sort((a, b) => a.tier - b.tier));
             let inferior = [...ol.children].find(li => li.tier == null || li.tier >= 3)
             inferior ? inferior.before(more) : ol.append(more);
-        });
+        }));
     },
     lang (lang) {
         Q('figure:has(b[lang])>img', img => {
