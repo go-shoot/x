@@ -1,6 +1,6 @@
 import DB from '../include/DB.js'
 import { Part, Tile, Cell } from '../parts/part.js';
-import { Markup } from '../include/utilities.js';
+import { Markup, Transition } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
