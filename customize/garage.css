@@ -125,7 +125,7 @@ select {
     font-size: .8em; color: var(--theme); 
     text-align: center;
     cursor: pointer;
-    max-width: 3wem;
+    max-width: 3em;
     border: none;
 
     &[name=acquired] {
