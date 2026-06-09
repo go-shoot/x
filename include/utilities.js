@@ -243,6 +243,7 @@ Object.assign(Markup, {
         children.length == 2 && children.splice(1, 0, '⬧');
         return children.flat();
     },
+    hktw: (lang, name) => ['hk','tw'].includes(lang) && name.split(' ')[['hk','tw'].indexOf(lang)] || name,
     image: (url, values) => Markup(url, Markup.replacer.image, values),
     upgrade: (text, item) => Markup(text, Markup.upgrades[item]),
     downgrade: (text, item) => Markup(text, Markup.upgrades[item].map(item => item.reverse())),

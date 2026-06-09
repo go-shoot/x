@@ -1,3 +1,19 @@
+::view-transition-group(.part) {animation-duration: .5s;}
+html.pause-page:not(.prepare-popover) ol li {
+    view-transition-name: match-element; view-transition-class: part;
+}
+li:has(select[name=tier] option:nth-child(1):checked),select[name=tier] option:nth-child(1) {--tier: oklch(.5 .25 -20);}
+li:has(select[name=tier] option:nth-child(2):checked),select[name=tier] option:nth-child(2) {--tier: oklch(.5 .15 20);}
+li:has(select[name=tier] option:nth-child(3):checked),select[name=tier] option:nth-child(3) {--tier: oklch(.5 .25 90);}
+li:has(select[name=tier] option:nth-child(4):checked),select[name=tier] option:nth-child(4) {--tier: oklch(.5 .25 120);}
+li:has(select[name=tier] option:nth-child(5):checked),select[name=tier] option:nth-child(5) {--tier: oklch(.5 .15 160);}
+li:has(select[name=tier] option:nth-child(6):checked),select[name=tier] option:nth-child(6) {--tier: oklch(.5 .1 200);}
+
+nav:has(input[value=acquired]:checked)+main li.unacquired,
+nav:has(input[value=default]:checked)+main summary .tier,
+nav:has(input[value=tier]:checked)+main summary .default,
+li:has(details:not([open]))~li, li:has(figcaption:only-child) {display: none;}
+
 .LED label:nth-child(even) {margin-right: 1em;}
 button {
     background: var(--theme); color: var(--overlay1);
@@ -21,29 +37,30 @@ main>details {
     }
 }
 section {
-    margin-bottom: 1em;
     font-size: .9em;
 
     h2 {
         display: block; text-align: left;
-        margin: 2em 0 .25em .5em;
-    }
-    h2 a {
-        display: inline-flex; align-items: center; gap: .2em;
-    
-        &[href*='#']::before {
-            content: '';
-            width: calc(3em/var(--f,1)); height: calc(2em/var(--f,1));
-            background: var(--img-line) center / contain;
+        margin: 3em 0 .25em .5em;
+
+        a {
+            display: inline-flex; align-items: center; gap: .2em;
+        
+            &[href*='#']::before {
+                content: '';
+                width: calc(3em/var(--f,1)); height: calc(2em/var(--f,1));
+                background: var(--img-line) center / contain;
+            }
+            &:empty::after {width: 3em;}
+            &:not(:empty) {--f: 1.25; font-size: calc(var(--f)*1em);}
         }
-        &:empty::after {width: 3em;}
-        &:not(:empty) {--f: 1.25; font-size: calc(var(--f)*1em);}
     }
     ol {
         background: var(--overlay1);
         padding: .2rem !important;
-        display: flex; flex-wrap: wrap; gap: .5em .15em;
-        min-height: 4em;
+        display: flex; flex-wrap: wrap; gap: .5em .15em; justify-content: space-between;
+
+        &::after {content: ''; flex: auto;}
     }
     li {
         &.unacquired {
@@ -51,20 +68,15 @@ section {
                 color: var(--on);
                 pointer-events: none;
             }
-            figure>img {opacity: .5;}
+            figure>img {opacity: .75;}
             figure>:is(img,figcaption) {filter: brightness(.5) grayscale(.5);}
         }        
-        &:not(.selected) {margin: 0 .2em;}
         &:has(details) {align-self: center;}
-        nav:has(input[value=acquired]:checked)+main &.unacquired,
-        &:has(details:not([open]))~li,
-        &:has(figcaption:only-child) {display: none;}
     }
     summary {
         line-height: 1.4; font-size: .9em;
+        padding: 1em 0;
         
-        nav:has(input[value=default]:checked)+main & .tier,
-        nav:has(input[value=tier]:checked)+main & .default {display: none;}
         &:not([title='0']) {color: var(--theme);}
         &::after {
             display: block; 
@@ -73,11 +85,15 @@ section {
     }
 }
 main figure {
-    border-bottom: .2em solid gray; border-radius: .5em;
+    /*border-top: 3px solid var(--tier,gray);*/ border-bottom: 3px solid gray; 
+    border-radius: .5em;
     padding: .25em;
     position: relative;
     
-    .selected & {border-left: .2em solid var(--theme); border-right: .2em solid var(--theme);}
+    li:not(.selected) & {margin: 0 3px;}
+    li.selected & {
+        border-left: 3px solid var(--theme); border-right: 3px solid var(--theme);
+    }
     >img {height: 4.8em;}
     figcaption {
         position: absolute; inset: .25em .25em .1em .25em;
@@ -98,9 +114,6 @@ main figure {
             }
         }
     }
-    &[class] {
-        border-top: .2em solid var(--tier,gray);
-    }
 }
 select,::picker(select) {
     appearance: base-select;
@@ -113,29 +126,30 @@ select,::picker(select) {
 select {
     gap: .2em; align-items: center;
     padding: 0 .5em;
-    font-size: .8em;
+    font-size: .8em; color: var(--theme); 
+    text-align: center;
     cursor: pointer;
-    color: var(--theme);
+    max-width: 3em;
     border: none;
-    max-width: 3.5em;
 
     &[name=acquired] {
         border-radius: 0 0 .3em .3em;
-        transform: translateY(-.2em);
-        background: gray; 
+        transform: translateY(-.15em);
+        background: gray;
+
+        option {background: var(--dark);}
     }
     &[name=tier] {
         border-radius: .3em .3em 0 0;
-        transform: translateY(.2em);
+        transform: translateY(.15em);
         background: var(--tier,gray);
-        text-align: center;
+
+        option {background: var(--tier);}
     }
-    &[name=tier]:has(+figure:not([class])) {display: none;}
     &:focus {outline: none;}
     option {
         display: block;
-        background: var(--dark); color: var(--on);
-        font-size: .9em;
+        color: var(--on); font-size: .9em;
         line-height: 1.8em;
 
         &:not([value]), &::checkmark {display: none;}

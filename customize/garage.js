@@ -1,6 +1,6 @@
 import DB from '../include/DB.js'
 import { Part, Tile, Cell } from '../parts/part.js';
-import { Markup } from '../include/utilities.js';
+import { Markup, Transition } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
@@ -13,8 +13,11 @@ Object.assign(Garage, {
 
     async before () {
         let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]), hrefs;
-        if (!Object.keys(acquired).length) 
-            return (Q('details').open = true) && Promise.reject();
+        if (!Object.keys(acquired).length) {
+            Q('.loading')?.classList.remove('loading');
+            Q('details').open = true;
+            return Promise.reject();
+        }
         [hrefs, PARTS] = await Promise.all([resp.text(), DB.get.essentials({drop: false})]);
         hrefs = hrefs.split('\n').filter(href => href.includes('parts'));
         hrefs.forEach(href => Q('main').append(E('a', {href})));
@@ -34,7 +37,7 @@ Object.assign(Garage, {
     },
     async display (grouped) {
         let sortGroupShow = (comp, map, section) => {
-            let sorter = Garage.sort[comp] ?? Garage.sort.blade;
+            let sorter = Garage.sorter[comp] ?? Garage.sorter.blade;
             let grouper = ([P]) => Bey.comps.includes(comp) ? Garage.inferior[comp](P) : Garage.inferior.CX[comp](P);
             let parts = Object.groupBy((Array.isArray(map) ? map : [...map ?? []]).sort(sorter), grouper);
             new O({false: 'before', true: 'after'}).each(([type, posi]) => 
@@ -66,13 +69,36 @@ Object.assign(Garage, {
                 classList: `icon-${a.search.substring(1).split('=')[0]}`,
                 innerText: a.hash && !/.X$/.test(a.hash) ? a.hash : ''
             });
-            section.Q('li', (li, i) => (li.dataset.tier=Math.round(Math.random()*10),li.dataset.order = i));
-        })
+            section.Q('li', (li, i) => li.dataset.order = i);
+        });
         let amount = Q('li figure', []).length;
         gtag('event', 'GARAGE', {amount});
         if (!amount) return;
         Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
-        DB.get('product', 'beys').then(beys => {
+        Garage.set.tier();
+        Garage.set.class();
+        Q('.loading')?.classList.remove('loading');
+    },
+
+    sorter: {
+        blade: ([P1], [P2]) => (P2.weight || 0) - (P1.weight || 0),
+        ratchet: ([P1], [P2]) => parseInt(P1.abbr.replace('-', '')) - parseInt(P2.abbr.replace('-', '')),
+        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 
+            P1.abbr > P2.abbr ? 1 : -1
+    },
+    inferior: {
+        CX: {
+            chip: P => !P.weight || P.weight < 2, 
+            over: P => !P.weight || P.weight < 3, metal: P => !P.weight || P.weight < 28, 
+            main: P => !P.weight || P.weight < 31, assist: P => !P.weight || P.weight < 6
+        },
+        blade: P => !P.weight || P.weight < 35,
+        ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
+        bit: P => /^[^FLU][^a-z]/.test(P.abbr)
+    },
+    set: {
+        tier: () => Q('li:has(figure)', li => li.tier = li.Q('select[name=tier]').value = null ?? Math.floor(Math.random()*6)),
+        class: () => DB.get('product', 'beys').then(beys => {
             beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
             Q('option[value]', option => {
                 let bey = beys.get(option.value);
@@ -80,61 +106,42 @@ Object.assign(Garage, {
                 option.matches('.Lm') && (option.title = bey[1]);
                 option.matches('.RB') ? option.Q('sub').prepend(' ') : option.Q('sub')?.remove();
             });
-        });
-        Q('.loading')?.classList.remove('loading');
-    },
-
-    sort: {
-        blade: ([P1], [P2]) => P2.weight - P1.weight,
-        ratchet: ([P1], [P2]) => parseInt(P1.abbr.replace('-', '')) - parseInt(P2.abbr.replace('-', '')),
-        bit: ([P1], [P2]) => [...P1.attr][0] > [...P2.attr][0] ? 1 : [...P1.attr][0] < [...P2.attr][0] ? -1 : 
-            P1.abbr > P2.abbr ? 1 : -1
-    },
-    inferior: {
-        CX: {
-            chip: P => P.weight && P.weight < 2, 
-            over: P => P.weight && P.weight < 3, metal: P => P.weight && P.weight < 28, 
-            main: P => P.weight && P.weight < 31, assist: P => P.weight && P.weight < 6
+        }),
+        acquired (target) {
+            let comp = target.closest('section').id.split('#')[0];
+            target.closest('li').Q('option[value]', []).forEach(({value}) => 
+                Cell.group(Q(`tr[id='${value}'] [headers=${comp}]`), td => td?.classList.add('acquired'))
+            );
         },
-        blade: P => P.weight && P.weight < 35,
-        ratchet: P => parseInt(P.abbr.split('-')[1]) > 70,
-        bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
     count: () => Q('ol', ol => ol.Q('summary').title = ol.Q('li:has(details)~:not(.unacquired)', []).length),
     events () {
-        let observer = new IntersectionObserver(entries => entries.forEach(en => {
-            if (!en.isIntersecting) return;
-            observer.unobserve(en.target);
-        }));
-        Q('section', section => observer.observe(section));
         E(Q('main')).set({
             async onclick (ev) {
                 if (ev.target.matches('main,ol')) return Q('li.selected', li => li.classList.remove('selected'));
                 if (Garage.held) return;
                 let path = ev.target.closest('figure')?.firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-                path && new Preview(['cell', 'tile'], {path}, ev).then(() => Garage.mark(ev.target));
+                path && new Preview(['cell', 'tile'], {path}, ev).then(() => Garage.set.acquired(ev.target));
             },
             onpointerup: () => setTimeout(() => Garage.held = false),
             async onchange (ev) {
-                if (ev.target.name == 'tier') 
-                    return Q('li.selected', li => li.Q('figure').classList = li.Q('select[name=tier]').value = ev.target.value);
-
+                if (ev.target.name == 'tier') {
+                    Q('li.selected', li => li.tier = li.Q('select[name=tier]').value = ev.target.value);
+                    return Garage.events.sort();
+                }
                 let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
                 ev.target.firstChild.selected = true;
                 await (option.matches('.Lm') ?
                     new Preview(['cell', 'diamond'], {code, bey: option.title}, ev) :
                     new Preview(['cell', 'image'], {code: code.split('_')[0]}, ev));
-                Garage.mark(ev.target);
+                Garage.set.acquired(ev.target);
             }
         });
         Q('nav form').onchange = ev => {
+            if (ev.target.name == 'view') return;
             if (ev.target.name == 'lang') 
-                return Storage('pref', {lang: ev.target.value}) && Garage.lang(ev.target.value);
-            let by = ev.target.value == 'tier' ? 'tier' : 'order';
-            Q('ol', ol => {
-                ol.replaceChildren(...[...ol.children].sort((a, b) => a.dataset[by] - b.dataset[by]));
-                by == 'tier' && ol.Q('[data-tier="3"]', [])[0]?.before(ol.Q('li:has(details)'));
-            });
+                return Storage('pref', {lang: ev.target.value}) && Garage.events.lang(ev.target.value);
+            Garage.events.sort(ev.target.value);
             Garage.count();
         }
         Q('#prompt').onclick = ev => {
@@ -151,27 +158,32 @@ Object.assign(Garage, {
             }
         });
     },
+});
+Object.assign(Garage.events, {
+    sort (by) {
+        by ??= Q('input[name=sort]:checked').value;
+        Transition.allow.for(() => Q('ol', ol => {
+            if (by == 'default')
+                return ol.replaceChildren(...[...ol.children].sort((a, b) => a.dataset.order - b.dataset.order));
+            let more = ol.Q('li:has(details)');
+            ol.after(more);
+            ol.replaceChildren(...[...ol.children].sort((a, b) => a.tier - b.tier));
+            let inferior = [...ol.children].find(li => li.tier == null || li.tier >= 3)
+            inferior ? inferior.before(more) : ol.append(more);
+        }));
+    },
     lang (lang) {
-        let hktw = name => name.split(' ')[['hk','tw'].indexOf(lang)] || name;
         Q('figure:has(b[lang])>img', img => {
             let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-            let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi, l = lang;
-            !name && (name = PARTS.at(path).names.eng) && (l = 'eng');
-            ['hk','tw'].includes(lang) && (name = hktw(name));
+            let [name, l] = [PARTS.at(path).names[lang] || PARTS.at(path).names.chi, lang];
+            name ? (name = Markup.hktw(lang, name)) : ([name, l] = [PARTS.at(path).names.eng, 'eng']);
             E(img.nextSibling.Q('b')).set([...Markup.cell(name)], {lang: l, title: Markup.clear(PARTS.at(path).names.eng)});
         });
         Q('section:has(h2 a:not(:empty))', section => {
             let name = Part.names[section.id][lang] || Part.names[section.id].chi;
-            ['hk','tw'].includes(lang) && (name = hktw(name));
-            section.Q('a').innerText = name;
+            section.Q('a').innerText = Markup.hktw(lang, name);
         });
-        Garage.prompt();
-    },
-    mark (target) {
-        let comp = target.closest('section').id.split('#')[0];
-        target.closest('li').Q('option[value]', []).forEach(({value}) => 
-            Cell.group(Q(`tr[id='${value}'] [headers=${comp}]`), td => td?.classList.add('acquired'))
-        );
+        Garage.events.prompt();
     },
     prompt: () => Q('textarea').value = 
         Q('p[hidden]').textContent + Q('section', []).map(section => 
@@ -184,7 +196,7 @@ Garage.element = {
         comp.map(Garage.element.section) : 
         E(`section`, {id: comp}, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
     li: (P, codes) => E('li', codes.length ? {} : {classList: 'unacquired'}, [
-        E('select', {name: 'tier'}, [...Array(6)].map((_, i) => E('option', {value: i}, `T${i}`))),
+        E('select', {name: 'tier', hidden: true}, [...Array(6)].map((_, i) => E('option', {value: i}, `T${i}`))),
         E(`figure`, [
             E('img', {src: `../img/${P.path.join('/')}.png`}), 
             E('figcaption', Tile.prototype.fill.icons.call({Part: P})

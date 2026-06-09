@@ -15,7 +15,7 @@
     <label hidden><input type="checkbox" id="garage">&#xe045;</label>
     <div>
         <fieldset class="LED">
-            <label>庫存<input name=mode type=radio value=acquired checked></label>
+            <label>存庫<input name=mode type=radio value=acquired checked></label>
             <label>標記<input name=mode type=radio value=marked></label>
         </fieldset>
         <button id="copy">&#xe038; 試算表</button>
@@ -85,5 +85,5 @@
 import DB from '../include/DB.js';
 import Table from './products.js';
 Q('.stretch').after(DB().then(Table));
-location.hash=='#t' && (Q('nav [hidden]').hidden=false);
+location.hash=='#t' && Q('nav [hidden]', li=>li.hidden=false);
 </script>
