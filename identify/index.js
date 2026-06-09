@@ -1,4 +1,5 @@
 import DB from "../include/DB.js";
+import { Markup } from "../include/utilities.js";
 import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 
 let PARTS, Controls = {el: Q('#controls')};
@@ -45,14 +46,15 @@ class Collage {
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
-    tag ([x0, y0, x1], abbr, ctx = Collage.ctx) {
+    tag ([x0, y0, x1], tag, ctx = Collage.ctx) {
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
             let middle = Math.floor(widths.length / 2);
             this.fontSize = (widths.length % 2 !== 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 3;
         }
+        tag = Markup.hktw(Q('input[name=lang]:checked').value, tag);
         ctx.font = `${Math.max(15, this.fontSize)}px Chiron GoRound TC`; ctx.fillStyle = 'rgb(127,127,127)'; ctx.textAlign = "center";
-        ctx.fillText(abbr, x0 + (x1 - x0)/2, y0);
+        ctx.fillText(tag, x0 + (x1 - x0)/2, y0);
     }
     likelyBackdrop () {
         let counts = [...this.boxes].map(points => Collage.rgba(...points)).reduce((report, rgba) => ({...report, [rgba]: (report[rgba] || 0) + 1}), {});
@@ -116,6 +118,7 @@ const App = () => DB.get.essentials({flat: true})
     .then(Parts => {
         PARTS = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());
         App.events();
+        Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
         Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
         Q('.loading', el => el.classList.remove('loading'));
     });
@@ -131,7 +134,7 @@ Object.assign(App, {
             Q(state === 1 ? '#select' : '#execute').classList.add('loading');
             Q('#execute').classList.add('inactive');
         } else {
-            Q('.loading')?.classList.remove('loading');
+            Q('.loading', el => el.classList.remove('loading'));
             Q('.inactive', li => li.classList.remove('inactive'));
         }
     },
@@ -215,9 +218,11 @@ Object.assign(App.match, {
     )).then(hashes => 
         new ResultMatrix('hash', hashes, (h1, h2) => h1.hammingDistance(h2), 5, 'low')
         .fromOptimum((r, c) => {
-            let P = PARTS[App.group][r];console.log(P);
-            let tag = r >= PARTS.bit.length ? ['F','T','B','N','HN','LF'][r - PARTS.bit.length] : P.abbr;
-            App.collage.tag(boxes[c], tag)
+            let P = PARTS[App.group][r];
+            let tag = App.group == 'bit' && r >= PARTS.bit.length ? 
+                ['F','T','B','N','HN','LF'][r - PARTS.bit.length] : 
+                P.only.name() && Markup.clear(P.names.chi) || P.abbr;            
+            App.collage.tag(boxes[c], tag);
         }, 150).toBoxMap()
     )
 });

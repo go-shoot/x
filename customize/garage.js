@@ -173,18 +173,15 @@ Object.assign(Garage.events, {
         });
     },
     lang (lang) {
-        let hktw = name => name.split(' ')[['hk','tw'].indexOf(lang)] || name;
         Q('figure:has(b[lang])>img', img => {
             let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
-            let name = PARTS.at(path).names[lang] || PARTS.at(path).names.chi, l = lang;
-            !name && (name = PARTS.at(path).names.eng) && (l = 'eng');
-            ['hk','tw'].includes(lang) && (name = hktw(name));
+            let [name, l] = [PARTS.at(path).names[lang] || PARTS.at(path).names.chi, lang];
+            name ? (name = Markup.hktw(lang, name)) : ([name, l] = [PARTS.at(path).names.eng, 'eng']);
             E(img.nextSibling.Q('b')).set([...Markup.cell(name)], {lang: l, title: Markup.clear(PARTS.at(path).names.eng)});
         });
         Q('section:has(h2 a:not(:empty))', section => {
             let name = Part.names[section.id][lang] || Part.names[section.id].chi;
-            ['hk','tw'].includes(lang) && (name = hktw(name));
-            section.Q('a').innerText = name;
+            section.Q('a').innerText = Markup.hktw(lang, name);
         });
         Garage.events.prompt();
     },

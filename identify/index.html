@@ -6,6 +6,8 @@
 <nav>
     <menu></menu>
     <fieldset class="LED">
+        <label>港<input name=lang type=radio value=hk></label>
+        <label>台<input name=lang type=radio value=tw></label>
         <label>修正<input name=mode type=radio value=amend checked></label>
         <label>預覽<input name=mode type=radio value=preview></label>
     </fieldset>
@@ -65,7 +67,7 @@
     <continuous-knob title="亮度上限" id="luma_max" min="50" max="200" value="100"><i class="center"></i></continuous-knob>
     <continuous-knob title="色度下限" id="chroma" min="0" max="50" value="30" step="1"><i class="center"></i></continuous-knob>
     <continuous-knob title="Buffer" id="buffer" min="0" max="3" value="1" step="1"><i class="center"></i></continuous-knob>
-    <continuous-knob title="邊長下限" id="side_min" min="0" max="80" value="2" unit="%"><i class="center"></i></continuous-knob>
+    <continuous-knob title="邊長下限" id="side_min" min="0" max="80" value="3" unit="%"><i class="center"></i></continuous-knob>
     <continuous-knob title="邊長上限" id="side_max" min="20" max="100" value="50" unit="%"><i class="center"></i></continuous-knob>
 </aside>
 
