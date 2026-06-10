@@ -26,6 +26,7 @@ nav {
 }
 main>details {
     summary {
+        color: var(--theme);
         &::before {content: '▶';}
         &::after  {content: '◀';}
         &.loading span,&.loading::before {display: none;}
@@ -34,7 +35,8 @@ main>details {
 
     ul {
         text-align: left; font-size: .8em;
-        padding: 0 0.5em 0 2em;
+        padding: 0 0.5em 0 2em; margin: 1em auto;
+        max-width: 40em;
         line-height: 1.4;
     }
 }
@@ -74,6 +76,7 @@ section {
             figure>:is(img,figcaption) {filter: brightness(.5) grayscale(.5);}
         }        
         &:has(details) {align-self: center;}
+        &:has(details):nth-child(1 of :not(.unacquired)) {margin-left: .3em;}
     }
     summary {
         line-height: 1.4; font-size: .9em;
@@ -162,8 +165,12 @@ dialog {
     button {color: var(--theme);}
     textarea {
         display: block;
-        width: 90%; height: 80vh;
+        width: min(600px,90%); height: min(800px,80vh);
         font-size: 1em;
         margin: 1em auto;
+    }
+    a[target=_blank] {
+        color: var(--accent);
+        margin-left: 1em;
     }
 }
