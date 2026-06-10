@@ -8,8 +8,6 @@
     <fieldset class="LED">
         <label>港<input name=lang type=radio value=hk></label>
         <label>台<input name=lang type=radio value=tw></label>
-        <label>修正<input name=mode type=radio value=amend checked></label>
-        <label>預覽<input name=mode type=radio value=preview></label>
     </fieldset>
     <form>
         <div>
@@ -17,7 +15,7 @@
         </div>
         <div>
             <button data-url="https://i.imgur.com/rSYdB86.jpeg" data-comp="bit" data-luma_min="13">示例1</button>
-            <button data-url="https://i.imgur.com/h2gxl9t.jpeg" data-comp="ratchet" data-luma_min="10" data-chroma="5" data-side_min="5">示例2</button>
+            <button data-url="https://i.imgur.com/h2gxl9t.jpeg" data-comp="ratchet" data-luma_min="10" data-chroma="7" data-side_min="5" data-buffer="2">示例2</button>
             <button>示例3</button>
         </div>
     </form>
@@ -30,9 +28,9 @@
         </ul>
     </details>
     <ol>
-        <li>STEP 1：<label>&#xe010; &#xe03f; 上載<input type="file" accept="image/*"> &#xe00f;</label></li>
-        <li class="inactive" id="select">STEP 2：選擇要辦認的部件
-            <fieldset class="LED">&#xe010; 
+        <li>STEP 1：<label>&#xe03f; 上載<input type="file" accept="image/*"></label></li>
+        <li class="inactive">STEP 2：選擇要辦認的部件
+            <fieldset class="LED"> 
                 <label class="icon-blade">
                     <input type="radio" name="comp" value="CX">
                     <img src="../img/lines.svg#CX">
@@ -46,13 +44,20 @@
                 <label class="icon-bit">
                     <input type="radio" name="comp" value="bit">
                 </label>
-            &#xe00f;</fieldset>
+            </fieldset>
             <p>調整資源圖片背景色中...</p>
         </li>
-        <li class="inactive" id="adjust">STEP 3：<label>&#xe010; 拖上／下旋鈕以調節敏感度 &#xe00f;</label></li>
-        <li class="inactive" id="execute">
+        <li class="inactive" id="adjust">STEP 3：<label>拖上／下旋鈕以調節敏感度</label></li>
+        <li class="inactive">
             STEP 4：<button id="match" class="text">配對</button>
             <p>配對中...</p>
+        </li>
+        <li class="inactive">
+            STEP 5：在圖上點擊以進行
+            <fieldset class="LED">
+                <label>修正<input name=mode type=radio value=amend checked></label>或
+                <label>預覽<input name=mode type=radio value=preview></label>        
+            </fieldset>
         </li>
     </ol>
     <div>
@@ -76,3 +81,5 @@
     import App from './index.js';
     Q('main').after(DB().then(App));
 </script>
+<link rel="stylesheet" href="../parts/part.css">
+<link rel="stylesheet" href="../prizes/prize.css">

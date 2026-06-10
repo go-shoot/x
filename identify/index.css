@@ -31,30 +31,6 @@ main {
             line-height: 1.4;
         }
     }
-    fieldset {
-        display: flex; gap: 1em; justify-content: center;
-        text-align: center; line-height: 4em; color: var(--theme);
-        width: 100%;
-        margin-top: .5em;
-    
-        label {
-            position: relative;
-            min-width: 3em; height: 3.5em;
-            display: flex; flex-direction: column;
-    
-            img {
-                width: 3em; height: 2em; 
-                margin-top: .5em;
-            }
-            div {white-space: nowrap;}
-            div img:nth-child(2) {margin-left: .5em;}
-            &::after {
-                position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-                width: 3em; height: 3em;
-                z-index: -1;
-            }
-        }
-    }
     div {
         max-width: 1200px; margin: auto;
 
@@ -98,6 +74,40 @@ main ol {
         &:not(.loading) p {display: none;}
         &::after {width: 100%; text-align: center;}
         &:not(.inactive) :is(label,button) {cursor: pointer; color: var(--theme);}
+
+        >:is(fieldset,label) {
+            &::before {color: var(--theme); content: ' ';}
+            &::after  {color: var(--theme); content: ' ';}
+        }    
+    }
+    fieldset {
+        display: flex; gap: 1em; justify-content: center;
+        text-align: center; 
+        width: 100%;
+        margin-top: .5em;
+    
+        li:nth-child(2) & {line-height: 4em;}
+        li:nth-child(5) & {align-items: end;}
+        label {
+            position: relative;
+            color: var(--theme);
+
+            li:nth-child(2) & {
+                display: flex; flex-direction: column;
+                min-width: 3em; height: 3.5em;
+            }
+            img {
+                width: 3em; height: 2em; 
+                margin-top: .5em;
+            }
+            div {white-space: nowrap;}
+            div img:nth-child(2) {margin-left: .5em;}
+            &::after {
+                position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+                width: 3em; height: 3em;
+                z-index: -1;
+            }
+        }
     }
 }
 aside {

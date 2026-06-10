@@ -1,5 +1,6 @@
 import DB from "../include/DB.js";
 import { Markup } from "../include/utilities.js";
+import { Preview } from "../parts/bey.js";
 import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 
 let PARTS, Controls = {el: Q('#controls')};
@@ -27,13 +28,14 @@ E.canvas = async (img, bg = '246,245,250', flip) => {
 const worker = new Worker('./worker.js');
 class Collage {
     constructor(ev) {
+        App.state(1, 'begin');
         return E.img(typeof ev == 'string' ? ev : URL.createObjectURL(ev.target.files[0]))
         .then(img => {
             [this.img, Collage.cvs.width, Collage.cvs.height] = [img, img.width, img.height];
             this.draw();
             App.collage = this;
             App.bound();
-            Q('#select').classList.remove('inactive');
+            App.state(1, 'done');
         });
     }
     draw (box, color = 'green', cvs = Collage.cvs, ctx = Collage.ctx) {
@@ -46,15 +48,20 @@ class Collage {
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
-    tag ([x0, y0, x1], tag, ctx = Collage.ctx) {
+    tag ([x0, y0, x1, y1], tag, ctx = Collage.ctx) {
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
             let middle = Math.floor(widths.length / 2);
-            this.fontSize = (widths.length % 2 !== 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 3;
+            this.fontSize = Math.max(15, (widths.length % 2 !== 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 4);
         }
         tag = Markup.hktw(Q('input[name=lang]:checked').value, tag);
-        ctx.font = `${Math.max(15, this.fontSize)}px Chiron GoRound TC`; ctx.fillStyle = 'rgb(127,127,127)'; ctx.textAlign = "center";
-        ctx.fillText(tag, x0 + (x1 - x0)/2, y0);
+        ctx.textAlign = 'center';
+        let [{width: w}, h, pad] = [ctx.measureText(tag), this.fontSize, 2];
+        let [x, y] = [x0 + (x1 - x0)/2, y0 < this.fontSize ? y0 + this.fontSize : y0];
+        ctx.fillStyle = 'rgba(255,255,255,.75)';
+        ctx.fillRect(x - w/2 - pad, y - h + pad/2, w + pad*2, h + pad);
+        ctx.font = `${this.fontSize}px Chiron GoRound TC`; ctx.fillStyle = 'rgb(127,127,127)'; 
+        ctx.fillText(tag, x, y - pad/2);
     }
     likelyBackdrop () {
         let counts = [...this.boxes].map(points => Collage.rgba(...points)).reduce((report, rgba) => ({...report, [rgba]: (report[rgba] || 0) + 1}), {});
@@ -73,10 +80,9 @@ class Collage {
                 if (visited[idx]) continue;
                 let {chroma, luma} = Calculate.chroluma(data.slice(idx * 4, idx * 4 + 3));
                 if (chroma > Controls.chroma || luma > Controls.luma_min && luma < Controls.luma_max) {
-                    let [x0, y0, x1, y1] = Calculate.boundary(x, y, W, H, data, visited);
-                    let [w, h] = [x1 - x0, y1 - y0];
+                    let {x0, y0, x1, y1, w, h} = Calculate.boundary(x, y, W, H, data, visited);
                     w >= side.min && h >= side.min && w <= side.max && h <= side.max 
-                    && boxes.push([x0, y0, x1, y1]);
+                    && boxes.push([x0+1, y0+1, x1+2, y1+2]);
                 }
             }
         const unnested = [];
@@ -111,7 +117,7 @@ const Calculate = {
                 && stack.push([nx, ny]);
             });
         }
-        return [x0, y0, x1, y1];
+        return {x0, y0, x1, y1, w: x1-x0, h: y1-y0};
     },
 };
 const App = () => DB.get.essentials({flat: true})
@@ -123,20 +129,45 @@ const App = () => DB.get.essentials({flat: true})
         Q('.loading', el => el.classList.remove('loading'));
     });
 Object.assign(App, {
-    autoflow: ({dataset: {url, comp, ...controls}}) => new Collage(url).then(() => {
+    autoflow: ({dataset: {url, comp, ...controls}}) => new Collage(url).then(async () => {
             Q(`input[name=comp][value=${comp}]`).checked = true;
-            Object.entries(controls).forEach(([id, v]) => Q(`#${id}`).set.value({v}));
-            return App.prepare();
-        }).then(() => App.match())
+            Object.entries(controls).forEach(([id, v]) => Q(`#${id}`).set.value({v: parseFloat(v)}));
+            return App.flow.prepare();
+        }).then(() => App.flow.match())
     ,
-    state (state) {
-        if (state) {
-            Q(state === 1 ? '#select' : '#execute').classList.add('loading');
-            Q('#execute').classList.add('inactive');
-        } else {
-            Q('.loading', el => el.classList.remove('loading'));
-            Q('.inactive', li => li.classList.remove('inactive'));
+    state (step, state) {
+        if (Array.isArray(step)) return step.forEach(s => App.state(s, state));
+        Q(`ol li:nth-child(${step})`).classList.add('loading');
+        if (state == 'done') {
+            Q(`ol li:nth-child(${step})`).classList.remove('loading');
+            Q(`ol li:nth-child(${step+1})`)?.classList.remove('inactive');
         }
+    },
+    flow: {
+        prepare () {
+            App.assets ??= {};
+            let checked = Q('input[name=comp]:checked'), backdrop = App.collage.likelyBackdrop();
+            let {value: group, title: lastBackdrop} = checked;
+            App.group = group;
+            if (App.assets[group] && backdrop == lastBackdrop) return Promise.resolve();
+            
+            App.state(2, 'begin');
+            let canvases = PARTS[group].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
+            group == 'bit' && canvases.push(...App.flipped.bit.map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
+            return Promise.all(canvases.map(prom => prom.then(async cvs => cvs ? {hash: await phash(cvs, 16)} : {})))
+            .then(hashes => {
+                App.assets[group] = hashes;
+                checked.title = backdrop;
+                App.state([2,3], 'done');
+            });
+        },
+        match () {
+            App.state(4, 'begin');
+            App.flow.prepare().then(() => App.flow.match.hash()).then(results => {
+                App.results = results;
+                App.state(4, 'done');
+            });
+        },
     },
     events () {
         Q('form button', button => button.type = 'button');
@@ -155,7 +186,7 @@ Object.assign(App, {
                     return new Collage(ev);
                 if (ev.target.name == 'comp' && App.collage) {
                     App.collage.draw(true);
-                    App.prepare();
+                    App.flow.prepare();
                 }
             },
             onclick (ev) {
@@ -167,18 +198,19 @@ Object.assign(App, {
                     return Controls.el.classList.toggle('active');
                 if (ev.target.id == 'match') {
                     Controls.el.classList.remove('active');
-                    App.match();
+                    App.flow.match();
                 }
             }
         });
         Controls.el.oninput = ev => (Controls[ev.target.id] = ev.target.value) && App.bound();
         Collage.cvs.onclick = ev => {
+            if (!App.results || !App.results.length) return;
             let rect = ev.target.getBoundingClientRect();
-            let clickX = (ev.clientX - rect.left) * (ev.target.width / rect.width);
-            let clickY = (ev.clientY - rect.top) * (ev.target.height / rect.height);
-            console.log(App.results.find(([[x0, y0, x1, y1]]) =>
-                clickX >= x0 && clickX <= x1 && clickY >= y0 && clickY <= y1
-            ));
+            let x = (ev.clientX - rect.left) * ev.target.width / rect.width;
+            let y = (ev.clientY - rect.top) * ev.target.height / rect.height;
+            let [box, {scores, determ}] = App.results.find(([[x0, y0, x1, y1]]) => x >= x0 && x <= x1 && y >= y0 && y <= y1);
+            //App.events.preview(determ, ev);
+            App.events.correct(box, scores);
         };
     },
     bound () {
@@ -187,32 +219,20 @@ Object.assign(App, {
         App.collage.detect();
         App.collage.boxes.forEach(box => App.collage.draw(box, 'green'));
     },
-    prepare () {
-        App.assets ??= {};
-        let checked = Q('input[name=comp]:checked'), backdrop = App.collage.likelyBackdrop();
-        let {value: group, title: lastBackdrop} = checked;
-        App.group = group;
-        if (App.assets[group] && backdrop == lastBackdrop) return Promise.resolve();
-        
-        App.state(1);
-        let canvases = PARTS[group].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
-        group == 'bit' && canvases.push(...['F','T','B','N','HN','LF'].map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
-        return Promise.all(canvases.map(prom => prom.then(async cvs => cvs ? {hash: await phash(cvs, 16)} : {})))
-        .then(hashes => {
-            App.assets[group] = hashes;
-            checked.title = backdrop;
-            App.state(0);
-        });
-    },
-    match () {
-        App.state(2);
-        App.prepare().then(() => App.match.hash()).then(results => {
-            console.log(App.results = results);
-            App.state(0);
-        });
-    }
+    flipped: {bit: ['F','T','B','N','HN','LF']}
 });
-Object.assign(App.match, {
+Object.assign(App.events, {
+    correct (box, scores, ev) {
+        console.log(scores.map((s, i) => ({s, i})).sort((a, b) => a.s - b.s).map(({i}) => PARTS[App.group][i]));
+    },
+    preview (determ, ev) {
+        let P = App.group == 'bit' && determ > PARTS.bit.length ? 
+        PARTS.bit.find(P => P.abbr == App.flipped.bit[determ - PARTS.bit.length]) :
+        PARTS[App.group][determ];
+        new Preview(['cell', 'tile'], {path: P.path}, ev);
+    }
+})
+Object.assign(App.flow.match, {
     hash: (boxes = App.collage.boxes) => Promise.all(boxes.map(([x0, y0, x1, y1]) => 
         E.canvas({x: x0, y: y0, w: x1-x0, h: y1-y0}).then(cvs => phash(cvs, 16))
     )).then(hashes => 
@@ -220,7 +240,7 @@ Object.assign(App.match, {
         .fromOptimum((r, c) => {
             let P = PARTS[App.group][r];
             let tag = App.group == 'bit' && r >= PARTS.bit.length ? 
-                ['F','T','B','N','HN','LF'][r - PARTS.bit.length] : 
+                App.flipped.bit[r - PARTS.bit.length] : 
                 P.only.name() && Markup.clear(P.names.chi) || P.abbr;            
             App.collage.tag(boxes[c], tag);
         }, 150).toBoxMap()
@@ -244,20 +264,20 @@ class ResultMatrix {//row: parts  col: boxes
         }
     }
     data = []
-    done = {rows: new Set(), cols: new Set()};
+    done = {rows: new Set(), cols: new Set()}
+    deterministic = new Map()
     entries = () => this.data.flatMap((cols, r) => cols.map((value, c) => ({r, c, value})))
     fromOptimum (callback, threshold) {
         let sorted = this.entries().sort((a, b) => a.value - b.value);
         sorted.forEach(({ r, c, value: v }) => {
             if (this.done.rows.has(r) || this.done.cols.has(c)) return;
-            (this.type == 'low' && v < threshold || this.type == 'high' && v > threshold) && callback(r, c, v);
+            if (this.type == 'low' && v < threshold || this.type == 'high' && v > threshold) {
+                this.deterministic.set(c, r);
+                callback(r, c, v);
+            }
             this.done.rows.add(r) && this.done.cols.add(c);
         });
         return this;
     }
-    toBoxMap = () => App.collage.boxes.map((box, c) => [box,
-        this.data.map((rows, r) => ({r, value: rows[c]}))
-        .sort((a, b) => a.value - b.value).slice(0, 5)
-        .map(({r}) => r >= PARTS.bit.length ? PARTS.bit.find(P => P.abbr == ['F','T','B','N','HN','LF'][r - PARTS.bit.length]) : PARTS[App.group][r])
-    ]);
+    toBoxMap = () => App.collage.boxes.map((box, c) => [box, {scores: this.data.map(rows => rows[c]), determ: this.deterministic.get(c)}]);
 }
