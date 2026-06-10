@@ -7,7 +7,7 @@ class Shohin {
         Shohin.beys.push(this);
         let content = Shohin.zip([desc ?? []].flat(), imgs ?? [])
             .map(srcORtext => srcORtext.startsWith('http') ? 
-                Shohin.figure(srcORtext) : E('p', {innerHTML: srcORtext})
+                Shohin.figure(srcORtext) : E('p', {innerHTML: Markup.upgrade(srcORtext, 'nobreak')})
             );
         return this.div = E('div', [
             E('h5', [type ? Shohin.ruby(type) : '', header]),
