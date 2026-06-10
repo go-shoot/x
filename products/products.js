@@ -199,7 +199,7 @@ Object.assign(Filter, {
             LINES.map(([line, {title}]) => 
                 [line, {label: new A(E('img', {src: `../img/lines.svg#${line}`}), {title})}]
             )
-        ), {name: 'line', legend: ['\ue02b LINE', E('span', '\ue010 全部 \ue00f')]}]
+        ), {name: 'line', legend: ['\ue02b LINE', E('button.text', {type: 'button'}, '全部')]}]
     ]
 });
 export default Table

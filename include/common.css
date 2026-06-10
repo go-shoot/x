@@ -188,6 +188,8 @@ a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filte
 output {
     color: var(--accent);
 }
+button.text::before {content: ' ';}
+button.text::after {content: ' ';}
 
 .animating menu {
     transition: transform .5s;

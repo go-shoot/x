@@ -14,13 +14,15 @@ nav:has(input[value=default]:checked)+main summary .tier,
 nav:has(input[value=tier]:checked)+main summary .default,
 li:has(details:not([open]))~li, li:has(figcaption:only-child) {display: none;}
 
-.LED label:nth-child(even) {margin-right: 1em;}
-button {
-    background: var(--theme); color: var(--overlay1);
-    padding: 0 .5rem;
-    border-radius: 9em;
-
-    &[popovertarget] {grid-area: 1/4;}
+nav {
+    .LED label:nth-child(even) {margin-right: 1em;}
+    button {
+        background: var(--theme); color: var(--overlay1);
+        padding: 0 .5rem;
+        border-radius: 9em;
+    
+        &[popovertarget] {grid-area: 1/4;}
+    }
 }
 main>details {
     summary {
@@ -156,9 +158,12 @@ select {
         sub {line-height: 0;}
     }
 }
-dialog textarea {
-    display: block;
-    width: 90%; height: 80vh;
-    font-size: 1em;
-    margin: 1em auto;
+dialog {
+    button {color: var(--theme);}
+    textarea {
+        display: block;
+        width: 90%; height: 80vh;
+        font-size: 1em;
+        margin: 1em auto;
+    }
 }
