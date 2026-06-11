@@ -242,7 +242,7 @@ Object.assign(App, {
             let [x, y] = [(ev.clientX - left) * Collage.cvs.width / width, (ev.clientY - top) * Collage.cvs.height / height];
             let b = App.results.findIndex(([[x0, y0, x1, y1]]) => x >= x0 && x <= x1 && y >= y0 && y <= y1);
             let {scores, determ, corrected} = App.results[b]?.[1] ?? {};
-            if (!determ) return;
+            if (determ == null) return;
             Q('input[name=mode]:checked').value == 'preview' ? 
                 App.events.preview(corrected || determ, ev) : App.events.correct(b, scores);
         };
