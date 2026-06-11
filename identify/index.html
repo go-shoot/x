@@ -11,32 +11,29 @@
     </fieldset>
     <form>
         <div>
-            <button id="download">&#xe03e; 下載</button>
-        </div>
-        <div>
-            <button data-url="https://i.imgur.com/rSYdB86.jpeg" data-comp="bit" data-luma_min="13">示例1</button>
-            <button data-url="https://i.imgur.com/h2gxl9t.jpeg" data-comp="ratchet" data-luma_min="10" data-chroma="7" data-side_min="5" data-buffer="2">示例2</button>
-            <button>示例3</button>
+            <button data-url="https://i.imgur.com/rSYdB86.jpeg" data-comp="bit" data-controls='{"luma_min":15,"luma_max":100,"chroma":13,"buffer":1,"side_min":3,"side_max":50}'>示例1</button>
+            <button data-url="https://i.imgur.com/h2gxl9t.jpeg" data-comp="ratchet" data-controls='{"luma_min":10,"luma_max":100,"chroma":8,"buffer":2,"side_min":5,"side_max":50}'>示例2</button>
         </div>
     </form>
 </nav>
 <main style="user-select: none;">
-    <details>
+    <details class="tool">
         <summary class="loading">提示</summary>
         <ul class="default">
-            <li>此工具目前只支援以官方圖片製成的組圖，如Tier list。請透過［示例］了解</li>
+            <li>此工具目前與本站［部件］的圖片進行配對，故只支援以官方圖片製成的組圖，如Tier list。請透過［示例］了解</li>
+            <li>最好使用性能較好的設備！</li>
         </ul>
     </details>
     <ol>
         <li>STEP 1：<label>&#xe03f; 上載<input type="file" accept="image/*"></label></li>
-        <li class="inactive">STEP 2：選擇要辦認的部件
+        <li class="inactive" id="step-2" style="--p:0">STEP 2：選擇要辦認的部件
             <fieldset class="LED"> 
                 <label class="icon-blade">
-                    <input type="radio" name="comp" value="CX">
+                    <input type="radio" name="comp" value="CX" disabled>
                     <img src="../img/lines.svg#CX">
                 </label>
                 <label class="icon-blade">
-                    <input type="radio" name="comp" value="blade">
+                    <input type="radio" name="comp" value="blade" disabled>
                     <div><img src="../img/lines.svg#BX"><img src="../img/lines.svg#UX"></div></label>
                 <label class="icon-ratchet">
                     <input type="radio" name="comp" value="ratchet">
@@ -45,12 +42,12 @@
                     <input type="radio" name="comp" value="bit">
                 </label>
             </fieldset>
-            <p>調整資源圖片背景色中...</p>
+            <span>調整資源圖片背景色中...</span>
         </li>
-        <li class="inactive" id="adjust">STEP 3：<label>拖上／下旋鈕以調節敏感度</label></li>
+        <li class="inactive" id="step-3">STEP 3：<label>拖上／下旋鈕以調節敏感度</label></li>
         <li class="inactive">
             STEP 4：<button id="match" class="text">配對</button>
-            <p>配對中...</p>
+            <span>配對中</span>
         </li>
         <li class="inactive">
             STEP 5：在圖上點擊以進行
@@ -58,6 +55,10 @@
                 <label>修正<input name=mode type=radio value=amend checked></label>或
                 <label>預覽<input name=mode type=radio value=preview></label>        
             </fieldset>
+        </li>
+        <li class="inactive">
+            STEP 6：<button id="download" class="text">下載</button>或<button id="tier" class="text">加至我的Tier list</button>
+            <textarea></textarea>
         </li>
     </ol>
     <div>
@@ -75,6 +76,7 @@
     <continuous-knob title="邊長下限" id="side_min" min="0" max="80" value="3" unit="%"><i class="center"></i></continuous-knob>
     <continuous-knob title="邊長上限" id="side_max" min="20" max="100" value="50" unit="%"><i class="center"></i></continuous-knob>
 </aside>
+<aside id="correct"></aside>
 
 <script type="module">
     import DB from '../include/DB.js';

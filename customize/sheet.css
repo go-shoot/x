@@ -61,20 +61,6 @@ main {
 }
 continuous-knob:nth-of-type {margin-top: .25em;}
 continuous-knob::part(output) {font-size: .65em;}
-details {
-    summary {
-        &::before {content: '▶';}
-        &::after  {content: '◀';}
-        &.loading::before {display: none;}
-    }
-    &[open] summary::before,&[open] summary::after {content: '▼';}
-
-    ul {
-        text-align: left; font-size: .8em;
-        padding: 0 0.5em 0 2em;
-        line-height: 1.4;
-    }
-}
 fieldset {
     padding: 0; margin: 0; border: none;
     font-size: .95em;

@@ -415,7 +415,24 @@ dialog {
         }
     }
 }
+details.tool {
+    max-width: 30em;
+    margin: auto;
 
+    summary {
+        color: var(--theme);
+        &::before {content: '▶';}
+        &::after  {content: '◀';}
+        &.loading span,&.loading::before {display: none;}
+    }
+    &[open] summary::before,&[open] summary::after {content: '▼';}
+
+    ul {
+        text-align: left; font-size: .8em;
+        padding: 0 0.5em 0 2em; margin: 1em auto;
+        line-height: 1.4;
+    }
+}
 #glossary {
     border: none;
     left: max(10px, min(var(--left), 100% - 10px - 15em)); top: var(--top);

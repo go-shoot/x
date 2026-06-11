@@ -24,22 +24,6 @@ nav {
         &[popovertarget] {grid-area: 1/4;}
     }
 }
-main>details {
-    summary {
-        color: var(--theme);
-        &::before {content: '▶';}
-        &::after  {content: '◀';}
-        &.loading span,&.loading::before {display: none;}
-    }
-    &[open] summary::before,&[open] summary::after {content: '▼';}
-
-    ul {
-        text-align: left; font-size: .8em;
-        padding: 0 0.5em 0 2em; margin: 1em auto;
-        max-width: 40em;
-        line-height: 1.4;
-    }
-}
 section {
     font-size: .9em;
 
