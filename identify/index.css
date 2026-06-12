@@ -50,8 +50,7 @@ main ol {
     max-width: 30em;
 
     li {
-        border-bottom: .1em solid;
-        padding-bottom: .5em; margin: 1em auto;
+        margin-top: 1.5em;
         display: flex; align-items: center; flex-wrap: wrap;
 
         span {width: 100%; text-align: center; font-size: .9em;}
@@ -71,13 +70,13 @@ main ol {
         width: 100%;
         margin-top: .5em;
     
-        li:nth-child(2) & {line-height: 4em;}
-        li:nth-child(5) & {align-items: end;}
+        #step-3 & {line-height: 4em;}
+        #step-5 & {align-items: end;}
         label {
             position: relative;
             color: var(--theme);
 
-            li:nth-child(2) & {
+            #step-3 & {
                 display: flex; flex-direction: column;
                 min-width: 3em; height: 3.5em;
             }

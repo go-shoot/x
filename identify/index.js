@@ -37,11 +37,13 @@ class Collage {
             [App.collage, this.img, Collage.cvs.width, Collage.cvs.height] = [this, img, img.width, img.height];
             this.draw();
             this.detect();
-            App.state(1, 'done');
+            App.state([1,2], 'done');
+            App.group && App.state(3, 'done');
         });
     }
     draw (boxes, color = 'green', cvs = Collage.cvs, ctx = Collage.ctx) {
-        if (!boxes) return ctx.drawImage(this.img, 0, 0);
+        (boxes === true || !boxes) && ctx.drawImage(this.img, 0, 0);
+        if (!boxes) return;
         let [W, H, pad] = [cvs.width, cvs.height, 4];
         (boxes === true ? this.boxes : boxes).forEach(([x0, y0, x1, y1]) => {
             let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
@@ -119,7 +121,7 @@ class Collage {
         }
         Q('textarea').innerHTML = tiers.map(([ty0, ty1]) => [
             App.results.filter(([[x0, y0, x1, y1]]) => y0 >= ty0 && y1 <= ty1)
-            .map(([_, {determ, corrected}]) => corrected || PARTS[App.group][determ].abbr)
+            .map(([_, {determ, corrected}]) => corrected || PARTS[App.group][determ]?.abbr)
         ]).join('<br>');
     }
     static rgba = (x, y) => Collage.ctx.getImageData(x, y, 1, 1).data.join(',');
@@ -138,7 +140,7 @@ const Calculate = {
             let [cx, cy] = stack.pop(), idx = cy * w + cx;
             if (cx < 0 || cx >= w || cy < 0 || cy >= h || visited[idx]) continue;
             visited[idx] = true;
-            cx < x0 && (x0 = cx); cx > x1 && (x1 = cx); cy < y0 && (y0 = cy); cy > y1 && (y1 = cy);
+            [x0, x1, y0, y1] = [Math.min(x0, cx), Math.max(x1, cx), Math.min(y0, cy), Math.max(y1, cy)];
     
             [[cx+b, cy], [cx-b, cy], [cx, cy+b], [cx, cy-b]/*, [cx+b,cy+b], [cx+b,cy-b], [cx-b,cy+b], [cx-b,cy-b]*/]
             .forEach(([nx, ny]) => {
@@ -173,7 +175,8 @@ Object.assign(App, {
         if (state == 'done') {
             Q(`ol li:nth-child(${step})`).classList.remove('loading');
             Q(`ol li:nth-child(${step+1})`)?.classList.remove('inactive');
-        }
+        } else
+            Q(`ol li:nth-child(n+${step+1})`, li => li.classList.add('inactive'));
     },
     flow: {
         prepare () {
@@ -183,19 +186,19 @@ Object.assign(App, {
             App.group = group;
             if (App.assets[group] && backdrop == lastBackdrop) return Promise.resolve();
             
-            App.state(2, 'begun');
+            App.state(3, 'begun');
             let canvases = PARTS[group].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
             group == 'bit' && canvases.push(...App.flipped.bit.map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
             return Promise.all(canvases.map(prom => 
                 prom.then(cvs => cvs ? phash(cvs, 16) : null).then(hash => {
-                    E(Q('#step-2')).set({'--p': E(Q('#step-2')).get('--p') + 1}); 
+                    E(Q('#step-3')).set({'--p': E(Q('#step-3')).get('--p') + 1}); 
                     return hash ? {hash} : {}
                 })
             ))
             .then(hashes => {
                 App.assets[group] = hashes;
                 checked.title = backdrop;
-                App.state([2,3], 'done');
+                App.state(3, 'done');
             });
         },
         match () {
@@ -203,6 +206,7 @@ Object.assign(App, {
             App.flow.prepare().then(() => App.flow.match.hash()).then(results => {
                 App.results = results;
                 App.state([4,5], 'done');
+                Q('input[type=file]').value = '';
             });
         },
     },
@@ -210,17 +214,12 @@ Object.assign(App, {
         Q('form button', button => button.type = 'button');
         Q('nav').onclick = ev => ev.target.dataset.url ? App.autoflow(ev.target) : '';        
         E(Q('main')).set({
-            onchange (ev) {
-                if (ev.target.type == 'file')
-                    return new Collage(ev);
-                if (ev.target.name == 'comp' && App.collage) {
-                    App.collage.draw(true);
-                    App.flow.prepare();
-                }
-            },
+            onchange: ev => ev.target.type == 'file' ? new Collage(ev) :
+                ev.target.name == 'comp' ? (App.collage?.draw(true), App.state(3, 'done')) : ''    
+            ,
             onclick (ev) {
                 Q('aside.active', aside => aside.classList.remove('active'));
-                if (ev.target.closest('#step-3'))
+                if (ev.target.closest('#step-2'))
                     return Controls.el.classList.toggle('active');
                 if (ev.target.id == 'match')
                     return App.flow.match();
@@ -285,8 +284,8 @@ Object.assign(App.flow.match, {
         new ResultMatrix('hash', hashes, (h1, h2) => h1.hammingDistance(h2), 5, 'low')
         .fromOptimum((r, c) => {
             let P = App.includes.flipped(r);
-            App.collage.tag(boxes[c], P.only.name() && Markup.clear(P.names.chi) || P.abbr);
-        }, 150).toBoxMap()
+            P && App.collage.tag(boxes[c], P?.only.name() && Markup.clear(P.names.chi) || P?.abbr || '');
+        }, 130).toBoxMap()
     )
 });
 export default App;
@@ -317,8 +316,8 @@ class ResultMatrix {//row: parts  col: boxes
             if (this.type == 'low' && v < threshold || this.type == 'high' && v > threshold) {
                 this.deterministic.set(c, r);
                 callback(r, c, v);
+                this.done.rows.add(r) && this.done.cols.add(c);
             }
-            this.done.rows.add(r) && this.done.cols.add(c);
         });
         return this;
     }
