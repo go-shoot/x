@@ -49,18 +49,6 @@
         "desc": "",
         "attr": ["bal","right","fused","UX"]
     },
-    "HvRn": {
-        "group": "hasbro",
-        "names": {
-            "jap": "ヘブンズリング",
-            "eng": "HeavensRing",
-            "chi": "",
-            "aka": "天使 光環"
-        },
-        "stat": ["37+"],
-        "desc": "（此乃AI臨時圖）",
-        "attr": ["def","right","BX","expand"]
-    },
     "VkHc": {
         "group": "hasbro",
         "names": {

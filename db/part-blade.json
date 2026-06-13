@@ -1,4 +1,16 @@
 {
+    "HvRn": {
+        "group": "BX",
+        "names": {
+            "jap": "ヘブンズリング",
+            "eng": "HeavensRing",
+            "chi": "",
+            "aka": "天使 光環"
+        },
+        "stat": ["37+"],
+        "desc": "（此乃AI臨時圖）",
+        "attr": ["def","right","expand"]
+    },
     "GlVl": {
         "group": "UX",
         "names": {

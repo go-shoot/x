@@ -5,7 +5,7 @@ import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 let PARTS, Controls = {el: Q('#controls')};
-//const worker = new Worker('./worker.js');
+const worker = new Worker('./worker.js');
 Object.assign(E, {
     img: src => new Promise(res => E('img', {
         src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
@@ -53,6 +53,7 @@ class Collage {
         });
     }
     tag ([x0, y0, x1, y1], tag, ctx = Collage.ctx) {
+        if (!tag) return;
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
             let middle = Math.floor(widths.length / 2);
@@ -74,24 +75,19 @@ class Collage {
     detect (cvs = Collage.cvs, ctx = Collage.ctx) {
         this.draw();
         const [W, H] = [cvs.width, cvs.height];
-        const side = {min: Math.min(W, H) * Controls.side_min/100, max: Math.min(W, H) * Controls.side_max/100};
         const data = ctx.getImageData(0, 0, W, H).data;
-        const visited = new Uint8Array(W * H);
-
+        const colored = new Int8Array(W * H).fill(-1); //visited
         const boxes = [];
         for (let y = 10; y < H - 10; y += 4)
             for (let x = 10; x < W - 10; x += 4) {
-                const idx = y * W + x;
-                if (visited[idx]) continue;
-                let {chroma, luma} = Calculate.chroluma(data.slice(idx*4, idx*4 + 3));
-                if (chroma > Controls.chroma || luma > Controls.luma_min && luma < Controls.luma_max) {
-                    let {x0, y0, x1, y1, w, h} = Calculate.boundary(x, y, W, H, data, visited);
-                    w >= side.min && h >= side.min && w <= side.max && h <= side.max 
-                    && boxes.push([x0+1, y0+1, x1+2, y1+2]);
+                let pixel = y * W + x;
+                if (colored[pixel] == -1 && Valid.color(data, pixel)) {
+                    let {x0, y0, x1, y1, w, h} = Calculate.boundary(x, y, data, colored);
+                    w && boxes.push([x0+1, y0+1, x1+2, y1+2]);
                 }
             }
         const unnested = [];
-        boxes.sort((a, b) => ((b[2] - b[0]) * (b[3] - b[1])) - ((a[2] - a[0]) * (a[3] - a[1])))
+        boxes.sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1]))
             .forEach(box => unnested.every(b => box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]) && unnested.push(box));
         this.boxes = unnested;
         this.draw(true);
@@ -120,40 +116,25 @@ class Collage {
             y - y0 >= minLength && tiers.push([y0, y]);
         }
         Q('textarea').innerHTML = tiers.map(([ty0, ty1]) => [
-            App.results.filter(([[x0, y0, x1, y1]]) => y0 >= ty0 && y1 <= ty1)
+            App.results.filter(([[x0, y0, x1, y1]]) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
             .map(([_, {determ, corrected}]) => corrected || PARTS[App.group][determ]?.abbr)
         ]).join('<br>');
     }
     static rgba = (x, y) => Collage.ctx.getImageData(x, y, 1, 1).data.join(',');
     static cvs = Q('canvas');
     static ctx = Q('canvas').getContext('2d');
+    static select = ev => {
+        ev.stopPropagation();
+        if (!App.results || !App.results.length) return;
+        let {left, top, width, height} = Collage.cvs.getBoundingClientRect();
+        let [x, y] = [(ev.clientX - left) * Collage.cvs.width / width, (ev.clientY - top) * Collage.cvs.height / height];
+        let b = App.results.findIndex(([[x0, y0, x1, y1]]) => x >= x0 && x <= x1 && y >= y0 && y <= y1);
+        let {scores, determ, corrected} = App.results[b]?.[1] ?? {};
+        if (determ == null) return;
+        Q('input[name=mode]:checked').value == 'preview' ? 
+            App.events.preview(corrected || determ, ev) : App.events.correct(b, scores);
+    }
 }
-const Calculate = {
-    chroluma: ([r,g,b]) => ({
-        chroma: Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(b - r)),
-        luma: 0.299 * r + 0.587 * g + 0.114 * b
-    }),
-    boundary (x, y, w, h, data, visited) {
-        let [x0, x1, y0, y1] = [x, x, y, y];
-        let stack = [[x0, y0]], b = Controls.buffer;
-        while (stack.length > 0) {
-            let [cx, cy] = stack.pop(), idx = cy * w + cx;
-            if (cx < 0 || cx >= w || cy < 0 || cy >= h || visited[idx]) continue;
-            visited[idx] = true;
-            [x0, x1, y0, y1] = [Math.min(x0, cx), Math.max(x1, cx), Math.min(y0, cy), Math.max(y1, cy)];
-    
-            [[cx+b, cy], [cx-b, cy], [cx, cy+b], [cx, cy-b]/*, [cx+b,cy+b], [cx+b,cy-b], [cx-b,cy+b], [cx-b,cy-b]*/]
-            .forEach(([nx, ny]) => {
-                if (!(nx >= 0 && nx < w && ny >= 0 && ny < h)) return;
-                let idx = (ny * w + nx)*4;
-                let { chroma, luma } = Calculate.chroluma(data.slice(idx, idx + 3));
-                (chroma > Controls.chroma || luma > Controls.luma_min && luma < Controls.luma_max) && !visited[ny * w + nx] 
-                && stack.push([nx, ny]);
-            });
-        }
-        return {x0, y0, x1, y1, w: x1-x0, h: y1-y0};
-    },
-};
 const App = () => DB.get.essentials({flat: true})
     .then(Parts => {
         PARTS = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());
@@ -163,21 +144,22 @@ const App = () => DB.get.essentials({flat: true})
         Q('.loading', el => el.classList.remove('loading'));
     });window.App=App;
 Object.assign(App, {
-    autoflow: ({dataset: {url, comp, controls}}) => new Collage(url).then(async () => {
-            Q(`input[name=comp][value=${comp}]`).checked = true;
-            Object.entries(JSON.parse(controls)).forEach(([id, v]) => Q(`#${id}`).set.value({v}));
-            return App.flow.prepare();
-        }).then(() => App.flow.match())
-    ,
     state (step, state) {
         if (Array.isArray(step)) return step.forEach(s => App.state(s, state));
-        Q(`ol li:nth-child(${step})`).classList.add('loading');
-        if (state == 'done') {
-            Q(`ol li:nth-child(${step})`).classList.remove('loading');
-            Q(`ol li:nth-child(${step+1})`)?.classList.remove('inactive');
-        } else
-            Q(`ol li:nth-child(n+${step+1})`, li => li.classList.add('inactive'));
+        App.steps ??= [...Q('ol').children];
+        if (state == '++')
+            return E(App.steps[step - 1]).set({'--p': E(App.steps[step - 1]).get('--p') + 1});
+        App.steps[step - 1].classList.toggle('loading', state == 'begun');
+        state == 'begun' ?
+            App.steps.slice(step).forEach(li => li.classList.add('inactive')) : 
+            App.steps[step].classList.remove('inactive');
     },
+    autoflow: ({dataset: {url, comp, controls}}) => new Collage(url)
+        .then(async () => {
+            Q(`input[name=comp][value=${comp}]`).checked = true;
+            Object.entries(JSON.parse(controls)).forEach(([id, v]) => Q(`#${id}`).set.value({v}));
+            return App.flow.match();
+        }),
     flow: {
         prepare () {
             App.assets ??= {};
@@ -191,11 +173,10 @@ Object.assign(App, {
             group == 'bit' && canvases.push(...App.flipped.bit.map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
             return Promise.all(canvases.map(prom => 
                 prom.then(cvs => cvs ? phash(cvs, 16) : null).then(hash => {
-                    E(Q('#step-3')).set({'--p': E(Q('#step-3')).get('--p') + 1}); 
+                    App.state(3, '++');
                     return hash ? {hash} : {}
                 })
-            ))
-            .then(hashes => {
+            )).then(hashes => {
                 App.assets[group] = hashes;
                 checked.title = backdrop;
                 App.state(3, 'done');
@@ -203,7 +184,7 @@ Object.assign(App, {
         },
         match () {
             App.state(4, 'begun');
-            App.flow.prepare().then(() => App.flow.match.hash()).then(results => {
+            App.flow.prepare().then(App.flow.match.hash).then(results => {
                 App.results = results;
                 App.state([4,5], 'done');
                 Q('input[type=file]').value = '';
@@ -234,25 +215,9 @@ Object.assign(App, {
             }
         });
         Controls.el.oninput = ev => (Controls[ev.target.id] = ev.target.value) && App.collage?.detect();
-        Collage.cvs.onclick = ev => {
-            ev.stopPropagation();
-            if (!App.results || !App.results.length) return;
-            let {left, top, width, height} = Collage.cvs.getBoundingClientRect();
-            let [x, y] = [(ev.clientX - left) * Collage.cvs.width / width, (ev.clientY - top) * Collage.cvs.height / height];
-            let b = App.results.findIndex(([[x0, y0, x1, y1]]) => x >= x0 && x <= x1 && y >= y0 && y <= y1);
-            let {scores, determ, corrected} = App.results[b]?.[1] ?? {};
-            if (determ == null) return;
-            Q('input[name=mode]:checked').value == 'preview' ? 
-                App.events.preview(corrected || determ, ev) : App.events.correct(b, scores);
-        };
+        Collage.cvs.onclick = Collage.select;
         PI.events({'#correct': {scroll: {x: true}}});
-        Q('#correct').onclick = ev => {
-            if (!ev.target.matches('img[id]')) return;
-            App.results[ev.target.closest('aside').title][1].corrected = ev.target.id;
-            console.log(App.results);
-            App.collage.draw();
-            App.results.forEach(([box, {determ, corrected}]) => App.collage.tag(box, corrected ?? PARTS[App.group][determ].abbr));
-        }
+        Q('#correct').onclick = App.events.correct;
     },
     flipped: {bit: ['F','T','B','N','HN','LF']},
     includes: {flipped: i => App.group == 'bit' && i > PARTS.bit.length ? 
@@ -261,13 +226,21 @@ Object.assign(App, {
 });
 Object.assign(App.events, {
     correct (b, scores) {
-        E(Q('#correct')).set(scores
-            .map((s, i) => ({s, i})).sort((a, b) => a.s - b.s)
-            .map(({i}) => {
-                let P = App.includes.flipped(i);
-                return P ? E(`img#${P.abbr}`, {src: `/x/img/${P.path.join('/')}.png`}) : ''
-            })
-        , {classList: 'active', title: b});
+        if (typeof b == 'number')
+            return E(Q('#correct')).set([E('button', '🚫'), ...scores
+                .map((s, i) => ({s, i})).sort((a, b) => a.s - b.s)
+                .map(({i}) => {
+                    let P = App.includes.flipped(i);
+                    return P ? E(`img#${P.abbr}`, {src: `/x/img/${P.path.join('/')}.png`}) : ''
+                })
+            ], {classList: 'active', title: b});
+        let ev = b;
+        if (!ev.target.matches('button,img[id]')) return;
+        App.results[ev.target.closest('aside').title][1].corrected = ev.target.id;
+        App.collage.draw(true);
+        App.results.forEach(([box, {determ, corrected}]) => 
+            App.collage.tag(box, corrected ?? App.includes.flipped(determ)?.abbr)
+        );
     },
     preview (determ, ev) {
         Q('aside.active', aside => aside.classList.remove('active'));
@@ -276,7 +249,7 @@ Object.assign(App.events, {
         let P = App.includes.flipped(determ);
         P && new Preview(['cell', 'tile'], {path: P.path}, ev);
     }
-})
+});
 Object.assign(App.flow.match, {
     hash: (boxes = App.collage.boxes) => Promise.all(boxes.map(([x0, y0, x1, y1]) => 
         E.canvas({x: x0, y: y0, w: x1-x0, h: y1-y0}).then(cvs => phash(cvs, 16))
@@ -289,6 +262,52 @@ Object.assign(App.flow.match, {
     )
 });
 export default App;
+const Valid = {
+    color (data, pixel) {
+        let {chroma, luma} = Calculate.chroluma(data, pixel);
+        return chroma > Controls.chroma || luma > Controls.luma_min && luma < Controls.luma_max;
+    },
+    size: (w, h, type, W = Collage.cvs.width, H = Collage.cvs.height) => {
+        let side = {min: Math.min(W, H) * Controls.side_min/100, max: Math.min(W, H) * Controls.side_max/100};
+        return type == 'max' ? w <= side.max && h <= side.max : w >= side.min && h >= side.min;
+    },
+    position: (x, y, W = Collage.cvs.width, H = Collage.cvs.height) => x >= 0 && x < W && y >= 0 && y < H
+}
+const Calculate = {
+    chroluma (data, pixel) {
+        let [r, g, b] = data.slice(pixel * 4, pixel * 4 + 3);
+        return {
+            chroma: Math.max(r, g, b) - Math.min(r, g, b),
+            luma: 0.2126 * r + 0.7152 * g + 0.0722 * b
+        }
+    },
+    boundary (x, y, data, colored, W = Collage.cvs.width) {
+        let [x0, x1, y0, y1] = [x, x, y, y];
+        let stack = [[x0, y0]], b = Controls.buffer, downOnly = false;
+        while (stack.length > 0) {
+            let [x, y] = stack.pop(), pixel = y*W + x;
+            if (colored[pixel] != -1 || !Valid.position(x, y)) continue;
+            colored[pixel] = Valid.color(data, pixel);
+            let neighbors = [[x, y+b], [x, y-b]];
+            if (!downOnly) {
+                let lastColumn = [];
+                if (x - x0 > 10) {
+                    for (let y = y0; y <= y1; y++)
+                        lastColumn.push(colored[y*W + x1]);
+                    downOnly = lastColumn.filter(c => c === 1).length / lastColumn.length < .005;
+                }
+                !downOnly && neighbors.push([x+b, y], [x-b, y]);
+            }
+            neighbors.forEach(([nx, ny]) => {
+                let pixel = ny*W + nx;
+                colored[pixel] == -1 && Valid.position(nx, ny) && Valid.color(data, pixel) && stack.push([nx, ny]);
+            });
+            [x0, x1, y0, y1] = [Math.min(x0, x), Math.max(x1, x), Math.min(y0, y), Math.max(y1, y)];
+            if (!Valid.size(x1-x0, y1-y0, 'max')) break;
+        }
+        return Valid.size(x1-x0, y1-y0, 'min') ? {x0, y0, x1, y1, w: x1-x0, h: y1-y0} : {};
+    },
+};
 class ResultMatrix {//row: parts  col: boxes
     constructor(prop, values, calculator, threshold, type) {
         this.type = type;

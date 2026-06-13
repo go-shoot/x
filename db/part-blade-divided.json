@@ -137,7 +137,7 @@
     },
     "chip":{
         "Br": {
-            "names": {"jap":"ブラキオ", "eng":"Brachio"},
+            "names": {"jap":"ブラキオ", "eng":"Brachio", "chi":"腕龍"},
             "stat": ["2-"],
             "attr": ["right"]
         },
@@ -247,7 +247,7 @@
     },
     "metal": {
         "Wh": {
-            "names": {"jap":"ウィップ", "eng":"Whip"},
+            "names": {"jap":"ウィップ", "eng":"Whip", "chi":"古鞭 鞭擊"},
             "stat": ["27+"],
             "desc": "順滑圓弧狀四枚刃化解對手攻擊。",
             "attr": ["sta","right"]
@@ -355,9 +355,7 @@
             "stat": ["31+"],
             "desc": "三枚大形Upper刃加上了能産生Down force的空力構造。",
             "attr": ["att","right"]
-        }
-    },
-    "hasbro": {
+        },
         "Wr": {
             "names": {"jap":"リグル", "eng":"Wriggle"},
             "stat": ["29+"],
@@ -375,7 +373,9 @@
             "stat": ["29="],
             "attr": ["sta","right"],
             "from": "main.Fl"
-        },
+        }
+    },
+    "hasbro": {
         "Hr": {
             "names": {"jap":"ハリケーン", "eng":"Hurricane"},
             "stat": [""],
