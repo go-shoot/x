@@ -45,15 +45,16 @@ class Collage {
                 COLLAGE = collage;
                 App.state([1,2], 'done');
                 App.comp && App.state(3, 'done');
+                Q('input[type=file]').value = '';
             });
     }
     static cvs = Q('canvas');
     static select = ev => {
         ev.stopPropagation();
-        if (!App.results || !App.results.boxes.length) return;
+        if (!Analysis.results || !Analysis.results.boxes.length) return;
         let {left, top, width, height} = Collage.cvs.getBoundingClientRect();
         let [x, y] = [(ev.clientX - left) * Collage.cvs.width / width, (ev.clientY - top) * Collage.cvs.height / height];
-        App.results.box([x, y])?.[Q('input[name=mode]:checked').value](ev);
+        Analysis.results.box([x, y])?.[Q('input[name=mode]:checked').value](ev);
     }
 }
 const App = () => DB.get.essentials({flat: true})
@@ -77,43 +78,14 @@ Object.assign(App, {
     },
     autoflow: ({dataset: {url, comp, controls}}) => {
         Object.entries(JSON.parse(controls)).forEach(([id, v]) => Q(`#${id}`).set.value({v}));
-        return new Collage(url).then(() => {
-            Q(`input[name=comp][value=${comp}]`).checked = true;
-            return App.flow.match();
-        });
-    },
-    flow: {
-        async prepare () {
-            App.assets ??= {};
-            let checked = Q('input[name=comp]:checked'), backdrop = await COLLAGE.detect.backdrop();
-            let {value: comp, title: lastBackdrop} = checked;
-            App.comp = comp;
-            if (App.assets[comp] && backdrop == lastBackdrop) return Promise.resolve();
-            
-            App.state(3, 'begun');
-            let canvases = PARTS[comp].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
-            comp == 'bit' && canvases.push(...App.flipped.bit.map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
-            let hashes = await Promise.all(canvases.map(prom => 
-                prom.then(cvs => cvs && phash(cvs, 16)).then(hash => (App.state(3, '++'), hash))
-            ));
-            App.assets[comp] = hashes.map(hash => hash ? {hash} : {});
-            checked.title = backdrop;
-            App.state(3, 'done');
-        },
-        match () {
-            App.state(4, 'begun');
-            App.flow.prepare().then(App.flow.match.hash).then(results => {
-                App.results = results;
-                App.state([4,5], 'done');
-                Q('input[type=file]').value = '';
-            });
-        },
+        Q(`input[name=comp][value=${comp}]`).checked = true;
+        return new Collage(url).then(() => new Analysis());
     },
     events () {
         Q('form button', button => button.type = 'button');
         E(Q('nav')).set({
             onclick: ev => ev.target.dataset.url ? App.autoflow(ev.target) : '',
-            onchange: () => App.results?.label()
+            onchange: () => Analysis.results?.label()
         });      
         E(Q('main')).set({
             onchange: ev => ev.target.type == 'file' ? new Collage(ev) :
@@ -124,7 +96,7 @@ Object.assign(App, {
                 if (ev.target.closest('#step-2'))
                     return Controls.el.classList.toggle('active');
                 if (ev.target.id == 'match')
-                    return App.flow.match();
+                    return new Analysis();
                 if (ev.target.id == 'download')
                     return E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `${App.comp}辦認.jpg`}).click();
                 if (ev.target.id == 'tier')
@@ -136,6 +108,7 @@ Object.assign(App, {
             }
         });
         Controls.el.oninput = ev => {
+            Analysis.results = null;
             Controls[ev.target.id] = ev.target.value;
             App.rafID ??= requestAnimationFrame(async () => {
                 await CollClass.take((({el, ...values}) => values)(Controls));
@@ -153,32 +126,60 @@ Object.assign(App, {
 });
 Object.assign(App.events, {
     tiers: async () => Q('textarea').innerHTML = (await COLLAGE.detect.tiers()).map(([ty0, ty1]) => [
-        App.results.filter(({x0, y0, x1, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
+        Analysis.results.filter(({x0, y0, x1, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
         .map(({determ, corrected}) => (corrected || determ).abbr)
     ]).join('<br>')
 });
-App.flow.match.hash = () => COLLAGE.cutouts()
-    .then(bmps => Promise.all(bmps.map(bmp => {
-        let cvs = E('canvas', {width: bmp.width, height: bmp.height});
-        cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
-        return phash(cvs, 16);
-    })))
-    .then(hashes => new ResultMatrix(hashes)
-        .compare('hash', (h1, h2) => h1.hammingDistance(h2)).label.from('min', 130).to.results()
-    );
+class Analysis {
+    constructor() {
+        App.state(4, 'begun');
+        App.assets ??= {};
+        let {value: comp, title: lastBackdrop} = Q('input[name=comp]:checked');
+        App.comp = comp;
+        return COLLAGE.detect.backdrop()
+            .then(backdrop => Promise.all([
+                this.prepare.cutouts(),
+                !App.assets[comp] || backdrop != lastBackdrop ? this.prepare.assets(backdrop) : null,
+            ]))
+            .then(hashes => this.match.by.hash(...hashes))
+            .then(result => (Analysis.results = result) && App.state([4,5], 'done'));
+    }
+    prepare = {
+        assets: async (backdrop, comp = App.comp) => {
+            App.state(3, 'begun');
+            let canvases = PARTS[comp].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
+            comp == 'bit' && canvases.push(...App.flipped.bit.map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
+            let hashes = await Promise.all(canvases.map(prom => 
+                prom.then(cvs => cvs && phash(cvs, 16)).then(hash => (App.state(3, '++'), hash))
+            ));
+            Q('input[name=comp]:checked').title = backdrop;
+            App.state(3, 'done');
+            return App.assets[comp] = hashes.map(hash => hash ? {hash} : {});
+        },
+        cutouts: () => COLLAGE.cutouts().then(bmps => Promise.all(bmps.map(bmp => {
+            let cvs = E('canvas', {width: bmp.width, height: bmp.height});
+            cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
+            return phash(cvs, 16);
+        })))
+    }
+    match = {by: {
+        hash: (...hashes) => new ResultMatrix(...hashes)
+            .compare('hash', (h1, h2) => h1.hammingDistance(h2)).label.from('min', 130).to.results()
+    }}
+}
 export default App;
 class ResultMatrix { //row: parts, col: boxes
-    constructor(hashes) {
-        [this.R, this.C] = [App.assets[App.comp].length, hashes.length];
-        this.hashes = hashes;
+    constructor(cutoutHashes, assetHashes) {
+        [this.R, this.C] = [assetHashes.length, cutoutHashes.length];
+        [this.assetHashes, this.cutoutHashes] = [assetHashes, cutoutHashes];
         this.scores = new Uint8Array(this.R * this.C).fill(255);
         this.done = {rows: new Set()};
         this.deterministic = new Map();
     }
     compare (prop, comparer) {
-        for (let [r, asset] of App.assets[App.comp].entries()) {
+        for (let [r, asset] of this.assetHashes.entries()) {
             if (!asset[prop]) continue;
-            for (let [c, v] of this.hashes.entries())
+            for (let [c, v] of this.cutoutHashes.entries())
                 this.scores[r * this.C + c] = Math.min(255, comparer(v, asset[prop]));
         }
         return this;
