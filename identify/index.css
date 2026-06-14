@@ -54,6 +54,7 @@ main ol {
         display: flex; align-items: center; flex-wrap: wrap;
 
         span {width: 100%; text-align: center; font-size: .9em;}
+        &.loading {pointer-events: none;}
         &.inactive {pointer-events: none; filter: brightness(.5) saturate(0);}
         &:not(.loading) span {display: none;}
         &::after {width: 100%; text-align: center;}

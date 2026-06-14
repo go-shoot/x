@@ -52,7 +52,7 @@
             STEP 5：在圖上點擊以進行
             <fieldset class="LED">
                 <label>預覽<input name=mode type=radio value=preview checked></label>或    
-                <label>修正<input name=mode type=radio value=correct></label>
+                <label>修正<input name=mode type=radio value=amend></label>
             </fieldset>
         </li>
         <li class="inactive">
@@ -81,7 +81,7 @@
 
 <script type="module">
     import DB from '../include/DB.js';
-    import App from './index.js';
+    import App from './i.js';
     Q('main').after(DB().then(App));
 </script>
 <link rel="stylesheet" href="../parts/part.css">

@@ -1,26 +1,15 @@
 {
-  "part-blade":        "2026/06/05 18:33:00",
-  "part-blade-collab": "2026/06/05 18:33:00",
+  "part-blade":        "2026/06/14 23:02:00",
+  "part-blade-collab": "2026/06/14 23:02:00",
+  "part-blade-divided":"2026/06/14 23:02:00",
+  "prod-beys":         "2026/06/14 23:02:00",
   "meta":              "2026/05/18 17:10:00",
   "part-bit":          "2026/06/10 23:02:00",
-  "part-blade-divided":"2026/06/10 23:02:00",
   "prod-gear":         "2026/05/16 00:10:00",
-  "prod-beys":         "2026/05/27 23:35:00",
   "prod-keihin":       "2026/05/27 23:35:00",
   "part-ratchet":      "2026/03/28 20:31:00",
   "news": {
-    "2026-06-13":[{
-      "code":"BXG-54 starter","bey":"SmSb 5-60 K","ver":["メタルコート:サムライブルー","Metal Coat: Samurai Blue"],
-      "desc":["Soccer（足球）日本代表Ver.","05-16<a href=https://beyblade.takaratomy.co.jp/beyblade-x/news/news260415.html#myTable>一部店舖先行販賣</a>"]
-    },
-    {
-      "code":"CX-18 random booster select","name":["ブラキオウィップOW5-70Nr","Brachio Whip OW5-70Nr"],"type":"sta",
-      "desc":["以腕龍為motif","〔Outer〕Over Blade及〔Whip〕都是圓滑外重心","〔Narrow〕Bit：十齒小球軸"],
-      "imgs":["https://m.media-amazon.com/images/I/713NbKuawIL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/71JmpF1VFHL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61HfVSPOhFL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/a3b2f405-3879-4595-850d-05e53d5282f5.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/bea11cad-771a-40d6-a2c4-9ce627ee1f86.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/0119758f-fb74-4036-96f6-0d89212f645b.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
-    },{
-      "code":"BX-51 string launcher",
-      "imgs":["https://m.media-amazon.com/images/I/51gwI+uzFUL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/51hxFoeZOQL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/613XPaNe6-L._AC_SX679_.jpg"]
-    }],
+
     "2026-07-09":[{
       "code":"BXG-??","name":["ドレイクブレイブG4-70I","Drake Brave G4-70I"],"type":"att",
       "desc":["APP新抽獎獎品","無論免費的換領券或付費的購買券都可能抽到此","〔Gravity〕Assist Blade：兩側有金屬"],
@@ -33,12 +22,12 @@
     "2026-07-11":[{
       "code":"UX-20 starter","name":["グローリーワルキューレLF","Glory Valkyrie LF"],"type":"att",
       "desc":["與2017年陀螺【God Valkyrie】有相同的回彈彈簧機關"],
-      "imgs":["https://preview.redd.it/all-the-beyblades-featured-in-this-months-magazine-v0-gh00b2sa9g6h1.jpg?width=1080&crop=smart&auto=webp&s=46a0e751e8fd218ce2bcccb22c1efd92815e9429"]
-    },{
+      "imgs":["https://m.media-amazon.com/images/I/61UYOrroRUL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61tFSxORikL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/51Zr8ZPcipL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/619mdYUcGRL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/610N33F61QL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/1ad9aa00-baa8-47a9-a06e-d37977d1e09e.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/eceab1f5-582f-4e3b-981b-957b43a6820b.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/41UDAd1D4GL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L28AsE3WL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41TeU7%2BCqpL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51hSPVS%2B0ZL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51OSQ28nFZL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51l6Lty6l1L.__AC_SR150,300___.jpg"]
+      },{
       "code":"BX-50 random booster","name":["ヘブンズリング0-80DS","Heaven's Ring 0-80DS"],"type":"def",
       "desc":["〔Disk Spike〕Bit：前所未有最薄的血環、最低爆裂抵抗！（20）"],
-      "imgs":["https://preview.redd.it/all-the-beyblades-featured-in-this-months-magazine-v0-ymezplhc9g6h1.jpg?width=1080&crop=smart&auto=webp&s=8987c6a469650246880a849c2aab22bcf71c9cdf"]
-    },{
+      "imgs":["https://m.media-amazon.com/images/I/61cP5emKf-L._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61Qv3Qm5zgL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61wpU1rBc1L._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/336282aa-48e7-4e0a-9849-094031811f7d.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/4f838919-4589-4e3b-a54a-4d3997bdbb72.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9e04cc4d-f4c8-472d-a73b-a19b785dc110.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
+      },{
       "code":"BXG-47 starter"
     }],
     "2026-08":[{

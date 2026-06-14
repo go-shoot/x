@@ -243,7 +243,7 @@ Object.assign(Markup, {
         children.length == 2 && children.splice(1, 0, '⬧');
         return children.flat();
     },
-    hktw: (lang, name) => ['hk','tw'].includes(lang) && name.split(' ')[['hk','tw'].indexOf(lang)] || name,
+    hktw: (lang, name) => ['hk','tw'].includes(lang) && name?.split(' ')[['hk','tw'].indexOf(lang)] || name,
     image: (url, values) => Markup(url, Markup.replacer.image, values),
     upgrade: (text, item) => Markup(text, Markup.upgrades[item]),
     downgrade: (text, item) => Markup(text, Markup.upgrades[item].map(item => item.reverse())),
@@ -254,7 +254,7 @@ Markup.upgrades = {
 };
 Markup.replacer = {
     clear: [/[_\/\\]/g, ''],
-    cell: [/(?<=[a-z]{2,})(?=[A-Z])/, ' '],
+    cell: [/(?<=[a-z]{2,})(?=\\?[A-Z])/, ' '],
     mode: new O([
         [/(.+)_([一-龢]{4,})/, ([, $1, $2]) => [$1, E('sub.long', $2)]],
         [/(.+)_(.+)/, ([, $1, $2]) => [$1, E('sub', $2)]]

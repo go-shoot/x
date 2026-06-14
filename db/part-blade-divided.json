@@ -32,6 +32,12 @@
         }
     },
     "assist": {
+        "G": {
+            "names": {"jap":"グラビティ", "eng":"Gravity"},
+            "stat": [],
+            "desc": "",
+            "attr": ["att","right"]
+        },
         "O": {
             "names": {"jap":"オッド", "eng":"Odd"},
             "stat": ["4+",100],
@@ -243,6 +249,26 @@
             "names": {"jap":"ペルセウス", "eng":"Perseus", "chi":"英仙"},
             "stat": ["2-"],
             "attr": ["right","mfb"]
+        },
+        "Kr": {
+            "names": {"jap":"クラーケン", "eng":"Kraken", "chi":""},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Hr": {
+            "names": {"jap":"ホーネット", "eng":"Hornet", "chi":""},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Bc": {
+            "names": {"jap":"バックス", "eng":"Bucks", "chi":""},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Dk": {
+            "names": {"jap":"ドレイク", "eng":"Drake", "chi":""},
+            "stat": ["2-"],
+            "attr": ["right"]
         }
     },
     "metal": {
