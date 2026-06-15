@@ -129,7 +129,7 @@ const Calculate = {
                 //     for (let y = y0; y <= y1; y++)
                 //         lastColumn.push(colored[y*W + x1]);
                 //     downOnly = lastColumn.filter(c => c === 1).length / lastColumn.length < .005;
-                }
+                //}
                 !downOnly && neighbors.push([x+b, y], [x-b, y]);
             }
             neighbors.forEach(([nx, ny]) => {
