@@ -28,7 +28,7 @@ main {
 
         &:has(button) {
             font-size: 1.5em; color: var(--theme); text-align: right;
-            padding: 0 .5rem;
+            padding: 0 .5rem; margin-top: 1em;
     
             button {margin-left: .25em;}
             main:not(:has(canvas[width])) & button {display: none;}
@@ -40,6 +40,7 @@ main {
             canvas {
                 width: min(1200px,20em);
                 margin: auto;
+                &:not([width]) {display: none;}
             }
         }
     }

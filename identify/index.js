@@ -1,12 +1,11 @@
 import DB from "../include/DB.js";
 import { Markup } from "../include/utilities.js";
 import { Preview } from "../parts/bey.js";
-import './imagehash-web.min.js';
+import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 
 let PARTS, Controls = {el: Q('#controls')};
-const CollClass = Comlink.wrap(new Worker('./worker.js', {type: 'module'}));
 Object.assign(E, {
     img: src => new Promise(res => E('img', {
         src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
@@ -31,16 +30,17 @@ Object.assign(E, {
     }
 });
 let COLLAGE;
+const WorkerCollage = Comlink.wrap(new Worker('./worker.js', {type: 'module'}));
 class Collage {
     constructor(ev) {
         App.state(1, 'begun');
         return E.img(typeof ev == 'string' ? ev : URL.createObjectURL(ev.target.files[0]))
-            .then(img => createImageBitmap(img))
+            .then(createImageBitmap)
             .then(img => {
                 let cvs = Collage.transferred ? null : Collage.cvs.transferControlToOffscreen();
                 Collage.transferred = true;
-                CollClass.take((({el, ...values}) => values)(Controls));
-                return new CollClass(cvs ? Comlink.transfer(cvs, [cvs]) : null, img);
+                WorkerCollage.take((({el, ...values}) => values)(Controls));
+                return new WorkerCollage(cvs ? Comlink.transfer(cvs, [cvs]) : null, img);
             }).then(collage => {
                 COLLAGE = collage;
                 App.state([1,2], 'done');
@@ -111,8 +111,8 @@ Object.assign(App, {
             Analysis.results = null;
             Controls[ev.target.id] = ev.target.value;
             App.rafID ??= requestAnimationFrame(async () => {
-                await CollClass.take((({el, ...values}) => values)(Controls));
-                COLLAGE?.detect.boxes();                
+                await WorkerCollage.take((({el, ...values}) => values)(Controls));
+                await COLLAGE?.detect.boxes();                
                 App.rafID = null;
             });
         }
@@ -139,7 +139,7 @@ class Analysis {
         return COLLAGE.detect.backdrop()
             .then(backdrop => Promise.all([
                 this.prepare.cutouts(),
-                !App.assets[comp] || backdrop != lastBackdrop ? this.prepare.assets(backdrop) : null,
+                !App.assets[comp] || backdrop != lastBackdrop ? this.prepare.assets(backdrop) : undefined,
             ]))
             .then(hashes => this.match.by.hash(...hashes))
             .then(result => (Analysis.results = result) && App.state([4,5], 'done'));
@@ -169,7 +169,7 @@ class Analysis {
 }
 export default App;
 class ResultMatrix { //row: parts, col: boxes
-    constructor(cutoutHashes, assetHashes) {
+    constructor(cutoutHashes, assetHashes = App.assets[App.comp]) {
         [this.R, this.C] = [assetHashes.length, cutoutHashes.length];
         [this.assetHashes, this.cutoutHashes] = [assetHashes, cutoutHashes];
         this.scores = new Uint8Array(this.R * this.C).fill(255);
