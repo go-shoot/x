@@ -56,7 +56,7 @@ class Shohin {
     static beys = [];
     static after = () => Shohin.beys.forEach(bey => {
         bey.abbr && bey.attrs();
-        bey.div.Q('strong:not(:empty)') && /XG?-\d+/.test(bey.div.Q('h5').innerText) && bey.images();
+        bey.div.Q('strong:not(:empty)') && /X.?-\d+/.test(bey.div.Q('h5').innerText) && bey.images();
     });
 }
 class Keihin {
