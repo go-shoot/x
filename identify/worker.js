@@ -25,7 +25,7 @@ class Collage {
         boxes: (cvs = Collage.cvs, ctx = Collage.ctx) => {
             this.draw();
             let [W, H, pad, leap] = [cvs.width, cvs.height, 1/100, 1/300];
-            [pad, leap] = [Math.floor(W*pad), 2/*Math.floor(Math.min(W, H)*leap)*/];
+            [pad, leap] = [Math.floor(W*pad), 1/*Math.floor(Math.min(W, H)*leap)*/];
             let [{data}, colored] = [ctx.getImageData(0, 0, W, H), new Int8Array(W * H).fill(-1)]; //visited
             let boxes = [];
             for (let y = 0; y < H; y += leap)
