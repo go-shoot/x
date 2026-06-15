@@ -33,7 +33,7 @@ class Collage {
                     let pixel = y * W + x;
                     if (colored[pixel] == -1 && Valid.color(data, pixel)) {
                         let {x0, y0, x1, y1, w, h} = Calculate.boundary(x, y, data, colored);
-                        w && boxes.push([x0, y0, x1, y1]);
+                        w && boxes.push([x0+1, y0+1, x1+1, y1+1]);
                     }
                 }
             const unnested = [];
