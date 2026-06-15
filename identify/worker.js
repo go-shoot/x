@@ -25,7 +25,7 @@ class Collage {
         boxes: (cvs = Collage.cvs, ctx = Collage.ctx) => {
             this.draw();
             let [W, H, pad, leap] = [cvs.width, cvs.height, 1/100, 1/300];
-            [pad, leap] = [Math.floor(W*pad), Math.floor(Math.min(W, H)*leap)];
+            [pad, leap] = [Math.floor(W*pad), 2/*Math.floor(Math.min(W, H)*leap)*/];
             let [{data}, colored] = [ctx.getImageData(0, 0, W, H), new Int8Array(W * H).fill(-1)]; //visited
             let boxes = [];
             for (let y = 0; y < H; y += leap)
@@ -33,7 +33,7 @@ class Collage {
                     let pixel = y * W + x;
                     if (colored[pixel] == -1 && Valid.color(data, pixel)) {
                         let {x0, y0, x1, y1, w, h} = Calculate.boundary(x, y, data, colored);
-                        w && boxes.push([x0+1, y0+1, x1+2, y1+2]);
+                        w && boxes.push([x0, y0, x1, y1]);
                     }
                 }
             const unnested = [];
@@ -124,11 +124,11 @@ const Calculate = {
             colored[pixel] = Valid.color(data, pixel);
             let neighbors = [[x, y+b], [x, y-b]];
             if (!downOnly) {
-                let lastColumn = [];
-                if (x - x0 > 10) {
-                    for (let y = y0; y <= y1; y++)
-                        lastColumn.push(colored[y*W + x1]);
-                    downOnly = lastColumn.filter(c => c === 1).length / lastColumn.length < .005;
+                // let lastColumn = [];
+                // if (x - x0 > 10) {
+                //     for (let y = y0; y <= y1; y++)
+                //         lastColumn.push(colored[y*W + x1]);
+                //     downOnly = lastColumn.filter(c => c === 1).length / lastColumn.length < .005;
                 }
                 !downOnly && neighbors.push([x+b, y], [x-b, y]);
             }
