@@ -5,7 +5,7 @@ class Collage {
     static transferred = () => Collage.cvs ? true : false
     static take = knobs => KNOBS = knobs
     constructor(canvas, bitmap) {
-        canvas && ([Collage.cvs, Collage.ctx] = [canvas, canvas.getContext('2d')]);
+        canvas && ([Collage.cvs, Collage.ctx] = [canvas, canvas.getContext('2d', {willReadFrequently: true})]);
         [COLLAGE, this.bitmap] = [this, bitmap];
         [Collage.cvs.width, Collage.cvs.height] = [Collage.W, Collage.H] = [bitmap.width, bitmap.height];
         this.detect.boxes();

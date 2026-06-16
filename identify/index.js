@@ -51,10 +51,10 @@ class Collage {
     static cvs = Q('canvas');
     static select = ev => {
         ev.stopPropagation();
-        if (!Analysis.results || !Analysis.results.boxes.length) return;
+        if (!Analysis.result || !Analysis.result.boxes.length) return;
         let {left, top, width, height} = Collage.cvs.getBoundingClientRect();
         let [x, y] = [(ev.clientX - left) * Collage.cvs.width / width, (ev.clientY - top) * Collage.cvs.height / height];
-        Analysis.results.box([x, y])?.[Q('input[name=mode]:checked').value](ev);
+        Analysis.result.box([x, y])?.[Q('input[name=mode]:checked').value](ev);
     }
 }
 const App = () => DB.get.essentials({flat: true})
@@ -85,7 +85,7 @@ Object.assign(App, {
         Q('form button', button => button.type = 'button');
         E(Q('nav')).set({
             onclick: ev => ev.target.dataset.url ? App.autoflow(ev.target) : '',
-            onchange: () => Analysis.results?.label()
+            onchange: () => Analysis.result?.label()
         });      
         E(Q('main')).set({
             onchange (ev) {
@@ -123,7 +123,7 @@ Object.assign(App, {
             }
         });
         Q('#controls').oninput = ev => {
-            Analysis.results = null;
+            Analysis.result = null;
             Controls[ev.target.id] = ev.target.value;
             App.rafID ??= requestAnimationFrame(async () => {
                 await WorkerCollage.take(Controls);
@@ -141,7 +141,7 @@ Object.assign(App, {
 });
 Object.assign(App.events, {
     tiers: async () => Q('textarea').innerHTML = (await COLLAGE.detect.tiers()).map(([ty0, ty1]) => [
-        Analysis.results.filter(({x0, y0, x1, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
+        Analysis.result.filter(({x0, y0, x1, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
         .map(({determ, corrected}) => (corrected || determ).abbr)
     ]).join('<br>')
 });
@@ -155,8 +155,8 @@ class Analysis {
                 !App.assets[comp] || backdrop != lastBackdrop ? this.prepare.assets(backdrop) : undefined,
             ]))
             .then(hashes => this.match.by.hash(...hashes))
-            .then(result => (Analysis.results = result) && App.state([4,5], 'done'))
-            .catch(er => Q('.loading', [])[0].append(`${er}`));
+            .then(result => (Analysis.result = result) && App.state([4,5], 'done'))
+            .catch(er => Q('.loading', [])[0]?.append(`${er}`));
     }
     prepare = {
         assets: async (backdrop, comp = App.comp) => {
@@ -178,7 +178,7 @@ class Analysis {
     }
     match = {by: {
         hash: (...hashes) => new ScoreMatrix(...hashes)
-            .compare('hash', (h1, h2) => h1.hammingDistance(h2)).label.from('min', 130).to.results()
+            .compare('hash', (h1, h2) => h1.hammingDistance(h2)).label.from('min', 130).to.result()
     }}
     static algo = Q('input[name=algo]:checked').value
 }
@@ -204,15 +204,15 @@ class ScoreMatrix { //row: parts, col: boxes
         COLLAGE.draw(true);
         this.entries().sort((a, b) => optimum == 'min' ? a.v - b.v : b.v - a.v).forEach(({r, c, v}) => {
             if (this.done.rows.has(r) || this.deterministic.has(c) || (optimum == 'min' ? v > limit : v < limit)) return;
-            Results.label(c, r);
+            Result.label(c, r);
             this.deterministic.set(c, r);
             this.done.rows.add(r);
         });
         return this;
     }}
-    to = {results: () => new Results(this)}
+    to = {result: () => new Result(this)}
 }
-class Results {
+class Result {
     constructor(matrix) {
         COLLAGE.boxes.then(boxes => this.boxes = boxes.map(([x0, y0, x1, y1], c) => {
             let scores = [];
@@ -221,7 +221,7 @@ class Results {
             return {
                 x0, y0, x1, y1,
                 Parts: new Set(scores.sort((a, b) => a.v - b.v).map(({r}) => App.includes.flipped(r)).filter(P => P)), 
-                determ: PARTS[App.comp][matrix.deterministic.get(c)]
+                determ: App.includes.flipped(matrix.deterministic.get(c))
             };
         }));
     }
@@ -253,10 +253,10 @@ class Results {
             if (box.corrected === '') return;
             Q('aside.active', aside => aside.classList.remove('active'));
             return new Preview(['cell', 'tile'], {path: (box.corrected ?? box.determ).path}, ev);
-        },
+        }
     })
     label = () => this.boxes.forEach(({x0, y0, x1, y1, determ, corrected}) => 
-        Results.label([x0, y0, x1, y1], corrected ?? determ)
+        Result.label([x0, y0, x1, y1], corrected ?? determ)
     )
     static label (box, rP, lang = Q('input[name=lang]:checked').value) {
         typeof rP == 'number' && (rP = App.includes.flipped(rP));
