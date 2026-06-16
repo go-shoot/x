@@ -142,7 +142,8 @@ class Analysis {
                 !App.assets[comp] || backdrop != lastBackdrop ? this.prepare.assets(backdrop) : undefined,
             ]))
             .then(hashes => this.match.by.hash(...hashes))
-            .then(result => (Analysis.results = result) && App.state([4,5], 'done'));
+            .then(result => (Analysis.results = result) && App.state([4,5], 'done'))
+            .catch(er => console.error(er) || document.body.append(`${er}`));
     }
     prepare = {
         assets: async (backdrop, comp = App.comp) => {
