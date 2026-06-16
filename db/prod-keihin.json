@@ -1,4 +1,19 @@
 {
+    "BXH-?1_03":{
+        "type":"g", "date":"2026-07", "note":"購物滿額贈品",
+        "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news260615_6.html", 
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news260615_6_bitGB.webp",200]
+    },
+    "BXH-?1_02":{
+        "type":"g", "date":"2026-07", "note":"購物滿額贈品",
+        "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news260615_6.html", 
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news260615_6_bitW.webp",200]
+    },
+    "BXH-?1_01":{
+        "type":"g", "date":"2026-07", "note":"購物滿額贈品",
+        "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news260615_6.html", 
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news260615_6_bitU.webp",200]
+    },
     "BXH-22":{
         "type":"t", "date":"2026-06", "note":"G3大會獎品（集齊後）", 
         "ver":["メタルコート：ゴールド","Metal Coat: Gold"],

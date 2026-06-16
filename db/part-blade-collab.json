@@ -1,16 +1,28 @@
 {
+    "CrCl": {
+        "group": "hasbro",
+        "names": {
+            "jap": "クラブクランプ",
+            "eng": "CrabClamp",
+            "chi": "",
+            "aka": "蟹"
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["def","right","BX"],
+        "from": "WyGl"
+    },
     "HrSh": {
         "group": "hasbro",
         "names": {
             "jap": "ホルスシャッター",
             "eng": "HorusShatter",
             "chi": "",
-            "aka": ""
+            "aka": "荷魯斯 隼"
         },
         "stat": [""],
         "desc": "",
-        "attr": ["sta","right","BX","expand"],
-        "aka": "荷魯斯 隼"
+        "attr": ["sta","right","BX","expand"]
     },
     "BtGs": {
         "group": "hasbro",

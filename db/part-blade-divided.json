@@ -273,8 +273,8 @@
     },
     "metal": {
         "Wh": {
-            "names": {"jap":"ウィップ", "eng":"Whip", "chi":"古鞭 鞭擊"},
-            "stat": ["27+"],
+            "names": {"jap":"ウィップ", "eng":"Whip", "chi":"古鞭 鞭打"},
+            "stat": ["28-"],
             "desc": "順滑圓弧狀四枚刃化解對手攻擊。",
             "attr": ["sta","right"]
         },

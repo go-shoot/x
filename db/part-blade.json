@@ -20,8 +20,7 @@
         },
         "stat": [""],
         "desc": "內藏彈簧的可動刃攻擊時回彈，以反發力特化於強烈的撞擊性能。",
-        "attr": ["att","right","fused","bbb"],
-        "aka": "戰神"
+        "attr": ["att","right","fused","bbb"]
     },
    "DrSt": {
         "group": "BX",
