@@ -78,7 +78,7 @@ class Collage {
         .then(bitmaps => Comlink.transfer(bitmaps, bitmaps))
     
     label (b, label, lang, ctx = Collage.ctx) {
-        if (!label) return;
+        if (label == null) return;
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
             let middle = Math.floor(widths.length / 2);

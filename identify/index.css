@@ -104,7 +104,7 @@ main ol {
 }
 aside {
     position: fixed !important; bottom: 0;
-    display: flex; gap: .5em; align-items: end;
+    display: flex; gap: .5em; 
     width: 100%;
     background: var(--overlay1);
     font-size: .9em;
@@ -114,14 +114,29 @@ aside {
     &:not(.active) {transform: translateY(100%);}
     &#controls {
         padding-bottom: 1em;
-        justify-content: center;
+        justify-content: center; align-items: end;
 
         continuous-knob::before {font-size: .9em;}
         i {color: var(--theme);}
     }
     &#correct {
         overflow-x: scroll;
-        
-        img {height: 5em; cursor: pointer;}
+        align-items: center;
+
+        label {
+            filter: none !important;
+
+            &:has(:checked) {border-bottom : .15em solid var(--theme);}
+            &:first-child {
+                align-self: center; 
+                margin-left: .5em;
+
+                &::before {content: '🚫'; font-size: 2em;}
+            }
+        }
+        img {
+            height: 5em; 
+            cursor: pointer;
+        }
     }
 }
