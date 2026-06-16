@@ -113,7 +113,8 @@ Object.assign(App, {
                 if (ev.target.id == 'match')
                     return new Analysis();
                 if (ev.target.id == 'download')
-                    return E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `${App.comp}辦認.jpg`}).click();
+                    return gtag('event', 'IDENTIFY-DOWNLOAD') || 
+                    E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `${App.comp}辦認.jpg`}).click();
                 if (ev.target.id == 'tier')
                     return App.events.tiers();
                 if (ev.target.name == 'mag')
@@ -236,7 +237,7 @@ class Result {
             if (ev.target != Collage.cvs) {
                 box.corrected = ev.target.labels[0].matches(':first-child') ? '' : ev.target.labels[0].Part;
                 COLLAGE.draw(true);
-                return this.label();
+                return gtag('event', 'IDENTIFY-CORRECT') || this.label();
             }
             let aside = Q('#correct');
             [...aside.children].find((label, i) => 
