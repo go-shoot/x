@@ -186,6 +186,7 @@ const Controls = {
         reader.onloadend = () => {
             Layers.fieldset.disabled = false;
             App.loading(false);
+            ev.target.value = '';
         }
     },
     chooseType (ev) {

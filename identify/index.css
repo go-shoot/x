@@ -35,10 +35,10 @@ main {
         }
         &:has(canvas) {
             overflow-x: scroll; 
-            font-size: calc(var(--f)*5vw);
+            font-size: calc(var(--f)*min(5vw,30px));
     
             canvas {
-                width: min(1200px,20em);
+                width: 20em;
                 margin: auto;
                 &:not([width]) {display: none;}
             }
@@ -111,7 +111,7 @@ aside {
     padding: .5em 0;
     transition: transform .5s;
 
-    &:not(.active) {transform: translateY(100%);}
+    &:not(.active) {transform: translateY(100%) !important;}
     &#controls {
         padding-bottom: 1em;
         justify-content: center; align-items: end;
@@ -134,9 +134,10 @@ aside {
                 &::before {content: '🚫'; font-size: 2em;}
             }
         }
-        img {
+        canvas {
             height: 5em; 
             cursor: pointer;
         }
+        label:has(.flipped),img {display: none;}
     }
 }

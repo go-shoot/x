@@ -11,21 +11,18 @@ Object.assign(E, {
         src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
         onload: function() {res(this)}, onerror: () => res(null)
     })),
-    canvas: async (img, bg = '246,245,250', flip) => {
-        typeof img == 'string' && (img = await E.img(img));
+    canvas: async (img, change) => {
         if (!img) return;
-        let cvs = E('canvas', {width: img.w ?? img.width, height: img.h ?? img.height});
+        let cvs = img.tagName == 'CANVAS' ? img : E('canvas', {width: img.width, height: img.height});
         let ctx = cvs.getContext('2d');
-        if (img instanceof Node) {
-            ctx.fillStyle = `rgba(${bg}`;
-            ctx.fillRect(0, 0, img.width, img.height);
-            if (flip) {
-                ctx.translate(img.width, 0);
-                ctx.scale(-1, 1);
-            }
-            ctx.drawImage(img, 0, 0, img.width, img.height);
-        } else
-            ctx.drawImage(App.collage.img, img.x, img.y, img.w, img.h, 0, 0, img.w, img.h);
+        img.tagName == 'CANVAS' && (img = img.nextElementSibling);
+        typeof change == 'string' && (ctx.fillStyle = `rgba(${change})`);
+        ctx.fillRect(0, 0, img.naturalWidth, img.naturalHeight);
+        if (change === true) {
+            ctx.translate(img.naturalWidth, 0);
+            ctx.scale(-1, 1);
+        }
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
         return cvs;
     }
 });
@@ -66,6 +63,10 @@ const App = () => DB.get.essentials({flat: true})
         Q('.loading', el => el.classList.remove('loading'));
     });
 Object.assign(App, {
+    createCanvasImg: (P, flipped) => 
+        E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`)
+        .then(img => Promise.all([E.canvas(img, flipped), Object.assign(img, flipped ? {classList: 'flipped'} : {})]))
+    ,
     state (step, state) {
         if (Array.isArray(step)) return step.forEach(s => App.state(s, state));
         App.steps ??= [...Q('ol').children];
@@ -95,15 +96,15 @@ Object.assign(App, {
                     return Analysis.algo = ev.target.value;
                 if (ev.target.name == 'comp') {
                     App.comp = ev.target.value;
-                    App.collage?.draw(true);
                     App.state(3, 'done');
-                    Q('#correct').replaceChildren(
+                    let pairs = PARTS[App.comp].map(P => App.createCanvasImg(P));
+                    App.comp == 'bit' && pairs.push(...App.flipped.bit.map(abbr => App.createCanvasImg(abbr, true)));
+                    Promise.all(pairs).then(pairs => Q('#correct').replaceChildren(
                         E('label>input', {type: 'radio', name: 'correction'}), 
-                        ...PARTS[App.comp].map(P => Object.assign(E('label', [
-                            E('input', {type: 'radio', name: 'correction'}),
-                            E(`img`, {src: `/x/img/${P.path.join('/')}.png`})
-                        ]), {Part: P}))
-                    );
+                        ...pairs.map((pair, i) => Object.assign(
+                            E('label', [E('input', {type: 'radio', name: 'correction', value: i}), ...pair])
+                        , {Part: PARTS[App.comp][i]}))
+                    ));
                 }    
             },
             onclick (ev) {
@@ -157,19 +158,21 @@ class Analysis {
             ]))
             .then(hashes => this.match.by.hash(...hashes))
             .then(result => (Analysis.result = result) && App.state([4,5], 'done'))
-            .catch(er => Q('.loading', [])[0]?.append(`${er}`));
+            .catch(er => console.error(er) || Q('.loading', [])[0]?.append(`${er}`));
     }
     prepare = {
-        assets: async (backdrop, comp = App.comp) => {
+        assets: (backdrop, comp = App.comp) => {
             App.state(3, 'begun');
-            let canvases = PARTS[comp].map(P => E.canvas(`/x/img/${P.path.join('/')}.png`, backdrop));
-            comp == 'bit' && canvases.push(...App.flipped.bit.map(b => E.canvas(`/x/img/bit/${b}.png`, backdrop, true)));
-            let hashes = await Promise.all(canvases.map(prom => 
-                prom.then(cvs => cvs && window[Analysis.algo](cvs, 16)).then(hash => (App.state(3, '++'), hash))
-            ));
-            Q('input[name=comp]:checked').title = backdrop;
-            App.state(3, 'done');
-            return App.assets[comp] = hashes.map(hash => hash ? {hash} : {});
+            return Promise.all(Q('#correct input[value]', []).sort((a, b) => a.value - b.value).map(input => 
+                E.canvas(input.labels[0].Q('canvas'), backdrop)
+                .then(cvs => cvs && window[Analysis.algo](cvs, 16))
+                .then(hash => (App.state(3, '++'), hash))
+            )).then(hashes => {
+                Q('input[name=comp]:checked').title = backdrop;
+                Q('#correct').style.background = `rgba(${backdrop})`;
+                App.state(3, 'done');
+                return App.assets[comp] = hashes.map(hash => hash ? {hash} : {});
+            });
         },
         cutouts: () => COLLAGE.cutouts().then(bmps => Promise.all(bmps.map(bmp => {
             let cvs = E('canvas', {width: bmp.width, height: bmp.height});
