@@ -20,17 +20,17 @@ Object.assign(Garage, {
         }
         [hrefs, PARTS] = await Promise.all([resp.text(), DB.get.essentials({drop: false})]);
         hrefs = hrefs.split('\n').filter(href => href.includes('parts'));
-        hrefs.forEach(href => Q('main').append(E('a', {href})));
 
         let grouped = Object.groupBy(DB.transform(PARTS).to.array(), P => P.subcomp);
         grouped = new O(hrefs.map(href => {
             let {hash, search} = new URL(href);
             search = [...new URLSearchParams(search)][0];
             let subcomp = search[1] ? hash.substring(1) : search[0];
-            return [subcomp, new Map(grouped[subcomp].map(P => [P, []]))];
+            let section = E('section', {id: subcomp, classList: search[1] || search[0]}, [E('h2>a', {href}), E('ol>li>details>summary')])
+            return [section, new Map(grouped[subcomp].filter(P => subcomp == 'blade' ? hash == '#UX' ? P.group == 'UX' : P.group != 'UX' : true).map(P => [P, []]))];
         }));
         new O(acquired).each(([code, obj]) => [...obj].forEach(([subcomp, abbr]) => 
-            grouped[subcomp].get(Bey.comps.includes(subcomp) ? 
+            grouped.find(([section]) => section.id == subcomp)[1].get(Bey.comps.includes(subcomp) ? 
                 PARTS[subcomp][abbr] : PARTS.blade.CX[subcomp][abbr]).push(code)
         ));
         return grouped;
@@ -43,21 +43,21 @@ Object.assign(Garage, {
             new O({false: 'before', true: 'after'}).each(([type, posi]) => 
                 section.Q('li:has(details)')[posi](...parts[type]?.map(([P, codes]) => Garage.element.li(P, codes)) ?? [])
             );
-        };
-        Object.entries(grouped).forEach(async ([comp, map]) => {
-            let section = Garage.element.section(comp == 'blade' ? ['blade#UX', 'blade#BX'] : comp);
-            if (comp == 'blade') {
-                let UX = Object.groupBy([...map], ([P]) => P.group == 'UX');
-                sortGroupShow(comp, UX.true, section[0]);
-                sortGroupShow(comp, UX.false, section[1]);
-            } else {
-                comp == 'bit' && (map = await Promise.all(
+        };console.log(grouped);
+        [...grouped].forEach(async ([section, map]) => {
+            let UX = Object.groupBy([...map], ([P]) => P.group == 'UX');
+            if (section.id.includes('#UX'))
+                sortGroupShow(section.id, UX.true, section);
+            else if (section.id.includes('#BX'))
+                sortGroupShow(section.id, UX.false, section);
+            else {
+                section.id == 'bit' && (map = await Promise.all(
                     [...map].map(async ([P, _]) => [P.attr ? P : await P.revise(['attr']), _])
                 ));
-                sortGroupShow(comp, map, section);
+                sortGroupShow(section.id, map, section);
             }
-            [section].flat().forEach(s => s.Q('summary').append(...Garage.element.summary(comp)));
-            Q('main').append(...[section].flat());
+            section.Q('summary').append(...Garage.element.summary(section.id));
+            Q('main').append(section);
         });
     },
     after () {
@@ -95,10 +95,10 @@ Object.assign(Garage, {
     },
     set: {
         tier: () => DB.get('user','tier-ratchet').then(tiers => Object.entries(tiers).forEach(([abbr, t]) => {
-            let li = Q(`li[id="${abbr}"]`);
-            if (!li) return;
-            li.tier = t;
-            li.Q(`select[name=tier]`).options[t+1].selected = true;
+            let select = Q(`li[id="${abbr}"] select[name=tier] `);
+            if (!select) return;
+            select.options[t+1].selected = true;
+            select.dispatchEvent(new InputEvent('change', {bubbles: true}));
         })),
         class: () => DB.get('product', 'beys').then(beys => {
             beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
@@ -116,6 +116,9 @@ Object.assign(Garage, {
             );
         },
     },
+    serialize: {
+        tier: ev => 1
+    },
     count: () => Q('ol', ol => ol.Q('summary').title = ol.Q('li:has(details)~:not(.unacquired)', []).length),
     events () {
         E(Q('main')).set({
@@ -128,7 +131,11 @@ Object.assign(Garage, {
             onpointerup: () => setTimeout(() => Garage.held = false),
             async onchange (ev) {
                 if (ev.target.name == 'tier') {
-                    Q('li.selected', li => li.tier = li.Q('select[name=tier]').value = ev.target.value);
+                    [ev.target.closest('li'), ...Q('li.selected', [])].forEach(li => {
+                        li.tier = li.Q('select[name=tier]').value = ev.target.value;
+                        E(li.Q('select[name=tier]')).set({'--tier': E(ev.target.selectedOptions[0]).get('--tier')});
+                    });
+                    ev.isTrusted && 1;
                     return Garage.events.sort();
                 }
                 let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
@@ -192,9 +199,6 @@ Object.assign(Garage.events, {
         ).join('\n')
 });
 Garage.element = {
-    section: comp => Array.isArray(comp) ? 
-        comp.map(Garage.element.section) : 
-        E(`section`, {id: comp}, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
     li: (P, codes) => {
         let li = Q('#li').content.cloneNode(true);
         Object.entries({

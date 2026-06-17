@@ -7,8 +7,8 @@ https://go-shoot.github.io/x/parts/?blade=CX#main
 https://go-shoot.github.io/x/parts/?blade=CX#over
 https://go-shoot.github.io/x/parts/?blade=CX#metal
 https://go-shoot.github.io/x/parts/?blade=CX#assist
-https://go-shoot.github.io/x/parts/?blade#BX
 https://go-shoot.github.io/x/parts/?blade#UX
+https://go-shoot.github.io/x/parts/?blade#BX
 https://go-shoot.github.io/x/parts/?ratchet
 https://go-shoot.github.io/x/parts/?bit
 https://go-shoot.github.io/x/prizes/
