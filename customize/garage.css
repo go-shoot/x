@@ -40,7 +40,11 @@ section {
                 background: var(--img-line) center / contain;
             }
             &:empty::after {width: 3em;}
-            &:not(:empty) {--f: 1.25; font-size: calc(var(--f)*1em);}
+            #chip &::after {--img: url(/x/img/blade/CX/chip/Dr.png);}
+            #over &::after {--img: url(/x/img/blade/CX/over/O.png);}
+            #main &::after {--img: url(/x/img/blade/CX/main/Bl.png);}
+            #metal &::after {--img: url(/x/img/blade/CX/metal/Fr.png);}
+            #assist &::after {--img: url(/x/img/blade/CX/assist/W.png);}
         }
     }
     ol {

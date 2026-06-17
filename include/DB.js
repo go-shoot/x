@@ -140,7 +140,7 @@ Object.assign(DB, {
         file: file => fetch(`/x/db/${file}.json`)
             .then(resp => Promise.allSettled([
                 file, resp.json(), 
-                DB.fresh || file == 'part-blade-collab' && DB.delete('blade','collab'),
+                DB.fresh || file == 'part-blade-collab' && DB.delete('blade','hasbro'),
                 DB.fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
     },

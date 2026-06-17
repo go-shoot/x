@@ -65,10 +65,7 @@ Object.assign(Garage, {
         Garage.events();
         Q('section', section => {
             let a = section.Q('h2 a');
-            E(a).set({
-                classList: `icon-${a.search.substring(1).split('=')[0]}`,
-                innerText: a.hash && !/.X$/.test(a.hash) ? a.hash : ''
-            });
+            a.classList = `icon-${a.search.substring(1).split('=')[0]}`;
             section.Q('li', (li, i) => li.dataset.order = i);
         });
         let amount = Q('li figure', []).length;
@@ -178,10 +175,6 @@ Object.assign(Garage.events, {
             let [name, l] = [PARTS.at(path).names[lang] || PARTS.at(path).names.chi, lang];
             name ? (name = Markup.hktw(lang, name)) : ([name, l] = [PARTS.at(path).names.eng, 'eng']);
             E(img.nextSibling.Q('b')).set([...Markup.cell(name)], {lang: l, title: Markup.clear(PARTS.at(path).names.eng)});
-        });
-        Q('section:has(h2 a:not(:empty))', section => {
-            let name = Part.names[section.id][lang] || Part.names[section.id].chi;
-            section.Q('a').innerText = Markup.hktw(lang, name);
         });
         Garage.events.prompt();
     },

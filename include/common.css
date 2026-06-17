@@ -287,6 +287,7 @@ nav {
     form:not(.LED) {display: contents;}
 }
 .icon-blade   {--img: url(/x/img/blade/CbDr.png);}
+.icon-blade[href*=CX] {--img: url(/x/img/blade/CX/chip/Dr.png);}
 .icon-ratchet {--img: url(/x/img/ratchet/6-60.png);}
 .icon-bit     {--img: url(/x/img/bit/B.png);}
 :is(th.LED,.icon-blade,.icon-ratchet,.icon-bit)::after {
