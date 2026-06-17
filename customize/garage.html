@@ -12,7 +12,6 @@
             <label hidden>預設<input name=sort type=radio value=default checked></label>
             <label hidden>TIER<input name=sort type=radio value=tier></label>
         </fieldset>
-        <button hidden>組裝</button>
         <button popovertarget="prompt" type="button">AI prompt</button>
     </form>
 </nav>
@@ -38,6 +37,25 @@
 而且部分Blade或Bit可能是Ratchet一體型(Ratchet-integrated)，並不能加上Ratchet；還有部分Blade如ClockMirage只能配搭上Simple ratchet（即5尾的），請查詢清楚，確保現實上能組裝。
 </p>
 </dialog>
+<template id="li">
+    <li>
+        <select hidden name="tier">
+            <option>-</option>
+            <option value="0">T0</option>
+            <option value="1">T1</option>
+            <option value="2">T2</option>
+            <option value="3">T3</option>
+            <option value="4">T4</option>
+            <option value="5">T5</option>
+            <option value="6">T6</option>
+        </select>
+        <figure>
+            <img>
+            <figcaption></figcaption>
+        </figure>
+        <select name="acquired"></select>
+    </li>
+</template>
 
 <script type="module">
     import DB from '../include/DB.js';

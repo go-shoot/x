@@ -97,10 +97,13 @@ main ol {
     }
     button {
         margin: 0 1em;
-        &:first-child {margin-left: 0;}
+        li>&:first-child {margin-left: 0;}
     }
-    textarea {width: 40em; height: 10em;}
-    textarea:empty {display: none;}
+    textarea {
+        width: 40em; height: 10em;
+        margin: .5em 0;
+    }
+    textarea[hidden]+small {display: none;}
 }
 aside {
     position: fixed !important; bottom: 0;

@@ -94,7 +94,12 @@ Object.assign(Garage, {
         bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
     set: {
-        tier: () => Q('li:has(figure)', li => li.tier = li.Q('select[name=tier]').value = null ?? Math.floor(Math.random()*6)),
+        tier: () => DB.get('user','tier-ratchet').then(tiers => Object.entries(tiers).forEach(([abbr, t]) => {
+            let li = Q(`li[id="${abbr}"]`);
+            if (!li) return;
+            li.tier = t;
+            li.Q(`select[name=tier]`).options[t+1].selected = true;
+        })),
         class: () => DB.get('product', 'beys').then(beys => {
             beys = new Map(beys.map(([code, ...rest]) => [code, rest]));
             Q('option[value]', option => {
@@ -117,7 +122,7 @@ Object.assign(Garage, {
             async onclick (ev) {
                 if (ev.target.matches('main,ol')) return Q('li.selected', li => li.classList.remove('selected'));
                 if (Garage.held) return;
-                let path = ev.target.closest('figure')?.firstChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
+                let path = ev.target.closest('figure')?.firstElementChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
                 path && new Preview(['cell', 'tile'], {path}, ev).then(() => Garage.set.acquired(ev.target));
             },
             onpointerup: () => setTimeout(() => Garage.held = false),
@@ -127,7 +132,7 @@ Object.assign(Garage, {
                     return Garage.events.sort();
                 }
                 let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
-                ev.target.firstChild.selected = true;
+                ev.target.firstElementChild.selected = true;
                 await (option.matches('.Lm') ?
                     new Preview(['cell', 'diamond'], {code, bey: option.title}, ev) :
                     new Preview(['cell', 'image'], {code: code.split('_')[0]}, ev));
@@ -138,8 +143,7 @@ Object.assign(Garage, {
             if (ev.target.name == 'view') return;
             if (ev.target.name == 'lang') 
                 return Storage('pref', {lang: ev.target.value}) && Garage.events.lang(ev.target.value);
-            Garage.events.sort(ev.target.value);
-            Garage.count();
+            Garage.events.sort(ev.target.value);    
         }
         Q('#prompt').onclick = ev => {
             ev.target.matches('button,textarea') ? ev.stopPropagation() : Q('#prompt').hidePopover();
@@ -159,22 +163,25 @@ Object.assign(Garage, {
 Object.assign(Garage.events, {
     sort (by) {
         by ??= Q('input[name=sort]:checked').value;
-        Transition.allow.for(() => Q('ol', ol => {
-            if (by == 'default')
-                return ol.replaceChildren(...[...ol.children].sort((a, b) => a.dataset.order - b.dataset.order));
-            let more = ol.Q('li:has(details)');
-            ol.after(more);
-            ol.replaceChildren(...[...ol.children].sort((a, b) => a.tier - b.tier));
-            let inferior = [...ol.children].find(li => li.tier == null || li.tier >= 3)
-            inferior ? inferior.before(more) : ol.append(more);
-        }));
+        Transition.allow.for(() => {
+            Q('ol', ol => {
+                if (by == 'default')
+                    return ol.replaceChildren(...[...ol.children].sort((a, b) => a.dataset.order - b.dataset.order));
+                let more = ol.Q('li:has(details)');
+                ol.after(more);
+                ol.replaceChildren(...[...ol.children].sort((a, b) => (a.tier == '-' || a.tier == null ? Infinity : a.tier) - (b.tier == '-' || b.tier == null ? Infinity : b.tier)));
+                let inferior = [...ol.children].find(li => li.tier == '-' || li.tier == null || li.tier >= 3)
+                inferior ? inferior.before(more) : ol.append(more);
+            });
+            Garage.count();
+        });
     },
     lang (lang) {
-        Q('figure:has(b[lang])>img', img => {
+        Q('main figure:has(b[lang])>img', img => {
             let path = img.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
             let [name, l] = [PARTS.at(path).names[lang] || PARTS.at(path).names.chi, lang];
             name ? (name = Markup.hktw(lang, name)) : ([name, l] = [PARTS.at(path).names.eng, 'eng']);
-            E(img.nextSibling.Q('b')).set([...Markup.cell(name)], {lang: l, title: Markup.clear(PARTS.at(path).names.eng)});
+            E(img.nextElementSibling.Q('b')).set([...Markup.cell(name)], {lang: l, title: Markup.clear(PARTS.at(path).names.eng)});
         });
         Garage.events.prompt();
     },
@@ -188,25 +195,24 @@ Garage.element = {
     section: comp => Array.isArray(comp) ? 
         comp.map(Garage.element.section) : 
         E(`section`, {id: comp}, [E('h2', Q(`main a[href*='${comp}']`)), E('ol>li>details>summary')]),
-    li: (P, codes) => E('li', codes.length ? {} : {classList: 'unacquired'}, [
-        E('select', {name: 'tier', hidden: true}, [...Array(6)].map((_, i) => E('option', {value: i}, `T${i}`))),
-        E(`figure`, [
-            E('img', {src: `../img/${P.path.join('/')}.png`}), 
-            E('figcaption', Tile.prototype.fill.icons.call({Part: P})
+    li: (P, codes) => {
+        let li = Q('#li').content.cloneNode(true);
+        Object.entries({
+            li: {id: P.abbr, classList: codes.length ? '' :'unacquired'},
+            img: {src: `../img/${P.path.join('/')}.png`},
+            figcaption: Tile.prototype.fill.icons.call({Part: P})
                 .map(li => li.matches?.('li:has(img)') ? li.childNodes[0] : E('i', li.childNodes?.[0] ?? ''))
                 .filter(ch => ch.matches('i:not(:empty),img[src*=types]'))
-                .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1)))
-            ),
-        ]),
-        E('select', {name: 'acquired'}, [
-            E('option', `${codes.length}`), ...codes.map(c => E('option', {value: c}, Markup.cell(c)))
-        ])
-    ]),
+                .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1))),
+            'select[name=acquired]': [E('option', `${codes.length}`), ...codes.map(c => E('option', {value: c}, Markup.cell(c)))]
+        }).forEach(([el, content]) => E(li.Q(el)).set(content));
+        return li;
+    },
     summary: comp => [
         E('span.default', {
             chip: '< 2 g', over: '< 3 g', metal: '< 28 g', main: '< 31 g', assist: '< 6 g',
             blade: '< 35 g', ratchet: '> 70 dmm', bit: '非F/L/U系'
-        }[comp]), E('span.tier', '> T3')
+        }[comp]), E('span.tier', '> T2')
     ]
 }
 export default Garage;
