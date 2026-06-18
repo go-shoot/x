@@ -39,7 +39,7 @@ nav {
 main {
     max-width: 30em;
     margin: 4.15rem auto 0 auto;
-    display: grid; grid-template-columns: auto 1fr;
+    display: grid; grid-template: min-content 1fr / min-content 1fr; gap: .5em 0;
     user-select: none; -webkit-user-select: none;
     touch-action: manipulation;
     position: relative;
@@ -48,6 +48,13 @@ main {
     canvas {
         height: min(35em,100svh - 4.15rem);
         position: sticky; top: 4.15rem;
+
+        &[height='300'] {height: 9em;}
+    }
+    strong {
+        grid-area: 2/1;
+        margin-left: .5em;
+        font-size: .9em; text-align: left;
     }
     .message {
         position: absolute; width: 100%; top: 50%; transform: translateY(-50%);
@@ -72,6 +79,7 @@ fieldset {
     }
 }
 form {
+    grid-area: 1/2/3/3;
     display: grid; grid-template: repeat(3,auto) 1fr / 1fr auto;
     margin: 0 .2em;
 
@@ -117,19 +125,19 @@ form {
             &::before {
                 all: unset; line-height: 1.8em;
             }
-            &[data-type=image]:not(:has(img[src]))::before {content: '';}
+            &[data-type=image]:not(:has(svg,img[src]))::before {content: '';}
             &[data-type=color]:not([style])::before {content: '';}
 
-            &:has(img[src]) {display: flex;}
+            &:has(svg,img[src]) {display: flex;}
             &:has(input:checked) {
                 background: var(--theme); color: black;
                 border-color: var(--theme);
             }
-            img {
+            :is(svg,img) {
                 width: 100%; max-height: 100%; object-fit: contain;
                 pointer-events: none;
 
-                &:not([src]) {display: none;}
+                &img:not([src]) {display: none;}
             }
         }
         button {

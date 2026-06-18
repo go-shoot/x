@@ -3,13 +3,14 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
+const SHEET = location.pathname.includes('sheet');
 const MAIN = {con: Q('canvas').getContext('2d', {alpha: false})};
 const App = () => {
     App.loading(true);
     Controls.show(null);
     Q('form button', button => button.type = 'button');
     App.events();
-    E.img('./frame.png').then(img => {
+    E.img(SHEET ? './sheet.png' : './emblem-spin.webp').then(img => {
         MAIN.W = MAIN.con.canvas.width = img.naturalWidth, MAIN.H = MAIN.con.canvas.height = img.naturalHeight;
         MAIN.hW = MAIN.W/2, MAIN.hH = MAIN.H/2;
         Layers.frame = img;
@@ -21,14 +22,15 @@ const App = () => {
 Object.assign(App, {
     get designs () {return Q('nav menu a[href^="#"]').reverse()},
     reset () {
+        SHEET || Layers.put(JSON.parse(Q(`#template`).innerText));
         Controls.reset();
         Layers.reset();
         App.loading(false);
         Draw();
     },
     loading: loading => Q('summary').classList[loading ? 'add' : 'remove']('loading'),
-    save: () => Layers.modified && DB.put('user', {[`sheet-${location.hash.substring(1)}`]: Layers.get()}),
-    load: hash => DB.get('user', `sheet-${hash.substring(1)}`).then(layers => layers ? Layers.put(layers) : App.reset()),
+    save: () => Layers.modified && DB.put('user', {[(SHEET ? 'sheet' : 'emblem') + `-${location.hash.substring(1)}`]: Layers.get()}),
+    load: hash => DB.get('user', (SHEET ? 'sheet' : 'emblem') + `-${hash.substring(1)}`).then(layers => layers ? Layers.put(layers) : App.reset()),
     stage (design) {
         if (design === true) 
             return Promise.all(App.designs.map(a => a.canvas ? 
@@ -269,7 +271,11 @@ const Draw = all => {
     App.timer = setTimeout(App.save, 1000);
 }
 Object.assign(Draw, {
-    clear: context => context ? context.clearRect(0, 0, MAIN.W, MAIN.H) : (MAIN.con.fillStyle = 'silver') && MAIN.con.fillRect(0, 0, MAIN.W, MAIN.H),
+    clear (context) {
+        if (context) return context.clearRect(0, 0, MAIN.W, MAIN.H);
+        MAIN.con.fillStyle = SHEET ? 'silver' : 'white';
+        MAIN.con.fillRect(0, 0, MAIN.W, MAIN.H);
+    },
     frame: () => MAIN.con.drawImage(Layers.frame, 0, 0, MAIN.W, MAIN.H),
     transform (con, {sk, sc, ro, st, x, y}, img) { //translate -> skew -> scale -> rotate -> stretch
         sk ??= 0, sc ??= 1, ro ??= 0, st ??= 1, x ??= 0, y ??= 0;
@@ -300,7 +306,7 @@ Object.assign(Draw, {
         createImageBitmap(can).then(bm => [label.bitmap, label.dirty] = [bm, false]);
     },
     color (label) {
-        let {con, dataset: {gradient: type, sk, sc, ro, x, y, angle}} = label;
+        let {con, dataset: {path, gradient: type, sk, sc, ro, x, y, angle}} = label;
         Draw.clear(con);
         con.save();
         ({x, y} = Draw.transform(con, {sk, sc, ro, x, y}));
@@ -318,8 +324,9 @@ Object.assign(Draw, {
         colors.forEach((c, i, ar) => gradient.addColorStop(i / (ar.length - 1), c));
         label.style.background = `${type}-gradient(${colors.join(',')}),white`;
 
+        path &&= new Path2D(path);
         con.fillStyle = gradient;
-        con.fillRect(x, y, MAIN.H, MAIN.H);
+        path ? con.fill(path) : con.fillRect(x, y, MAIN.H, MAIN.H);
         con.restore();
     }
 });
