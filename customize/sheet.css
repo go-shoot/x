@@ -49,7 +49,7 @@ main {
         height: min(35em,100svh - 4.15rem);
         position: sticky; top: 4.15rem;
 
-        &[height='300'] {height: 9em;}
+        &[height='300'] {height: 9em; border-radius: 9em;}
     }
     strong {
         grid-area: 2/1;

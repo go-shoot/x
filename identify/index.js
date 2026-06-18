@@ -146,7 +146,7 @@ Object.assign(App.events, {
         let [textarea, confirm] = [Q('textarea'), Q('#tier-confirm')];
         if (ev.target.id == 'tier-list')
             return COLLAGE.detect.tiers().then(tiers => {
-                textarea.value = tiers.map(([ty0, ty1], i) => `T${i*.5}: ` + [
+                textarea.value = tiers.map(([ty0, ty1], i) => `T${i}: ` + [
                     Analysis.result.boxes.filter(({y0, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
                     .map(({determ, corrected}) => (corrected || determ)?.abbr)
                 ]).join('\n');

@@ -96,7 +96,7 @@ Object.assign(Garage, {
     },
     set: {
         tier: () => ['blade','ratchet','bit','CX'].forEach(comp => 
-            DB.get('user', `tier-${comp}`).then(tiers => Object.entries(tiers).forEach(([id, t]) => {
+            DB.get('user', `tier-${comp}`).then(tiers => Object.entries(tiers ?? {}).forEach(([id, t]) => {
                 let [subcomp, abbr] = id.split('.');
                 let select = Q(`section#${abbr ? subcomp : comp} li[id='${abbr ?? id}'] select[name=tier]`);
                 if (!select || t == null || isNaN(t)) return;
@@ -124,10 +124,10 @@ Object.assign(Garage, {
         tier (lis) {
             let grouped = Object.groupBy(lis, li => [li.closest('section').Q('a[href*=CX]') ? 'CX' : li.closest('section').id.split('#')[0]]);
             grouped.CX &&= grouped.CX.reduce((obj, li) => ({ ...obj, [`${li.closest('section').id}.${li.id}`]: li.tier }), {});
-            grouped.CX && DB.put('user', {'tier-CX': grouped.CX});
+            grouped.CX && DB.get('user', 'tier-CX').then(obj => DB.put('user', {'tier-CX': {...obj, ...grouped.CX}}));
             ['blade', 'ratchet', 'bit'].forEach(comp => {
                 grouped[comp] &&= grouped[comp].reduce((obj, li) => ({ ...obj, [li.id]: li.tier }), {});
-                grouped[comp] && DB.put('user', {[`tier-${comp}`]: grouped[comp]});
+                grouped[comp] && DB.get('user', `tier-${comp}`).then(obj => DB.put('user', {[`tier-${comp}`]: {...obj, ...grouped[comp]}}));
             });
             lis.forEach(li => li.classList.remove('selected'));
         }
@@ -143,20 +143,22 @@ Object.assign(Garage, {
             },
             onpointerup: () => setTimeout(() => Garage.held = false),
             async onchange (ev) {
-                if (ev.target.name == 'tier') {
-                    let changed = [ev.target.closest('li'), ...Q('li.selected', [])];
-                    changed.forEach(li => {
-                        li.tier = li.Q('select[name=tier]').value = parseInt(ev.target.value);
-                        li.tier >= 0 ? E(li).set({'--tier': E(ev.target.selectedOptions[0]).get('--tier')}) : li.removeAttribute('style');
-                    });
-                    return ev.isTrusted && [Garage.events.sort(true), Garage.save.tier(changed)];
+                if (ev.target.name == 'acquired') {
+                    let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
+                    ev.target.firstElementChild.selected = true;
+                    await (option.matches('.Lm') ?
+                        new Preview(['cell', 'diamond'], {code, bey: option.title}, ev) :
+                        new Preview(['cell', 'image'], {code: code.split('_')[0]}, ev));
+                    return Garage.set.acquired(ev.target);
                 }
-                let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
-                ev.target.firstElementChild.selected = true;
-                await (option.matches('.Lm') ?
-                    new Preview(['cell', 'diamond'], {code, bey: option.title}, ev) :
-                    new Preview(['cell', 'image'], {code: code.split('_')[0]}, ev));
-                Garage.set.acquired(ev.target);
+                let changed = [ev.target.closest('li'), ...Q('li.selected', [])];
+                changed.forEach(li => {
+                    li.tier = li.Q('select[name=tier]').value = parseInt(ev.target.value);
+                    li.tier >= 0 ? E(li).set({'--tier': E(ev.target.selectedOptions[0]).get('--tier')}) : li.removeAttribute('style');
+                });
+                if (!ev.isTrusted) return; 
+                Garage.save.tier(changed);
+                Q('input[value=tier]:checked') && Garage.events.sort(true);
             }
         });
         Q('#prompt').onclick = ev => {

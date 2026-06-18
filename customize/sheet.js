@@ -3,14 +3,14 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
-const SHEET = location.pathname.includes('sheet');
+const DESIGNING = location.pathname.includes('sheet') ? 'sheet' : 'emblem';
 const MAIN = {con: Q('canvas').getContext('2d', {alpha: false})};
 const App = () => {
     App.loading(true);
     Controls.show(null);
     Q('form button', button => button.type = 'button');
     App.events();
-    E.img(SHEET ? './sheet.png' : './emblem-spin.webp').then(img => {
+    E.img(DESIGNING == 'sheet' ? './sheet.png' : './emblem-spin.webp').then(img => {
         MAIN.W = MAIN.con.canvas.width = img.naturalWidth, MAIN.H = MAIN.con.canvas.height = img.naturalHeight;
         MAIN.hW = MAIN.W/2, MAIN.hH = MAIN.H/2;
         Layers.frame = img;
@@ -22,15 +22,15 @@ const App = () => {
 Object.assign(App, {
     get designs () {return Q('nav menu a[href^="#"]').reverse()},
     reset () {
-        SHEET || Layers.put(JSON.parse(Q(`#template`).innerText));
+        DESIGNING == 'emblem' && Layers.put(JSON.parse(Q(`#template`).innerText));
         Controls.reset();
         Layers.reset();
         App.loading(false);
         Draw();
     },
     loading: loading => Q('summary').classList[loading ? 'add' : 'remove']('loading'),
-    save: () => Layers.modified && DB.put('user', {[(SHEET ? 'sheet' : 'emblem') + `-${location.hash.substring(1)}`]: Layers.get()}),
-    load: hash => DB.get('user', (SHEET ? 'sheet' : 'emblem') + `-${hash.substring(1)}`).then(layers => layers ? Layers.put(layers) : App.reset()),
+    save: () => Layers.modified && DB.put('user', {[`${DESIGNING}-${location.hash.substring(1)}`]: Layers.get()}),
+    load: hash => DB.get('user', `${DESIGNING}-${hash.substring(1)}`).then(layers => layers ? Layers.put(layers) : App.reset()),
     stage (design) {
         if (design === true) 
             return Promise.all(App.designs.map(a => a.canvas ? 
@@ -48,7 +48,7 @@ Object.assign(App, {
     export () {
         E('a', {
             href: `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(Layers.get()))}`,
-            download: 'sheet.json'
+            download: `${DESIGNING}.json`
         }).click();
         gtag('event', 'EXPORT-JSON');
     },
@@ -273,7 +273,7 @@ const Draw = all => {
 Object.assign(Draw, {
     clear (context) {
         if (context) return context.clearRect(0, 0, MAIN.W, MAIN.H);
-        MAIN.con.fillStyle = SHEET ? 'silver' : 'white';
+        MAIN.con.fillStyle = DESIGNING == 'sheet' ? 'silver' : 'white';
         MAIN.con.fillRect(0, 0, MAIN.W, MAIN.H);
     },
     frame: () => MAIN.con.drawImage(Layers.frame, 0, 0, MAIN.W, MAIN.H),
