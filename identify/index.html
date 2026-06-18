@@ -65,9 +65,9 @@
         <li class="inactive">
             STEP 6：
             <button id="download" class="text">下載</button>或
-            <!-- <button id="tier-list" class="text">加至我的Tier list</button>
+            <button hidden id="tier-list" class="text">加至我的Tier list</button>
             <textarea hidden></textarea>
-            <small>如該部件已被評價，將會取代<button id="tier-confirm" class="text">確認</button></small> -->
+            <small>如該部件已被評價，將會取代<button id="tier-confirm" class="text">確認</button></small>
         </li>
     </ol>
     <div>
@@ -91,6 +91,7 @@
     import DB from '../include/DB.js';
     import App from './index.js';
     Q('main').after(DB().then(App));
+    location.hash=='#t'&&Q('[hidden]',el=>el.hidden=false);
 </script>
 <link rel="stylesheet" href="../parts/part.css">
 <link rel="stylesheet" href="../prizes/prize.css">

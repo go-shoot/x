@@ -143,22 +143,24 @@ Object.assign(App, {
 });
 Object.assign(App.events, {
     tiers (ev) {
+        let [textarea, confirm] = [Q('textarea'), Q('#tier-confirm')];
         if (ev.target.id == 'tier-list')
             return COLLAGE.detect.tiers().then(tiers => {
-                Q('textarea').value = tiers.map(([ty0, ty1], i) => `T${i*.5}: ` + [
-                    Analysis.result.boxes.filter(({x0, y0, x1, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
+                textarea.value = tiers.map(([ty0, ty1], i) => `T${i*.5}: ` + [
+                    Analysis.result.boxes.filter(({y0, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
                     .map(({determ, corrected}) => (corrected || determ)?.abbr)
                 ]).join('\n');
-                Q('textarea').hidden = false;
-            })
+                textarea.hidden = false;
+            });
         try {
-            let obj = Q('textarea').value.split('\n').map((str, i) => 
+            let obj = textarea.value.split('\n').map((str, i) => 
                 str.split(':')[1].split(',').filter(a => a).reduce((obj, abbr) => ({ ...obj, [abbr.trim()]: i }), {})
             ).reduce((outer, inner) => ({ ...outer, ...inner }), {});
-            DB.put('user', {[`tier-${App.comp}`]: obj});
+            DB.put('user', {[`tier-${App.comp}`]: obj})
+            .then(() => (confirm.innerHTML = '&#xe014;') && setTimeout(() => confirm.innerHTML = '確認', 1000));
         }
         catch (er) {
-            Q('small').innerText = '格式錯誤';
+            (confirm.innerHTML = '格式錯誤') && setTimeout(() => confirm.innerHTML = '確認', 1000)
         }
     }
 });

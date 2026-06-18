@@ -73,7 +73,7 @@ section {
     }
 }
 main figure {
-    /*border-top: 3px solid var(--tier,gray);*/ border-bottom: 3px solid gray; 
+    border-top: 3px solid var(--tier,gray); border-bottom: 3px solid gray; 
     border-radius: .5em;
     padding: .25em;
     position: relative;
@@ -126,6 +126,7 @@ select {
         background: gray;
 
         option {background: var(--dark);}
+        option:first-child {display: none;}
     }
     &[name=tier] {
         border-radius: .3em .3em 0 0;
@@ -140,7 +141,7 @@ select {
         color: var(--on); font-size: .9em;
         line-height: 1.8em;
 
-        &:not([value]), &::checkmark {display: none;}
+        &::checkmark {display: none;}
         sub {line-height: 0;}
     }
 }
