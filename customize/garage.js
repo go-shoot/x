@@ -6,17 +6,18 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 navigator.storage.persist();
 let PARTS;
-const Garage = () => Garage.before().then(Garage.display).then(Garage.after).catch(er => er && console.error(er));
+const Garage = () => Garage.before().then(Garage.display).then(Garage.after).catch(console.error);
 Object.assign(Garage, {
     get: mode => DB.get('user', mode).then(beys => Garage[mode] = beys || {}),
     put: (mode, code, content) => (Garage[mode][code] = content) && DB.put('user', {[mode]: Garage[mode]}),
 
     async before () {
+        Q('nav button', button => button.type = 'button');
         let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]), hrefs;
         if (!Object.keys(acquired).length) {
             Q('.loading')?.classList.remove('loading');
             Q('details').open = true;
-            return Promise.reject();
+            return new O();
         }
         [hrefs, PARTS] = await Promise.all([resp.text(), DB.get.essentials({drop: false})]);
         hrefs = hrefs.split('\n').filter(href => href.includes('parts'));
@@ -95,7 +96,7 @@ Object.assign(Garage, {
         bit: P => /^[^FLU][^a-z]/.test(P.abbr)
     },
     set: {
-        tier: () => ['blade','ratchet','bit','CX'].forEach(comp => 
+        tier: () => Garage.comps.forEach(comp => 
             DB.get('user', `tier-${comp}`).then(tiers => Object.entries(tiers ?? {}).forEach(([id, t]) => {
                 let [subcomp, abbr] = id.split('.');
                 let select = Q(`section#${abbr ? subcomp : comp} li[id='${abbr ?? id}'] select[name=tier]`);
@@ -125,7 +126,7 @@ Object.assign(Garage, {
             let grouped = Object.groupBy(lis, li => [li.closest('section').Q('a[href*=CX]') ? 'CX' : li.closest('section').id.split('#')[0]]);
             grouped.CX &&= grouped.CX.reduce((obj, li) => ({ ...obj, [`${li.closest('section').id}.${li.id}`]: li.tier }), {});
             grouped.CX && DB.get('user', 'tier-CX').then(obj => DB.put('user', {'tier-CX': {...obj, ...grouped.CX}}));
-            ['blade', 'ratchet', 'bit'].forEach(comp => {
+            Bey.comps.forEach(comp => {
                 grouped[comp] &&= grouped[comp].reduce((obj, li) => ({ ...obj, [li.id]: li.tier }), {});
                 grouped[comp] && DB.get('user', `tier-${comp}`).then(obj => DB.put('user', {[`tier-${comp}`]: {...obj, ...grouped[comp]}}));
             });
@@ -169,17 +170,36 @@ Object.assign(Garage, {
                 setTimeout(() => ev.target.innerHTML = original, 1000);
             });
         }
-        Q('nav form').onchange = ev => 
-            ev.target.name == 'lang' ?
-                Storage('pref', {lang: ev.target.value}) && Garage.events.lang(ev.target.value) :
-            ev.target.name == 'sort' ?
-                Garage.events.sort(true) : ''
+        Q('#export').onclick = ev => {
+            Promise.all(['acquired', ...Garage.comps.map(c => `tier-${c}`)].map(async key => 
+                [key, await DB.get('user', key)]
+            )).then(data => {
+                let json = JSON.stringify(Object.fromEntries(data.filter(([, d]) => d)));
+                E('a', {
+                    href: `data:text/json;charset=utf-8,${encodeURIComponent(json)}`,
+                    download: `存庫${new Date().toLocaleDateString()}.json`
+                }).click();
+            })
+        }
+        Q('nav form').onchange = ev => {
+            if (ev.target.name == 'view') return;
+            if (ev.target.name == 'lang')
+                return Storage('pref', {lang: ev.target.value}) && Garage.events.lang(ev.target.value);
+            if (ev.target.name == 'sort')
+                return Garage.events.sort(true);
+            let reader = new FileReader;
+            reader.readAsText(ev.target.files[0]);
+            reader.onload = () => console.log(JSON.parse(reader.result))??Promise.all(
+                Object.entries(JSON.parse(reader.result)).map(([key, data]) => DB.put('user', {[key]: data}))
+            ).then(() => [ev.target.value = '', location.reload()]);
+        }
         PI.events({
             'section li:has(figure)': {
                 hold: hold => hold.for(.5).to((_, target) => (Garage.held = true) && target.classList.toggle('selected'))
             }
         });
     },
+    comps: ['CX', ...Bey.comps]
 });
 Object.assign(Garage.events, {
     sort (trusted) {

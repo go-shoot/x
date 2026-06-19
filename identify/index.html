@@ -4,7 +4,9 @@
 <link rel="stylesheet" href="index.css">
 
 <nav>
-    <menu></menu>
+    <menu>
+        <li><a href='/x/customize/garage.html'></a>
+    </menu>
     <fieldset class="LED">
         <label>港<input name=lang type=radio value=hk></label>
         <label>台<input name=lang type=radio value=tw></label>
@@ -16,7 +18,7 @@
         </div>
     </form>
 </nav>
-<main style="user-select: none;">
+<main>
     <details class="tool">
         <summary class="loading">提示</summary>
         <ul class="default">
@@ -65,9 +67,15 @@
         <li class="inactive">
             STEP 6：
             <button id="download" class="text">下載</button>或
-            <button hidden id="tier-list" class="text">加至我的Tier list</button>
+            <button id="tier-list" class="text">加至我的Tier list</button>
             <textarea hidden></textarea>
-            <small>如該部件已被評價，將會取代<button id="tier-confirm" class="text">確認</button></small>
+            <textarea hidden></textarea>
+            <textarea hidden></textarea>
+            <textarea hidden></textarea>
+            <textarea hidden></textarea>
+            <textarea hidden></textarea>
+            <textarea hidden></textarea>
+            <small>加入後可在［存庫］查看。如該部件已被評價，將會取代<button id="tier-confirm" class="text">確認</button></small>
         </li>
     </ol>
     <div>
@@ -91,7 +99,6 @@
     import DB from '../include/DB.js';
     import App from './index.js';
     Q('main').after(DB().then(App));
-    location.hash=='#t'&&Q('[hidden]',el=>el.hidden=false);
 </script>
 <link rel="stylesheet" href="../parts/part.css">
 <link rel="stylesheet" href="../prizes/prize.css">

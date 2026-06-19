@@ -164,7 +164,7 @@ details:has(#filter) {
 }
 
 nav:has(#garage:checked)+main table {
-    user-select: none;
+    user-select: none; -webkit-user-select: none;
 }
 tr {
     cursor: pointer;

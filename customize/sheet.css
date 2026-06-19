@@ -22,13 +22,6 @@ nav {
         margin: 0 .2em 0 .3em; padding: .1em;
         vertical-align: middle;
     }
-    button,label:not(.toggle) {
-        background: var(--theme); color: black;
-        border-radius: 8em;
-        padding: 0 .5em;
-        font-size: .9em;
-        display: inline-block; line-height: 1.3rem;
-    }
     continuous-knob {
         grid-area: 1/3/3/4; place-self: center end;
         margin-right: .4em; 

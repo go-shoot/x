@@ -5,14 +5,27 @@
     <menu></menu>
     <form>
         <fieldset class="LED">
-            <label>港<input name=lang type=radio value=hk></label>
-            <label>台<input name=lang type=radio value=tw></label>
-            <label>擁有<input name=view type=radio value=acquired checked></label>
-            <label>全部<input name=view type=radio value=all></label>
-            <label hidden>預設<input name=sort type=radio value=default checked></label>
-            <label hidden>TIER<input name=sort type=radio value=tier></label>
+            <div>
+                <i>&#xe025;</i>
+                <label>港<input name=lang type=radio value=hk></label>
+                <label>台<input name=lang type=radio value=tw></label>
+            </div>
+            <div>
+                <i>&#xe028;</i>
+                <label>擁有<input name=view type=radio value=acquired checked></label>
+                <label>全部<input name=view type=radio value=all></label>
+            </div>
+            <div>
+                <i>&#xe034;</i>
+                <label>預設<input name=sort type=radio value=default checked></label>
+                <label>TIER<input name=sort type=radio value=tier></label>
+            </div>
         </fieldset>
-        <button popovertarget="prompt" type="button">AI prompt</button>
+        <button popovertarget="prompt">AI prompt</button>
+        <div>
+            <button id="export">&#xe03e; 下載</button>
+            <label class="button"><input id="import" type="file" accept="application/json">&#xe03f; 上載</label>
+        </div>
     </form>
 </nav>
 <main>
@@ -22,7 +35,7 @@
             <li>請以<a href="../products/">［商品頁］</a>的 &#xe045; 以選取（如未有出現，重新再進入即可）</li>
             <li>點擊表格以 ± 整顆陀螺；按住半秒以 ± 單組件</li>
             <li>［存庫］所選取的能在本頁查看；［標記］僅在商品頁表格有標示，供你日後參考用</li>
-            <li hidden>在此頁圖片按住半秒能複選，才進行Tier調節</li>
+            <li>在此頁圖片按住半秒能複選，才進行Tier調節</li>
         </ul>
     </details>
 </main>
@@ -40,7 +53,7 @@
 </dialog>
 <template id="li">
     <li>
-        <select name="tier" hidden>
+        <select name="tier">
             <option>-</option>
             <option value="0" style="--tier:oklch(.5 .25 -20)">T0</option>
             <option value="1" style="--tier:oklch(.5 .15 20)">T1</option>
@@ -62,7 +75,6 @@
     import DB from '../include/DB.js';
     import Garage from './garage.js';
     Q('main').prepend(DB().then(Garage));
-    location.hash=='#t'&&Q('[hidden]',el=>el.hidden=false);
 </script>
 <script src="https://aeoq.github.io/diamond-grid/script.js" type="module"></script>
 <link rel="stylesheet" href="../parts/part.css">

@@ -285,6 +285,13 @@ nav {
         }
     }
     form:not(.LED) {display: contents;}
+    button,label.button {
+        background: var(--theme); color: black;
+        display: inline-block; line-height: 1.3rem;
+        padding: 0 .5em;
+        border-radius: 8em;
+        font-size: .9em;
+    }
 }
 .icon-blade   {--img: url(/x/img/blade/CbDr.png);}
 .icon-blade[href*=CX] {--img: url(/x/img/blade/CX/chip/Dr.png);}

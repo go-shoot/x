@@ -10,17 +10,19 @@ nav:has(input[value=tier]:checked)+main summary .default,
 li:has(details:not([open]))~li, li:has(figcaption:only-child) {display: none;}
 
 nav {
-    .LED label:nth-child(even) {margin-right: 1em;}
     button {
-        background: var(--theme); color: var(--overlay1);
-        padding: 0 .5rem;
-        border-radius: 9em;
-    
+        align-self: center;    
         &[popovertarget] {grid-area: 1/4;}
     }
+    fieldset div {
+        display: inline-grid !important;
+        i {grid-area: 1/1/2/3; color: var(--on);}
+    }
+    div:has(button) {grid-area: 2/4;}
 }
 section {
     font-size: .9em;
+    user-select: none; -webkit-user-select: none;
 
     h2 {
         display: block; text-align: left;

@@ -143,25 +143,24 @@ Object.assign(App, {
 });
 Object.assign(App.events, {
     tiers (ev) {
-        let [textarea, confirm] = [Q('textarea'), Q('#tier-confirm')];
+        let [textareas, confirm] = [Q('textarea'), Q('#tier-confirm')];
         if (ev.target.id == 'tier-list')
-            return COLLAGE.detect.tiers().then(tiers => {
-                textarea.value = tiers.map(([ty0, ty1], i) => `T${i}: ` + [
+            return COLLAGE.detect.tiers().then(tiers =>
+                tiers.forEach(([ty0, ty1], i) => (textareas[i].value = [
                     Analysis.result.boxes.filter(({y0, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
                     .map(({determ, corrected}) => (corrected || determ)?.abbr)
-                ]).join('\n');
-                textarea.hidden = false;
-            });
-        try {
-            let obj = textarea.value.split('\n').map((str, i) => 
-                str.split(':')[1].split(',').filter(a => a).reduce((obj, abbr) => ({ ...obj, [abbr.trim()]: i }), {})
-            ).reduce((outer, inner) => ({ ...outer, ...inner }), {});
-            DB.put('user', {[`tier-${App.comp}`]: obj})
-            .then(() => (confirm.innerHTML = '&#xe014;') && setTimeout(() => confirm.innerHTML = '確認', 1000));
-        }
-        catch (er) {
-            (confirm.innerHTML = '格式錯誤') && setTimeout(() => confirm.innerHTML = '確認', 1000)
-        }
+                ]) && (textareas[i].hidden = false))
+            );
+        DB.get('user', `tier-${App.comp}`)
+        .then(obj => {
+            obj = Object.assign(obj ?? {}, ...textareas.map((area, i) => 
+                area.value.split(',').filter(a => a).reduce((obj, abbr) => ({...obj, [abbr.trim()]: i}), {})
+            ));
+            return DB.put('user', {[`tier-${App.comp}`]: obj})
+        })
+        .then(() => confirm.innerHTML = '&#xe014;')
+        .catch(er => (confirm.innerHTML = '格式錯誤') && console.error(er))
+        .finally(() => setTimeout(() => confirm.innerHTML = '確認', 1000));
     }
 });
 class Analysis {
