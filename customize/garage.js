@@ -136,13 +136,13 @@ Object.assign(Garage, {
     count: () => Q('ol', ol => ol.Q('summary').title = ol.Q('li:has(details)~:not(.unacquired)', []).length),
     events () {
         E(Q('main')).set({
-            async onclick (ev) {
-                if (ev.target.matches('main,ol')) return Q('li.selected', li => li.classList.remove('selected'));
+            async onclick (ev) {console.log(ev.target);
+                if (ev.target.matches('main,h2,ol')) return Q('li.selected', li => li.classList.remove('selected'));
                 if (Garage.held) return;
                 let path = ev.target.closest('figure')?.firstElementChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');
                 path && new Preview(['cell', 'tile'], {path}, ev).then(() => Garage.set.acquired(ev.target));
             },
-            onpointerup: () => setTimeout(() => Garage.held = false),
+            onpointerup: () => Garage.held = false,
             async onchange (ev) {
                 if (ev.target.name == 'acquired') {
                     let [code, option] = [ev.target.value, ev.target.options[ev.target.selectedIndex]];
