@@ -19,7 +19,7 @@ nav {
             display: contents;
             font-size: .8em;
 
-            >* {width: 5em !important;}
+            >* {width: 5.4em !important;}
             .LED:has(input[name=mode]) {
                 grid-area: 1/2; align-self: end;
                 justify-content: space-around;
