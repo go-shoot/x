@@ -170,8 +170,8 @@ Object.assign(Garage, {
                 setTimeout(() => ev.target.innerHTML = original, 1000);
             });
         }
-        Q('#export').onclick = ev => {
-            Promise.all(['acquired', ...Garage.comps.map(c => `tier-${c}`)].map(async key => 
+        Q('#export').onclick = () => {
+            Promise.all(['acquired', 'marked', ...Garage.comps.map(c => `tier-${c}`)].map(async key => 
                 [key, await DB.get('user', key)]
             )).then(data => {
                 let json = JSON.stringify(Object.fromEntries(data.filter(([, d]) => d)));

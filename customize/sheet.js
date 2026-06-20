@@ -4,16 +4,16 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
 const DESIGNING = location.pathname.includes('sheet') ? 'sheet' : 'emblem';
-const MAIN = {con: Q('canvas').getContext('2d', {alpha: false})};
+const MAIN = {ctx: Q('canvas').getContext('2d', {alpha: false})};
 const App = () => {
     App.loading(true);
     Controls.show(null);
     Q('form button', button => button.type = 'button');
     App.events();
-    E.img(DESIGNING == 'sheet' ? './sheet.png' : './emblem-spin.webp').then(img => {
-        MAIN.W = MAIN.con.canvas.width = img.naturalWidth, MAIN.H = MAIN.con.canvas.height = img.naturalHeight;
+    Promise.try(() => DESIGNING == 'sheet' ? E.img('./sheet.png') : {naturalHeight: 300, naturalWidth: 300}).then(img => {
+        MAIN.W = MAIN.ctx.canvas.width = img.naturalWidth, MAIN.H = MAIN.ctx.canvas.height = img.naturalHeight;
         MAIN.hW = MAIN.W/2, MAIN.hH = MAIN.H/2;
-        Layers.frame = img;
+        img instanceof Node && (Layers.frame = img);
         return App.load(location.hash ||= '#1');
     }).then(App.loading);
     Q('[name=mag]').value = Storage('pref')?.print || 100;
@@ -37,7 +37,7 @@ Object.assign(App, {
                 a.href == location.href && App.stage(a) :
                 App.load(a.getAttribute('href')).then(() => App.stage(a))
             ));
-        (design.canvas ??= MAIN.con.canvas.cloneNode(true)).getContext('2d').drawImage(MAIN.con.canvas, 0, 0);
+        (design.canvas ??= MAIN.ctx.canvas.cloneNode(true)).getContext('2d').drawImage(MAIN.ctx.canvas, 0, 0);
     },
     switch (ev) {
         App.loading(true);
@@ -61,6 +61,7 @@ Object.assign(App, {
         gtag('event', 'IMPORT-JSON');
     },
     sample () {
+        if (DESIGNING == 'emblem') return App.reset();
         App.loading(true);
         Layers.solo(false);
         fetch('./sample.json').then(resp => resp.json()).then(Layers.put).then(App.loading);    
@@ -69,22 +70,20 @@ Object.assign(App, {
         App.loading(true);
         Layers.solo(false);
         let pdf, pages = [];
-        let amount = [...Q('#print+input').value];    
+        let perDesign = [...Q('#print+input').value];  
+        let [perPage, perRow, y0, scale] = DESIGNING == 'sheet' ? [12, 6, 84.5, .291] : [81, 9, 700, .168];
         Promise.all([PDFLib.PDFDocument.create(), App.stage(true)]).then(([doc]) => {
             pdf = doc;
             let canvases = App.designs.map(a => a.canvas);
-            amount = amount.map((n, i) => canvases[i] ? parseInt(n) : 0);
-            for (let i = 0; i < Math.ceil(amount.reduce((sum, n) => sum += n, 0)/12); i++)
+            perDesign = perDesign.map((n, i) => canvases[i] ? parseInt(n) : 0);
+            for (let i = 0; i < Math.ceil(perDesign.reduce((sum, n) => sum += n, 0)/perPage); i++)
                 pages[i] = doc.addPage(PDFLib.A4);
-            return Promise.all(canvases.map(can => can ? doc.embedPng(can.toDataURL("image/png", 1.0)) : null));
+            return Promise.all(canvases.map(cvs => cvs ? doc.embedPng(cvs.toDataURL("image/png", 1.0)) : null));
         }).then(images => {
-            images.flatMap((im, i) => im ? Array(amount[i]).fill(im) : []).forEach((image, i) => {
-                let scaled = image.scale(.291 * Q('[name=mag]').value / 100);
-                pages[Math.floor(i/12)].drawImage(image, {
-                    x: 16 + i % 6 * (12 + scaled.width),
-                    y: 84.5 + (1 - Math.floor(i/6) % 2) * (20 + scaled.height),
-                    width: scaled.width, height: scaled.height,
-                });
+            images.flatMap((image, i) => image ? Array(perDesign[i]).fill(image) : []).forEach((image, i) => {
+                let {width, height} = image.scale(scale * Q('[name=mag]').value / 100);
+                let [x, y] = [16 + i % perRow * (11 + width), y0 + (1 - Math.floor(i/perRow) % (perPage/perRow)) * (20 + height)];
+                pages[Math.floor(i/perPage)].drawImage(image, {x, y, width, height});
             });
             return pdf.save();
         }).then(doc => {
@@ -136,6 +135,7 @@ Object.assign(App, {
         Q('#import').onchange = App.import;
         Q('#delete').onclick = App.warn;
         Q('#control-color').oninput = Q('#control').oninput = Controls.get;
+        Q('#control-color input[type=number]', input => input.onfocus = () => input.closest('.shape').Q('input[name=shape]').click());
         Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);        
 
         onkeydown = ev => {
@@ -164,14 +164,17 @@ const Controls = {
         Controls.show(type);
         new O(controls).each(([n, v]) => {
             Q(`continuous-knob[name=${n}]`)?.set.value({v});
-            Q('form')[n] && (Q('form')[n].value = v);
+            Q('form')[n] && (Q('form')[n].value = v.split('|')[0]);
+            v.split('|')[1] && (Q('.shape:has(input:checked) input[type=number]').value = v.split('|')[1]);
         });
     },
     get (ev) {
         if (ev.target.id == 'fine') 
             return Q('continuous-knob', knob => knob.classList.toggle('fine', ev.target.checked));
         if (!Layers.selected || !ev.target.name) return;
-        Layers.selected.dataset[ev.target.name] = ev.target.value;
+        ev.target.closest('.shape') ?
+            Layers.selected.dataset.shape = `${Q('form').shape.value}|${ev.target.closest('fieldset').Q('.shape:has(input:checked) input[type=number]')?.value ?? ''}` :
+            Layers.selected.dataset[ev.target.name] = ev.target.value;
         Layers.selected.dirty = true;
         Draw();
     },
@@ -209,8 +212,8 @@ const Layers = {
     label (dataset, img) {
         let label = E.radio({label: dataset ? {dataset} : {}, name: 'layer'});
         dataset?.type == 'image' && (label.img = label.appendChild(img ?? E('img')));
-        label.can = new OffscreenCanvas(MAIN.W, MAIN.H);
-        label.con = label.can.getContext('2d');
+        label.cvs = new OffscreenCanvas(MAIN.W, MAIN.H);
+        label.ctx = label.cvs.getContext('2d');
         label.dirty = true;
         return label;
     },
@@ -265,19 +268,19 @@ const Draw = all => {
             label.img?.src && label.dirty && Draw.image(label);
             label.dataset.type == 'color' && Draw.color(label);
         }
-        (!Q('.solo') || label.control.checked) && MAIN.con.drawImage(label.bitmap ?? label.can, 0, 0);
+        (!Q('.solo') || label.control.checked) && MAIN.ctx.drawImage(label.bitmap ?? label.cvs, 0, 0);
     });
-    Draw.frame();
+    Layers.frame && Draw.frame();
     App.timer = setTimeout(App.save, 1000);
 }
 Object.assign(Draw, {
     clear (context) {
         if (context) return context.clearRect(0, 0, MAIN.W, MAIN.H);
-        MAIN.con.fillStyle = DESIGNING == 'sheet' ? 'silver' : 'white';
-        MAIN.con.fillRect(0, 0, MAIN.W, MAIN.H);
+        MAIN.ctx.fillStyle = DESIGNING == 'sheet' ? 'silver' : 'white';
+        MAIN.ctx.fillRect(0, 0, MAIN.W, MAIN.H);
     },
-    frame: () => MAIN.con.drawImage(Layers.frame, 0, 0, MAIN.W, MAIN.H),
-    transform (con, {sk, sc, ro, st, x, y}, img) { //translate -> skew -> scale -> rotate -> stretch
+    frame: () => MAIN.ctx.drawImage(Layers.frame, 0, 0, MAIN.W, MAIN.H),
+    transform (ctx, {sk, sc, ro, st, x, y}, img) { //translate -> skew -> scale -> rotate -> stretch
         sk ??= 0, sc ??= 1, ro ??= 0, st ??= 1, x ??= 0, y ??= 0;
         x /= 100; y /= 100;
         let drawing = img ? {W: img.naturalWidth, H: img.naturalHeight} : {W: MAIN.H, H: MAIN.H};
@@ -289,45 +292,67 @@ Object.assign(Draw, {
 
         let cos = Math.cos(ro*Math.PI), sin = Math.sin(ro*Math.PI), tan = Math.tan(sk*Math.PI);
         x = -x*(MAIN.hW+drawing.hW)-MAIN.hW, y = y*(MAIN.hH+drawing.hH)-MAIN.hH;
-        con.setTransform(sc*cos, sc*st*sin, sc*(cos*tan-sin), sc*st*(sin*tan+cos), x*sc*cos+y*sc*(cos*tan-sin)-x, x*sc*st*sin+y*sc*st*(sin*tan+cos)-y);
+        ctx.setTransform(sc*cos, sc*st*sin, sc*(cos*tan-sin), sc*st*(sin*tan+cos), x*sc*cos+y*sc*(cos*tan-sin)-x, x*sc*st*sin+y*sc*st*(sin*tan+cos)-y);
         return {x: Math.round(-x-drawing.hW), y: Math.round(-y-drawing.hH), W: drawing.W, H: drawing.H};
     },
     image (label) {
-        let {img, can, con, dataset: {sc, ro, st, x, y, opacity, bl, sh, co}} = label, W, H;
-        Draw.clear(con);
-        con.save();
-        ({x, y, W, H} = Draw.transform(con, {sc, ro, st, x, y}, img));
+        let {img, cvs, ctx, dataset: {sc, ro, st, x, y, opacity, bl, sh, co, fl}} = label, W, H;
+        Draw.clear(ctx);
+        ctx.save();
+        ({x, y, W, H} = Draw.transform(ctx, {sc, ro, st, x, y}, img));
         (parseFloat(bl) || parseFloat(sh) || parseFloat(co) != 1) &&
-            (con.filter = `blur(${bl || 0}px) drop-shadow(0 0 ${sh || 0}px #010101) contrast(${co || 1})`);
-        con.globalAlpha = opacity ?? 1;
-		con.drawImage(img, x, y, W, H);
-        con.restore();
+            (ctx.filter = `blur(${bl || 0}px) drop-shadow(0 0 ${sh || 0}px #010101) contrast(${co || 1})`);
+        ctx.globalAlpha = opacity ?? 1;
+        if (fl == 1) {
+            ctx.translate(x + W, y);
+            ctx.scale(-1, 1);
+            ctx.drawImage(img, 0, 0, W, H);
+        } else
+		    ctx.drawImage(img, x, y, W, H);
+        ctx.restore();
         label.bitmap?.close() || (label.bitmap = null);
-        createImageBitmap(can).then(bm => [label.bitmap, label.dirty] = [bm, false]);
+        createImageBitmap(cvs).then(bm => [label.bitmap, label.dirty] = [bm, false]);
     },
     color (label) {
-        let {con, dataset: {path, gradient: type, sk, sc, ro, x, y, angle}} = label;
-        Draw.clear(con);
-        con.save();
-        ({x, y} = Draw.transform(con, {sk, sc, ro, x, y}));
+        let {ctx, dataset: {path, shape, gradient: type, sk, sc, ro, x, y, angle}} = label;
+        Draw.clear(ctx);
+        ctx.save();
+        ({x, y} = Draw.transform(ctx, {sk, sc, ro, x, y}));
 
         angle = (angle ??= 0) * Math.PI - Math.PI / 2;
         let from = Draw.color.rotated(angle), to = Draw.color.rotated(angle + Math.PI);
         type ??= 'Linear';
         let gradient = 
-            type == 'Linear' ? con.createLinearGradient(from.x + MAIN.hW - MAIN.hH, from.y, to.x + MAIN.hW - MAIN.hH, to.y) :
-            type == 'Radial' ? con.createRadialGradient(x + MAIN.hH, y + MAIN.hH, 0, x + MAIN.hH, y + MAIN.hH, MAIN.hH) :
-            type == 'Conic' ? con.createConicGradient(angle, x + MAIN.hH, y + MAIN.hH) : null;
+            type == 'Linear' ? ctx.createLinearGradient(from.x + MAIN.hW - MAIN.hH, from.y, to.x + MAIN.hW - MAIN.hH, to.y) :
+            type == 'Radial' ? ctx.createRadialGradient(x + MAIN.hH, y + MAIN.hH, 0, x + MAIN.hH, y + MAIN.hH, MAIN.hH) :
+            type == 'Conic' ? ctx.createConicGradient(angle, x + MAIN.hH, y + MAIN.hH) : null;
 
         let colors = [1,2,3].map(i => Draw.color.format(label.dataset[`color${i}`], label.dataset[`opacity${i}`])).filter(c => c);
         (colors.length === 1 || type == 'Conic') && colors.push(colors[0]);
         colors.forEach((c, i, ar) => gradient.addColorStop(i / (ar.length - 1), c));
         label.style.background = `${type}-gradient(${colors.join(',')}),white`;
 
-        path &&= new Path2D(path);
-        con.fillStyle = gradient;
-        path ? con.fill(path) : con.fillRect(x, y, MAIN.H, MAIN.H);
-        con.restore();
+        path = path ? new Path2D(path) : shape ? Draw.polygon(shape) : null;
+        ctx.fillStyle = gradient;
+        path ? ctx.fill(path) : ctx.fillRect(x, y, MAIN.H, MAIN.H);
+        ctx.restore();
+    },
+    polygon (shape) {
+        shape = shape.split('|');
+        if (shape[0] == 'circle') 
+            return new Path2D(`M ${MAIN.hW} 0 A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} ${MAIN.W} A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} 0 Z`);
+        let path = [], n = parseInt(shape[1]);
+        if (shape[0] == 'regular')
+            for (let i = 0; i < n; i++) {
+                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + MAIN.hW * Math[f](2*Math.PI/n*i - Math.PI/2));
+                path.push((i === 0 ? 'M' : 'L') + ` ${x} ${y}`);
+            }
+        else if (shape[0] == 'star')
+            for (let i = 0; i < n*2; i++) {
+                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + ((i % 2 === 0) ? MAIN.hW : MAIN.hW*.4) * Math[f](Math.PI/n*i - Math.PI/2));
+                path.push((i === 0 ? 'M' : 'L') + ` ${x} ${y}`);
+            }
+        return new Path2D(path.concat('Z').join(' '));
     }
 });
 Draw.transform.fit = (drawing, { xH, xW }) => xW > 0 && xH > 0 ? xW < xH ? MAIN.W / drawing.W : MAIN.H / drawing.H : 1;
