@@ -69,26 +69,26 @@ Object.assign(App, {
     print () {
         App.loading(true);
         Layers.solo(false);
-        let pdf, pages = [];
         let perDesign = [...Q('#print+input').value];  
         let [perPage, perRow, y0, scale] = DESIGNING == 'sheet' ? [12, 6, 84.5, .291] : [81, 9, 700, .168];
-        Promise.all([PDFLib.PDFDocument.create(), App.stage(true)]).then(([doc]) => {
-            pdf = doc;
-            let canvases = App.designs.map(a => a.canvas);
+        Promise.all([PDFLib.PDFDocument.create(), App.stage(true)]).then(([pdf]) => {
+            let canvases = App.designs.map(a => a.canvas); //after staging
             perDesign = perDesign.map((n, i) => canvases[i] ? parseInt(n) : 0);
             for (let i = 0; i < Math.ceil(perDesign.reduce((sum, n) => sum += n, 0)/perPage); i++)
-                pages[i] = doc.addPage(PDFLib.A4);
-            return Promise.all(canvases.map(cvs => cvs ? doc.embedPng(cvs.toDataURL("image/png", 1.0)) : null));
-        }).then(images => {
+                pdf.addPage(PDFLib.A4);
+            return Promise.all([pdf, ...canvases.map(cvs => 
+                new Promise(res => cvs?.toBlob(res)).then(blob => blob?.arrayBuffer()).then(buff => buff ? pdf.embedPng(buff) : null)
+            )]);
+        }).then(([pdf, ...images]) => {
             images.flatMap((image, i) => image ? Array(perDesign[i]).fill(image) : []).forEach((image, i) => {
                 let {width, height} = image.scale(scale * Q('[name=mag]').value / 100);
                 let [x, y] = [16 + i % perRow * (11 + width), y0 + (1 - Math.floor(i/perRow) % (perPage/perRow)) * (20 + height)];
-                pages[Math.floor(i/perPage)].drawImage(image, {x, y, width, height});
+                pdf.getPage(Math.floor(i/perPage)).drawImage(image, {x, y, width, height});
             });
             return pdf.save();
-        }).then(doc => {
+        }).then(pdf => {
             gtag('event', 'EXPORT-PDF', {SCALE: Q('[name=mag]').value});
-            open(URL.createObjectURL(new Blob([doc], { type: 'application/pdf' })))
+            open(URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' })));
             App.switch(location.hash);
         }).catch(er => document.body.append(er) ?? console.error(er));
     },
