@@ -3,8 +3,9 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
-const DESIGNING = location.pathname.includes('sheet') ? 'sheet' : 'emblem';
-const MAIN = {ctx: Q('canvas').getContext('2d', {alpha: false})};
+const DESIGNING = location.search.substring(1);
+Q('main').classList = DESIGNING;
+const [MAIN, FORM] = [{ctx: Q('canvas').getContext('2d', {alpha: false})}, Q('form')];
 const App = () => {
     App.loading(true);
     Controls.show(null);
@@ -64,7 +65,7 @@ Object.assign(App, {
         if (DESIGNING == 'emblem') return App.reset();
         App.loading(true);
         Layers.solo(false);
-        fetch('./sample.json').then(resp => resp.json()).then(Layers.put).then(App.loading);    
+        fetch('./sheet-sample.json').then(resp => resp.json()).then(Layers.put).then(App.loading);    
     },
     print () {
         App.loading(true);
@@ -98,22 +99,19 @@ Object.assign(App, {
     },
     events () {
         PI.events([
-            [Q('[name=br]'), {
-                click: click => click.for(2).to((_, target) => target.value == 20 && target.set.value({v: 255}))
-            }],
             ['#layers label', {click: click => click.for(2).to(() => Layers.solo(true))}],
             [Q('#sample'), {hold: hold => hold.for(2).to(App.sample)}],
-            [Q('#delete'), {hold: hold => hold.for(2).to(Layers.delete)}]
+            [FORM.delete, {hold: hold => hold.for(2).to(Layers.delete)}]
         ]);
-        E(Q('form')).set({
+        E(FORM).set({
             oncontextmenu: () => false,
             onpointerup: App.save
         });
-        E(Q('#layer')).set({
+        E(FORM.layer).set({
             onchange: Layers.switch,
             onclick: ev => ev.target.id == 'create' ? Layers.create(ev) : ['up', 'down'].includes(ev.target.id) ? Layers.move(ev) : null,
         });
-        E(Q('#control-image')).set({
+        E(FORM['control-image']).set({
             oninput: Controls.get,
             onchange: Controls.image,
             onclick: ev => {
@@ -133,15 +131,15 @@ Object.assign(App, {
             Q('#print').classList.toggle('accent', ev.target.value > 100);
         }
         Q('#import').onchange = App.import;
-        Q('#delete').onclick = App.warn;
-        Q('#control-color').oninput = Q('#control').oninput = Controls.get;
-        Q('#control-color input[type=number]', input => input.onfocus = () => input.closest('.shape').Q('input[name=shape]').click());
+        FORM.delete.onclick = App.warn;
         Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);        
+        FORM['control-color'].oninput = FORM.control.oninput = Controls.get;
+        FORM.side.forEach(input => input.onfocus = () => input.closest('.shape').Q('input[name=shape]').click());
 
         onkeydown = ev => {
             if (ev.target.tagName.includes('KNOB')) 
                 return ev.key == 'Enter' ? ev.target.sQ('input').onblur() : '';
-            ev.key == 'Control' ? Q('#fine').click() : 
+            ev.key == 'Control' ? FORM.fine.click() : 
             ev.key == 'ArrowUp' ? Layers.selected.previousSibling?.click() :
             ev.key == 'ArrowDown' ? Layers.selected.nextSibling?.click() : null;
         }
@@ -155,16 +153,17 @@ const Controls = {
     },
     reset () {
         Q('input[type=color]', input => input.value = '#000000');
-        Q('input[value=Linear]').checked = true;
+        FORM.gradient[0].checked = true;
         Q('continuous-knob', knob => knob.set.value({v: knob.getAttribute('value')}));
     },
     put () {
         let {type, ...controls} = Layers.selected.dataset;
         Controls.reset();
         Controls.show(type);
+        FORM.shape.forEach(input => (input.disabled = controls.path) && (input.checked = false));
         new O(controls).each(([n, v]) => {
             Q(`continuous-knob[name=${n}]`)?.set.value({v});
-            Q('form')[n] && (Q('form')[n].value = v.split('|')[0]);
+            FORM[n] && (FORM[n].value = v.split('|')[0]);
             v.split('|')[1] && (Q('.shape:has(input:checked) input[type=number]').value = v.split('|')[1]);
         });
     },
@@ -173,7 +172,7 @@ const Controls = {
             return Q('continuous-knob', knob => knob.classList.toggle('fine', ev.target.checked));
         if (!Layers.selected || !ev.target.name) return;
         ev.target.closest('.shape') ?
-            Layers.selected.dataset.shape = `${Q('form').shape.value}|${ev.target.closest('fieldset').Q('.shape:has(input:checked) input[type=number]')?.value ?? ''}` :
+            Layers.selected.dataset.shape = `${FORM.shape.value}|${ev.target.closest('fieldset').Q('.shape:has(input:checked) input[type=number]')?.value ?? ''}` :
             Layers.selected.dataset[ev.target.name] = ev.target.value;
         Layers.selected.dirty = true;
         Draw();
@@ -201,7 +200,7 @@ const Controls = {
     }
 }
 const Layers = {
-    fieldset: Q('#layer'),
+    fieldset: FORM.layer,
     labels: Q('#layers').children,
     get modified () {return Layers.labels.length > 1 || Layers.labels[0]?.dataset.type},
     reset () {
@@ -218,7 +217,7 @@ const Layers = {
         return label;
     },
     switch (ev) {
-        Q('#delete').disabled = Layers.labels.length === 1;
+        FORM.delete.disabled = Layers.labels.length === 1;
         Layers.selected = ev.target.parentElement;
         Layers.selected.dataset.type ? Controls.put() : Controls.show(0);
         Q('.solo') && Draw();
@@ -227,7 +226,7 @@ const Layers = {
         let label = Layers.label();
         Layers.labels[0].before(label);
         label.click();
-        Q('#delete').disabled = false;
+        FORM.delete.disabled = false;
         Controls.reset();
         Controls.show(0);
     },

@@ -1,8 +1,8 @@
-<title>爆旋戰力儀⬧通行證⬧BeyBattle Pass</title>
+<title>設計器⬧Beybattle Pass Sheet / Emblem designer</title>
 <script defer src="../include/common.js"></script>
 <script type="module" src="https://aeoq.github.io/drag-knob/script.js"></script>
 <script defer src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-<link rel="stylesheet" href="sheet.css">
+<link rel="stylesheet" href="design.css">
 <nav>
     <menu class="exclude">
         <li><a href="#6">#6</a></li>
@@ -14,7 +14,7 @@
     </menu>
     <continuous-knob name="mag" min="100" max="104" step=".1" unit="%"><i class="center">&#xe00b;</i></continuous-knob>
     <div>
-        <button id="sample">重設</button>
+        <button id="sample">&#xe040; 示例</button>
         <small>&#xe041; 取代現有 &#xe042;</small>
         <label class="button"><input id="import" type="file" accept="application/json">&#xe03f; 匯入JSON</label>
     </div>
@@ -27,7 +27,7 @@
 <main>
     <em class="message"><span>按住兩秒以使用<small>無法回復！</span></small></em>
     <canvas></canvas>
-    <strong>注意：官方比賽中不能使用自製Emblem貼紙！</strong>
+    <b><strong>注意</strong>官方比賽中不能使用自製Emblem貼紙！</b>
     <form>
         <details class="tool" hidden><summary>提示</summary></details>
         <div id="type" class="dual">
@@ -53,22 +53,20 @@
             <continuous-knob title="對比" min="0" max="10" name="co" value="1" snap="1"></continuous-knob>
         </fieldset>
         <fieldset id="control-color">
-            <span class="shape">
+            <div class="shape">
                 <label class="LED"><input type="radio" name="shape" value="circle">圓形</label>
-            </span>
-            <span class="shape">
+            </div>
+            <div class="shape">
                 <label class="LED"><input type="radio" name="shape" value="regular"></label>
                 <label><input type="number" name="side" value="3" min="3" max="10">角形</label>
-            </span>
-            <span class="shape">
+            </div>
+            <div class="shape">
                 <label class="LED"><input type="radio" name="shape" value="star"></label>
                 <label><input type="number" name="side" value="3" min="2" max="10">星形</label>
-            </span>
-            <div>
-                <label>線性<input type="radio" name="gradient" value="Linear" checked></label>
-                <label>放射<input type="radio" name="gradient" value="Radial"></label>
-                <label>錐性<input type="radio" name="gradient" value="Conic"></label>
             </div>
+            <label class="LED">線性<input type="radio" name="gradient" value="Linear" checked></label>
+            <label class="LED">放射<input type="radio" name="gradient" value="Radial"></label>
+            <label class="LED">錐性<input type="radio" name="gradient" value="Conic"></label>
             <label>顏色1<input type="color" name="color1"></label>
             <label>顏色2<input type="color" name="color2"></label>
             <label>顏色3<input type="color" name="color3"></label>
@@ -88,6 +86,8 @@
             <div>微調<small>（Ctrl）</small></div><label class="toggle"><input type="checkbox" id="fine"></label>
         </fieldset>
     </form>
+    <a href="?sheet"></a>
+    <a href="?emblem"></a>
 </main>
 <dialog id="picker" popover="auto" onclick="this.hidePopover()">
     <em>若想使用以下圖片，請長按／按右鍵下載，然後重新上載<small>因CORS限制，只能手動</small></em>
@@ -98,7 +98,7 @@
   
 <script type="module">
 import DB from '../include/DB.js'
-import {App, Layers} from './sheet.js';
+import {App, Layers} from './design.js';
 Q('main').prepend(DB().then(App));
 
 App.picker = () => {

@@ -7,7 +7,7 @@
             "chi": "",
             "aka": "蟹"
         },
-        "stat": [""],
+        "stat": ["28-"],
         "desc": "",
         "attr": ["def","right","BX"],
         "from": "WyGl"
@@ -241,6 +241,17 @@
         "attr": ["def","right","BX","marvel"],
         "from": "KnLn"
     },
+    "Hulk": {
+        "group": "collab",
+        "names": {
+            "jap": "ハルク",
+            "eng": "Hulk",
+            "chi": "浩克"
+        },
+        "stat": ["33-"],
+        "attr": ["def","right","BX","marvel"],
+        "from": "BlSh"
+    },
     "Redh": {
         "group": "collab",
         "names": {
@@ -270,7 +281,7 @@
             "eng": "Spiderman",
             "chi": "蜘蛛俠 蜘蛛人"
         },
-        "stat": ["33="],
+        "stat": ["33+"],
         "attr": ["sta","right","BX","marvel"],
         "from": "VpTl"
     },
