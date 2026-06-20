@@ -231,7 +231,7 @@ class Preview {
         },
         params: (code, type) => ({
             lowercase: (([line, number]) => Maps.lowercase[line]?.(number))(code.split('-')),
-            amount: 9 * (/set|random/i.test(type) || Q(`[data-code='${code}']`)?.length > 2 ? 3 : 1)
+            amount: 9 * (/set|random/i.test(type) || Q(`[id^='${code}']`, [])?.length > 2 ? 3 : 1)
         }),
         src: (type, code, markup, amount) => 
             [...markup ? Markup.image(markup, {no: code}) : [code]]
