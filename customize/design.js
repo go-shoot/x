@@ -326,7 +326,7 @@ Object.assign(Draw, {
         label.style.background = `${type}-gradient(${colors.join(',')}),white`;
 
         ctx.fillStyle = gradient;
-        path = path ? new Path2D(path) : Draw.polygon(x, y, shape ??= 'regular', side);
+        path = path ? new Path2D(path) : shape ? Draw.polygon(x, y, shape, side) : null;
         path ? ctx.fill(path) : ctx.fillRect(x, y, MAIN.H, MAIN.H);
         ctx.restore();
     },
