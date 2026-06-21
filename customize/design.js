@@ -150,7 +150,7 @@ const Controls = {
     },
     reset () {
         Q('input[type=color]', input => input.value = '#000000');
-        FORM.gradient[0].checked = true;
+        FORM.gradient[0].checked = FORM.shape[0].checked = true;
         Q('continuous-knob', knob => knob.set.value({v: knob.getAttribute('value')}));
     },
     put () {
@@ -325,27 +325,26 @@ Object.assign(Draw, {
         colors.forEach((c, i, ar) => gradient.addColorStop(i / (ar.length - 1), c));
         label.style.background = `${type}-gradient(${colors.join(',')}),white`;
 
-        path = path ? new Path2D(path) : shape ? Draw.polygon(shape, side) : null;
         ctx.fillStyle = gradient;
+        path = path ? new Path2D(path) : Draw.polygon(x, y, shape ??= 'regular', side);
         path ? ctx.fill(path) : ctx.fillRect(x, y, MAIN.H, MAIN.H);
         ctx.restore();
     },
-    polygon (shape, side) {
+    polygon (x, y, shape, side, r = MAIN.hH) {
         side = parseInt(side);
+        x += r; y += r;
         if (side === 0) 
-            return new Path2D(`M ${MAIN.hW} ${MAIN.hH - MAIN.hW} 
-            A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} ${MAIN.hH + MAIN.hW} 
-            A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} ${MAIN.hH - MAIN.hW} Z`);
+            return new Path2D(`M ${x} ${y - r} A ${r} ${r} 0 1 0 ${x} ${y + r} A ${r} ${r} 0 1 0 ${x} ${y - r} Z`);
         let path = [];
         if (shape == 'regular')
             for (let i = 0; i < side; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW * Math[f](2*Math.PI/side*i - Math.PI/2));
-                path.push((i === 0 ? 'M' : 'L') + ` ${x + MAIN.hW} ${y + MAIN.hH}`);
+                let [cos, sin] = ['cos', 'sin'].map(f => r * Math[f](2*Math.PI/side*i - Math.PI/2));
+                path.push((i === 0 ? 'M' : 'L') + ` ${cos + x} ${sin + y}`);
             }
         else if (shape == 'star')
             for (let i = 0; i < side*2; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => (i % 2 === 0 ? MAIN.hW : MAIN.hW*.382) * Math[f](Math.PI/side*i - Math.PI/2));
-                path.push((i === 0 ? 'M' : 'L') + ` ${x + MAIN.hW} ${y + MAIN.hH}`);
+                let [cos, sin] = ['cos', 'sin'].map(f => (i % 2 === 0 ? r : r*.382) * Math[f](Math.PI/side*i - Math.PI/2));
+                path.push((i === 0 ? 'M' : 'L') + ` ${cos + x} ${sin + y}`);
             }
         return new Path2D(path.concat('Z').join(' '));
     }
