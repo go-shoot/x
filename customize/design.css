@@ -206,14 +206,10 @@ form {
         label:has(input[value=Conic])::after {
             background: conic-gradient(var(--theme),var(--theme-dark),var(--theme));
         }
-        input[type=number] {
-            width: 2.5em;
-            border: none; outline: none;
-            margin-right: .1em; vertical-align: .1em;
-        }
         input[type=color] {
             display: block; margin: auto;
         }
+        label:has(input[name=shape]) {align-self: center;}
     }
     #control {
         display: grid; grid-template-columns: repeat(3,auto); gap: .5em; justify-content: center;

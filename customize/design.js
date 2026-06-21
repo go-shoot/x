@@ -77,9 +77,7 @@ Object.assign(App, {
             perDesign = perDesign.map((n, i) => canvases[i] ? parseInt(n) : 0);
             for (let i = 0; i < Math.ceil(perDesign.reduce((sum, n) => sum += n, 0)/perPage); i++)
                 pdf.addPage(PDFLib.A4);
-            return Promise.all([pdf, ...canvases.map(cvs => 
-                new Promise(res => cvs?.toBlob(res)).then(blob => blob?.arrayBuffer()).then(buff => buff ? pdf.embedPng(buff) : null)
-            )]);
+            return Promise.all([pdf, ...canvases.map(cvs => cvs ? pdf.embedPng(cvs.toDataURL("image/png", 1)) : null)]);
         }).then(([pdf, ...images]) => {
             images.flatMap((image, i) => image ? Array(perDesign[i]).fill(image) : []).forEach((image, i) => {
                 let {width, height} = image.scale(scale * Q('[name=mag]').value / 100);
@@ -134,7 +132,6 @@ Object.assign(App, {
         FORM.delete.onclick = App.warn;
         Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);        
         FORM['control-color'].oninput = FORM.control.oninput = Controls.get;
-        FORM.side.forEach(input => input.onfocus = () => input.closest('.shape').Q('input[name=shape]').click());
 
         onkeydown = ev => {
             if (ev.target.tagName.includes('KNOB')) 
@@ -163,17 +160,14 @@ const Controls = {
         FORM.shape.forEach(input => (input.disabled = controls.path) && (input.checked = false));
         new O(controls).each(([n, v]) => {
             Q(`continuous-knob[name=${n}]`)?.set.value({v});
-            FORM[n] && (FORM[n].value = v.split('|')[0]);
-            v.split('|')[1] && (Q('.shape:has(input:checked) input[type=number]').value = v.split('|')[1]);
+            FORM[n] && (FORM[n].value = v.split('|'));
         });
     },
     get (ev) {
         if (ev.target.id == 'fine') 
             return Q('continuous-knob', knob => knob.classList.toggle('fine', ev.target.checked));
         if (!Layers.selected || !ev.target.name) return;
-        ev.target.closest('.shape') ?
-            Layers.selected.dataset.shape = `${FORM.shape.value}|${ev.target.closest('fieldset').Q('.shape:has(input:checked) input[type=number]')?.value ?? ''}` :
-            Layers.selected.dataset[ev.target.name] = ev.target.value;
+        Layers.selected.dataset[ev.target.name] = ev.target.value;
         Layers.selected.dirty = true;
         Draw();
     },
@@ -313,7 +307,7 @@ Object.assign(Draw, {
         createImageBitmap(cvs).then(bm => [label.bitmap, label.dirty] = [bm, false]);
     },
     color (label) {
-        let {ctx, dataset: {path, shape, gradient: type, sk, sc, ro, x, y, angle}} = label;
+        let {ctx, dataset: {path, shape, side, gradient: type, sk, sc, ro, x, y, angle}} = label;
         Draw.clear(ctx);
         ctx.save();
         ({x, y} = Draw.transform(ctx, {sk, sc, ro, x, y}));
@@ -331,24 +325,26 @@ Object.assign(Draw, {
         colors.forEach((c, i, ar) => gradient.addColorStop(i / (ar.length - 1), c));
         label.style.background = `${type}-gradient(${colors.join(',')}),white`;
 
-        path = path ? new Path2D(path) : shape ? Draw.polygon(shape) : null;
+        path = path ? new Path2D(path) : shape ? Draw.polygon(shape, side) : null;
         ctx.fillStyle = gradient;
         path ? ctx.fill(path) : ctx.fillRect(x, y, MAIN.H, MAIN.H);
         ctx.restore();
     },
-    polygon (shape) {
-        shape = shape.split('|');
-        if (shape[0] == 'circle') 
-            return new Path2D(`M ${MAIN.hW} 0 A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} ${MAIN.W} A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} 0 Z`);
-        let path = [], n = parseInt(shape[1]);
-        if (shape[0] == 'regular')
-            for (let i = 0; i < n; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + MAIN.hW * Math[f](2*Math.PI/n*i - Math.PI/2));
+    polygon (shape, side) {
+        side = parseInt(side);
+        if (side === 0) 
+            return new Path2D(`M ${MAIN.hW} ${MAIN.hH - MAIN.hW} 
+            A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} ${MAIN.hH + MAIN.hW} 
+            A ${MAIN.hW} ${MAIN.hW} 0 1 0 ${MAIN.hW} ${MAIN.hH - MAIN.hW} Z`);
+        let path = [];
+        if (shape == 'regular')
+            for (let i = 0; i < side; i++) {
+                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + MAIN.hW * Math[f](2*Math.PI/side*i - Math.PI/2));
                 path.push((i === 0 ? 'M' : 'L') + ` ${x} ${y}`);
             }
-        else if (shape[0] == 'star')
-            for (let i = 0; i < n*2; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + ((i % 2 === 0) ? MAIN.hW : MAIN.hW*.4) * Math[f](Math.PI/n*i - Math.PI/2));
+        else if (shape == 'star')
+            for (let i = 0; i < side*2; i++) {
+                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + ((i % 2 === 0) ? MAIN.hW : MAIN.hW*.4) * Math[f](Math.PI/side*i - Math.PI/2));
                 path.push((i === 0 ? 'M' : 'L') + ` ${x} ${y}`);
             }
         return new Path2D(path.concat('Z').join(' '));
