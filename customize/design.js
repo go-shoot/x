@@ -344,7 +344,7 @@ Object.assign(Draw, {
             }
         else if (shape == 'star')
             for (let i = 0; i < side*2; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => ((i % 2 === 0) ? MAIN.hW : MAIN.hW/2) * Math[f](Math.PI/side*i - Math.PI/2));
+                const [x, y] = ['cos', 'sin'].map(f => (i % 2 === 0 ? MAIN.hW : MAIN.hW*.382) * Math[f](Math.PI/side*i - Math.PI/2));
                 path.push((i === 0 ? 'M' : 'L') + ` ${x + MAIN.hW} ${y + MAIN.hH}`);
             }
         return new Path2D(path.concat('Z').join(' '));
@@ -354,7 +354,7 @@ Draw.transform.fit = (drawing, { xH, xW }) => xW > 0 && xH > 0 ? xW < xH ? MAIN.
 Draw.color.format = (color, opacity) => color ? `rgba(${color.replaceAll(/[^#]{2}/g, c => parseInt(c, 16) + ',').substring(1)}${opacity ?? 1})` : null;
 Draw.color.rotated = angle => {
     let ratio = {cos: Math.cos(angle), sin: Math.sin(angle)};
-    let coor = ['cos', 'sin'].map(r => MAIN.H*Math.max(0, Math.min(.5*Math.SQRT2*ratio[r] + .5, 1)));
+    let coor = ['cos', 'sin'].map(r => MAIN.H*Math.max(0, Math.min(Math.SQRT2/2*ratio[r] + .5, 1)));
     return {x: coor[0],y: coor[1]};
 }
 export {App, Layers}
