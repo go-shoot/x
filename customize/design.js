@@ -339,13 +339,13 @@ Object.assign(Draw, {
         let path = [];
         if (shape == 'regular')
             for (let i = 0; i < side; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + MAIN.hW * Math[f](2*Math.PI/side*i - Math.PI/2));
-                path.push((i === 0 ? 'M' : 'L') + ` ${x} ${y}`);
+                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW * Math[f](2*Math.PI/side*i - Math.PI/2));
+                path.push((i === 0 ? 'M' : 'L') + ` ${x + MAIN.hW} ${y + MAIN.hH}`);
             }
         else if (shape == 'star')
             for (let i = 0; i < side*2; i++) {
-                const [x, y] = ['cos', 'sin'].map(f => MAIN.hW + ((i % 2 === 0) ? MAIN.hW : MAIN.hW*.4) * Math[f](Math.PI/side*i - Math.PI/2));
-                path.push((i === 0 ? 'M' : 'L') + ` ${x} ${y}`);
+                const [x, y] = ['cos', 'sin'].map(f => ((i % 2 === 0) ? MAIN.hW : MAIN.hW/2) * Math[f](Math.PI/side*i - Math.PI/2));
+                path.push((i === 0 ? 'M' : 'L') + ` ${x + MAIN.hW} ${y + MAIN.hH}`);
             }
         return new Path2D(path.concat('Z').join(' '));
     }
