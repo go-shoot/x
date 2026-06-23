@@ -297,8 +297,9 @@ Object.assign(Draw, {
         Draw.clear(ctx);
         ctx.save();
         ({x, y, W, H} = Draw.transform(ctx, {sc, ro, st, x, y}, img));
-        (parseFloat(bl) || parseFloat(sh) || parseFloat(co) != 1) &&
-            (ctx.filter = `blur(${bl || 0}px) drop-shadow(0 0 ${sh || 0}px #010101) contrast(${co || 1})`);
+        ctx.shadowColor = '#010101';
+        ctx.shadowBlur = sh || 0, ctx.shadowOffsetX = 0, ctx.shadowOffsetY = 0;
+        ctx.filter = `blur(${bl || 0}px) contrast(${co || 1})`;
         ctx.globalAlpha = opacity ?? 1;
         if (fl == 1) {
             ctx.translate(x + W, y);

@@ -79,7 +79,7 @@ main {
         nav.emblem+main & {display: initial;}
     }
     .message {
-        position: fixed; width: 100%; top: 50%; transform: translateY(-50%);
+        position: absolute; width: 100%; top: 10%; transform: translateY(-50%);
         z-index: 5;
         background: rgba(255,255,255,.8); color: black;
         padding: 1em;
