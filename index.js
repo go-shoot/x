@@ -250,4 +250,3 @@ Q('header').after(DB(plugins).then(async () => {
         }
     }));
 })();
-location.host.includes('127.0.0.1') && Q('#search').after(...['長矛0-70z','長矛m-85z','長矛op','蒼龍勇氣S6‑60V','蒼龍勇氣Sm‑85V','蒼龍勇氣Sop','蒼龍勇氣wtr','獨角三變po6‑60V','獨角三變poop','龍王閃擊pom-85v'].map(a=>E('a',a,{href:'?'+a})))

@@ -4,8 +4,8 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
 const DESIGNING = location.search.substring(1);
-Q('main').classList = DESIGNING;
-const [MAIN, FORM] = [{ctx: Q('canvas').getContext('2d', {alpha: false})}, Q('form')];
+Q('nav').classList = DESIGNING;
+const [MAIN, FORM] = [{ctx: Q('canvas').getContext('2d', {alpha: false})}, {nav: Q('nav form'), main: Q('main form')}];
 const App = () => {
     App.loading(true);
     Controls.show(null);
@@ -17,7 +17,7 @@ const App = () => {
         img instanceof Node && (Layers.frame = img);
         return App.load(location.hash ||= '#1');
     }).then(App.loading);
-    Q('[name=mag]').value = Storage('pref')?.print || 100;
+    FORM.nav.scale.value = Storage('pref')?.print || 100;
     PDFLib.A4 = PDFLib.PageSizes.A4.sort((a, b) => a - b);
 }
 Object.assign(App, {
@@ -70,7 +70,7 @@ Object.assign(App, {
     print () {
         App.loading(true);
         Layers.solo(false);
-        let perDesign = [...Q('#print+input').value];  
+        let perDesign = [...FORM.nav.amount.value];  
         let [perPage, perRow, y0, scale] = DESIGNING == 'sheet' ? [12, 6, 84.5, .291] : [81, 9, 700, .168];
         Promise.all([PDFLib.PDFDocument.create(), App.stage(true)]).then(([pdf]) => {
             let canvases = App.designs.map(a => a.canvas); //after staging
@@ -80,13 +80,13 @@ Object.assign(App, {
             return Promise.all([pdf, ...canvases.map(cvs => cvs ? pdf.embedPng(cvs.toDataURL("image/png", 1)) : null)]);
         }).then(([pdf, ...images]) => {
             images.flatMap((image, i) => image ? Array(perDesign[i]).fill(image) : []).forEach((image, i) => {
-                let {width, height} = image.scale(scale * Q('[name=mag]').value / 100);
+                let {width, height} = image.scale(scale * FORM.nav.scale.value / 100);
                 let [x, y] = [16 + i % perRow * (11 + width), y0 + (1 - Math.floor(i/perRow) % (perPage/perRow)) * (20 + height)];
                 pdf.getPage(Math.floor(i/perPage)).drawImage(image, {x, y, width, height});
             });
             return pdf.save();
         }).then(pdf => {
-            gtag('event', 'EXPORT-PDF', {SCALE: Q('[name=mag]').value});
+            gtag('event', 'EXPORT-PDF', {SCALE: FORM.nav.scale.value});
             open(URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' })));
             App.switch(location.hash);
         }).catch(er => document.body.append(er) ?? console.error(er));
@@ -98,45 +98,51 @@ Object.assign(App, {
     events () {
         PI.events([
             ['#layers label', {click: click => click.for(2).to(() => Layers.solo(true))}],
-            [Q('#sample'), {hold: hold => hold.for(2).to(App.sample)}],
-            [FORM.delete, {hold: hold => hold.for(2).to(Layers.delete)}]
+            [FORM.nav.sample, {hold: hold => hold.for(2).to(App.sample)}],
+            [FORM.main.delete, {hold: hold => hold.for(2).to(Layers.delete)}]
         ]);
-        E(FORM).set({
+        E(FORM.main).set({
             oncontextmenu: () => false,
-            onpointerup: App.save
+            onpointerup: App.save,
+            onclick: ev => ev.target.matches('button.type') ? Controls.chooseType(ev) : null
         });
-        E(FORM.layer).set({
+        E(FORM.main.layer).set({
             onchange: Layers.switch,
-            onclick: ev => ev.target.id == 'create' ? Layers.create(ev) : ['up', 'down'].includes(ev.target.id) ? Layers.move(ev) : null,
+            onpointerdown: ev => ev.target.id == 'delete' && App.warn(ev),
+            onclick (ev) {
+                if (ev.target.id == 'create') return Layers.create(ev);
+                ['up', 'down'].includes(ev.target.id) && Layers.move(ev);
+            },
         });
-        E(FORM['control-image']).set({
+        E(FORM.main['control-image']).set({
             oninput: Controls.get,
             onchange: Controls.image,
-            onclick: ev => {
+            onclick (ev) {
                 if (!ev.target.popoverTargetElement) return;
                 ev.preventDefault();
                 Q('#picker img') || App.picker();
                 Q('#picker').showPopover();
             }
         });
-        Q('nav').onclick = ev => {
-            if (ev.target.id == 'sample')
-                return Layers.labels.length > 1 ? App.warn() : App.sample();
-            ['export', 'print'].includes(ev.target.id) && App[ev.target.id]();
-        }
-        Q('[name=mag]').oninput = ev => {
-            Storage('pref', {print: ev.target.value});
-            Q('#print').classList.toggle('accent', ev.target.value > 100);
-        }
-        Q('#import').onchange = App.import;
-        FORM.delete.onclick = App.warn;
-        Q('#type').onclick = ev => ev.target.tagName == 'BUTTON' && Controls.chooseType(ev);        
-        FORM['control-color'].oninput = FORM.control.oninput = Controls.get;
+        E(FORM.nav).set({
+            onpointerdown: ev => ev.target.id == 'sample' && Layers.labels.length > 1 && App.warn(),
+            onclick (ev) {
+                if (ev.target.id == 'sample' && Layers.labels.length <= 1) return App.sample();
+                ['export', 'print'].includes(ev.target.id) && App[ev.target.id]();
+            },
+            oninput (ev) {
+                if (ev.target.name != 'scale') return;
+                Storage('pref', {print: ev.target.value});
+                FORM.nav.print.classList.toggle('accent', ev.target.value > 100);
+            },
+            onchange: ev => ev.target.id == 'import' && App.import(ev)
+        });
+        FORM.main['control-color'].oninput = FORM.main.control.oninput = Controls.get;
 
         onkeydown = ev => {
             if (ev.target.tagName.includes('KNOB')) 
                 return ev.key == 'Enter' ? ev.target.sQ('input').onblur() : '';
-            ev.key == 'Control' ? FORM.fine.click() : 
+            ev.key == 'Control' ? FORM.main.fine.click() : 
             ev.key == 'ArrowUp' ? Layers.selected.previousSibling?.click() :
             ev.key == 'ArrowDown' ? Layers.selected.nextSibling?.click() : null;
         }
@@ -144,23 +150,21 @@ Object.assign(App, {
     }
 });
 const Controls = {
-    show (what) {
-        Q('#type,[id|=control]', fieldset => fieldset.hidden = true);
-        what === 0 ? Q('#type').hidden = false : what && Q(`#control,#control-${what}`, fieldset => fieldset.hidden = false);  
-    },
+    show: type => FORM.main.classList = type || '',
     reset () {
         Q('input[type=color]', input => input.value = '#000000');
-        FORM.gradient[0].checked = FORM.shape[0].checked = true;
+        FORM.main.gradient[0].checked = true;
+        FORM.main.shape[0].checked = FORM.main.shape[1].checked = false;
         Q('continuous-knob', knob => knob.set.value({v: knob.getAttribute('value')}));
     },
     put () {
         let {type, ...controls} = Layers.selected.dataset;
         Controls.reset();
         Controls.show(type);
-        FORM.shape.forEach(input => (input.disabled = controls.path) && (input.checked = false));
+        FORM.main.shape.forEach(input => (input.disabled = controls.path) && (input.checked = false));
         new O(controls).each(([n, v]) => {
             Q(`continuous-knob[name=${n}]`)?.set.value({v});
-            FORM[n] && (FORM[n].value = v.split('|'));
+            FORM.main[n] && (FORM.main[n].value = v);
         });
     },
     get (ev) {
@@ -194,7 +198,7 @@ const Controls = {
     }
 }
 const Layers = {
-    fieldset: FORM.layer,
+    fieldset: FORM.main.layer,
     labels: Q('#layers').children,
     get modified () {return Layers.labels.length > 1 || Layers.labels[0]?.dataset.type},
     reset () {
@@ -211,7 +215,7 @@ const Layers = {
         return label;
     },
     switch (ev) {
-        FORM.delete.disabled = Layers.labels.length === 1;
+        FORM.main.delete.disabled = Layers.labels.length === 1;
         Layers.selected = ev.target.parentElement;
         Layers.selected.dataset.type ? Controls.put() : Controls.show(0);
         Q('.solo') && Draw();
@@ -220,7 +224,7 @@ const Layers = {
         let label = Layers.label();
         Layers.labels[0].before(label);
         label.click();
-        FORM.delete.disabled = false;
+        FORM.main.delete.disabled = false;
         Controls.reset();
         Controls.show(0);
     },

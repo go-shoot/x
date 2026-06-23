@@ -28,39 +28,58 @@ nav {
         font-size: .8em;
     }
     #print.accent {background: var(--accent);}
+    a[href^='?'] {
+        position: relative;
+        
+        &::before {
+            content: '';
+            border-radius: 9em;
+            position: absolute; inset: 0;
+        }
+        &[href='?sheet']::before {
+            background: url(./sheet.png) center bottom / cover no-repeat;
+        }
+        &[href='?emblem']::before {
+            background: url(./emblem-base.webp) center / cover no-repeat;
+        }
+    }
+    &.sheet li:has(a[href='?sheet']),
+    &.emblem li:has(a[href='?emblem']) {display: none;}
 }
 main {
     max-width: 30em;
     margin: 4.15rem auto 0 auto;
-    display: grid; grid-template: min-content 1fr / min-content 1fr; gap: .5em 0;
+    display: grid; gap: .5em 0;
+    grid-template: repeat(11,auto) / auto 1fr repeat(3,auto) 1fr auto;
     user-select: none; -webkit-user-select: none;
     touch-action: manipulation;
     position: relative;
 
-    db-state {display: none;}
+    db-state,canvas:not([width])~* {display: none;}
+    details {margin-top: .5em !important;}
     canvas {
         height: min(35em,100svh - 4.15rem);
         position: sticky; top: 4.15rem;
 
-        main.emblem & {height: 9em; border-radius: 9em;}
+        nav.emblem+main & {height: 9em; border-radius: 9em;}
+        &:not([width]) {width: 5em;}
     }
     b {
         position: fixed; top: 16em;
-        width: 9em;
-        margin-left: .5em;
-        font-size: .9em; text-align: left;
+        width: 9rem;
+        padding: 0 .5em;
+        font-size: .9em;
         display: none;
 
         strong {
             display: block;
-            text-align: center;
             border-bottom: .1em solid;
             padding-bottom: .5em; margin-bottom: .5em;
         }
-        main.emblem canvas[width]+& {display: initial;}
+        nav.emblem+main & {display: initial;}
     }
     .message {
-        position: absolute; width: 100%; top: 50%; transform: translateY(-50%);
+        position: fixed; width: 100%; top: 50%; transform: translateY(-50%);
         z-index: 5;
         background: rgba(255,255,255,.8); color: black;
         padding: 1em;
@@ -68,134 +87,56 @@ main {
         &:not(.active) {display: none;}
         small {display: block;}
     }
-    a[href^='?'] {
-        grid-area: 3/1/4/-1; justify-self: end;
-        text-align: right;
-        
-        &::before {content: '';}
-        &[href='?sheet'] {
-            --w: 10.2em; --h: 2em; width: var(--w); height: var(--h);
-            position: relative;
-
-            &::before {
-                width: var(--h); height: var(--w); 
-                position: absolute; left: 0; top: 100%;
-                background: url(./sheet.png) 0 0 / contain no-repeat;
-                transform: rotate(-90deg); transform-origin: 0 0;
-            }
-        }
-        &[href='?emblem'] {
-            display: flex; align-items: center;
-
-            &::before {
-                width: 5em; height: 5em; display: block;
-                background: url(./emblem-base.webp) 0 center / contain no-repeat;
-            }
-        }
-        &::after {content: ''; font-size: 2em; line-height: 1em;}
-        main.sheet &[href='?sheet'],main.emblem &[href='?emblem'] {display: none;}
-    }
 }
-continuous-knob:nth-of-type {margin-top: .25em;}
-continuous-knob::part(output) {font-size: .65em;}
-fieldset {
-    padding: 0; margin: 0; border: none;
-    font-size: .95em;
-    
-    &:not(#layer) {
-        align-self: start;
+canvas {grid-area: 1/1/-1/2;}
+#layer {grid-area: 1/7/-1/8;}
+main::before {content: ''; grid-area: 1/2/-1/3;}
+main::after {content: ''; grid-area: 1/6/-1/7; z-index: -9;}
+details {grid-area: 1/2/2/7;}
+.dual {grid-area: 2/2/3/7;}
+hr {grid-column: 3/6;}
+#control div {grid-column: 4/5;}
+.toggle {grid-column: 5/6;}
 
-        label:not(.toggle),continuous-knob::before {font-size: .9em;}
-    }
-}
-form {
-    grid-area: 1/2/3/3;
-    display: grid; grid-template: repeat(3,auto) 1fr / 1fr auto;
-    margin: 0 .2em;
+main form,fieldset:not(#layer) {display: contents;}
+form.image :is(#type,#control-color,#control .color),
+form.color :is(#type,#control-image,#control .image),
+form[class=''] fieldset[id|=control] {display: none !important;}
 
-    >:not(#control-image,#type) {padding-top: .5rem;}
+main form {
+    * {justify-self: center;}
     .dual {
-        grid-area: 2/1; justify-self: center;
         color: var(--theme);
         display: flex;
-        padding: 1rem 0; margin-top: .5rem;
+        padding: 1rem 0;
         
-        #control-image & {grid-area: 1/1/2/4;}
         :not(input) {
             width: 6rem; height: 4rem;
             display: flex; align-items: center; justify-content: center;
         }
         &#type button {font-size: 2em;}
-        #control-image & * {font-size: 1rem !important;}
+        #control-image & :is(label,button) {font-size: 1em !important;}
         :first-child {border-right: .05rem solid;}
         :last-child {border-left: .05rem solid;}
     }
-    #layer {
-        grid-area: 1/2/-1/3;
-        padding: .25rem 0 1rem 0;
-        font-size: 1.1em;
-        max-height: 27em; overflow-y: scroll;
-        mask-image: linear-gradient(to bottom,black 0 90%,transparent);
+}
+fieldset:not(#layer) {
+    font-size: .9em;
+    
+    label,continuous-knob::before {font-size: .9em;}
+    continuous-knob::part(output) {font-size: .65em;}
+    continuous-knob {margin: 0 .25em .3em .25em;}
 
-        div {
-            display: flex; flex-direction: column;
-
-            &:has(button) {
-                position: sticky; top: 0;
-                background: var(--backdrop);
-                z-index: 1;
-            }
-        }
-        &.solo label:not(:has(:checked)) {filter: saturate(0) brightness(.7);}
-        label {
-            border: .1em solid gray; border-radius: .3em;
-            width: 1.8em; min-height: 1.8em; max-height: 1.8em;
-            margin: .2em 0;
-            filter: none;
-
-            &::before {
-                all: unset; line-height: 1.8em;
-            }
-            &[data-type=image]:not(:has(img[src]))::before {content: '';}
-            &[data-type=color]:not([style])::before {content: '';}
-            &[data-path]::before {content: '';}
-
-            &:has(img[src]) {display: flex;}
-            &:has(input:checked) {
-                background: var(--theme); color: black;
-                border-color: var(--theme);
-            }
-            :is(img) {
-                width: 100%; max-height: 100%; object-fit: contain;
-                pointer-events: none;
-
-                &:not([src]) {display: none;}
-            }
-        }
-        button {
-            font-size: 1.5em; color: var(--theme);
-            height: 1.33333em;
-
-            &[disabled] {
-                filter: saturate(0);
-                pointer-events: none;
-            }
-        }
+    hr {
+        border-bottom: .1em solid var(--on);
+        width: 100%; height: 0;
+        margin: .1em auto;
     }
-    [id|=control] {
-        justify-self: center;
-        border-bottom: .2em solid; padding-bottom: .75em;
-        display: grid; grid-template-columns: repeat(3,1fr); gap: .3em .5em; justify-content: center;
-    }
-    #control-color {
-        label:has(input[name=gradient]) {
-            margin: .5em;
-
-            &::after {
-                content: '';
-                display: block; width: 1.5em; height: 1.5em;
-                margin: .1em auto 0 auto;
-            }
+    &#control-color {
+        label:has(input[name=gradient])::after {
+            content: '';
+            display: block; width: 1.5em; height: 1.5em;
+            margin: .1em auto 0 auto;
         }
         label:has(input[value=Linear])::after {
             background: linear-gradient(var(--theme),var(--theme-dark));
@@ -207,30 +148,70 @@ form {
             background: conic-gradient(var(--theme),var(--theme-dark),var(--theme));
         }
         input[type=color] {
-            display: block; margin: auto;
+            display: block;
         }
         label:has(input[name=shape]) {align-self: center;}
     }
-    #control {
-        display: grid; grid-template-columns: repeat(3,auto); gap: .5em; justify-content: center;
-        border: none;
-
+    &#control {
         div {
-            grid-area: 3/1/4/3; place-self: center end;
-            margin: .5em -.5em 0 0;
-            line-height: 1.2;
+            justify-self: end;
+            margin-right: -.5em;
 
             small {display: block;}
         }
-        label {
-            width: auto;
-            margin-top: .5em;
+        div,label {margin-top: .5rem;}
+    }
+}
+#layer {
+    width: 2em; height: min(35em,100svh - 4.15rem); 
+    overflow-y: scroll; padding-bottom: 1rem;
+    mask-image: linear-gradient(to bottom,black 0 90%,transparent);
+
+    div {
+        display: flex; flex-direction: column; gap: .4em;
+
+        &:has(button) {
+            width: 100%;
+            padding: .3em 0;
+            position: sticky; top: 0;
+            background: var(--backdrop);
+            z-index: 1;
         }
     }
-    #control-image[hidden]~#control .image,
-    #control-color[hidden]~#control .color {display: none;}
-}
+    button {
+        font-size: 1.5em; color: var(--theme);
+        line-height: 1.1;
 
+        &[disabled] {
+            filter: saturate(0);
+            pointer-events: none;
+        }
+    }
+    &.solo label:not(:has(:checked)) {filter: saturate(0) brightness(.7);}
+    label {
+        border: .1em solid gray; border-radius: .3em;
+        width: 100%; aspect-ratio: 1;
+        filter: none;
+
+        &::before {
+            all: unset; line-height: 1.8em;
+        }
+        &[data-type=image]:not(:has(img[src]))::before {content: '';}
+        &[data-type=color]:not([style])::before {content: '';}
+        &[data-path]::before {content: '';}
+        &:has(input:checked) {
+            background: var(--theme); color: black;
+            border-color: var(--theme);
+        }
+        img {
+            display: block; 
+            max-width: 100%; aspect-ratio: 1; object-fit: contain;
+            pointer-events: none;
+
+            &:not([src]) {display: none;}
+        }
+    }
+}
 dialog {
     padding: 1em .5em;
 
