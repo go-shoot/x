@@ -169,6 +169,7 @@ fieldset:not(#layer) {
 
     div {
         display: flex; flex-direction: column; gap: .4em;
+        width: 100%;
 
         &:has(button) {
             width: 100%;
