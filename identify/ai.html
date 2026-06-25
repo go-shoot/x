@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO Object Detection Client</title>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        h1 {
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        p {
+            color: #64748b;
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: 3fr 2fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .status.loading {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status.ready {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        input[type="file"]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .canvas-container {
+            width: 100%;
+            overflow: auto;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+            min-height: 300px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        pre {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            max-height: 500px;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>YOLO Client Detection Pipeline</h1>
+    <p>Upload an image below to execute the local WebAssembly runtime detection pipeline and view drawn results.</p>
+
+    <div class="card">
+        <div id="statusBox" class="status loading">Initializing environment & loading after_collage.onnx...</div>
+        <label for="imageUpload">Select an Image for Inference</label>
+        <input type="file" id="imageUpload" accept="image/*" disabled />
+    </div>
+
+    <div class="grid-container">
+        <div class="card">
+            <label>Visual Detection Output Canvas</label>
+            <div class="canvas-container">
+                <canvas id="outputCanvas"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <label>Console & Telemetry Logs</label>
+            <pre id="outputLog">System: Waiting for model initialization...</pre>
+        </div>
+    </div>
+
+    <img id="hiddenImage" style="display: none;" alt="Hidden processing pool" />
+
+    <script type="module">
+        import { YoloDetectorApp } from './ai.js';
+
+        const statusBox = document.getElementById('statusBox');
+        const imageUpload = document.getElementById('imageUpload');
+        const outputLog = document.getElementById('outputLog');
+        const hiddenImage = document.getElementById('hiddenImage');
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function logMessage(text) {
+            outputLog.textContent = text + '\n' + outputLog.textContent;
+            console.log(text);
+        }
+
+        // Initialize core application module wrapper logic context
+        const app = new YoloDetectorApp();
+
+        // 1. Initialise application, load local model weights
+        async function initApp() {
+            const modelUrl = './after_collage.onnx';
+            logMessage(`System: Fetching and allocating weights for "${modelUrl}"...`);
+
+            await app.loadONNXModel(modelUrl, 'after_collage.onnx', false, []);
+
+            statusBox.className = "status ready";
+            statusBox.textContent = `Active Model: ${app.modelName}`;
+            imageUpload.disabled = false;
+        }
+
+        // 2. Watch upload file trigger event cycles
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            logMessage(`\nSystem: Reading image file: ${file.name}...`);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                hiddenImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 3. Main processing and rendering pipeline logic
+        hiddenImage.onload = async () => {
+            try {
+                const imgWidth = hiddenImage.naturalWidth;
+                const imgHeight = hiddenImage.naturalHeight;
+
+                logMessage(`Pipeline: Image dimensions bound at ${imgWidth}x${imgHeight}px. Processing...`);
+
+                statusBox.className = "status loading";
+                statusBox.textContent = "Processing active matrix inference layer calculation bounds...";
+
+                // Sync visual layout dimensions to canvas viewport target specifications
+                canvas.width = imgWidth;
+                canvas.height = imgHeight;
+
+                // Reset display context and snapshot source canvas target bounds immediately
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(hiddenImage, 0, 0);
+
+                // Run full AI pipeline parsing workflow bounds safely
+                const results = await app.runDetectionPipeline(hiddenImage);
+
+                statusBox.className = "status ready";
+                statusBox.textContent = `Active Model: ${app.modelName}`;
+
+                // Render detected bounding box geometry markers directly onto display canvas layer
+                results.forEach((det) => {
+                    const { x1, y1, x2, y2, score, className, classId } = det;
+                    const width = x2 - x1;
+                    const height = y2 - y1;
+
+                    // Fetch specialized, high-contrast hue palette mappings matching specific class identities
+                    const colors = app.getClassColor(classId);
+
+                    // Draw object selection border paths
+                    ctx.strokeStyle = colors.border;
+                    ctx.lineWidth = Math.max(2, Math.round(canvas.width / 300)); // Scaled thickness relative to resolution
+                    ctx.strokeRect(x1, y1, width, height);
+
+                    // Draw semitransparent shaded box inner contents area fill
+                    ctx.fillStyle = colors.bg;
+                    ctx.fillRect(x1, y1, width, height);
+
+                    // Build tag label formatting layout
+                    const labelText = `${className} ${(score * 100).toFixed(0)}%`;
+
+                    // Dynamically scale typography rendering rules relative to image dimensions
+                    const fontSize = Math.max(12, Math.round(canvas.width / 50));
+                    ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
+                    ctx.textBaseline = 'top';
+
+                    const textMetrics = ctx.measureText(labelText);
+                    const textWidth = textMetrics.width;
+                    const textHeight = fontSize + 4; // Padding offset boundary adjustment 
+
+                    // Check if boundary fits cleanly inside the box layout area, otherwise invert anchor tag placement position
+                    const tagY = y1 - textHeight >= 0 ? y1 - textHeight : y1;
+
+                    // Draw identifying metadata annotation tag context overlay backing plates
+                    ctx.fillStyle = colors.border;
+                    ctx.fillRect(x1, tagY, textWidth + 8, textHeight);
+
+                    // Text labels placement strings rendering rules
+                    ctx.fillStyle = '#ffffff'; // White text for high visibility contrast
+                    ctx.fillText(labelText, x1 + 4, tagY + 2);
+                });
+
+                logMessage(`Success: Object detection parsing cycle finished tracking operations safely.`);
+                logMessage(`=== PERFORMANCE METRICS ===\n${JSON.stringify(app.telemetry, null, 2)}`);
+                logMessage(`=== DETECTED OBJECTS (${results.length}) ===\n${JSON.stringify(results, null, 2)}`);
+
+            } catch (err) {
+                statusBox.className = "status error";
+                statusBox.textContent = "Runtime execution error encountered during active inference stage processing loops.";
+                logMessage(`DETECTION FAILURE ERROR: ${err.message}`);
+            }
+        };
+
+        // Begin loading routine steps
+        initApp();
+    </script>
+</body>
+
+</html>
