@@ -301,12 +301,9 @@ Object.assign(Draw, {
         ctx.shadowBlur = sh || 0, ctx.shadowOffsetX = 0, ctx.shadowOffsetY = 0;
         ctx.filter = `blur(${bl || 0}px) contrast(${co || 1})`;
         ctx.globalAlpha = opacity ?? 1;
-        if (fl == 1) {
-            ctx.translate(x + W, y);
-            ctx.scale(-1, 1);
-            ctx.drawImage(img, 0, 0, W, H);
-        } else
-		    ctx.drawImage(img, x, y, W, H);
+        fl == 'x' ? ctx.translate(x, y + H) : fl == 'y' ? ctx.translate(x + W, y) : null;
+        fl == 'x' ? ctx.scale(1, -1) : fl == 'y' ? ctx.scale(-1, 1) : null;
+		ctx.drawImage(img, x, y, W, H);
         ctx.restore();
         label.bitmap?.close() || (label.bitmap = null);
         createImageBitmap(cvs).then(bm => [label.bitmap, label.dirty] = [bm, false]);
