@@ -5,29 +5,11 @@ import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 
-let PARTS, Controls = {};
-Object.assign(E, {
-    img: src => new Promise(res => E('img', {
-        src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
-        onload: function() {res(this)}, onerror: () => res(null)
-    })),
-    canvas: async (img, change) => {
-        if (!img) return;
-        let cvs = img.tagName == 'CANVAS' ? img : E('canvas', {width: img.width, height: img.height});
-        let ctx = cvs.getContext('2d');
-        img.tagName == 'CANVAS' && (img = img.nextElementSibling);
-        typeof change == 'string' && (ctx.fillStyle = `rgba(${change})`);
-        ctx.fillRect(0, 0, img.naturalWidth, img.naturalHeight);
-        if (change === true) {
-            ctx.translate(img.naturalWidth, 0);
-            ctx.scale(-1, 1);
-        }
-        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-        return cvs;
-    }
-});
+E.img = src => new Promise(res => E('img', {
+    src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
+    onload: function() {res(this)}, onerror: () => res(null)
+}));
 let COLLAGE;
-const WorkerCollage = Comlink.wrap(new Worker('./worker.js', {type: 'module'}));
 class Collage {
     constructor(ev) {
         App.state(1, 'begun');
@@ -36,8 +18,7 @@ class Collage {
             .then(img => {
                 let cvs = Collage.transferred ? null : Collage.cvs.transferControlToOffscreen();
                 Collage.transferred = true;
-                WorkerCollage.take(Controls);
-                return new WorkerCollage(cvs ? Comlink.transfer(cvs, [cvs]) : null, img);
+                return new Collage.from.worker(cvs ? Comlink.transfer(cvs, [cvs]) : null, img);
             }).then(collage => {
                 COLLAGE = collage;
                 App.state([1,2], 'done');
@@ -46,27 +27,77 @@ class Collage {
             });
     }
     static cvs = Q('canvas');
-    static select = ev => {
+    static select (ev) {
         ev.stopPropagation();
         if (!Analysis.result || !Analysis.result.boxes.length) return;
         let {left, top, width, height} = Collage.cvs.getBoundingClientRect();
         let [x, y] = [(ev.clientX - left) * Collage.cvs.width / width, (ev.clientY - top) * Collage.cvs.height / height];
         Analysis.result.box([x, y])?.[Q('input[name=mode]:checked').value](ev);
     }
+    static from = {worker: Comlink.wrap(new Worker('./worker.js', {type: 'module'}))};
 }
+class Asset {
+    constructor(P, i, flipped) {
+        return this.init(this.P = P, i, flipped).then(() => this);
+    }
+    async init (P, i, flipped) {
+        let img = await E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`);
+        if (!img) return;
+        this.cvs = await this.canvas(img, { flipped });
+        flipped && img.classList.add('flipped');
+        this.label = E('label', [E('input', {type: 'radio', name: 'correction', value: i}), this.cvs, img]);
+        this.label.Part = P;
+    }
+    async computeHash (backdrop) {
+        if (this.backdrop == backdrop) return this.hash;
+        this.backdrop = backdrop;
+        return this.canvas(this.cvs, {backdrop})
+            .then(cvs => cvs && window[Analysis.algo](cvs, 16))
+            .then(hash => hash ? this.hash = hash : null);
+    }
+    canvas = async (img, {backdrop, flipped}) => {
+        if (!img) return;
+        let cvs = img.tagName == 'CANVAS' ? img : E('canvas', {width: img.width, height: img.height});
+        let ctx = cvs.getContext('2d');
+        img.tagName == 'CANVAS' && (img = img.nextElementSibling);
+        backdrop && (ctx.fillStyle = `rgba(${backdrop})`);
+        ctx.fillRect(0, 0, img.naturalWidth, img.naturalHeight);
+        if (flipped === true) {
+            ctx.translate(img.naturalWidth, 0);
+            ctx.scale(-1, 1);
+        }
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        return cvs;
+    }
+    static async add (comp, P, i) {
+        if (Array.isArray(comp)) return Promise.all(comp.map(Asset.add));
+        if (P && !Array.isArray(P)) return new Asset(P, i).then(A => (Asset[comp] ??= [])[i] = A);
+        if (Asset[comp]?.length) return;
+
+        let additions = Asset.raw[comp].map((P, i) => Asset.add(comp, P, i));
+        comp == 'bit' && additions.concat(Asset.flipped.bit.map((abbr, i) => Asset.add(comp, abbr, i + Asset.raw[comp].length)));
+        return Promise.all(additions).then(As => Q('#correct').append(
+            E(`div#${comp}`, {hidden: true}, [
+                E('label>input', {type: 'radio', name: 'correction'}), 
+                ...As.map(A => A.label ?? [])
+            ])
+        ));
+    }
+    static flipped = {bit: ['F','T','B','N','HN','LF']}
+    static includes = {
+        flipped: (i, comp = App.comp) => comp == 'bit' && i > Asset.bit.length - Asset.flipped.bit.length ? 
+            Asset.bit.find(({P}) => P.abbr == Asset.flipped.bit[i - Asset.bit.length + Asset.flipped.bit.length])?.P : Asset[comp][i]?.P
+    }
+}window.Asset = Asset;
 const App = () => DB.get.essentials({flat: true})
-    .then(async Parts => {
-        PARTS = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());        
+    .then(Parts => {
+        Asset.raw = Parts = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());        
         App.events();
         Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
-        Q('continuous-knob', knob => knob.dispatchEvent(new InputEvent('input', {bubbles: true})));
         Q('.loading', el => el.classList.remove('loading'));
+        App.comps = Object.keys(Parts);
     });
 Object.assign(App, {
-    createCanvasImg: (P, flipped) => 
-        E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`)
-        .then(img => Promise.all([E.canvas(img, flipped), Object.assign(img, flipped ? {classList: 'flipped'} : {})]))
-    ,
     state (step, state) {
         if (Array.isArray(step)) return step.forEach(s => App.state(s, state));
         App.steps ??= [...Q('ol').children];
@@ -77,8 +108,7 @@ Object.assign(App, {
             App.steps.slice(step).forEach(li => li.classList.add('inactive')) : 
             App.steps[step].classList.remove('inactive');
     },
-    autoflow: ({dataset: {url, comp, controls}}) => {
-        Object.entries(JSON.parse(controls)).forEach(([id, v]) => Q(`#${id}`).set.value({v}));
+    autoflow: ({dataset: {url, comp}}) => {
         Q(`input[name=comp][value=${comp}]`).click();
         return new Collage(url).then(() => new Analysis());
     },
@@ -97,25 +127,16 @@ Object.assign(App, {
                 if (ev.target.name == 'comp') {
                     App.comp = ev.target.value;
                     App.state(3, 'done');
-                    let pairs = PARTS[App.comp].map(P => App.createCanvasImg(P));
-                    App.comp == 'bit' && pairs.push(...App.flipped.bit.map(abbr => App.createCanvasImg(abbr, true)));
-                    Promise.all(pairs).then(pairs => Q('#correct').replaceChildren(
-                        E('label>input', {type: 'radio', name: 'correction'}), 
-                        ...pairs.map((pair, i) => Object.assign(
-                            E('label', [E('input', {type: 'radio', name: 'correction', value: i}), ...pair])
-                        , {Part: PARTS[App.comp][i]}))
-                    ));
                 }    
             },
             onclick (ev) {
                 Q('aside.active', aside => aside.classList.remove('active'));
-                if (ev.target.closest('#step-2'))
-                    return Q('#controls').classList.toggle('active');
+                Q('#correct div', div => div.hidden = true);
                 if (ev.target.id == 'match')
                     return new Analysis();
                 if (ev.target.id == 'download')
                     return gtag('event', 'IDENTIFY-DOWNLOAD') || 
-                    E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `${App.comp}辦認.jpg`}).click();
+                    E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `辦認.jpg`}).click();
                 if (ev.target.matches('[id|=tier]'))
                     return App.events.tiers(ev);
                 if (ev.target.name == 'mag')
@@ -124,22 +145,9 @@ Object.assign(App, {
                     });
             }
         });
-        Q('#controls').oninput = ev => {
-            Analysis.result = null;
-            Controls[ev.target.id] = ev.target.value;
-            App.rafID ??= requestAnimationFrame(async () => {
-                await WorkerCollage.take(Controls);
-                await COLLAGE?.detect.boxes();                
-                App.rafID = null;
-            });
-        }
         Collage.cvs.onclick = Collage.select;
         PI.events({'#correct': {scroll: {x: true}}});
     },
-    flipped: {bit: ['F','T','B','N','HN','LF']},
-    includes: {flipped: i => App.comp == 'bit' && i > PARTS.bit.length ? 
-        PARTS.bit.find(P => P.abbr == App.flipped.bit[i - PARTS.bit.length]) : PARTS[App.comp][i]
-    }
 });
 Object.assign(App.events, {
     tiers (ev) {
@@ -164,31 +172,22 @@ Object.assign(App.events, {
     }
 });
 class Analysis {
-    constructor(comp = App.comp, lastBackdrop = Q('input[name=comp]:checked').title) {
+    constructor() {
         App.state(4, 'begun');
-        App.assets ??= {};
-        return COLLAGE.detect.backdrop()
-            .then(backdrop => Promise.all([
-                this.prepare.cutouts(),
-                !App.assets[comp] || backdrop != lastBackdrop ? this.prepare.assets(backdrop) : undefined,
-            ]))
+        return Promise.all([COLLAGE.classes, COLLAGE.detect.backdrop()])
+            .then(([comps, backdrop]) => Promise.all([this.prepare.cutouts(), this.prepare.assets(comps, backdrop)]))
             .then(hashes => this.match.by.hash(...hashes))
             .then(result => (Analysis.result = result) && App.state([4,5], 'done'))
             .catch(er => console.error(er) || Q('.loading', [])[0]?.append(`${er}`));
     }
     prepare = {
-        assets: (backdrop, comp = App.comp) => {
+        assets: async ([comp], backdrop) => {
             App.state(3, 'begun');
-            return Promise.all(Q('#correct input[value]', []).sort((a, b) => a.value - b.value).map(input => 
-                E.canvas(input.labels[0].Q('canvas'), backdrop)
-                .then(cvs => cvs && window[Analysis.algo](cvs, 16))
-                .then(hash => (App.state(3, '++'), hash))
-            )).then(hashes => {
-                Q('input[name=comp]:checked').title = backdrop;
-                Q('#correct').style.background = `rgba(${backdrop})`;
-                App.state(3, 'done');
-                return App.assets[comp] = hashes.map(hash => hash ? {hash} : {});
-            });
+            await Asset.add(comp);
+            await Promise.all(Asset[comp].map(A => A.computeHash(backdrop).then(() => App.state(3, '++'))));
+            Q('#correct').style.background = `rgba(${backdrop})`;
+            App.state(3, 'done');
+            return Asset[comp].map(A => ({hash: A.hash}));
         },
         cutouts: () => COLLAGE.cutouts().then(bmps => Promise.all(bmps.map(bmp => {
             let cvs = E('canvas', {width: bmp.width, height: bmp.height});
@@ -204,7 +203,7 @@ class Analysis {
 }
 export default App;
 class ScoreMatrix { //row: parts, col: boxes
-    constructor(cutoutHashes, assetHashes = App.assets[App.comp]) {
+    constructor(cutoutHashes, assetHashes) {
         [this.R, this.C] = [assetHashes.length, cutoutHashes.length];
         [this.assetHashes, this.cutoutHashes] = [assetHashes, cutoutHashes];
         this.scores = new Uint8Array(this.R * this.C).fill(255);
@@ -234,14 +233,16 @@ class ScoreMatrix { //row: parts, col: boxes
 }
 class Result {
     constructor(matrix) {
-        COLLAGE.boxes.then(boxes => this.boxes = boxes.map(([x0, y0, x1, y1], c) => {
+        COLLAGE.boxes.then(boxes => this.boxes = boxes.map((box, c) => {
+            let [x0, y0, x1, y1] = box;
             let scores = [];
             for (let r = 0; r < matrix.R; r++)
                 scores.push({r, v: matrix.scores[r * matrix.C + c]});
             return {
                 x0, y0, x1, y1,
-                Parts: new Set(scores.sort((a, b) => a.v - b.v).map(({r}) => App.includes.flipped(r)).filter(P => P)), 
-                determ: App.includes.flipped(matrix.deterministic.get(c))
+                Parts: new Set(scores.sort((a, b) => a.v - b.v).map(({r}) => Asset.includes.flipped(r)).filter(P => P)), 
+                determ: Asset.includes.flipped(matrix.deterministic.get(c)),
+                class: ['blade','ratchet','bit','CX'][box.class]
             };
         }));
     }
@@ -259,20 +260,22 @@ class Result {
                 Q('#tier-list')?.click();
                 return gtag('event', 'IDENTIFY-CORRECT') || this.label();
             }
-            let aside = Q('#correct');
-            [...aside.children].find((label, i) => 
+            let div = Q(`#${box.class}`);
+            [...div.children].find((label, i) => 
                 box.corrected === '' ? i === 0 : label.Part == (box.corrected ?? box.determ)
             ).Q('input').checked = true;
-            return E(aside).set(
-                [...aside.children].sort((...labels) => 
+            E(div).set(
+                [...div.children].sort((...labels) => 
                     [...box.Parts].indexOf(labels[0].Part) - [...box.Parts].indexOf(labels[1].Part)
                 ),
-                {classList: 'active', onchange: this.actions(box).correct}
+                {hidden: false, onchange: this.actions(box).correct}
             );
+            div.parentElement.classList.add('active');
         },
         preview: ev => {
             if (box.corrected === '') return;
             Q('aside.active', aside => aside.classList.remove('active'));
+            Q('#correct div', div => div.hidden = true);
             return new Preview(['cell', 'tile'], {path: (box.corrected ?? box.determ).path}, ev);
         }
     })
@@ -280,7 +283,7 @@ class Result {
         Result.label([x0, y0, x1, y1], corrected ?? determ)
     )
     static label (box, rP, lang = Q('input[name=lang]:checked').value) {
-        typeof rP == 'number' && (rP = App.includes.flipped(rP));
+        typeof rP == 'number' && (rP = Asset.includes.flipped(rP));
         let label = rP ? Markup.hktw(lang, rP?.only.name() && Markup.clear(rP.names.chi) || rP?.abbr) : '';
         COLLAGE.label(box, label);
     }
