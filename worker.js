@@ -11,7 +11,7 @@ self.addEventListener('fetch', ev => ev.respondWith((() => {
 
     return caches.match(req.url, {ignoreSearch: true})
         .then(async cached => {
-            if (cached && is.part(req.url))
+            if (cached && (is.part(req.url) || req.url.endsWith('onnx')))
                 return cached;
             let fetched = fetch.net(req);
             cached || (fetched = await fetched);

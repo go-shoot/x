@@ -1,6 +1,6 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let COLLAGE, SESSION = await ort.InferenceSession.create('./best_int8.onnx', {executionProviders: ['wasm']});
+let COLLAGE, SESSION = await ort.InferenceSession.create('./best.onnx', {executionProviders: ['wasm']});
 
 class Collage {
     static transferred = () => Collage.cvs ? true : false
@@ -30,7 +30,7 @@ class Collage {
     detect = {
         boxes: async () => {
             this.draw();
-            let [rW, rH] = [640, 640];
+            let [rW, rH] = [1280, 1280];
             let {data, area} = this.resize(rW, rH);
             let input = Format.input(data, area, rW, rH);
             let {output0: {data: output}} = await SESSION.run({images: input});
@@ -69,9 +69,9 @@ class Collage {
             return tiers;
         }
     }
-    cutouts = () => 
-        Promise.all(this.boxes.map(([x0, y0, x1, y1]) => createImageBitmap(Collage.cvs, x0, y0, x1-x0, y1-y0)))
-        .then(bitmaps => Comlink.transfer(bitmaps, bitmaps))
+    cutouts = () => Promise.all(this.boxes.map(box => 
+        createImageBitmap(Collage.cvs, box[0], box[1], box[2]-box[0], box[3]-box[1]).then(bmp => ({bmp, box}))
+    )).then(objs => Comlink.transfer(objs, objs.map(({bmp}) => bmp)))
     
     label (b, label, lang, ctx = Collage.ctx) {
         if (label == null) return;
@@ -106,7 +106,7 @@ const Format = {
         let boxes = [], unnested = [];
         for (let d = 0; d < output.length / 6; d++) {
             let [x0, y0, x1, y1, score, classID] = output.slice(6 * d, 6 * d + 6);
-            score >= .2 && boxes.push(Object.assign([x0 / rW * W + 1, y0 / rH * H + 1, x1 / rW * W + 1, y1 / rH * H + 1], {class: Math.round(classID)}));
+            score >= .1 && boxes.push(Object.assign([x0 / rW * W + 1, y0 / rH * H + 1, x1 / rW * W + 1, y1 / rH * H + 1], {class: Math.round(classID)}));
         }
         boxes.sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1]))
             .forEach(box => unnested.every(b => box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]) && unnested.push(box));
