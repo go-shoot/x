@@ -1,7 +1,6 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let COLLAGE, SESSION = await ort.InferenceSession.create('./best.onnx', {executionProviders: ['wasm']});
-
+let COLLAGE, SESSION;
 class Collage {
     static transferred = () => Collage.cvs ? true : false
     constructor(canvas, bitmap) {
@@ -90,7 +89,7 @@ class Collage {
         ctx.fillText(label, x, y - pad/2);
     }
 }
-Comlink.expose(Collage);
+Comlink.expose({Collage, session: () => ort.InferenceSession.create('./best.onnx', {executionProviders: ['wasm']}).then(ss => SESSION = ss)});
 
 const Format = {
     input (data, area, rW, rH) {

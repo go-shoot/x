@@ -112,7 +112,7 @@ class Collage {
                 App.state(2, 'begun');
                 let cvs = Collage.transferred ? null : Collage.cvs.transferControlToOffscreen();
                 Collage.transferred = true;
-                return new Collage.from.worker(cvs ? Comlink.transfer(cvs, [cvs]) : null, bmp);
+                return new App.worker.Collage(cvs ? Comlink.transfer(cvs, [cvs]) : null, bmp);
             }).then(collage => {
                 this.worker = collage;
                 COLLAGE = this;
@@ -142,7 +142,7 @@ class Analysis {
         return Promise.all([COLLAGE.worker.classes.then(comps => this.comps = [...comps]), COLLAGE.worker.detect.backdrop()])
             .then(([, backdrop]) => Promise.all([this.prepare.cutouts(), this.prepare.assets(backdrop)]))
             .then(() => this.match())
-            .then(result => (Analysis.result = result) && App.state([4,5], 'done'))
+            .then(() => App.state([4,5], 'done'))
             .catch(er => console.error(er) || Q('.loading', [])[0]?.append(`${er}`));
     }
     prepare = {
@@ -176,10 +176,10 @@ class ScoreMatrix { //row: parts, col: boxes
     compare = {by: comparer => {
         for (let [r, asset] of this.hashes.asset.entries())
             for (let [c, cutout] of this.hashes.cutout.entries())
-                this.scores[r * this.C + c] = asset ? Math.min(255, comparer(cutout, asset)) : null;
+                this.scores[r * this.C + c] = asset ? Math.min(255, comparer(cutout, asset)) : 255;
         return this;
     }}
-    #entries = () => [...this.scores].map((v, i) => ({r: Math.floor(i / this.C), c: i % this.C, v})).filter(({v}) => v >= 0)
+    #entries = () => [...this.scores].map((v, i) => ({r: Math.floor(i / this.C), c: i % this.C, v}))
     determine ({from, limit}) {
         this.#entries().sort((a, b) => from == 'min' ? a.v - b.v : b.v - a.v).forEach(({r, c, v}) => {
             if (this.done.rows.has(r) || this.done.cols.has(c) || (from == 'min' ? v > limit : v < limit)) return;
@@ -189,28 +189,25 @@ class ScoreMatrix { //row: parts, col: boxes
         });
         return this;
     }
-    order = () => COLLAGE.cutouts[this.comp].map((cutout, c) => {
+    order = () => COLLAGE.cutouts[this.comp].forEach((cutout, c) => {
         let scores = [];
         for (let r = 0; r < this.R; r++)
             scores.push({r, v: this.scores[r * this.C + c]});
         cutout.Parts = new Set(scores.sort((a, b) => a.v - b.v).map(({r}) => Asset.find(r, this.comp)).filter(P => P));
-        return this;
-    });
+    }) ?? this;
 }
-const App = () => DB.get.essentials({flat: true})
-    .then(Parts => {
+const App = () => Promise.all([DB.get.essentials({flat: true}), App.worker.session()])
+    .then(([Parts]) => {
         Asset.raw = Parts = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());        
         App.events();
         Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
         Q('.loading', el => el.classList.remove('loading'));
-        App.comps = Object.keys(Parts);
     });
 Object.assign(App, {
+    worker: Comlink.wrap(new Worker('./worker.js', {type: 'module'})),
     state (step, state) {
         if (Array.isArray(step)) return step.forEach(s => App.state(s, state));
         App.steps ??= [...Q('ol').children];
-        if (state == '++')
-            return E(App.steps[step - 1]).set({'--p': E(App.steps[step - 1]).get('--p') + 1});
         App.steps[step - 1].classList.toggle('loading', state == 'begun');
         state == 'begun' ?
             App.steps.slice(step).forEach(li => li.classList.add('inactive')) : 
@@ -233,12 +230,13 @@ Object.assign(App, {
                 if (ev.target.matches('[id|=tier]'))
                     return App.events.tiers(ev);
                 if (ev.target.name == 'mag')
-                    return E(Q('div:has(canvas)')).set({
-                        '--f': E(Q('div:has(canvas)')).get('--f') + (ev.target.value == '+' ? .1 : -.1)
+                    return E(Q('div[style]')).set({
+                        '--f': E(Q('div[style]')).get('--f') + (ev.target.value == '+' ? .1 : -.1)
                     });
             },
-            onchange: (ev) =>
-                ev.target.type == 'file' ? new Collage(ev).then(() => new Analysis()) : ev.target.name == 'algo' ? Analysis.algo = ev.target.value : '',
+            onchange: ev => 
+                ev.target.type == 'file' ? new Collage(ev).then(() => new Analysis()) : 
+                ev.target.name == 'algo' ? Analysis.algo = ev.target.value : '',
         });
         Collage.cvs.onclick = Collage.select;
         PI.events({'#correct': {scroll: {x: true}}});
