@@ -12,8 +12,7 @@ E.img = src => new Promise(res => E('img', {
 let COLLAGE;
 class Cutout {
     constructor({box, bmp}) {
-        this.box = box, this.bitmap = bmp;
-        this.class = ['blade','ratchet','bit','CX'][box.class];
+        this.box = box, this.bitmap = bmp, this.class = box.class;
     }
     computeHash (bmp = this.bitmap) {
         if (this.hash) return;
@@ -134,7 +133,6 @@ class Collage {
         COLLAGE.locate([x, y])?.[Q('input[name=mode]:checked').value](ev);
     }
     static cvs = Q('canvas');
-    static from = {worker: Comlink.wrap(new Worker('./worker.js', {type: 'module'}))};
 }
 class Analysis {
     constructor() {

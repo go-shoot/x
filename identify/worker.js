@@ -1,15 +1,18 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let COLLAGE, SESSION;
+let SESSION = './best.onnx', resize = 640; 
 class Collage {
     static transferred = () => Collage.cvs ? true : false
+    //static colors = {blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)', bit: 'oklch(.8 .3 280)', CX: '#f42597'}// best.onnx only
+    static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
+    //static colors = {CX: '#f42597', blade: 'oklch(.8 .3 110)', bit: 'oklch(.8 .3 280)', ratchet: 'oklch(.8 .3 180)'} //best 1
     constructor(canvas, bitmap) {
         canvas && ([Collage.cvs, Collage.ctx] = [canvas, canvas.getContext('2d', {willReadFrequently: true})]);
-        [COLLAGE, this.bitmap] = [this, bitmap];
         [Collage.cvs.width, Collage.cvs.height] = [Collage.W, Collage.H] = [bitmap.width, bitmap.height];
+        this.bitmap = bitmap;
         this.detect.boxes();
     }
-    draw (boxes, color = ['oklch(.8 .3 110)', 'oklch(.8 .3 180)', 'oklch(.8 .3 280)', '#f42597'], cvs = Collage.cvs, ctx = Collage.ctx) {
+    draw (boxes, cvs = Collage.cvs, ctx = Collage.ctx) {
         (boxes === true || !boxes) && ctx.drawImage(this.bitmap, 0, 0);
         if (!boxes) return;
         let [W, H, pad] = [cvs.width, cvs.height, 4];
@@ -17,7 +20,8 @@ class Collage {
             let [x0, y0, x1, y1] = box;
             let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
             let [bw, bh] = [Math.min(W - bx, x1 - x0), Math.min(H - by, y1 - y0)];
-            ctx.strokeStyle = color[box.class]; ctx.lineWidth = Math.max(2, Math.floor(W / 400));
+            ctx.strokeStyle = Collage.colors[box.class]; 
+            ctx.lineWidth = Math.max(2, Math.floor(W / 400));
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
@@ -29,12 +33,11 @@ class Collage {
     detect = {
         boxes: async () => {
             this.draw();
-            let [rW, rH] = [1280, 1280];
-            let {data, area} = this.resize(rW, rH);
-            let input = Format.input(data, area, rW, rH);
+            let {data, area} = this.resize(resize, resize);
+            let input = Format.input(data, area, resize, resize);
             let {output0: {data: output}} = await SESSION.run({images: input});
-            this.boxes = Format.output(output, rW, rH);
-            this.classes = new Set(this.boxes.map(b => ['blade','ratchet','bit','CX'][b.class]));
+            this.boxes = Format.output(output, resize, resize);
+            this.classes = new Set(this.boxes.map(b => b.class));
             this.draw(true);
         },
         backdrop: () => {
@@ -72,7 +75,7 @@ class Collage {
         createImageBitmap(Collage.cvs, box[0], box[1], box[2]-box[0], box[3]-box[1]).then(bmp => ({bmp, box}))
     )).then(objs => Comlink.transfer(objs, objs.map(({bmp}) => bmp)))
     
-    label (b, label, lang, ctx = Collage.ctx) {
+    label (b, label, ctx = Collage.ctx) {
         if (label == null) return;
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
@@ -89,7 +92,7 @@ class Collage {
         ctx.fillText(label, x, y - pad/2);
     }
 }
-Comlink.expose({Collage, session: () => ort.InferenceSession.create('./best.onnx', {executionProviders: ['wasm']}).then(ss => SESSION = ss)});
+Comlink.expose({Collage, session: () => ort.InferenceSession.create(SESSION, {executionProviders: ['wasm']}).then(ss => SESSION = ss)});
 
 const Format = {
     input (data, area, rW, rH) {
@@ -105,7 +108,9 @@ const Format = {
         let boxes = [], unnested = [];
         for (let d = 0; d < output.length / 6; d++) {
             let [x0, y0, x1, y1, score, classID] = output.slice(6 * d, 6 * d + 6);
-            score >= .1 && boxes.push(Object.assign([x0 / rW * W + 1, y0 / rH * H + 1, x1 / rW * W + 1, y1 / rH * H + 1], {class: Math.round(classID)}));
+            let box = [x0 / rW * W + 1, y0 / rH * H + 1, x1 / rW * W + 1, y1 / rH * H + 1];
+            box.class = Object.keys(Collage.colors)[Math.round(classID)];
+            score >= .1 && boxes.push(box);
         }
         boxes.sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1]))
             .forEach(box => unnested.every(b => box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]) && unnested.push(box));
