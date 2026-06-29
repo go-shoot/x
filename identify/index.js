@@ -10,46 +10,6 @@ E.img = src => new Promise(res => E('img', {
     onload: function() {res(this)}, onerror: () => res(null)
 }));
 let COLLAGE;
-class Cutout {
-    constructor({box, bmp}) {
-        this.box = box, this.bitmap = bmp, this.class = box.class;
-    }
-    computeHash (bmp = this.bitmap) {
-        if (this.hash) return;
-        let cvs = E('canvas', {width: bmp.width, height: bmp.height}); //only canvas accepted
-        cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
-        return window[Analysis.algo](cvs, 16).then(hash => (this.hash = hash) && bmp.close());
-    }
-    #determined; #corrected;
-    set determined (r) {this.#determined = Asset.find(r, this.class); this.label();}
-    set corrected (P) {this.#corrected = P; COLLAGE.label();}
-    label (lang = Q('input[name=lang]:checked').value) {
-        let P = this.#corrected ?? this.#determined;
-        let label = P ? Markup.hktw(lang, P.only.name() && Markup.clear(P.names.chi) || P.abbr) : '';
-        COLLAGE.worker.label(this.box, label);
-    }
-    actions = {
-        correct: ev => {
-            if (ev.target != Collage.cvs)
-                return this.corrected = ev.target.labels[0].Part ?? '';
-            let div = Q(`#${this.class}`);
-            let sorted = [...div.children].sort((...labels) => 
-                [...this.Parts].indexOf(labels[0].Part) - [...this.Parts].indexOf(labels[1].Part)
-            );
-            E(div).set(sorted, {hidden: false, onchange: this.actions.correct});
-            sorted.find(label => 
-                label.Part == (this.#corrected === '' ? undefined : (this.#corrected ?? this.#determined))
-            ).Q('input').checked = true;
-            div.parentElement.classList.add('active');
-        },
-        preview: ev => {
-            if (this.#corrected === '') return;
-            Q('aside.active', aside => aside.classList.remove('active'));
-            Q('#correct div', div => div.hidden = true);
-            return new Preview(['cell', 'tile'], {path: (this.#corrected ?? this.#determined).path}, ev);
-        }
-    }
-}
 class Asset {
     constructor(P, flipped) {
         return E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`)
@@ -98,6 +58,45 @@ class Asset {
         if (comp != 'bit') return Asset[comp][i]?.P;
         let flipped = Asset.flipped.bit[i - (Asset.bit.length - Asset.flipped.bit.length)];
         return flipped ? Asset.bit.find(({P}) => P.abbr == flipped)?.P : Asset[comp][i]?.P;
+    }
+}
+class Cutout {
+    constructor({box, bmp}) {
+        this.box = box, this.bitmap = bmp, this.class = box.class;
+    }
+    computeHash (bmp = this.bitmap) {
+        if (this.hash) return;
+        let cvs = E('canvas', {width: bmp.width, height: bmp.height}); //only canvas accepted
+        cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
+        return window[Analysis.algo](cvs, 16).then(hash => (this.hash = hash) && bmp.close());
+    }
+    label (lang = Q('input[name=lang]:checked').value) {
+        let P = this.identified;
+        let label = P ? Markup.hktw(lang, P.only.name() && Markup.clear(P.names.chi) || P.abbr) : '';
+        COLLAGE.worker.label(this.box, label);
+    }
+    actions = {
+        correct: ev => {
+            if (ev.target != Collage.cvs) {
+                this.identified = ev.target.labels[0].Part ?? '';
+                return COLLAGE.label();
+            }
+            let div = Q(`#${this.class}`);
+            let sorted = [...div.children].sort((...labels) => 
+                [...this.Parts].indexOf(labels[0].Part) - [...this.Parts].indexOf(labels[1].Part)
+            );
+            E(div).set(sorted, {hidden: false, onchange: this.actions.correct});
+            sorted.find(label => 
+                label.Part == (this.identified === '' ? undefined : this.identified)
+            ).Q('input').checked = true;
+            div.parentElement.classList.add('active');
+        },
+        preview: ev => {
+            if (this.identified === '') return;
+            Q('aside.active', aside => aside.classList.remove('active'));
+            Q('#correct div', div => div.hidden = true);
+            return new Preview(['cell', 'tile'], {path: this.identified.path}, ev);
+        }
     }
 }
 class Collage {
@@ -181,7 +180,8 @@ class ScoreMatrix { //row: parts, col: boxes
     determine ({from, limit}) {
         this.#entries().sort((a, b) => from == 'min' ? a.v - b.v : b.v - a.v).forEach(({r, c, v}) => {
             if (this.done.rows.has(r) || this.done.cols.has(c) || (from == 'min' ? v > limit : v < limit)) return;
-            COLLAGE.cutouts[this.comp][c].determined = r;
+            COLLAGE.cutouts[this.comp][c].identified = Asset.find(r, this.comp); 
+            COLLAGE.cutouts[this.comp][c].label();
             this.done.rows.add(r);
             this.done.cols.add(c);
         });
@@ -247,7 +247,7 @@ Object.assign(App.events, {
             return COLLAGE.worker.detect.tiers().then(tiers =>
                 tiers.forEach(([ty0, ty1], i) => (textareas[i].value = [
                     Analysis.result.boxes.filter(({y0, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
-                    .map(({determined, corrected}) => (corrected || determined)?.abbr)
+                    .map(({identified}) => identified?.abbr)
                 ]) && (textareas[i].hidden = false))
             );
         DB.get('user', `tier-${App.comp}`)
