@@ -66,27 +66,10 @@ main ol {
         width: 100%;
         margin-top: .5em;
     
-        #step-3 & {line-height: 4em;}
         #step-5 & {align-items: end;}
         label {
             position: relative;
             color: var(--theme);
-
-            #step-3 & {
-                display: flex; flex-direction: column;
-                min-width: 3em; height: 3.5em;
-            }
-            img {
-                width: 3em; height: 2em; 
-                margin-top: .5em;
-            }
-            div {white-space: nowrap;}
-            div img:nth-child(2) {margin-left: .5em;}
-            &::after {
-                position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-                width: 3em; height: 3em;
-                z-index: -1;
-            }
         }
     }
     button {
