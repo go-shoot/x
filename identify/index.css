@@ -76,11 +76,7 @@ main ol {
         margin: 0 1em;
         li>&:first-child {margin-left: 0;}
     }
-    textarea {
-        width: 100%; height: 2em;
-        margin: .25em 0;
-    }
-    textarea[hidden]+small {display: none;}
+    #tier:empty+small {display: none;}
 }
 aside {
     position: fixed !important; bottom: 0;

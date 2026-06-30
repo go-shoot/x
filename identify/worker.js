@@ -1,10 +1,10 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let SESSION = './best.onnx', resize = 640; 
+let SESSION = './0630.onnx', resize = 1280; 
 class Collage {
     static transferred = () => Collage.cvs ? true : false
-    static colors = {blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)', bit: 'oklch(.8 .3 280)', CX: '#f42597'}// best.onnx only
-    //static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
+    //static colors = {blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)', bit: 'oklch(.8 .3 280)', CX: '#f42597'}// best.onnx only
+    static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
     //static colors = {CX: '#f42597', blade: 'oklch(.8 .3 110)', bit: 'oklch(.8 .3 280)', ratchet: 'oklch(.8 .3 180)'} //best 1
     constructor(canvas, bitmap) {
         canvas && ([Collage.cvs, Collage.ctx] = [canvas, canvas.getContext('2d', {willReadFrequently: true})]);

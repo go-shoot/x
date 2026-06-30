@@ -70,16 +70,17 @@ class Cutout {
         cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
         return window[Analysis.algo](cvs, 16).then(hash => (this.hash = hash) && bmp.close());
     }
-    label (lang = Q('input[name=lang]:checked').value) {
+    label (string = false, lang = Q('input[name=lang]:checked').value) {
         let P = this.identified;
         let label = P ? Markup.hktw(lang, P.only.name() && Markup.clear(P.names.chi) || P.abbr) : '';
-        COLLAGE.worker.label(this.box, label);
+        return string ? label : COLLAGE.worker.label(this.box, label);
     }
     actions = {
         correct: ev => {
             if (ev.target != Collage.cvs) {
                 this.identified = ev.target.labels[0].Part ?? '';
-                return COLLAGE.label();
+                COLLAGE.label();
+                return App.analysis.tiers.read();
             }
             let div = Q(`#${this.class}`);
             let sorted = [...div.children].sort((...labels) => 
@@ -138,14 +139,17 @@ class Analysis {
         App.state(4, 'begun');
         return Promise.all([COLLAGE.worker.classes.then(comps => this.comps = [...comps]), COLLAGE.worker.detect.backdrop()])
             .then(([, backdrop]) => Promise.all([this.prepare.cutouts(), this.prepare.assets(backdrop)]))
-            .then(() => this.match())
-            .then(() => App.state([4,5], 'done'))
-            .catch(er => console.error(er) || Q('.loading', [])[0]?.append(`${er}`));
+            .then(() => {
+                this.match();
+                this.tiers.read();
+                App.state([4,5], 'done');
+                App.analysis = this;
+            }).catch(er => console.error(er) || Q('.loading', [])[0]?.append(`${er}`));
     }
     prepare = {
-        assets: async (backdrop) => {
+        assets: async (backdrop, comps = this.comps) => {
             App.state(3, 'begun');
-            await Asset.add(this.comps).then(() => Promise.all(this.comps.flatMap(c => Asset[c]).map(A => A.computeHash(backdrop))));
+            await Asset.add(comps).then(() => Promise.all(comps.flatMap(c => Asset[c]).map(A => A.computeHash(backdrop))));
             Q('#correct').style.background = `rgba(${backdrop})`;
             App.state(3, 'done');
         },
@@ -159,6 +163,29 @@ class Analysis {
     match = () => this.comps.map(c => 
         new ScoreMatrix(c).compare.by((h1, h2) => h1.hammingDistance(h2)).determine({from: 'min', limit: 130}).order()
     )
+    #tiers = {}
+    tiers = {
+        read: async () => {
+            let tiers = this.#tiers.range ??= await COLLAGE.worker.detect.tiers();
+            this.#tiers.content = Object.entries(COLLAGE.cutouts).map(([comp, cutouts]) =>
+                [comp, tiers.map(([ty0, ty1]) => cutouts.filter(({box: [, y0, , y1]}) => y0 >= ty0 - 10 && y1 <= ty1 + 10))]
+            );
+            Q(`#tier`).replaceChildren(...this.#tiers.content.map(([comp, tiers]) =>
+                E(`pre#tier-${comp}`, tiers.map((cutouts, i) => `T${i}: ` + cutouts.map(C => C.label(true))).join('\n'))
+            ));
+        },
+        save: () => Promise.all(this.#tiers.content.map(([comp, tiers]) => 
+            DB.get('user', `tier-${comp}`)
+            .then(obj => {
+                obj = Object.assign(obj ?? {}, ...tiers.map((cutouts, i) => 
+                    cutouts.reduce((obj, C) => ({...obj, 
+                        [comp == 'CX' ? `${C.identified.subcomp}.${C.identified.abbr}` : C.identified.abbr]: i})
+                    , {})
+                ));
+                return DB.put('user', {[`tier-${comp}`]: obj})
+            })
+        )).then(() => confirm.innerHTML = '&#xe014;')
+    };
     static algo = Q('input[name=algo]:checked').value
 }
 class ScoreMatrix { //row: parts, col: boxes
@@ -226,7 +253,7 @@ Object.assign(App, {
                     return gtag('event', 'IDENTIFY-DOWNLOAD') || 
                     E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `辦認.jpg`}).click();
                 if (ev.target.matches('[id|=tier]'))
-                    return App.events.tiers(ev);
+                    return App.analysis.tiers.save();
                 if (ev.target.name == 'mag')
                     return E(Q('div[style]')).set({
                         '--f': E(Q('div[style]')).get('--f') + (ev.target.value == '+' ? .1 : -.1)
@@ -239,27 +266,5 @@ Object.assign(App, {
         Collage.cvs.onclick = Collage.select;
         PI.events({'#correct': {scroll: {x: true}}});
     },
-});
-Object.assign(App.events, {
-    tiers (ev) {
-        let [textareas, confirm] = [Q('textarea'), Q('#tier-confirm')];
-        if (ev.target.id == 'tier-list')
-            return COLLAGE.worker.detect.tiers().then(tiers =>
-                tiers.forEach(([ty0, ty1], i) => (textareas[i].value = [
-                    Analysis.result.boxes.filter(({y0, y1}) => y0 >= ty0 - 5 && y1 <= ty1 + 5)
-                    .map(({identified}) => identified?.abbr)
-                ]) && (textareas[i].hidden = false))
-            );
-        DB.get('user', `tier-${App.comp}`)
-        .then(obj => {
-            obj = Object.assign(obj ?? {}, ...textareas.map((area, i) => 
-                area.value.split(',').filter(a => a).reduce((obj, abbr) => ({...obj, [abbr.trim()]: i}), {})
-            ));
-            return DB.put('user', {[`tier-${App.comp}`]: obj})
-        })
-        .then(() => confirm.innerHTML = '&#xe014;')
-        .catch(er => (confirm.innerHTML = '格式錯誤') && console.error(er))
-        .finally(() => setTimeout(() => confirm.innerHTML = '確認', 1000));
-    }
 });
 export default App;
