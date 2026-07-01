@@ -16,7 +16,7 @@ class Part {
     *[Symbol.iterator] () {
         for (const value of Object.values(this)) 
             yield typeof value == 'object' ? 
-                Object.values(value).filter(v => typeof v != 'function').map(v => v.split?.(' ') ?? v) : value;
+                Object.values(value).filter(v => typeof v != 'function').map(v => v?.split?.(' ') ?? v) : value;
     }
     get subcomp () {return this.path[2] || this.path[0];}
     get weight () {return (w => parseInt(w) + Part.weight.adjust[w.at(-1)])(this.stat[0] || '0=');}
