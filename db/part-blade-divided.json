@@ -405,20 +405,20 @@
         "Tr": {
             "names": {"jap":"", "eng":"Tread"},
             "stat": [""],
-            "attr": ["att","right"],
+            "attr": ["att","right","expand"],
             "from": "metal."
         },
         "Hr": {
             "names": {"jap":"ハリケーン", "eng":"Hurricane"},
             "stat": [""],
-            "attr": ["bal","right"],
+            "attr": ["bal","right","expand"],
             "from": "metal."
         },
         "T": {
             "names": {"jap":"", "eng":""},
             "stat": [""],
             "desc": "",
-            "attr": ["att","right"],
+            "attr": ["att","right","expand"],
             "from": "over."
         },
         "Q": {
@@ -432,7 +432,7 @@
             "names": {"jap":"", "eng":""},
             "stat": [""],
             "desc": "",
-            "attr": ["bal","right"],
+            "attr": ["bal","right","expand"],
             "from": "over."
         }
     }
