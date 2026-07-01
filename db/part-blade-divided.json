@@ -251,17 +251,17 @@
             "attr": ["right","mfb"]
         },
         "Kr": {
-            "names": {"jap":"クラーケン", "eng":"Kraken", "chi":""},
+            "names": {"jap":"クラーケン", "eng":"Kraken", "chi":"海怪"},
             "stat": ["2-"],
             "attr": ["right"]
         },
         "Hr": {
-            "names": {"jap":"ホーネット", "eng":"Hornet", "chi":""},
+            "names": {"jap":"ホーネット", "eng":"Hornet", "chi":"黃蜂"},
             "stat": ["2-"],
             "attr": ["right"]
         },
         "Bc": {
-            "names": {"jap":"バックス", "eng":"Bucks", "chi":""},
+            "names": {"jap":"バックス", "eng":"Bucks", "chi":"公鹿 雄鹿"},
             "stat": ["2-"],
             "attr": ["right"]
         },
@@ -383,30 +383,50 @@
             "attr": ["att","right"]
         },
         "Wr": {
-            "names": {"jap":"リグル", "eng":"Wriggle"},
+            "names": {"jap":"リグル", "eng":"Wriggle", "chi":"蠕動 扭擺"},
             "stat": ["29+"],
             "attr": ["sta","right"],
             "from": "main.Ar"
         },
         "Ft": {
-            "names": {"jap":"フォート", "eng":"Fort"},
+            "names": {"jap":"フォート", "eng":"Fort", "chi":"要塞"},
             "stat": ["29="],
             "attr": ["bal","right"],
             "from": "main.Rp"
         },
         "An": {
-            "names": {"jap":"アントラーズ", "eng":"Antlers"},
+            "names": {"jap":"アントラーズ", "eng":"Antlers", "chi":"巨角 戰角"},
             "stat": ["29="],
             "attr": ["sta","right"],
             "from": "main.Fl"
         }
     },
     "hasbro": {
+        "Tr": {
+            "names": {"jap":"", "eng":"Tread"},
+            "stat": [""],
+            "attr": ["att","right"],
+            "from": "metal."
+        },
         "Hr": {
             "names": {"jap":"ハリケーン", "eng":"Hurricane"},
             "stat": [""],
             "attr": ["bal","right"],
             "from": "metal."
+        },
+        "T": {
+            "names": {"jap":"", "eng":""},
+            "stat": [""],
+            "desc": "",
+            "attr": ["att","right"],
+            "from": "over."
+        },
+        "Q": {
+            "names": {"jap":"", "eng":""},
+            "stat": [""],
+            "desc": "",
+            "attr": ["att","right"],
+            "from": "assist."
         },
         "I": {
             "names": {"jap":"", "eng":""},

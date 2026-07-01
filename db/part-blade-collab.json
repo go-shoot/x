@@ -1,4 +1,52 @@
 {
+    "SpSp": {
+        "group": "hasbro",
+        "names": {
+            "jap": "",
+            "eng": "SuppressSuperion",
+            "chi": "",
+            "aka": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["bal","right","BX","expand","bbb"]
+    },
+    "JgSz": {
+        "group": "hasbro",
+        "names": {
+            "jap": "",
+            "eng": "JaguarSeize",
+            "chi": "",
+            "aka": "美洲豹"
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["def","right","UX","fused"]
+    },
+    "CyEy": {
+        "group": "hasbro",
+        "names": {
+            "jap": "サイクロプスアイ",
+            "eng": "CyclopsEye",
+            "chi": "",
+            "aka": "獨眼"
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["sta","right","BX","expand"]
+    },
+    "HlNt": {
+        "group": "hasbro",
+        "names": {
+            "jap": "ヘルズネザー",
+            "eng": "HellsNether",
+            "chi": "",
+            "aka": "煉獄 惡魔"
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["bal","right","UX","fused"]
+    },
     "CrCl": {
         "group": "hasbro",
         "names": {
@@ -33,7 +81,7 @@
             "aka": "蝙蝠"
         },
         "stat": ["36+"],
-        "desc": "（此乃AI臨時圖）",
+        "desc": "",
         "attr": ["bal","right","BX"],
         "from": "WhWv"
     },
