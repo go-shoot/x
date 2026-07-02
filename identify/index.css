@@ -76,7 +76,10 @@ main ol {
         margin: 0 1em;
         li>&:first-child {margin-left: 0;}
     }
-    #tier:empty+small {display: none;}
+    #tier {
+        width: 100%;
+        &:empty+small {display: none;}
+    }
 }
 aside {
     position: fixed !important; bottom: 0;

@@ -45,7 +45,7 @@ class Asset {
     static async add (comp) {        
         if (Array.isArray(comp)) return Promise.all(comp.map(c => Q(`#${c}`) ?? Asset.add(c)));
         let assets = Asset.raw[comp].map(P => new Asset(P));
-        comp == 'bit' && assets.concat(Asset.flipped.bit.map(abbr => new Asset(abbr, true)));
+        comp == 'bit' && assets.push(...Asset.flipped.bit.map(abbr => new Asset(abbr, true)));
         return Promise.all(assets).then(As => (Asset[comp] = As) && Q('#correct').append(
             E(`div#${comp}`, {hidden: true}, [
                 E('label>input', {type: 'radio', name: 'correction'}), 
@@ -57,7 +57,7 @@ class Asset {
     static find (i, comp) {
         if (comp != 'bit') return Asset[comp][i]?.P;
         let flipped = Asset.flipped.bit[i - (Asset.bit.length - Asset.flipped.bit.length)];
-        return flipped ? Asset.bit.find(({P}) => P.abbr == flipped)?.P : Asset[comp][i]?.P;
+        return flipped ? Asset.bit.find(({P}) => P?.abbr == flipped)?.P : Asset[comp][i]?.P;
     }
 }
 class Cutout {
