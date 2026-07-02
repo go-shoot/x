@@ -8,7 +8,7 @@
             "aka": ""
         },
         "stat": [""],
-        "desc": "",
+        "desc": "(0-70LP tent.)",
         "attr": ["bal","right","BX","expand","bbb"]
     },
     "JgSz": {
@@ -20,7 +20,7 @@
             "aka": "美洲豹"
         },
         "stat": [""],
-        "desc": "",
+        "desc": "(HN tent.)",
         "attr": ["def","right","UX","fused"]
     },
     "CyEy": {
@@ -32,7 +32,7 @@
             "aka": "獨眼"
         },
         "stat": [""],
-        "desc": "",
+        "desc": "(7-55FB tent.)",
         "attr": ["sta","right","BX","expand"]
     },
     "HlNt": {
@@ -44,7 +44,7 @@
             "aka": "煉獄 惡魔"
         },
         "stat": [""],
-        "desc": "",
+        "desc": "(Z tent.)",
         "attr": ["bal","right","UX","fused"]
     },
     "CrCl": {
@@ -56,7 +56,7 @@
             "aka": "蟹"
         },
         "stat": ["28-"],
-        "desc": "",
+        "desc": "(9-65S tent.)",
         "attr": ["def","right","BX"],
         "from": "WyGl"
     },
@@ -69,7 +69,7 @@
             "aka": "荷魯斯 隼"
         },
         "stat": [""],
-        "desc": "",
+        "desc": "(9-65GB tent.)",
         "attr": ["sta","right","BX","expand"]
     },
     "BtGs": {
@@ -81,7 +81,7 @@
             "aka": "蝙蝠"
         },
         "stat": ["36+"],
-        "desc": "",
+        "desc": "(3-85GP tent.)",
         "attr": ["bal","right","BX"],
         "from": "WhWv"
     },
@@ -94,7 +94,7 @@
             "aka": "護盾城牆"
         },
         "stat": ["33-"],
-        "desc": "",
+        "desc": "(GB tent.)",
         "attr": ["def","right","UX","fused"]
     },
     "ShSr": {
@@ -106,7 +106,7 @@
             "aka": "忍者飛鏢 手裡劍"
         },
         "stat": ["37+"],
-        "desc": "",
+        "desc": "(LF tent.)",
         "attr": ["bal","right","fused","UX"]
     },
     "VkHc": {
@@ -117,7 +117,7 @@
             "chi": ""
         },
         "stat": ["33-"],
-        "desc": "",
+        "desc": "(4-55O tent.)",
         "attr": ["bal","right","UX"],
         "from": "HlHm"
     },
@@ -129,7 +129,7 @@
             "chi": ""
         },
         "stat": ["28-"],
-        "desc": "",
+        "desc": "(9-60GB tent.)",
         "attr": ["def","right","UX"],
         "from": "ShSh"
     },
@@ -141,7 +141,7 @@
             "chi": ""
         },
         "stat": ["31+"],
-        "desc": "",
+        "desc": "(3-60GB tent.)",
         "attr": ["def","right","BX"],
         "from": "WyGl"
     },

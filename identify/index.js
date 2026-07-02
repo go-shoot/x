@@ -65,7 +65,7 @@ const App = () => DB.get.essentials({flat: true})
 Object.assign(App, {
     createCanvasImg: (P, flipped) => 
         E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`)
-        .then(img => Promise.all([E.canvas(img, flipped), Object.assign(img, flipped ? {classList: 'flipped'} : {})]))
+        .then(img => Promise.all(img ? [E.canvas(img, flipped), Object.assign(img, flipped ? {classList: 'flipped'} : {})] : []))
     ,
     state (step, state) {
         if (Array.isArray(step)) return step.forEach(s => App.state(s, state));

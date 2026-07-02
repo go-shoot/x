@@ -405,12 +405,14 @@
         "Tr": {
             "names": {"jap":"", "eng":"Tread"},
             "stat": [""],
+            "desc": "(TQ5-50GN tent.)",
             "attr": ["att","right","expand"],
             "from": "metal."
         },
         "Hr": {
             "names": {"jap":"ハリケーン", "eng":"Hurricane"},
             "stat": [""],
+            "desc": "(IS7-55T tent.)",
             "attr": ["bal","right","expand"],
             "from": "metal."
         },
