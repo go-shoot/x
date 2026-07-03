@@ -1,6 +1,6 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let SESSION = './0703.onnx', resize = 1280; 
+let SESSION = './best (2).onnx', resize = 1280; 
 class Collage {
     static transferred = () => !!Collage.cvs
     static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
@@ -106,7 +106,7 @@ const Format = {
     output (output, rW, rH, W = Collage.cvs.width, H = Collage.cvs.height) {
         let boxes = [], unnested = [], pad = 0;
         for (let d = 0; d < output.length / 6; d++) {
-            if (output[6 * d + 4] < .135) continue; //score
+            if (output[6 * d + 4] < .025) continue; //score
             let x0 = output[6 * d + 0], y0 = output[6 * d + 1], 
                 x1 = output[6 * d + 2], y1 = output[6 * d + 3], 
                 classID = output[6 * d + 5];
