@@ -59,7 +59,7 @@ class Asset {
         let flipped = Asset.flipped.bit[i - (Asset.bit.length - Asset.flipped.bit.length)];
         return flipped ? Asset.bit.find(({P}) => P?.abbr == flipped)?.P : Asset[comp][i]?.P;
     }
-}
+}window.Asset=Asset;
 class Cutout {
     constructor({box, bmp}) {
         this.box = box, this.bitmap = bmp, this.class = box.class;
@@ -209,8 +209,8 @@ class ScoreMatrix { //row: parts, col: boxes
             if (this.done.rows.has(r) || this.done.cols.has(c) || (from == 'min' ? v > limit : v < limit)) return;
             COLLAGE.cutouts[this.comp][c].identified = Asset.find(r, this.comp); 
             COLLAGE.cutouts[this.comp][c].label();
-            this.done.rows.add(r);
             this.done.cols.add(c);
+            this.done.rows.add(r);
         });
         return this;
     }

@@ -3,9 +3,7 @@ import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.
 let SESSION = './0702.onnx', resize = 1280; 
 class Collage {
     static transferred = () => !!Collage.cvs
-    //static colors = {blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)', bit: 'oklch(.8 .3 280)', CX: '#f42597'}// best.onnx only
     static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
-    //static colors = {CX: '#f42597', blade: 'oklch(.8 .3 110)', bit: 'oklch(.8 .3 280)', ratchet: 'oklch(.8 .3 180)'} //best 1
     constructor(canvas, bitmap) {
         canvas && ([Collage.cvs, Collage.ctx] = [canvas, canvas.getContext('2d', {willReadFrequently: true})]);
         [Collage.cvs.width, Collage.cvs.height] = [Collage.W, Collage.H] = [bitmap.width, bitmap.height];
@@ -15,13 +13,13 @@ class Collage {
     draw (boxes, cvs = Collage.cvs, ctx = Collage.ctx) {
         (boxes === true || !boxes) && ctx.drawImage(this.bitmap, 0, 0);
         if (!boxes) return;
-        let [W, H, pad] = [cvs.width, cvs.height, 4];
+        let [W, H] = [cvs.width, cvs.height], stroke =  Math.max(2, Math.floor(W / 400));
         (boxes === true ? this.boxes : boxes).forEach(box => {
             let [x0, y0, x1, y1] = box;
-            let [bx, by] = [Math.max(0, x0 - pad), Math.max(0, y0 - pad)];
-            let [bw, bh] = [Math.min(W - bx, x1 - x0), Math.min(H - by, y1 - y0)];
+            let [bx, by] = [Math.max(0, x0 - stroke), Math.max(0, y0 - stroke)];
+            let [bw, bh] = [Math.min(W - bx, x1 - x0 + 2 * stroke), Math.min(H - by, y1 - y0 + 2 * stroke)];
             ctx.strokeStyle = Collage.colors[box.class]; 
-            ctx.lineWidth = Math.max(2, Math.floor(W / 400));
+            ctx.lineWidth = stroke;
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
@@ -106,13 +104,13 @@ const Format = {
         return new ort.Tensor('float32', input, [1, 3, rH, rW]);
     },
     output (output, rW, rH, W = Collage.cvs.width, H = Collage.cvs.height) {
-        let boxes = [], unnested = [];
+        let boxes = [], unnested = [], pad = 0;
         for (let d = 0; d < output.length / 6; d++) {
-            if (output[6 * d + 4] < .03) continue; //score
+            if (output[6 * d + 4] < .135) continue; //score
             let x0 = output[6 * d + 0], y0 = output[6 * d + 1], 
                 x1 = output[6 * d + 2], y1 = output[6 * d + 3], 
                 classID = output[6 * d + 5];
-            let box = [x0 / rW * W + 1, y0 / rH * H + 1, x1 / rW * W + 1, y1 / rH * H + 1];
+            let box = [x0 / rW * W - pad, y0 / rH * H - pad, x1 / rW * W + pad, y1 / rH * H + pad];
             box.class = Object.keys(Collage.colors)[Math.round(classID)];
             boxes.push(box);
         }
