@@ -1,6 +1,6 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let SESSION = './0702.onnx', resize = 1280; 
+let SESSION = './0703.onnx', resize = 1280; 
 class Collage {
     static transferred = () => !!Collage.cvs
     static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
