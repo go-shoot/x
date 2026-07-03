@@ -268,7 +268,7 @@
         "Dk": {
             "names": {"jap":"ドレイク", "eng":"Drake", "chi":"魔龍 龍神"},
             "stat": ["2-"],
-            "attr": ["right"]
+            "attr": ["right","bbb"]
         }
     },
     "metal": {
