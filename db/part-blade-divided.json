@@ -403,7 +403,7 @@
     },
     "hasbro": {
         "Tr": {
-            "names": {"jap":"", "eng":"Tread"},
+            "names": {"jap":"トレッド", "eng":"Tread"},
             "stat": [""],
             "desc": "(TQ5-50GN tent.)",
             "attr": ["att","right","expand"],

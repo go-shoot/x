@@ -107,11 +107,22 @@
         justify-self: end;
     }
     &.eng {
+        justify-self: baseline;
         color: var(--type);
         text-transform: uppercase;
         white-space: break-spaces;
+        anchor-name: --eng;
 
+        &:has(+.has)::before {content: '・'; color: var(--on);}
         span {color: var(--on);}
+    }
+    &.has {
+        font-size: .4em;
+        line-height: 1;
+        text-transform: uppercase;
+        position: absolute; position-anchor: --eng; position-area: top center;
+        text-align: right; writing-mode: sideways-rl;
+        white-space: pre-wrap;
     }
 }
 :host ul {

@@ -183,7 +183,8 @@ Object.assign(Tile.prototype.fill, {
             this.Part.only.name() ? 
                 Markup.tile(names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
                 E('h4', Markup.upgrade(path.at(-1), 'figureDash')), 
-            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup.tile(names[l], segment.eng)[0])) : ''
+            names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup.tile(names[l], segment.eng)[0])) : '',
+            names.has ? E(`h5.has`, names.has.replace(' ', '\n')) : ''
         ].flat(9);
     },
     stat () {
