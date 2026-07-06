@@ -4,6 +4,7 @@
         "names": {
             "jap": "ヘブンズリング",
             "eng": "HeavensRing",
+            "has": "Ring Aether",
             "chi": "",
             "aka": "天使 光環"
         },
@@ -16,9 +17,10 @@
         "names": {
             "jap": "グローリーワルキューレ",
             "eng": "Glory\\Valkyrie",
+            "has": "Glory Valkerion",
             "chi": ""
         },
-        "stat": [""],
+        "stat": ["43+"],
         "desc": "內藏彈簧的可動刃攻擊時回彈，以反發力特化於強烈的撞擊性能。",
         "attr": ["att","right","fused","bbb"]
     },
@@ -38,6 +40,7 @@
         "names": {
             "jap": "バイソンバロー",
             "eng": "BisonBurrow",
+            "has": "Valor Bison",
             "chi": "",
             "aka": "野牛"
         },
@@ -50,6 +53,7 @@
         "names": {
             "jap": "バレットグリフォン",
             "eng": "Bullet\\Griffon",
+            "has": "Rocket Griffon",
             "chi": "彈丸\\獅鷲 子彈\\獅鷲"
         },
         "stat": ["61-"],
@@ -61,7 +65,7 @@
         "names": {
             "jap": "オロチクラスタ",
             "eng": "OrochiCluster",
-            "chi": "",
+            "has": "Coil Orochi",
             "aka": "大蛇"
         },
         "stat": ["36+"],
@@ -84,6 +88,7 @@
         "names": {
             "jap": "メテオドラグーン",
             "eng": "Meteor\\Dragoon",
+            "has": "Meteroid Dragoon",
             "chi": "隕石\\青龍 隕星\\龍騎士"
         },
         "stat": ["39="],
@@ -128,6 +133,7 @@
         "names": {
             "jap": "トリケラプレス",
             "eng": "TriceraPress",
+            "has": "Brace Triceratops",
             "chi": "三角龍壓 三角強襲"
         },
         "stat": ["36+"],
@@ -216,6 +222,7 @@
         "names": {
             "jap": "クリムゾンガルーダ",
             "eng": "Crimson\\Garuda",
+            "has": "Scarlet Garuda",
             "chi": "緋紅\\迦樓羅 赫燃\\天鳳"
         },
         "stat": ["35="],
@@ -227,6 +234,7 @@
         "names": {
             "jap": "シルバーウルフ",
             "eng": "Silver\\Wolf",
+            "has": "Sterling Wolf",
             "chi": "白銀\\戰狼 霜輝\\銀狼"
         },
         "stat": ["37="],
@@ -238,6 +246,7 @@
         "names": {
             "jap": "ホエールウェーブ",
             "eng": "WhaleWave",
+            "has": "Tide Whale",
             "chi": "戰鯨波浪 巨鯨怒濤"
         },
         "stat": ["38="],
@@ -282,6 +291,7 @@
         "names": {
             "jap": "ブラックシェル",
             "eng": "Black\\Shell",
+            "has": "Obsidian Shell",
             "chi": "漆黑\\護殼 玄冥\\戰甲"
         },
         "stat": ["32+"],
@@ -304,6 +314,7 @@
         "names": {
             "jap": "ヴァイスタイガー",
             "eng": "Weiss\\Tiger",
+            "has": "Pearl Tiger",
             "chi": "純白\\猛虎 皓戰\\猛虎"
         },
         "stat": ["35-"],
@@ -337,6 +348,7 @@
         "names": {
             "jap": "ウィザードロッド",
             "eng": "WizardRod",
+            "has": "Wand Wizard",
             "chi": "巫師幻杖 魔導神杖"
         },
         "stat": ["35+"],
@@ -348,6 +360,7 @@
         "names": {
             "jap": "ヘルズハンマー",
             "eng": "HellsHammer",
+            "has": "Hammer Incendio",
             "chi": "煉獄惡鎚 惡魔戰鎚"
         },
         "stat": ["33+"],
@@ -403,6 +416,7 @@
         "names": {
             "jap": "フェニックスウイング",
             "eng": "PhoenixWing",
+            "has": "Soar Phoenix",
             "chi": "鳳凰飛翼"
         },
         "stat": ["39-"],
@@ -448,6 +462,7 @@
         "names": {
             "jap": "ヘルズチェイン",
             "eng": "HellsChain",
+            "has": "Chain Incendio",
             "chi": "煉獄鎖鏈 惡魔鎖鏈"
         },
         "stat": ["33+"],
@@ -459,6 +474,7 @@
         "names": {
             "jap": "ヘルズサイズ",
             "eng": "HellsScythe",
+            "has": "Scythe Incendio",
             "chi": "煉獄魔鐮 惡魔紅鐮"
         },
         "stat": ["33-"],
@@ -514,6 +530,7 @@
         "names": {
             "jap": "シャークエッジ",
             "eng": "SharkEdge",
+            "has": "Keel Shark",
             "chi": "烈鯊利刃 鮫鯊鋒鰭"
         },
         "stat": ["35-"],
@@ -607,6 +624,7 @@
         "names": {
             "jap": "ベアスクラッチ",
             "eng": "BearScratch",
+            "has": "Savage Bear",
             "chi": "狂熊鋭爪 悍熊猛爪"
         },
         "stat": ["30+"],
@@ -619,6 +637,7 @@
         "names": {
             "jap": "クロコクランチ",
             "eng": "CrocoCrunch",
+            "has": "Bite Croc",
             "chi": "",
             "aka": "鱷魚"
         },

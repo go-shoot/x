@@ -4,6 +4,7 @@
         "names": {
             "jap": "ジークスペリオン",
             "eng": "SiegSuperion",
+            "has": "Suppress Superion",
             "chi": "",
             "aka": ""
         },
@@ -40,6 +41,7 @@
         "names": {
             "jap": "ヘルズネザー",
             "eng": "HellsNether",
+            "has": "Nether Incendio",
             "chi": "",
             "aka": "煉獄 惡魔"
         },
@@ -102,6 +104,7 @@
         "names": {
             "jap": "シノビシュリケン",
             "eng": "ShinobiShuriken",
+            "has": "Cutter Shinobi",
             "chi": "",
             "aka": "忍者飛鏢 手裡劍"
         },

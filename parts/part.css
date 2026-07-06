@@ -113,10 +113,11 @@
         white-space: break-spaces;
         anchor-name: --eng;
 
-        &:has(+.has)::before {content: '・'; color: var(--on);}
+        &:has(+.has)::before {content: '・'; color: var(--on); display: none;}
         span {color: var(--on);}
     }
     &.has {
+        display: none;
         font-size: .4em;
         line-height: 1;
         text-transform: uppercase;
