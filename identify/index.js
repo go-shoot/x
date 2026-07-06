@@ -211,7 +211,7 @@ class ScoreMatrix { //row: parts, col: boxes
             COLLAGE.cutouts[this.comp][c].label();
             this.done.cols.add(c);
             this.done.rows.add(r);
-            this.comp == 'bit' && this.done.rows.add(Asset.bit.findIndex(({P}) => P.abbr == Asset.bit[r].P || P == Asset.bit[r].P.abbr));
+            this.comp == 'bit' && this.done.rows.add(Asset.bit.findIndex(({P}) => P?.abbr == Asset.bit[r].P || P == Asset.bit[r].P.abbr));
         });
         return this;
     }
