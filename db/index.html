@@ -7,7 +7,8 @@
     <textarea id="news"></textarea>
     <pre>UX-20 starter
 グローリーワルキューレLF|Glory Valkyrie LF|att
-desc1|desc2</pre>
+desc1|desc2
+https:// https://</pre>
     <textarea id="part"></textarea>
     <pre>SgSp|hasbro
 ジークスペリオン|SiegSuperion
@@ -21,12 +22,11 @@ desc</pre>
     document.forms[0].oninput = ev => {
         let result;
         if (ev.target.id == 'news') {
-            let [code, name, desc] = ev.target.value.split('\n'), type, name1, name2, bey;
+            let [code, name, desc, img] = ev.target.value.split('\n'), type, name1, name2, bey;
             name && /[ア-ン]|[a-z]{4,}/.test(name) ? [name1, name2, type] = name.split('|') : bey = name;
             desc = desc?.split('|');
-            result = {
-                code, bey, name: name1 ? [name1, name2].filter(n => n) : null, type, desc
-            };
+            img = img?.split(' ').filter(url => url);
+            result = {code, bey, name: name1 ? [name1, name2].filter(n => n) : null, type, desc, img};
         } else if (ev.target.id == 'part') {
             let [abbr, names, attr, stat, desc] = ev.target.value.split('\n'), group;
             [abbr, group] = abbr.split('|');
@@ -38,13 +38,4 @@ desc</pre>
         Q('#output').innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/^\{|\}$/g, '');
     }
     Q('#output').onclick = ev => navigator.clipboard.writeText(ev.target.innerText);
-</script>
-<script id="news" type="application/json">
-{
-    "2026-07-11":[{
-        "code":"UX-20 starter","name":["グローリーワルキューレLF","Glory Valkyrie LF"],"type":"att",
-        "desc":["與2017年陀螺【God Valkyrie】有相同的回彈彈簧機關"],
-        "imgs":["https://m.media-amazon.com/images/I/61UYOrroRUL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61tFSxORikL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/51Zr8ZPcipL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/619mdYUcGRL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/610N33F61QL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/1ad9aa00-baa8-47a9-a06e-d37977d1e09e.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/eceab1f5-582f-4e3b-981b-957b43a6820b.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/41UDAd1D4GL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L28AsE3WL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41TeU7%2BCqpL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51hSPVS%2B0ZL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51OSQ28nFZL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51l6Lty6l1L.__AC_SR150,300___.jpg"]
-    }]
-}
 </script>
