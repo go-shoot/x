@@ -226,7 +226,7 @@
             "attr": ["right"]
         },
         "Hl": {
-            "names": {"jap":"ヘルズ", "eng":"Hells", "has": "Incendio", "chi":"煉獄 惡魔"},
+            "names": {"jap":"ヘルズ", "eng":"Hells", "hasbro": "Incendio", "chi":"煉獄 惡魔"},
             "stat": ["2-"],
             "attr": ["right"]
         },
@@ -261,7 +261,7 @@
             "attr": ["right"]
         },
         "Bc": {
-            "names": {"jap":"バックス", "eng":"Bucks", "has": "Stag", "chi":"公鹿 雄鹿"},
+            "names": {"jap":"バックス", "eng":"Bucks", "hasbro": "Stag", "chi":"公鹿 雄鹿"},
             "stat": ["2-"],
             "attr": ["right"]
         },
@@ -291,7 +291,7 @@
             "attr": ["sta","right","bbb"]
         },
         "Fr": {
-            "names": {"jap":"フォートレス", "eng":"Fortress", "has": "Armor", "chi":"堡壘"},
+            "names": {"jap":"フォートレス", "eng":"Fortress", "hasbro": "Armor", "chi":"堡壘"},
             "stat": ["28-"],
             "desc": "有高低差的形狀分散對手的攻擊，立體形狀的刃亦產生反擊。",
             "attr": ["def","right"]
@@ -377,7 +377,7 @@
             "attr": ["sta","right"]
         },
         "Br": {
-            "names": {"jap":"ブレイブ", "eng":"Brave", "has": "Courage", "chi":"勇者 勇氣"},
+            "names": {"jap":"ブレイブ", "eng":"Brave", "hasbro": "Courage", "chi":"勇者 勇氣"},
             "stat": ["31+"],
             "desc": "三枚大形Upper刃加上了能産生Down force的空力構造。",
             "attr": ["att","right"]

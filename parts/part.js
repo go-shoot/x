@@ -123,7 +123,8 @@ class Tile extends HTMLElement {
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
-            onclick: ev => ev.target.href ? '' : this.#onclick[location.pathname]?.(ev)
+            onclick: ev => ev.target.href ? '' : ev.composedPath().find(el => el.tagName == 'H5') ? 
+                this.copy(ev) : this.#onclick[location.pathname]?.(ev)
         });
     }
     fill () {
@@ -147,6 +148,14 @@ class Tile extends HTMLElement {
             from && from.at(-1) ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
+    }
+    copy (ev) {
+        let h5 = ev.composedPath().find(el => el.tagName == 'H5');
+        navigator.clipboard.writeText(h5.innerText).then(() => {
+            let html = h5.innerHTML;
+            h5.innerText = '';
+            setTimeout(() => h5.innerHTML = html, 1000);
+        });
     }
     #onclick = {
         '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
@@ -177,14 +186,16 @@ Object.assign(Tile.prototype.fill, {
     },
     names () {
         let {path, group, names, attr} = this.Part;
-        let segment = {eng: !['collab', 'hasbro'].includes(group)};
+        let segment = {eng: group != 'collab'};
         segment.chi = segment.eng && !attr.has('BSB');
+        let hasbro = ['BX','UX','hasbro'].includes(group) && !names.eng.includes('\\') && !names.hasbro ?
+            names.eng.replace(/^(.+?)([A-Z].+)$/, '$2\n$1') : names.hasbro?.replace(' ', '\n');
         return [
             this.Part.only.name() ? 
                 Markup.tile(names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
                 E('h4', Markup.upgrade(path.at(-1), 'figureDash')), 
             names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup.tile(names[l], segment.eng)[0])) : '',
-            names.has ? E(`h5.has`, names.has.replace(' ', '\n')) : ''
+            hasbro ? E(`h5.hasbro`, hasbro) : ''
         ].flat(9);
     },
     stat () {
