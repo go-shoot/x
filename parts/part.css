@@ -113,11 +113,10 @@
         white-space: break-spaces;
         anchor-name: --eng;
 
-        &:has(+.hasbro)::before {content: '｜'; color: var(--on); display: none;}
+        &:has(+.hasbro)::before {content: '｜'; color: var(--on);}
         span {color: var(--on);}
     }
     &.hasbro {
-        display: none;
         font-size: .4em;
         line-height: 1;
         text-transform: uppercase;
