@@ -1,9 +1,27 @@
 <style>
-    textarea {width: 40em; height: 10em;}
-    pre {text-align: left;}
+    form {text-align: left; padding: 0 .5em;}
+    summary {line-height: 3em;}
+    time {margin-left: 1em; white-space: break-spaces;}
+    time::after {content: '\A';}
+    p {margin: 0;}
+    li {
+        margin-top: 1em;
+        &::before {content: attr(title);}
+        &[title^=BXC]::before {color: crimson;}
+        &[title^=BXH]::before {color: gold;}
+        &[title^=BXG]::before {color: dodgerblue;}
+    }
+    textarea {
+        width: min(40em,100%); height: 10em;
+        margin: 1em 0;
+    }
+    pre {font-size: .8em; margin-top: 0;}
+    output {white-space: pre;}
 </style>
 
 <form>
+    <label>JSON<input type=file accept="application/json" ></label>
+    <div class="groups"></div>
     <textarea id="news"></textarea>
     <pre>UX-20 starter
 グローリーワルキューレLF|Glory Valkyrie LF|att
@@ -15,18 +33,41 @@ https:// https://</pre>
 bal|right
 34+,22,4
 desc</pre>
-    <pre id="output"></pre>
+    <output name="json"></output>
 </form>
 
 <script type="module">
-    document.forms[0].oninput = ev => {
+    let FORM = document.forms[0];
+    FORM.onchange = ev => ev.target.files?.[0].text().then(data => {
+        data = JSON.parse(JSON.parse(data).masterData).data;
+        for (let category in data) {
+            if (['Missions', 'TrophyTemplates', 'RareBeyGetBattles', 'RareBeyCodes', 'LimitedItemCodes', 'HomeEnquetes', 'Notifications', 'Rewards'].includes(category)) {
+                delete data[category];
+                continue;
+            }
+            let lis = data[category]
+                .filter(({model_name, release_at}) => /[^\d]X[^\d]\d/i.test(model_name) || new Date - new Date(release_at) < 30*24*60*60*1000)
+                .sort((a, b) => new Date(b.release_at) - new Date(a.release_at))
+                .map(({release_at, model_name, name, description}) => E('li', {title: model_name}, [
+                    E('time', release_at),
+                    E.dl({ja: name['ja-JP'], en: name['en-US'], tw: name['zh-TW'], hk: name['zh-HK']}),
+                    E('p', description['ja-JP'])
+                ]));
+            Q('div').prepend(E('details', [
+                E('summary', category + ' ' + lis.length), 
+                E('ul', lis)
+            ]));
+        }
+    });
+    FORM.oninput = ev => {
         let result;
         if (ev.target.id == 'news') {
-            let [code, name, desc, img] = ev.target.value.split('\n'), type, name1, name2, bey;
+            let [code, name, desc, imgs] = ev.target.value.split('\n'), type, name1, name2, bey;
             name && /[ア-ン]|[a-z]{4,}/.test(name) ? [name1, name2, type] = name.split('|') : bey = name;
             desc = desc?.split('|');
-            img = img?.split(' ').filter(url => url);
-            result = {code, bey, name: name1 ? [name1, name2].filter(n => n) : null, type, desc, img};
+            imgs = imgs?.split(' ').filter(url => url);
+            result = {code, bey, name: name1 ? [name1, name2].filter(n => n) : null, type, desc, imgs};
+            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4);
         } else if (ev.target.id == 'part') {
             let [abbr, names, attr, stat, desc] = ev.target.value.split('\n'), group;
             [abbr, group] = abbr.split('|');
@@ -34,8 +75,8 @@ desc</pre>
             attr = attr?.split('|').filter(v => v);
             stat = stat?.split(',').map(s => /^\d+$/.test(s) ? parseInt(s) : s).filter(v => v);
             result = {[abbr]: {group, names, attr, stat, desc}};
+            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/^\{|\}$/g, '');
         }
-        Q('#output').innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/^\{|\}$/g, '');
     }
-    Q('#output').onclick = ev => navigator.clipboard.writeText(ev.target.innerText);
+    FORM.json.onclick = ev => navigator.clipboard.writeText(ev.target.innerText);
 </script>
