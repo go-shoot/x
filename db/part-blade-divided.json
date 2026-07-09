@@ -35,7 +35,7 @@
         "G": {
             "names": {"jap":"グラビティ", "eng":"Gravity"},
             "stat": [],
-            "desc": "",
+            "desc": "在兩處厚重凸出的重量級金屬組件大幅強化撞擊性能。",
             "attr": ["att","right"]
         },
         "O": {
@@ -386,18 +386,21 @@
             "names": {"jap":"リグル", "eng":"Wriggle", "chi":"蠕動 扭擺"},
             "stat": ["29+"],
             "attr": ["sta","right"],
+            "desc": "兩枚大型圓弧狀的刃産生強離心力。",
             "from": "main.Ar"
         },
         "Ft": {
             "names": {"jap":"フォート", "eng":"Fort", "chi":"要塞"},
             "stat": ["29="],
             "attr": ["bal","right"],
+            "desc": "四枚刃的Smash形狀令對手姿勢崩倒同時連打；平衡形狀的設計。",
             "from": "main.Rp"
         },
         "An": {
             "names": {"jap":"アントラーズ", "eng":"Antlers", "chi":"巨角 戰角"},
             "stat": ["29="],
             "attr": ["sta","right"],
+            "desc": "帶有圓潤度的三枚刃特化於卸開性能。",
             "from": "main.Fl"
         }
     },
