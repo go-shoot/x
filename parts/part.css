@@ -51,10 +51,9 @@
     figure {grid-area: 2/1/3/-1;}
     p {grid-area: 1/3/-1/-1;}
     dl {grid-area: 2/2/-1/-1;}
-    strong {grid-area: 2/4;}
     ul {grid-area: 4/1/-1/-1;}
-    ::slotted(a) {grid-area: 1/1;}
-    ::slotted(a:not(:empty)) {grid-area: 2/2;}
+    a {grid-area: 1/1;}
+    a:not(:empty) {grid-area: 2/2;}
 }
 
 :host object {
@@ -106,10 +105,13 @@
         margin-bottom: -.05em;
         justify-self: end;
     }
-    &.eng {
-        justify-self: baseline;
-        color: var(--type);
+    &.eng,&.hasbro {
+        writing-mode: vertical-rl;
         text-transform: uppercase;
+    }
+    &.eng {
+        justify-self: left;
+        color: var(--type);
         white-space: break-spaces;
         anchor-name: --eng;
 
@@ -119,9 +121,8 @@
     &.hasbro {
         font-size: .4em;
         line-height: 1;
-        text-transform: uppercase;
         position: absolute; position-anchor: --eng; position-area: top center;
-        text-align: right; writing-mode: sideways-rl;
+        text-align: right;
         white-space: pre-wrap;
     }
 }
@@ -172,12 +173,12 @@
     img {--glow-size: .1em;}
 }
 
-::slotted(a:not(:empty)) {
+:host a:not(:empty) {
     font-size: .8em; 
     margin: 0 0 -.2em -.3em;
     place-self: end start;
 }
-::slotted(a:not(:empty))::before {
+:host a:not(:empty)::before {
     content: '\e03c' !important;
     font-size: 1.45em;
     transform: translate(.4em,-.4em); display: inline-block;
@@ -243,13 +244,6 @@
         margin-left: .2em;
         vertical-align: .25em;
     }
-}
-
-:host strong {
-    align-self: end;
-    font-size: .6em; color: silver;
-    writing-mode: vertical-lr;
-    margin: 0 0 .2em -.4em;
 }
 
 :host figure {
