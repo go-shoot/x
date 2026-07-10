@@ -31,9 +31,11 @@
       },{
       "code":"BXG-47 starter","bey":"SPg 3-70 RA"
     }],
-    "2026-08":[{
+    "2026-08":[
+      {
       "code":"UX-21 deck set"
-    }],
+    }
+  ],
     "2026-08-29":[{
       "code":"BXG-57 deck set","name":["エヴァンゲリオンデッキセット","Evangelion Deck Set"],
       "desc":["以初号機、零号機、２号機作image設計"]

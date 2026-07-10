@@ -123,8 +123,7 @@ class Tile extends HTMLElement {
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
-            onclick: ev => ev.target.href ? '' : ev.composedPath().find(el => el.tagName == 'H5') ? 
-                this.copy(ev) : this.#onclick[location.pathname]?.(ev)
+            onclick: ev => this.#onclick(ev)
         });
     }
     fill () {
@@ -140,26 +139,24 @@ class Tile extends HTMLElement {
             E('slot'),
             E('ul', this.fill.icons()),
             E('p', desc),
-            ...this.fill.stat(),
+            this.fill.stat(),
             ...this.fill.names(),
-            (typeof Tile.svg == 'object' ? Tile.svg : Tile.svg()).cloneNode(true)
-        );
-        this.append(
-            from && from.at(-1) ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
+            (typeof Tile.svg == 'object' ? Tile.svg : Tile.svg()).cloneNode(true),
+            from?.at(-1) ? E('a', from.at(-1), {href: PARTS.at(from).href()}) : '',
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
     }
-    copy (ev) {
-        let h5 = ev.composedPath().find(el => el.tagName == 'H5');
-        navigator.clipboard.writeText(h5.innerText).then(() => {
-            let html = h5.innerHTML;
-            h5.innerText = '';
-            setTimeout(() => h5.innerHTML = html, 1000);
-        });
-    }
-    #onclick = {
-        '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
-        '/x/products/': () => Table.search(this.Part.path)
+    #onclick (ev) {
+        let el = ev.composedPath().find(el => ['A', 'H5'].includes(el.tagName));
+        ({
+            H5: () => navigator.clipboard.writeText(el.innerText).then(() => {
+                let html = el.innerHTML;
+                el.innerText = '';
+                setTimeout(() => el.innerHTML = html, 1000);
+            }),
+            '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
+            '/x/products/': () => Table.search(this.Part.path)
+        })[el?.tagName ?? location.pathname]?.(ev);
     }
     static icons = new O([
         [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
@@ -201,13 +198,10 @@ Object.assign(Tile.prototype.fill, {
     stat () {
         let {comp, stat, date, attr} = this.Part;
         let terms = Tile[comp][comp == 'bit' && attr.has('fused') ? 'terms.fused' : 'terms'];
-        return [
-            date ? E('strong', date) : '',
-            E('dl', stat.flatMap((s, i) => E('div', [
-                E('dt', s ? i > 0 ? Markup(terms[i], 'stat') : terms[i] : ''), 
-                E('dd', typeof s == 'string' ? Markup(s, 'stat') : s)
-            ])))
-        ];
+        return E('dl', stat.flatMap((s, i) => E('div', [
+            E('dt', s ? i > 0 ? Markup(terms[i], 'stat') : terms[i] : ''), 
+            E('dd', typeof s == 'string' ? Markup(s, 'stat') : s)
+        ])));
     },
 });
 Tile.svg = () => {
