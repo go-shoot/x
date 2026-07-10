@@ -67,16 +67,18 @@ desc</pre>
             desc = desc?.split('|');
             imgs = imgs?.split(' ').filter(url => url);
             result = {code, bey, name: name1 ? [name1, name2].filter(n => n) : null, type, desc, imgs};
-            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4);
+            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/\n\s{8,}|\n\s{4,}(?=[\]\}])/g, '') + ',';
         } else if (ev.target.id == 'part') {
             let [abbr, names, attr, stat, desc] = ev.target.value.split('\n'), group;
             [abbr, group] = abbr.split('|');
             names = Object.fromEntries(names.split('|').map(n => [/[ア-ン]/.test(n) ? 'jap' : 'eng', n]));
             attr = attr?.split('|').filter(v => v);
-            stat = stat?.split(',').map(s => /^\d+$/.test(s) ? parseInt(s) : s).filter(v => v);
+            stat = stat?.split(',').map(s => /^\d+$/.test(s.trim()) ? parseInt(s) : s).filter(v => v);
             result = {[abbr]: {group, names, attr, stat, desc}};
-            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/^\{|\}$/g, '');
+            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/\n\s{12,}|\n\s{8,}(?=[\]\}])/g, '').replace(/^\{|\}$/g, '') + ',';
         }
+        localStorage[ev.target.id] = ev.target.value;
     }
+    Object.entries(localStorage).forEach(([id, value]) => Q(`#${id}`) && (Q(`#${id}`).value = value));
     FORM.json.onclick = ev => navigator.clipboard.writeText(ev.target.innerText);
 </script>
