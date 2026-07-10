@@ -36,7 +36,7 @@
         "https://preview.redd.it/hells-and-the-mechanics-is-a-dran-with-new-weight-v0-no0rgogjqech1.jpg?width=1080&crop=smart&auto=webp&s=c86186b4b11df5895fe22af83d7e8a73038c6483"
     ]
 },{
-    "code": "BXG-?? booster",
+    "code": "BXG-?? booster","type":"att",
     "name": [
         "ドランソード3-60F V2",
         "Dran Sword 3-60F Version 2"
@@ -49,7 +49,7 @@
     ]
 } ],
     "2026-08-29":[{
-    "code": "BXG-?? starter",
+    "code": "BXG-?? starter","type":"att",
     "name": [
         "グローリーワルキューレLF メタルコート：ブルー",
         "Glory Valkyrie LF Metal Coat: Blue"
@@ -77,10 +77,10 @@
 },{
       "code":"CX-19 random booster select"
     },{
-    "code": "BXC-??",
+    "code": "BXC-??","type":"def",
     "name": [
-        "クロックミラージュ4-55S",
-        "Clock Mirage 4-55S"
+        "クロックミラージュ4-55S メタルコート：ブラック",
+        "Clock Mirage 4-55S Metal Coat: Black"
     ],
     "desc": [
         "填寫雜誌內表格購買"
