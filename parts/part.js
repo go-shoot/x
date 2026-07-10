@@ -186,13 +186,13 @@ Object.assign(Tile.prototype.fill, {
         let segment = {eng: group != 'collab'};
         segment.chi = segment.eng && !attr.has('BSB');
         let hasbro = ['BX','UX','hasbro'].includes(group) && !names.eng.includes('\\') && !names.hasbro ?
-            names.eng.replace(/^(.+?)([A-Z].+)$/, '$2\n$1') : names.hasbro?.replace(' ', '\n');
+            names.eng.replace(/^(.+?)([A-Z].+?)(_.+)?$/, '$2\n$1$3') : names.hasbro?.replace(' ', '\n');
         return [
             this.Part.only.name() ? 
                 Markup.tile(names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
                 E('h4', Markup.upgrade(path.at(-1), 'figureDash')), 
             names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup.tile(names[l], segment.eng)[0])) : '',
-            hasbro ? E(`h5.hasbro`, hasbro) : ''
+            hasbro ? E(`h5.hasbro`, console.log(hasbro)??Markup(hasbro, 'mode')) : ''
         ].flat(9);
     },
     stat () {

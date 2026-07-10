@@ -1,10 +1,10 @@
 {
   "part-bit":          "2026/07/01 13:55:00",
-  "part-blade":        "2026/07/08 20:15:00",
   "part-blade-divided":"2026/07/10 12:15:00",
-  "prod-beys":         "2026/07/10 12:15:00",
-  "part-blade-collab": "2026/07/08 20:15:00",
-  "part-ratchet":      "2026/07/01 13:42:00",
+  "prod-beys":         "2026/07/10 23:55:00",
+  "part-blade":        "2026/07/10 23:55:00",
+  "part-blade-collab": "2026/07/10 23:55:00",
+  "part-ratchet":      "2026/07/10 23:55:00",
   "prod-keihin":       "2026/06/16 12:35:00",
   "meta":              "2026/05/18 17:10:00",
   "prod-gear":         "2026/06/17 00:10:00",
@@ -49,7 +49,7 @@
     ]
 } ],
     "2026-08-29":[{
-    "code": "BXG-?? booster",
+    "code": "BXG-?? starter",
     "name": [
         "グローリーワルキューレLF メタルコート：ブルー",
         "Glory Valkyrie LF Metal Coat: Blue"

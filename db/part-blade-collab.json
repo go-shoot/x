@@ -37,19 +37,6 @@
         "desc": "(7-55FB tent.)",
         "attr": ["sta","right","BX","expand"]
     },
-    "HlNt": {
-        "group": "hasbro",
-        "names": {
-            "jap": "ヘルズネザー",
-            "eng": "HellsNether",
-            "hasbro": "Nether Incendio",
-            "chi": "",
-            "aka": "煉獄 惡魔"
-        },
-        "stat": [""],
-        "desc": "(Z tent.)",
-        "attr": ["bal","right","UX","fused"]
-    },
     "CrCl": {
         "group": "hasbro",
         "names": {

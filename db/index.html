@@ -74,8 +74,8 @@ desc</pre>
             names = Object.fromEntries(names.split('|').map(n => [/[ア-ン]/.test(n) ? 'jap' : 'eng', n]));
             attr = attr?.split('|').filter(v => v);
             stat = stat?.split(',').map(s => /^\d+$/.test(s.trim()) ? parseInt(s) : s).filter(v => v);
-            result = {[abbr]: {group, names, attr, stat, desc}};
-            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/\n\s{12,}|\n\s{8,}(?=[\]\}])/g, '').replace(/^\{|\}$/g, '') + ',';
+            result = {[abbr]: {group, names, attr, desc, attr}};
+            FORM.json.innerText = JSON.stringify(result, (k, v) => v || undefined, 4).replace(/\n\s{12,}|\n\s{8,}(?=[\]\}])/g, '').replace(/^\{|\}\n$/g, '') + ',';
         }
         localStorage[ev.target.id] = ev.target.value;
     }

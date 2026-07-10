@@ -81,25 +81,11 @@
             letter-spacing: calc(var(--gap)/var(--s)); --gap: .175em;
             margin-right: calc((2em + var(--gap))*(var(--s) - 1));
         }
-        sub {
-            position: absolute; 
-            margin: .05em 0 0 .2em;
-            display: inline-flex; align-items: center;
-            width: 2em; height: 100%;
-            font-size: .6em;
-            letter-spacing: 0; line-height: 1;
-        }
     }
     &.jap,&.eng {
         writing-mode: vertical-lr;
         align-self: end;
-        font-size: .65em;
-    
-        sub {
-            vertical-align: unset;
-            font-size: .7em;
-            margin-inline-start: .3em;
-        }
+        font-size: .65em;    
     }
     &.jap {
         margin-bottom: -.05em;
@@ -124,6 +110,20 @@
         position: absolute; position-anchor: --eng; position-area: top center;
         text-align: right;
         white-space: pre-wrap;
+    }
+    sub {
+        vertical-align: unset;
+        font-size: .7em;
+        margin-inline-start: .3em;
+
+        .chi & {
+            position: absolute; 
+            margin: .05em 0 0 .2em;
+            display: inline-flex; align-items: center;
+            width: 2em; height: 100%;
+            font-size: .6em;
+            letter-spacing: 0; line-height: 1;
+        }
     }
 }
 :host ul {
