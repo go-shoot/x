@@ -1,9 +1,9 @@
 {
   "part-bit":          "2026/07/01 13:55:00",
   "part-blade":        "2026/07/08 20:15:00",
-  "part-blade-divided":"2026/07/08 20:15:00",
+  "part-blade-divided":"2026/07/10 12:15:00",
+  "prod-beys":         "2026/07/10 12:15:00",
   "part-blade-collab": "2026/07/08 20:15:00",
-  "prod-beys":         "2026/07/01 13:42:00",
   "part-ratchet":      "2026/07/01 13:42:00",
   "prod-keihin":       "2026/06/16 12:35:00",
   "meta":              "2026/05/18 17:10:00",
@@ -39,7 +39,16 @@
       "desc":["以初号機、零号機、２号機作image設計"]
     }],
     "2026-09":[{
+    "code": "BXG-70 starter",
+    "name": [
+        "ティガレイジFT3-60T",
+        "Tiga Rage FT3-60T"
+    ],
+    "type": "bal",
+    "desc": [
+        "附有兩色Lock Chip及Over Blade，及兩個〔T〕Assist Blade外圈，以模擬三種形態"
+    ]
+},{
       "code":"CX-19 random booster select"
-    }]
-  }
+    }]  }
 }

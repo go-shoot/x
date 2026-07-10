@@ -141,136 +141,6 @@
             "attr": ["def","right"]
         }
     },
-    "chip":{
-        "Br": {
-            "names": {"jap":"ブラキオ", "eng":"Brachio", "chi":"腕龍"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Un": {
-            "names": {"jap":"ユニコーン", "eng":"Unicorn", "chi":"獨角"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Ev": {
-            "names": {"jap":"エヴァ", "eng":"Eva", "chi":""},
-            "stat": ["2-"],
-            "desc": "（共有三款）",
-            "attr": ["right"]
-        },
-        "Rg": {
-            "names": {"jap":"ラグナ", "eng":"Ragna", "chi":"邪神"},
-            "stat": ["2-"],
-            "attr": ["right","bbb"]
-        },
-        "Kn": {
-            "names": {"jap":"ナイト", "eng":"Knight", "chi":"騎士"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Bh": {
-            "names": {"jap":"バハムート", "eng":"Bahamut", "chi":"龍王"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Ph": {
-            "names": {"jap":"フェニックス", "eng":"Phoenix", "chi":"鳳凰"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Em": {
-            "names": {"jap":"エンペラー", "eng":"Emperor", "chi":"帝皇"},
-            "stat": ["5-"],
-            "desc": "金屬零件增加重量。",
-            "attr": ["right"]
-        },
-        "Wl": {
-            "names": {"jap":"ウルフ", "eng":"Wolf", "chi":"戰狼 銀狼"},
-            "stat": ["2-"],
-            "attr": ["right","bsb"]
-        },
-        "Sl": {
-            "names": {"jap":"ソル", "eng":"Sol", "chi":"天陽 焰神"},
-            "stat": ["2-"],
-            "attr": ["right","mfb"]
-        },
-        "Vl": {
-            "names": {"jap":"ワルキューレ", "eng":"Valkyrie", "chi":"戰神"},
-            "stat": ["6-"],
-            "desc": "金屬零件增加重量。",
-            "attr": ["right","bbb"]
-        },
-        "Pg": {
-            "names": {"jap":"ペガサス", "eng":"Pegasus", "chi":"天馬"},
-            "stat": ["2-"],
-            "attr": ["right","mfb"]
-        },
-        "Cr": {
-            "names": {"jap":"ケルベロス", "eng":"Cerberus", "chi":"地獄犬 魔犬"},
-            "stat": ["2-"],
-            "attr": ["right","mfb"]
-        },
-        "Wh": {
-            "names": {"jap":"ホエール", "eng":"Whale", "chi":"戰鯨 巨鯨"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Ln": {
-            "names": {"jap":"レオン", "eng":"Leon", "chi":"獅王 雄獅"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Fx": {
-            "names": {"jap":"フォックス", "eng":"Fox", "chi":"妖狐 極狐"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Hl": {
-            "names": {"jap":"ヘルズ", "eng":"Hells", "hasbro": "Incendio", "chi":"煉獄 惡魔"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Rh": {
-            "names": {"jap":"ライノ", "eng":"Rhino", "chi":"犀牛 戰犀"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Dr": {
-            "names": {"jap":"ドラン", "eng":"Dran", "chi":"翔龍 蒼龍"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Wz": {
-            "names": {"jap":"ウィザード", "eng":"Wizard", "chi":"巫師 魔導"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Pr": {
-            "names": {"jap":"ペルセウス", "eng":"Perseus", "chi":"英仙"},
-            "stat": ["2-"],
-            "attr": ["right","mfb"]
-        },
-        "Kr": {
-            "names": {"jap":"クラーケン", "eng":"Kraken", "chi":"海怪"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Hr": {
-            "names": {"jap":"ホーネット", "eng":"Hornet", "chi":"黃蜂"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Bc": {
-            "names": {"jap":"バックス", "eng":"Bucks", "hasbro": "Stag", "chi":"公鹿 雄鹿"},
-            "stat": ["2-"],
-            "attr": ["right"]
-        },
-        "Dk": {
-            "names": {"jap":"ドレイク", "eng":"Drake", "chi":"魔龍 龍神"},
-            "stat": ["2-"],
-            "attr": ["right","bsb"]
-        }
-    },
     "metal": {
         "Wh": {
             "names": {"jap":"ウィップ", "eng":"Whip", "chi":"古鞭 鞭打"},
@@ -399,6 +269,141 @@
             "stat": ["29="],
             "attr": ["sta","right"],
             "from": "main.Fl"
+        }
+    },
+    "chip":{
+        "Tg": {
+            "names": {"jap":"ティガ", "eng":"Tiga", "chi":"迪加 迪卡"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Br": {
+            "names": {"jap":"ブラキオ", "eng":"Brachio", "chi":"腕龍"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Un": {
+            "names": {"jap":"ユニコーン", "eng":"Unicorn", "chi":"獨角"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Ev": {
+            "names": {"jap":"エヴァ", "eng":"Eva", "chi":""},
+            "stat": ["2-"],
+            "desc": "（共有三款）",
+            "attr": ["right"]
+        },
+        "Rg": {
+            "names": {"jap":"ラグナ", "eng":"Ragna", "chi":"邪神"},
+            "stat": ["2-"],
+            "attr": ["right","bbb"]
+        },
+        "Kn": {
+            "names": {"jap":"ナイト", "eng":"Knight", "chi":"騎士"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Bh": {
+            "names": {"jap":"バハムート", "eng":"Bahamut", "chi":"龍王"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Ph": {
+            "names": {"jap":"フェニックス", "eng":"Phoenix", "chi":"鳳凰"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Em": {
+            "names": {"jap":"エンペラー", "eng":"Emperor", "chi":"帝皇"},
+            "stat": ["5-"],
+            "desc": "金屬零件增加重量。",
+            "attr": ["right"]
+        },
+        "Wl": {
+            "names": {"jap":"ウルフ", "eng":"Wolf", "chi":"戰狼 銀狼"},
+            "stat": ["2-"],
+            "attr": ["right","bsb"]
+        },
+        "Sl": {
+            "names": {"jap":"ソル", "eng":"Sol", "chi":"天陽 焰神"},
+            "stat": ["2-"],
+            "attr": ["right","mfb"]
+        },
+        "Vl": {
+            "names": {"jap":"ワルキューレ", "eng":"Valkyrie", "chi":"戰神"},
+            "stat": ["6-"],
+            "desc": "金屬零件增加重量。",
+            "attr": ["right","bbb"]
+        },
+        "Pg": {
+            "names": {"jap":"ペガサス", "eng":"Pegasus", "chi":"天馬"},
+            "stat": ["2-"],
+            "attr": ["right","mfb"]
+        },
+        "Cr": {
+            "names": {"jap":"ケルベロス", "eng":"Cerberus", "chi":"地獄犬 魔犬"},
+            "stat": ["2-"],
+            "attr": ["right","mfb"]
+        },
+        "Wh": {
+            "names": {"jap":"ホエール", "eng":"Whale", "chi":"戰鯨 巨鯨"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Ln": {
+            "names": {"jap":"レオン", "eng":"Leon", "chi":"獅王 雄獅"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Fx": {
+            "names": {"jap":"フォックス", "eng":"Fox", "chi":"妖狐 極狐"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Hl": {
+            "names": {"jap":"ヘルズ", "eng":"Hells", "hasbro": "Incendio", "chi":"煉獄 惡魔"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Rh": {
+            "names": {"jap":"ライノ", "eng":"Rhino", "chi":"犀牛 戰犀"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Dr": {
+            "names": {"jap":"ドラン", "eng":"Dran", "chi":"翔龍 蒼龍"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Wz": {
+            "names": {"jap":"ウィザード", "eng":"Wizard", "chi":"巫師 魔導"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Pr": {
+            "names": {"jap":"ペルセウス", "eng":"Perseus", "chi":"英仙"},
+            "stat": ["2-"],
+            "attr": ["right","mfb"]
+        },
+        "Kr": {
+            "names": {"jap":"クラーケン", "eng":"Kraken", "chi":"海怪"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Hr": {
+            "names": {"jap":"ホーネット", "eng":"Hornet", "chi":"黃蜂"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Bc": {
+            "names": {"jap":"バックス", "eng":"Bucks", "hasbro": "Stag", "chi":"公鹿 雄鹿"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
+        "Dk": {
+            "names": {"jap":"ドレイク", "eng":"Drake", "chi":"魔龍 龍神"},
+            "stat": ["2-"],
+            "attr": ["right","bsb"]
         }
     },
     "hasbro": {
