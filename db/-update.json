@@ -9,17 +9,6 @@
   "meta":              "2026/05/18 17:10:00",
   "prod-gear":         "2026/06/17 00:10:00",
   "news": {
-    "2026-07-09":[{
-      "code":"BXH-23 booster","name":["ドレイクブレイブG4-70I","Drake Brave G4-70I"],"type":"att",
-      "desc":["APP新抽獎獎品","無論免費的換領券或付費的購買券都可能抽到此","〔Gravity〕Assist Blade：兩側有金屬"]
-    },{
-      "code":"BXG-79 booster","name":["Hornet Fort R7-60T"],"type":"bal",
-      "desc":["三款都是APP抽獎購買品（非組合）","Hasbro中已推出無塗裝版"]
-    },{
-      "code":"BXG-80 booster","name":["Kraken Wriggle S3-70O"], "type":"sta"
-    },{
-      "code":"BXG-81 booster","name":["Buck's Antlers B2-60D"],"type":"def"
-    }],
     "2026-07-11":[{
       "code":"UX-20 starter","name":["グローリーワルキューレLF","Glory Valkyrie LF"],"type":"att",
       "desc":["與2017年陀螺【God Valkyrie】有相同的回彈彈簧機關"],
@@ -31,12 +20,47 @@
       },{
       "code":"BXG-47 starter","bey":"SPg 3-70 RA"
     }],
-    "2026-08":[
-      {
-      "code":"UX-21 deck set"
-    }
-  ],
+    "2026-08-08":[
+ {
+    "code": "UX-21 deck set",
+    "name": [
+        "ヘルズネザーZ",
+        "Hells Nether Z"
+    ],
+    "desc": [
+        "金屬刃能設置於不同高度，選擇以刃上方攻擊或中間化解",
+        "UX飛龍首次常規收錄 8-80B",
+        "Silver Wolf 9-70R"
+    ],
+    "imgs": [
+        "https://preview.redd.it/hells-and-the-mechanics-is-a-dran-with-new-weight-v0-no0rgogjqech1.jpg?width=1080&crop=smart&auto=webp&s=c86186b4b11df5895fe22af83d7e8a73038c6483"
+    ]
+},{
+    "code": "BXG-?? booster",
+    "name": [
+        "ドランソード3-60F V2",
+        "Dran Sword 3-60F Version 2"
+    ],
+    "desc": [
+        "新版本重量提升3g"
+    ],
+    "imgs": [
+        "https://preview.redd.it/hells-and-the-mechanics-is-a-dran-with-new-weight-v0-o3qfozmjqech1.jpg?width=1080&crop=smart&auto=webp&s=ba8992a2fe29b4e685bd7e29051e5f2f23c00c3f"
+    ]
+} ],
     "2026-08-29":[{
+    "code": "BXG-?? booster",
+    "name": [
+        "グローリーワルキューレLF メタルコート：ブルー",
+        "Glory Valkyrie LF Metal Coat: Blue"
+    ],
+    "desc": [
+        "G1等場合發售"
+    ],
+    "imgs": [
+        "https://preview.redd.it/hells-and-the-mechanics-is-a-dran-with-new-weight-v0-o3qfozmjqech1.jpg?width=1080&crop=smart&auto=webp&s=ba8992a2fe29b4e685bd7e29051e5f2f23c00c3f"
+    ]
+},{
       "code":"BXG-57 deck set","name":["エヴァンゲリオンデッキセット","Evangelion Deck Set"],
       "desc":["以初号機、零号機、２号機作image設計"]
     }],
@@ -52,5 +76,17 @@
     ]
 },{
       "code":"CX-19 random booster select"
-    }]  }
+    },{
+    "code": "BXC-??",
+    "name": [
+        "クロックミラージュ4-55S",
+        "Clock Mirage 4-55S"
+    ],
+    "desc": [
+        "填寫雜誌內表格購買"
+    ],
+    "imgs": [
+        "https://www.reddit.com/media?url=https%3A%2F%2Fpreview.redd.it%2Fhells-nether-at-last-v0-yuc6rw16nech1.jpg%3Fwidth%3D1080%26crop%3Dsmart%26auto%3Dwebp%26s%3De375a9cf6031b551a963a742623355675e925b66"
+    ]
+}]  }
 }
