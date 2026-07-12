@@ -82,7 +82,7 @@ class Cutout {
                 COLLAGE.label();
                 return App.analysis.tiers.read();
             }
-            let div = Q(`#${this.class}`);
+            let div = Q(`#${this.class || App.class}`);
             let sorted = [...div.children].sort((...labels) => 
                 [...this.Parts].indexOf(labels[0].Part) - [...this.Parts].indexOf(labels[1].Part)
             );
@@ -246,7 +246,7 @@ Object.assign(App, {
     },
     autoflow ({dataset: {url}}) {
         Q('input[value=AI]').checked = true;
-        new Collage(url).then(() => new Analysis());
+        new Collage(url).then(() => new Analysis);
     },
     events () {
         Q('form button', button => button.type = 'button');
@@ -267,22 +267,23 @@ Object.assign(App, {
                     return E(Q('div[style]')).set({
                         '--f': E(Q('div[style]')).get('--f') + (ev.target.value == '+' ? .1 : -.1)
                     });
-                if (ev.target.closest('#comp:not(.inactive)'))
-                    return COLLAGE.worker.setClasses(App.comp = ev.target.Q('input').value)
-                        .then(() => new Analysis());
-            },
-            onchange: ev => {
-                if (ev.target.type == 'file') 
-                    new Collage(ev).then(() => new Analysis());
-                if (ev.target.name == 'algo') 
-                    Analysis.algo = ev.target.value;
+                if (ev.target.name == 'comp') {
+                    return Q('.loading') ? 
+                        false : COLLAGE.worker.setClasses(App.comp = ev.target.value).then(() => new Analysis);
+                }
                 if (ev.target.name == 'detect') {
+                    if (Q('.loading')) return false;
                     Q('#comp').classList.toggle('inactive', ev.target.value == 'AI');
+
                     if (ev.target.value == 'AI')
-                        return COLLAGE.detect('boxes', true).then(() => new Analysis());
+                        return COLLAGE.detect('boxes', true).then(() => new Analysis);
                     Q('#controls').classList.add('active');
                     return COLLAGE.detect('boxes', KNOBS);
-                }
+                }                
+            },
+            onchange: ev => {
+                ev.target.type == 'file' ? new Collage(ev).then(() => new Analysis) :
+                ev.target.name == 'algo' ? Analysis.algo = ev.target.value : '';
             },
         });
         Q('#controls').oninput = ev => {
