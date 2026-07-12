@@ -9,7 +9,7 @@ E.img = src => new Promise(res => E('img', {
     src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
     onload: function() {res(this)}, onerror: () => res(null)
 }));
-let COLLAGE;
+let COLLAGE, KNOBS = Object.fromEntries(Q('continuous-knob', []).map(knob => [knob.id, knob.value]));
 class Asset {
     constructor(P, flipped) {
         return E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`)
@@ -59,7 +59,7 @@ class Asset {
         let flipped = Asset.flipped.bit[i - (Asset.bit.length - Asset.flipped.bit.length)];
         return flipped ? Asset.bit.find(({P}) => P?.abbr == flipped)?.P : Asset[comp][i]?.P;
     }
-}window.Asset=Asset;
+}
 class Cutout {
     constructor({box, bmp}) {
         this.box = box, this.bitmap = bmp, this.class = box.class;
@@ -103,24 +103,29 @@ class Cutout {
 class Collage {
     constructor(ev) {
         App.state(1, 'begun');
+        COLLAGE = this;
         return E.img(typeof ev == 'string' ? ev : URL.createObjectURL(ev.target.files[0]))
             .then(createImageBitmap)
-            .then(bmp => {
+            .then(async bmp => {
                 Q('input[type=file]').value = '';
-                App.state(1, 'done');
-                App.state(2, 'begun');
                 let cvs = Collage.transferred ? null : Collage.cvs.transferControlToOffscreen();
                 Collage.transferred = true;
-                return new App.worker.Collage(cvs ? Comlink.transfer(cvs, [cvs]) : null, bmp);
-            }).then(collage => {
-                this.worker = collage;
-                COLLAGE = this;
-                App.state(2, 'done');
+                this.worker = await new App.worker.Collage(cvs ? Comlink.transfer(cvs, [cvs]) : null, bmp);
+                bmp.close();
+                App.state(1, 'done');
+                return this.detect('boxes', Q('input[value=AI]').checked || KNOBS);
             });
     }
-    cutouts = {}
+    async detect (what, AI) {
+        if (what != 'boxes')
+            return this.worker.detect[what]();
+        App.state(2, 'begun');
+        this.cutouts = {};
+        await this.worker.detect.boxes(AI);
+        App.state(2, 'done');
+    }
     label () {
-        COLLAGE.worker.draw(true);
+        this.worker.draw(true);
         Object.values(this.cutouts).flat().forEach(cutout => cutout.label());
     }
     locate = ([x, y]) => Object.values(this.cutouts).flat()
@@ -137,7 +142,7 @@ class Collage {
 class Analysis {
     constructor() {
         App.state(4, 'begun');
-        return Promise.all([COLLAGE.worker.classes.then(comps => this.comps = [...comps]), COLLAGE.worker.detect.backdrop()])
+        return Promise.all([COLLAGE.worker.classes.then(comps => this.comps = [...comps]), COLLAGE.detect('backdrop')])
             .then(([, backdrop]) => Promise.all([this.prepare.cutouts(), this.prepare.assets(backdrop)]))
             .then(() => {
                 this.match();
@@ -156,7 +161,7 @@ class Analysis {
         cutouts: () => COLLAGE.worker.cutouts()
             .then(cutouts => Promise.all(cutouts.map(async ({box, bmp}) => {
                 let cutout = new Cutout({box, bmp});
-                (COLLAGE.cutouts[cutout.class] ??= []).push(cutout);
+                (COLLAGE.cutouts[cutout.class || App.comp] ??= []).push(cutout);
                 return cutout.computeHash();
             })))
     }
@@ -166,7 +171,7 @@ class Analysis {
     #tiers = {}
     tiers = {
         read: async () => {
-            let tiers = this.#tiers.range ??= await COLLAGE.worker.detect.tiers();
+            let tiers = this.#tiers.range ??= await COLLAGE.detect('tiers');
             this.#tiers.content = Object.entries(COLLAGE.cutouts).map(([comp, cutouts]) =>
                 [comp, tiers.map(([ty0, ty1]) => cutouts.filter(({box: [, y0, , y1]}) => y0 >= ty0 - 10 && y1 <= ty1 + 10))]
             );
@@ -239,7 +244,10 @@ Object.assign(App, {
             App.steps.slice(step).forEach(li => li.classList.add('inactive')) : 
             App.steps[step].classList.remove('inactive');
     },
-    autoflow: ({dataset: {url}}) => new Collage(url).then(() => new Analysis()),
+    autoflow ({dataset: {url}}) {
+        Q('input[value=AI]').checked = true;
+        new Collage(url).then(() => new Analysis());
+    },
     events () {
         Q('form button', button => button.type = 'button');
         E(Q('nav')).set({
@@ -259,11 +267,28 @@ Object.assign(App, {
                     return E(Q('div[style]')).set({
                         '--f': E(Q('div[style]')).get('--f') + (ev.target.value == '+' ? .1 : -.1)
                     });
+                if (ev.target.closest('#comp:not(.inactive)'))
+                    return COLLAGE.worker.setClasses(App.comp = ev.target.Q('input').value)
+                        .then(() => new Analysis());
             },
-            onchange: ev => 
-                ev.target.type == 'file' ? new Collage(ev).then(() => new Analysis()) : 
-                ev.target.name == 'algo' ? Analysis.algo = ev.target.value : '',
+            onchange: ev => {
+                if (ev.target.type == 'file') 
+                    new Collage(ev).then(() => new Analysis());
+                if (ev.target.name == 'algo') 
+                    Analysis.algo = ev.target.value;
+                if (ev.target.name == 'detect') {
+                    Q('#comp').classList.toggle('inactive', ev.target.value == 'AI');
+                    if (ev.target.value == 'AI')
+                        return COLLAGE.detect('boxes', true).then(() => new Analysis());
+                    Q('#controls').classList.add('active');
+                    return COLLAGE.detect('boxes', KNOBS);
+                }
+            },
         });
+        Q('#controls').oninput = ev => {
+            KNOBS[ev.target.id] = ev.target.value;
+            App.rafID ??= requestAnimationFrame(() => COLLAGE.detect('boxes', KNOBS).then(() => App.rafID = null));
+        }
         Collage.cvs.onclick = Collage.select;
         PI.events({'#correct': {scroll: {x: true}}});
     },

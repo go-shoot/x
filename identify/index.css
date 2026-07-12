@@ -66,10 +66,29 @@ main ol {
         width: 100%;
         margin-top: .5em;
     
+        &.inactive {pointer-events: none; filter: saturate(0);}
+        &#comp {line-height: 4em;}
+        #step-2:has(~.loading) & {pointer-events: none;}
         #step-5 & {align-items: end;}
         label {
             position: relative;
             color: var(--theme);
+
+            #comp & {
+                display: flex; flex-direction: column;
+                min-width: 3em; height: 3.5em;
+            }
+            img {
+                width: 3em; height: 2em; 
+                margin-top: .5em;
+            }
+            div {white-space: nowrap;}
+            div img:nth-child(2) {margin-left: .5em;}
+            &::after {
+                position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+                width: 3em; height: 3em;
+                z-index: -1;
+            }
         }
     }
     button {

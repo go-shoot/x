@@ -28,7 +28,28 @@
     </details>
     <ol>
         <li>STEP 1：<label>&#xe03f; 上載<input type="file" accept="image/*"></label></li>
-        <li class="inactive">STEP 2：採用自家AI模型分組</li>
+        <li class="inactive" id="step-2">
+            STEP 2：探測
+            <fieldset class="LED">
+                <label>AI模型<input name="detect" type="radio" value="AI" checked></label>
+                <label>手動<input name="detect" type="radio" value="manual"></label>
+            </fieldset>
+            <fieldset class="LED inactive" id="comp"> 
+                <label class="icon-blade">
+                    <input type="radio" name="comp" value="CX" disabled="">
+                    <img src="../img/lines.svg#CX">
+                </label>
+                <label class="icon-blade">
+                    <input type="radio" name="comp" value="blade" disabled="">
+                    <div><img src="../img/lines.svg#BX"><img src="../img/lines.svg#UX"></div></label>
+                <label class="icon-ratchet">
+                    <input type="radio" name="comp" value="ratchet">
+                </label>
+                <label class="icon-bit">
+                    <input type="radio" name="comp" value="bit">
+                </label>
+            </fieldset>
+        </li>
         <li class="inactive" style="--p:0">STEP 3：調整比對圖片背景色</li>
         <li class="inactive">STEP 4：配對
             <fieldset class="LED" hidden>
@@ -60,6 +81,14 @@
         <canvas></canvas>
     </div>
 </main>
+<aside id="controls">
+    <continuous-knob title="亮度下限" id="luma_min" min="1" max="100" value="2"><i class="center">&#xe028;</i></continuous-knob>
+    <continuous-knob title="亮度上限" id="luma_max" min="50" max="200" value="100"><i class="center">&#xe028;</i></continuous-knob>
+    <continuous-knob title="色度下限" id="chroma" min="1" max="50" value="30" step="1"><i class="center">&#xe028;</i></continuous-knob>
+    <continuous-knob title="Buffer" id="buffer" min="0" max="3" value="1" step="1"><i class="center">&#xe028;</i></continuous-knob>
+    <continuous-knob title="邊長下限" id="side_min" min="0" max="80" value="3" unit="%"><i class="center"></i></continuous-knob>
+    <continuous-knob title="邊長上限" id="side_max" min="20" max="100" value="50" unit="%"><i class="center"></i></continuous-knob>
+</aside>
 <aside id="correct"></aside>
 
 <script type="module">

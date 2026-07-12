@@ -1,24 +1,28 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let SESSION = './0706.onnx', resize = 1280; 
+let SESSION = './0703.onnx', KNOBS, resize = 1280; 
 class Collage {
-    static transferred = () => !!Collage.cvs
     static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
-    constructor(canvas, bitmap) {
-        canvas && ([Collage.cvs, Collage.ctx] = [canvas, canvas.getContext('2d', {willReadFrequently: true})]);
-        [Collage.cvs.width, Collage.cvs.height] = [Collage.W, Collage.H] = [bitmap.width, bitmap.height];
-        this.bitmap = bitmap;
-        this.detect.boxes();
+    constructor(cvs, bmp) {
+        if (cvs) {
+            Collage.cvs = cvs;
+            Collage.ctx = cvs.getContext('2d', {willReadFrequently: true});
+        }
+        if (bmp) {
+            Collage.bitmap = bmp;
+            Collage.cvs.width = Collage.W = bmp.width
+            Collage.cvs.height = Collage.H = bmp.height;
+        }
     }
     draw (boxes, cvs = Collage.cvs, ctx = Collage.ctx) {
-        (boxes === true || !boxes) && ctx.drawImage(this.bitmap, 0, 0);
+        (boxes === true || !boxes) && ctx.drawImage(Collage.bitmap, 0, 0);
         if (!boxes) return;
         let [W, H] = [cvs.width, cvs.height], stroke =  Math.max(2, Math.floor(W / 400));
         (boxes === true ? this.boxes : boxes).forEach(box => {
             let [x0, y0, x1, y1] = box;
             let [bx, by] = [Math.max(0, x0 - stroke), Math.max(0, y0 - stroke)];
             let [bw, bh] = [Math.min(W - bx, x1 - x0 + 2 * stroke), Math.min(H - by, y1 - y0 + 2 * stroke)];
-            ctx.strokeStyle = Collage.colors[box.class]; 
+            ctx.strokeStyle = Collage.colors[box.class] || 'gray';
             ctx.lineWidth = stroke;
             ctx.strokeRect(bx, by, bw, bh);
         });
@@ -28,13 +32,34 @@ class Collage {
         resized.drawImage(cvs, 0, 0, rW, rH);
         return {data: resized.getImageData(0, 0, rW, rH).data, area: rW * rH};
     }
+    setClasses = comp => this.classes = new Set([comp])
     detect = {
-        boxes: async () => {
+        boxes: async (AIorKnobs, cvs = Collage.cvs, ctx = Collage.ctx) => {
             this.draw();
-            let {data, area} = this.resize(resize, resize);
-            let input = Format.input(data, area, resize, resize);
-            let {output0: {data: output}} = await SESSION.run({images: input});
-            this.boxes = Format.output(output, resize, resize);
+            let boxes = [];
+            if (AIorKnobs === true) {
+                let {data, area} = this.resize(resize, resize);
+                let input = Format.input(data, area, resize, resize);
+                let {output0: {data: output}} = await SESSION.run({images: input});
+                boxes = Format.output(output, resize, resize);
+            } else {
+                KNOBS = AIorKnobs;
+                let [W, H, pad, leap] = [cvs.width, cvs.height, 1/100, 1/300];
+                [pad, leap] = [Math.floor(W*pad), 1/*Math.floor(Math.min(W, H)*leap)*/];
+                let [{data}, colored] = [ctx.getImageData(0, 0, W, H), new Int8Array(W * H).fill(-1)]; //visited
+                for (let y = 0; y < H; y += leap)
+                    for (let x = pad; x < W; x += leap) {
+                        let pixel = y * W + x;
+                        if (colored[pixel] == -1 && Valid.color(data, pixel)) {
+                            let {x0, y0, x1, y1, w, h} = Calculate.boundary(x, y, data, colored);
+                            w && boxes.push([x0, y0, x1, y1]);
+                        }
+                    }
+            }
+            this.boxes = [];
+            boxes.sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1])).forEach(box => 
+                this.boxes.every(b => box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]) && this.boxes.push(box)
+            );
             this.classes = new Set(this.boxes.map(b => b.class));
             this.draw(true);
         },
@@ -78,7 +103,7 @@ class Collage {
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
             let middle = Math.floor(widths.length / 2);
-            this.fontSize = Math.max(15, (widths.length % 2 !== 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 4);
+            this.fontSize = Math.max(15, (widths.length % 2 > 0 ? widths[middle] : (widths[middle - 1] + widths[middle]) / 2) / 4);
         }
         let [x0, y0, x1, y1] = typeof b == 'number' ? this.boxes[b] : b;
         ctx.textAlign = 'center';
@@ -91,8 +116,10 @@ class Collage {
         ctx.fillText(label, x, y - pad/2);
     }
 }
-Comlink.expose({Collage, session: () => ort.InferenceSession.create(SESSION, {executionProviders: ['wasm']}).then(ss => SESSION = ss)});
-
+Comlink.expose({
+    Collage, 
+    session: async () => SESSION = await ort.InferenceSession.create(SESSION, {executionProviders: ['wasm']})
+});
 const Format = {
     input (data, area, rW, rH) {
         let input = new Float32Array(3 * area);
@@ -104,7 +131,7 @@ const Format = {
         return new ort.Tensor('float32', input, [1, 3, rH, rW]);
     },
     output (output, rW, rH, W = Collage.cvs.width, H = Collage.cvs.height) {
-        let boxes = [], unnested = [], pad = 0;
+        let boxes = [], pad = 0;
         for (let d = 0; d < output.length / 6; d++) {
             if (output[6 * d + 4] < .025) continue; //score
             let x0 = output[6 * d + 0], y0 = output[6 * d + 1], 
@@ -114,8 +141,52 @@ const Format = {
             box.class = Object.keys(Collage.colors)[Math.round(classID)];
             boxes.push(box);
         }
-        boxes.sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1]))
-            .forEach(box => unnested.every(b => box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]) && unnested.push(box));
-        return unnested;
+        return boxes;
     }
 }
+const Valid = {
+    color (data, pixel) {
+        let {chroma, luma} = Calculate.chroluma(data, pixel);
+        return chroma > KNOBS.chroma || luma > KNOBS.luma_min && luma < KNOBS.luma_max;
+    },
+    size: (w, h, type, W = Collage.W, H = Collage.H) => {
+        let side = {min: Math.min(W, H) * KNOBS.side_min/100, max: Math.min(W, H) * KNOBS.side_max/100};
+        return type == 'max' ? w <= side.max && h <= side.max : w >= side.min && h >= side.min;
+    },
+    position: (x, y, W = Collage.W, H = Collage.H) => x >= 0 && x < W && y >= 0 && y < H
+}
+const Calculate = {
+    chroluma (data, pixel) {
+        let [r, g, b] = data.slice(pixel * 4, pixel * 4 + 3);
+        return {
+            chroma: Math.max(r, g, b) - Math.min(r, g, b),
+            luma: 0.2126 * r + 0.7152 * g + 0.0722 * b
+        }
+    },
+    boundary (x, y, data, colored, W = Collage.W) {
+        let [x0, x1, y0, y1] = [x, x, y, y];
+        let stack = [[x0, y0]], b = KNOBS.buffer, downOnly = false;
+        while (stack.length > 0) {
+            let [x, y] = stack.pop(), pixel = y*W + x;
+            if (colored[pixel] != -1 || !Valid.position(x, y)) continue;
+            colored[pixel] = Valid.color(data, pixel);
+            let neighbors = [[x, y+b], [x, y-b]];
+            if (!downOnly) {
+                // let lastColumn = [];
+                // if (x - x0 > 10) {
+                //     for (let y = y0; y <= y1; y++)
+                //         lastColumn.push(colored[y*W + x1]);
+                //     downOnly = lastColumn.filter(c => c === 1).length / lastColumn.length < .005;
+                //}
+                !downOnly && neighbors.push([x+b, y], [x-b, y]);
+            }
+            neighbors.forEach(([nx, ny]) => {
+                let pixel = ny*W + nx;
+                colored[pixel] == -1 && Valid.position(nx, ny) && Valid.color(data, pixel) && stack.push([nx, ny]);
+            });
+            [x0, x1, y0, y1] = [Math.min(x0, x), Math.max(x1, x), Math.min(y0, y), Math.max(y1, y)];
+            if (!Valid.size(x1-x0, y1-y0, 'max')) break;
+        }
+        return Valid.size(x1-x0, y1-y0, 'min') ? {x0, y0, x1, y1, w: x1-x0, h: y1-y0} : {};
+    },
+};
