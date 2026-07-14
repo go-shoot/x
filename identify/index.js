@@ -5,6 +5,11 @@ import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 
+Object.defineProperty(HTMLCanvasElement.prototype, Symbol.toStringTag, {
+    value: "HTMLCanvasElement",
+    writable: true,
+    configurable: true
+});
 E.img = src => new Promise(res => E('img', {
     src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
     onload: function() {res(this)}, onerror: () => res(null)
@@ -22,10 +27,10 @@ class Asset {
         }).then(() => this);
     }
     computeHash (backdrop, cvs = this.cvs) {
-        if (this.backdrop == backdrop) return;
-        this.backdrop = backdrop;
+        if (this.backdrop == backdrop && this.algo == Analysis.algo) return;
+        [this.backdrop, this.algo] = [backdrop, Analysis.algo];
         return this.canvas(cvs, {backdrop})
-            .then(cvs => cvs && window[Analysis.algo](cvs, 16))
+            .then(cvs => cvs && window[this.algo](cvs, this.algo == 'cropResistantHash' ? undefined : 16))
             .then(hash => hash ? this.hash = hash : null);
     }
     canvas = async (img, {backdrop, flipped}) => {
@@ -43,7 +48,8 @@ class Asset {
         return cvs;
     }
     static async add (comp) {        
-        if (Array.isArray(comp)) return Promise.all(comp.map(c => Q(`#${c}`) ?? Asset.add(c)));
+        if (Array.isArray(comp)) 
+            return Promise.all(comp.map(c => Q(`#${c}`) ?? Asset.add(c)));
         let assets = Asset.raw[comp].map(P => new Asset(P));
         comp == 'bit' && assets.push(...Asset.flipped.bit.map(abbr => new Asset(abbr, true)));
         return Promise.all(assets).then(As => (Asset[comp] = As) && Q('#correct').append(
@@ -62,13 +68,15 @@ class Asset {
 }
 class Cutout {
     constructor({box, bmp}) {
-        this.box = box, this.bitmap = bmp, this.class = box.class;
+        Object.assign(this, {box, bmp, class: box.class});
     }
-    computeHash (bmp = this.bitmap) {
-        if (this.hash) return;
+    computeHash (bmp = this.bmp) {
+        if (this.algo == Analysis.algo) return;
+        this.algo = Analysis.algo;
         let cvs = E('canvas', {width: bmp.width, height: bmp.height}); //only canvas accepted
         cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
-        return window[Analysis.algo](cvs, 16).then(hash => (this.hash = hash) && bmp.close());
+        return window[Analysis.algo](cvs, Analysis.algo == 'cropResistantHash' ? undefined : 16)
+            .then(hash => (this.hash = hash) && bmp.close());
     }
     label (string = false, lang = Q('input[name=lang]:checked').value) {
         let P = this.identified;
@@ -134,7 +142,7 @@ class Collage {
         ev.stopPropagation();
         if (!Object.values(COLLAGE.cutouts).flat().length) return;
         let {left, top, width, height} = Collage.cvs.getBoundingClientRect();
-        let [x, y] = [(ev.clientX - left) * W / width, (ev.clientY - top) * H / height];
+        let x = (ev.clientX - left) * W / width, y = (ev.clientY - top) * H / height;
         COLLAGE.locate([x, y])?.[Q('input[name=mode]:checked').value](ev);
     }
     static cvs = Q('canvas');
@@ -165,9 +173,7 @@ class Analysis {
                 return cutout.computeHash();
             })))
     }
-    match = () => this.comps.map(c => 
-        new ScoreMatrix(c).compare.by((h1, h2) => h1.hammingDistance(h2)).determine({from: 'min', limit: 130}).order()
-    )
+    match = () => this.comps.map(c => new ScoreMatrix(c).compare().determine({from: 'min', limit: 130}).order())
     #tiers = {}
     tiers = {
         read: async () => {
@@ -197,17 +203,22 @@ class ScoreMatrix { //row: parts, col: boxes
     constructor(comp) {
         this.comp = comp;
         let asset = Asset[comp].map(A => A.hash), cutout = COLLAGE.cutouts[comp].map(C => C.hash);
-        this.R = asset.length, this.C = cutout.length;
+        [this.R, this.C] = [asset.length, cutout.length];
         this.hashes = {asset, cutout};
-        this.scores = new Uint8Array(this.R * this.C).fill(255);
+        this.scores = new Float16Array(this.R * this.C).fill(255);
         this.done = {rows: new Set(), cols: new Set()};
     }
-    compare = {by: comparer => {
+    compare () {
         for (let [r, asset] of this.hashes.asset.entries())
             for (let [c, cutout] of this.hashes.cutout.entries())
-                this.scores[r * this.C + c] = asset ? Math.min(255, comparer(cutout, asset)) : 255;
+                this.scores[r * this.C + c] = !asset ? 255 : 
+                    Array.isArray(cutout.segmentHashes) ? 
+                        cutout.segmentHashes.reduce((sum, cH) => 
+                            sum += Math.min(...asset.segmentHashes.map(aH => cH.hammingDistance(aH)))
+                        , 0) / cutout.segmentHashes.length : 
+                        cutout.hammingDistance(asset);
         return this;
-    }}
+    }
     #entries = () => [...this.scores].map((v, i) => ({r: Math.floor(i / this.C), c: i % this.C, v}))
     determine ({from, limit}) {
         this.#entries().sort((a, b) => from == 'min' ? a.v - b.v : b.v - a.v).forEach(({r, c, v}) => {
@@ -227,7 +238,7 @@ class ScoreMatrix { //row: parts, col: boxes
         cutout.Parts = new Set(scores.sort((a, b) => a.v - b.v).map(({r}) => Asset.find(r, this.comp)).filter(P => P));
     }) ?? this;
 }
-const App = () => Promise.all([DB.get.essentials({flat: true}), App.worker.session()])
+const App = () => Promise.all([DB.get.essentials({flat: true}), App.worker.session(), Q('form button', b => b.type = 'button')])
     .then(([Parts]) => {
         Asset.raw = Parts = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());        
         App.events();
@@ -249,7 +260,6 @@ Object.assign(App, {
         new Collage(url).then(() => new Analysis);
     },
     events () {
-        Q('form button', button => button.type = 'button');
         E(Q('nav')).set({
             onclick: ev => ev.target.dataset.url ? App.autoflow(ev.target) : '',
             onchange: () => COLLAGE?.label()
@@ -259,8 +269,7 @@ Object.assign(App, {
                 Q('aside.active', aside => aside.classList.remove('active'));
                 Q('#correct div', div => div.hidden = true);
                 if (ev.target.id == 'download')
-                    return gtag('event', 'IDENTIFY-DOWNLOAD') || 
-                    E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `辦認.jpg`}).click();
+                    return E('a', {href: Collage.cvs.toDataURL('image/jpeg'), download: `辦認.jpg`}).click() || gtag('event', 'IDENTIFY-DOWNLOAD');
                 if (ev.target.matches('[id|=tier]'))
                     return App.analysis.tiers.save();
                 if (ev.target.name == 'mag')
@@ -281,10 +290,9 @@ Object.assign(App, {
                     return COLLAGE.detect('boxes', KNOBS);
                 }                
             },
-            onchange: ev => {
+            onchange: ev =>
                 ev.target.type == 'file' ? new Collage(ev).then(() => new Analysis) :
-                ev.target.name == 'algo' ? Analysis.algo = ev.target.value : '';
-            },
+                ev.target.name == 'algo' ? Analysis.algo = ev.target.value : '',
         });
         Q('#controls').oninput = ev => {
             KNOBS[ev.target.id] = ev.target.value;

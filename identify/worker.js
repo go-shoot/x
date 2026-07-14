@@ -1,6 +1,6 @@
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.mjs';
-let SESSION = './0703.onnx', KNOBS, resize = 1280; 
+let SESSION = './0703.onnx', KNOBS, AI = {resize: 1280, threshold: .04}; 
 class Collage {
     static colors = {CX: '#f42597', bit: 'oklch(.8 .3 280)', blade: 'oklch(.8 .3 110)', ratchet: 'oklch(.8 .3 180)'}
     constructor(cvs, bmp) {
@@ -9,15 +9,15 @@ class Collage {
             Collage.ctx = cvs.getContext('2d', {willReadFrequently: true});
         }
         if (bmp) {
-            Collage.bitmap = bmp;
+            Collage.bmp = bmp;
             Collage.cvs.width = Collage.W = bmp.width
             Collage.cvs.height = Collage.H = bmp.height;
         }
     }
-    draw (boxes, cvs = Collage.cvs, ctx = Collage.ctx) {
-        (boxes === true || !boxes) && ctx.drawImage(Collage.bitmap, 0, 0);
+    draw (boxes, {ctx, W, H, bmp} = Collage) {
+        (boxes === true || !boxes) && ctx.drawImage(bmp, 0, 0);
         if (!boxes) return;
-        let [W, H] = [cvs.width, cvs.height], stroke =  Math.max(2, Math.floor(W / 400));
+        let stroke = Math.max(2, Math.floor(W / 400));
         (boxes === true ? this.boxes : boxes).forEach(box => {
             let [x0, y0, x1, y1] = box;
             let [bx, by] = [Math.max(0, x0 - stroke), Math.max(0, y0 - stroke)];
@@ -27,24 +27,24 @@ class Collage {
             ctx.strokeRect(bx, by, bw, bh);
         });
     }
-    resize (rW, rH, cvs = Collage.cvs) {
+    resize (rW, rH, {cvs} = Collage) {
         let resized = new OffscreenCanvas(rW, rH).getContext('2d');
         resized.drawImage(cvs, 0, 0, rW, rH);
         return {data: resized.getImageData(0, 0, rW, rH).data, area: rW * rH};
     }
     setClasses = comp => this.classes = new Set([comp])
     detect = {
-        boxes: async (AIorKnobs, cvs = Collage.cvs, ctx = Collage.ctx) => {
+        boxes: async (AIorKnobs, {cvs, ctx, W, H} = Collage) => {
             this.draw();
             let boxes = [];
             if (AIorKnobs === true) {
-                let {data, area} = this.resize(resize, resize);
-                let input = Format.input(data, area, resize, resize);
+                let {data, area} = this.resize(AI.resize, AI.resize);
+                let input = Format.input(data, area);
                 let {output0: {data: output}} = await SESSION.run({images: input});
-                boxes = Format.output(output, resize, resize);
+                boxes = Format.output(output);
             } else {
                 KNOBS = AIorKnobs;
-                let [W, H, pad, leap] = [cvs.width, cvs.height, 1/100, 1/300];
+                let [pad, leap] = [1/100, 1/300];
                 [pad, leap] = [Math.floor(W*pad), 1/*Math.floor(Math.min(W, H)*leap)*/];
                 let [{data}, colored] = [ctx.getImageData(0, 0, W, H), new Int8Array(W * H).fill(-1)]; //visited
                 for (let y = 0; y < H; y += leap)
@@ -63,14 +63,15 @@ class Collage {
             this.classes = new Set(this.boxes.map(b => b.class));
             this.draw(true);
         },
-        backdrop: () => {
-            let rgba = ([x, y]) => Collage.ctx.getImageData(x, y, 1, 1).data.join(',');
+        backdrop: ({ctx} = Collage) => {
+            let rgba = ([x, y]) => ctx.getImageData(x, y, 1, 1).data.join(',');
             let counts = this.boxes.map(rgba).reduce((obj, rgba) => ({...obj, [rgba]: (obj[rgba] || 0) + 1}), {});
             return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b, 0);
         },
-        tiers: (x = .02, maxNoise = .03, minLength = .1, W = Collage.cvs.width, H = Collage.cvs.height) => {
+        tiers: (x = .02, {ctx, W, H} = Collage) => {
+            let maxNoise = .03, minLength = .1;
             [x, maxNoise, minLength] = [W * x, Math.floor(H * maxNoise), Math.floor(H * minLength)];
-            let data = Collage.ctx.getImageData(x, 0, 1, H).data;
+            let data = ctx.getImageData(x, 0, 1, H).data;
             let sameColor = (y1, y2) => (c2 => data.slice(y1*4, y1*4 + 3).every((v, i) => v === c2[i]))(data.slice(y2*4, y2*4 + 3));
             let [y, tiers] = [0, []];
             while (y < H) {
@@ -94,11 +95,11 @@ class Collage {
             return tiers;
         }
     }
-    cutouts = () => Promise.all(this.boxes.map(box => 
-        createImageBitmap(Collage.cvs, box[0], box[1], box[2]-box[0], box[3]-box[1]).then(bmp => ({bmp, box}))
+    cutouts = ({cvs} = Collage) => Promise.all(this.boxes.map(box => 
+        createImageBitmap(cvs, box[0], box[1], box[2]-box[0], box[3]-box[1]).then(bmp => ({bmp, box}))
     )).then(objs => Comlink.transfer(objs, objs.map(({bmp}) => bmp)))
     
-    label (b, label, ctx = Collage.ctx) {
+    label (b, label, {ctx} = Collage) {
         if (label == null) return;
         if (!this.fontSize) {
             let widths =  [...this.boxes].map(points => (([x0, _, x1]) => x1 - x0)(points)).sort((a, b) => a - b);
@@ -121,7 +122,7 @@ Comlink.expose({
     session: async () => SESSION = await ort.InferenceSession.create(SESSION, {executionProviders: ['wasm']})
 });
 const Format = {
-    input (data, area, rW, rH) {
+    input (data, area, rW = AI.resize, rH = AI.resize) {
         let input = new Float32Array(3 * area);
         for (let i = 0; i < area; i++) {
             input[i] = data[i * 4] / 255.0;
@@ -130,13 +131,11 @@ const Format = {
         }
         return new ort.Tensor('float32', input, [1, 3, rH, rW]);
     },
-    output (output, rW, rH, W = Collage.cvs.width, H = Collage.cvs.height) {
+    output (output, rW = AI.resize, rH = AI.resize, {W, H} = Collage) {
         let boxes = [], pad = 0;
         for (let d = 0; d < output.length / 6; d++) {
-            if (output[6 * d + 4] < .025) continue; //score
-            let x0 = output[6 * d + 0], y0 = output[6 * d + 1], 
-                x1 = output[6 * d + 2], y1 = output[6 * d + 3], 
-                classID = output[6 * d + 5];
+            let [x0, y0, x1, y1, score, classID] = output.slice(6*d, 6*d+6);
+            if (score < AI.threshold) continue;
             let box = [x0 / rW * W - pad, y0 / rH * H - pad, x1 / rW * W + pad, y1 / rH * H + pad];
             box.class = Object.keys(Collage.colors)[Math.round(classID)];
             boxes.push(box);
@@ -149,11 +148,11 @@ const Valid = {
         let {chroma, luma} = Calculate.chroluma(data, pixel);
         return chroma > KNOBS.chroma || luma > KNOBS.luma_min && luma < KNOBS.luma_max;
     },
-    size: (w, h, type, W = Collage.W, H = Collage.H) => {
+    size: (w, h, type, {W, H} = Collage) => {
         let side = {min: Math.min(W, H) * KNOBS.side_min/100, max: Math.min(W, H) * KNOBS.side_max/100};
         return type == 'max' ? w <= side.max && h <= side.max : w >= side.min && h >= side.min;
     },
-    position: (x, y, W = Collage.W, H = Collage.H) => x >= 0 && x < W && y >= 0 && y < H
+    position: (x, y, {W, H} = Collage) => x >= 0 && x < W && y >= 0 && y < H
 }
 const Calculate = {
     chroluma (data, pixel) {
@@ -163,7 +162,7 @@ const Calculate = {
             luma: 0.2126 * r + 0.7152 * g + 0.0722 * b
         }
     },
-    boundary (x, y, data, colored, W = Collage.W) {
+    boundary (x, y, data, colored, {W} = Collage) {
         let [x0, x1, y0, y1] = [x, x, y, y];
         let stack = [[x0, y0]], b = KNOBS.buffer, downOnly = false;
         while (stack.length > 0) {
