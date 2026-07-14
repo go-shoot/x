@@ -16,67 +16,71 @@ E.img = src => new Promise(res => E('img', {
 }));
 let COLLAGE, KNOBS = Object.fromEntries(Q('continuous-knob', []).map(knob => [knob.id, knob.value]));
 class Asset {
-    constructor(P, flipped) {
+    constructor(P, prop = {}) {
+        this.prop = prop;
         return E.img(`/x/img/${typeof P == 'object' ? P.path.join('/') : `bit/${P}`}.png`)
-        .then(async img => img ? [img, await this.canvas(img, {flipped})] : [])
-        .then(([img, cvs]) => {
-            if (!img) return;
-            flipped && img.classList.add('flipped');
-            this.label = E('label', [E('input', {type: 'radio', name: 'correction'}), cvs, img]);
-            this.label.Part = this.P = P, this.cvs = cvs;
-        }).then(() => this);
+            .then(async img => img ? [img, await this.drawCanvas(img)] : [])
+            .then(([img, cvs]) => {
+                if (!img) return;
+                if (prop.flip || prop.crop) img.classList.add('transformed');
+                this.label = E('label', [E('input', {type: 'radio', name: 'correction'}), cvs, img]);
+                this.label.Part = this.P = P, this.cvs = cvs;
+            }).then(() => this);
     }
-    computeHash (backdrop, cvs = this.cvs) {
-        if (this.backdrop == backdrop && this.algo == Analysis.algo) return;
-        [this.backdrop, this.algo] = [backdrop, Analysis.algo];
-        return this.canvas(cvs, {backdrop})
-            .then(cvs => cvs && window[this.algo](cvs, this.algo == 'cropResistantHash' ? undefined : 16))
-            .then(hash => hash ? this.hash = hash : null);
+    async computeHash (backdrop, {cvs, prop} = this) {
+        if (prop.backdrop == backdrop && prop.algo == Analysis.algo) return;
+        [prop.backdrop, prop.algo] = [backdrop, Analysis.algo];
+        cvs = await this.drawCanvas(cvs);
+        this.hash = cvs ? await window[prop.algo](cvs, prop.algo == 'cropResistantHash' ? undefined : 16) : null;
     }
-    canvas = async (img, {backdrop, flipped}) => {
+    async drawCanvas (img, {prop} = this) {
         if (!img) return;
         let cvs = img.tagName == 'CANVAS' ? img : E('canvas', {width: img.width, height: img.height});
         let ctx = cvs.getContext('2d');
         img.tagName == 'CANVAS' && (img = img.nextElementSibling);
-        backdrop && (ctx.fillStyle = `rgba(${backdrop})`);
-        ctx.fillRect(0, 0, img.naturalWidth, img.naturalHeight);
-        if (flipped === true) {
-            ctx.translate(img.naturalWidth, 0);
-            ctx.scale(-1, 1);
-        }
-        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        let [w, h, x] = [img.naturalWidth, img.naturalHeight, 0];
+        
+        prop.backdrop && (ctx.fillStyle = `rgba(${prop.backdrop})`);
+        ctx.fillRect(0, 0, w, h);
+        prop.flip === true && ctx.transform(-1, 0, 0, 1, w, 0);
+        prop.crop && ([x, cvs.width] = [w * -prop.crop, w * (1 - prop.crop * 2)]);
+        ctx.drawImage(img, x, 0);
         return cvs;
     }
     static async add (comp) {        
         if (Array.isArray(comp)) 
             return Promise.all(comp.map(c => Q(`#${c}`) ?? Asset.add(c)));
         let assets = Asset.raw[comp].map(P => new Asset(P));
-        comp == 'bit' && assets.push(...Asset.flipped.bit.map(abbr => new Asset(abbr, true)));
-        return Promise.all(assets).then(As => (Asset[comp] = As) && Q('#correct').append(
+        comp == 'bit' && assets.push(
+            ...Asset.transformed[0].map(abbr => new Asset(abbr, {flip: true})),
+            ...Asset.transformed[1].map(abbr => new Asset(abbr, {crop: 0.1}))
+        );
+        Asset[comp] = await Promise.all(assets);
+        Q('#correct').append(
             E(`div#${comp}`, {hidden: true}, [
                 E('label>input', {type: 'radio', name: 'correction'}), 
-                ...As.map(A => A.label ?? [])
+                ...Asset[comp].map(A => A.label ?? [])
             ])
-        ));
+        );
     }
-    static flipped = {bit: ['F','T','B','N','HN','LF']}
+    static transformed = [['F','T','B','N','HN','LF'], ['DB','DS','Tr','Op']]
     static find (i, comp) {
         if (comp != 'bit') return Asset[comp][i]?.P;
-        let flipped = Asset.flipped.bit[i - (Asset.bit.length - Asset.flipped.bit.length)];
-        return flipped ? Asset.bit.find(({P}) => P?.abbr == flipped)?.P : Asset[comp][i]?.P;
+        let transformed = Asset.transformed.flat()[i - (Asset.bit.length - Asset.transformed.flat().length)];
+        return transformed ? Asset.bit.find(({P}) => P?.abbr == transformed)?.P : Asset[comp][i]?.P;
     }
 }
 class Cutout {
     constructor({box, bmp}) {
         Object.assign(this, {box, bmp, class: box.class});
     }
-    computeHash (bmp = this.bmp) {
+    async computeHash (bmp = this.bmp) {
         if (this.algo == Analysis.algo) return;
         this.algo = Analysis.algo;
         let cvs = E('canvas', {width: bmp.width, height: bmp.height}); //only canvas accepted
         cvs.getContext('2d').drawImage(bmp, 0, 0, bmp.width, bmp.height);
-        return window[Analysis.algo](cvs, Analysis.algo == 'cropResistantHash' ? undefined : 16)
-            .then(hash => (this.hash = hash) && bmp.close());
+        this.hash = await window[Analysis.algo](cvs, Analysis.algo == 'cropResistantHash' ? undefined : 16);
+        bmp.close();
     }
     label (string = false, lang = Q('input[name=lang]:checked').value) {
         let P = this.identified;
@@ -167,7 +171,7 @@ class Analysis {
             App.state(3, 'done');
         },
         cutouts: () => COLLAGE.worker.cutouts()
-            .then(cutouts => Promise.all(cutouts.map(async ({box, bmp}) => {
+            .then(cutouts => Promise.all(cutouts.map(({box, bmp}) => {
                 let cutout = new Cutout({box, bmp});
                 (COLLAGE.cutouts[cutout.class || App.comp] ??= []).push(cutout);
                 return cutout.computeHash();
@@ -203,8 +207,8 @@ class ScoreMatrix { //row: parts, col: boxes
     constructor(comp) {
         this.comp = comp;
         let asset = Asset[comp].map(A => A.hash), cutout = COLLAGE.cutouts[comp].map(C => C.hash);
-        [this.R, this.C] = [asset.length, cutout.length];
         this.hashes = {asset, cutout};
+        [this.R, this.C] = [asset.length, cutout.length];
         this.scores = new Float16Array(this.R * this.C).fill(255);
         this.done = {rows: new Set(), cols: new Set()};
     }
