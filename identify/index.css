@@ -1,10 +1,3 @@
-
-.icon-blade::after {
-    content: '調整中' !important;
-    line-height: 3.2em; color: black;
-    z-index: 9;
-    filter: saturate(0) brightness(12) brightness(.8) !important;
-}
 nav div {
     justify-self: end;
     align-self: center;
@@ -73,13 +66,15 @@ main ol {
         width: 100%;
         margin-top: .5em;
     
-        #step-3 & {line-height: 4em;}
+        &.inactive {pointer-events: none; filter: saturate(0);}
+        &#comp {line-height: 4em;}
+        #step-2:has(~.loading) & {pointer-events: none;}
         #step-5 & {align-items: end;}
         label {
             position: relative;
             color: var(--theme);
 
-            #step-3 & {
+            #comp & {
                 display: flex; flex-direction: column;
                 min-width: 3em; height: 3.5em;
             }
@@ -100,11 +95,10 @@ main ol {
         margin: 0 1em;
         li>&:first-child {margin-left: 0;}
     }
-    textarea {
-        width: 100%; height: 2em;
-        margin: .25em 0;
+    #tier {
+        width: 100%;
+        &:empty+small {display: none;}
     }
-    textarea[hidden]+small {display: none;}
 }
 aside {
     position: fixed !important; bottom: 0;
@@ -126,7 +120,8 @@ aside {
     &#correct {
         overflow-x: scroll;
         align-items: center;
-
+        
+        div {display: contents;}
         label {
             filter: none !important;
 
@@ -142,6 +137,6 @@ aside {
             height: 5em; 
             cursor: pointer;
         }
-        label:has(.flipped),img {display: none;}
+        label:has(.transformed),img {display: none;}
     }
 }
