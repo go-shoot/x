@@ -472,8 +472,8 @@
     "DrSw2": {
         "group": "BX",
         "names": {
-            "jap": "ドランソード_V2",
-            "eng": "DranSword_V2",
+            "jap": "ドランソード_バージョン2.0",
+            "eng": "DranSword_Version 2.0",
             "chi": "翔龍神劍_V2 蒼龍神劍_V2"
         },
         "stat": ["37+"],

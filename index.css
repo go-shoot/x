@@ -33,6 +33,7 @@ header {
 h2,h3 {
     color: transparent; -webkit-text-stroke: .02em white;
 }
+sub {line-height: 0; margin: 0 .15em;}
 
 section {
     margin: 3rem auto 0 auto;  
@@ -84,8 +85,6 @@ section {
         ::before {margin-right: .2em;}
         button {
             color: var(--theme);
-
-            sub {line-height: 0; margin-left: .15em;}
         }
         &.history button::before {content: '\e009';}
         &.preview button::before {content: '\e001';}

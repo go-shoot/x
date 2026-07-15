@@ -36,10 +36,10 @@ class Shohin {
         [/.XG?-/, 'others'],
     ])
     attrs () {
-        let {bit, names: {chi, jap, pure}} = new Bey(this.abbr);
-        let h4 = this.div.Q('h4');
+        let {bit, names: {chi, jap}} = new Bey(this.abbr);
+        let h4 = this.div.Q('h4'), a = E('a', chi);
         h4.Q('strong:nth-of-type(1)').replaceChildren(...jap);
-        h4.Q('strong:nth-of-type(2)').replaceChildren(E('a', {href: `?${pure}`}, chi));
+        h4.Q('strong:nth-of-type(2)').replaceChildren(Object.assign(a, {href: `?${a.innerText}`}));
         this.div.Q('h5').prepend(Shohin.ruby([...bit.attr][0]));
     }
     images () {
@@ -246,7 +246,7 @@ Object.assign(Markup, {
     hktw: (lang, name) => ['hk','tw'].includes(lang) && name?.split(' ')[['hk','tw'].indexOf(lang)] || name,
     image: (url, values) => Markup(url, Markup.replacer.image, values),
     upgrade: (text, item) => Markup(text, Markup.upgrades[item]),
-    downgrade: (text, item) => Markup(text, Markup.upgrades[item].map(item => item.reverse())),
+    downgrade: (text, item) => Markup(text, Markup.upgrades[item].map(item => item.toReversed())),
 });
 Markup.upgrades = {
     figureDash: [['-', '‒']],

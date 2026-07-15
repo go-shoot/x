@@ -11,7 +11,7 @@ class Cache {
     constructor() {
         return DB.get.essentials({drop: false, flat: true})
         .then(Parts => Promise.all([DB.get('meta', 'search'), ...Parts.map(P => P.revise('tile'))]))
-        .then(([links, ...Parts]) => CACHE = {
+        .then(([links, ...Parts]) => window.cache = CACHE = {
             links: [
                 ...links,
                 ...LINES.flatMap(([line, {divided}]) => 
@@ -69,10 +69,11 @@ class Input {
     }
     static field = Q('[type=search]')
     static regexp = new O({
-        ratchet: /\w-?\d{2}(?!\d)/,
-        complex: /[A-z]{3,4}$/,
-        bit: /[A-z]{1,2}$/,
-        subblade: /(?<![A-z])[A-z]{1,2}(?!-)/
+        ratchet: /\w-?\d[05](?!\d)/,
+        complex: /[A-Za-z]{3,4}$/,
+        bit: /[A-Za-z]{1,2}$/,
+        subblade: /(?<![A-Za-z])[A-Za-z]{1,2}(?!-|\d$)/,
+        blade: /[一-龥]+(?:V2)?/
     })
     static events () {
         Input.field.onfocus = async () => CACHE ??= await new Cache();
@@ -97,7 +98,7 @@ class Search {
         });
     }
     static precisely = targets => CACHE.parts.filter(P => P.only.name() ? 
-        Search.match.name(P.names, targets.free) : 
+        Search.match.name(P.names, targets.blade ?? targets.free) : 
         Search.match.abbr(P.path.at(-1), targets[P.subcomp])
     )
     static generally = ({free}, amount) => 
@@ -198,7 +199,6 @@ Q('header').after(DB(plugins).then(async () => {
         ).target.src).hash.substring(1)) && Input.field.oninput()
     , {root: ul, threshold: [1]});
     ul.Q('img', img => scrolling.observe(img));
-    ul.scrollTop = ul.scrollHeight*.28;
 }));
 
 (() => {

@@ -192,7 +192,7 @@ Object.assign(Tile.prototype.fill, {
                 Markup.tile(names.chi, segment.chi)?.map(els => E('h5.chi', els)) ?? '' : 
                 E('h4', Markup.upgrade(path.at(-1), 'figureDash')), 
             names ? ['jap', 'eng'].map(l => E(`h5.${l}`, Markup.tile(names[l], segment.eng)[0])) : '',
-            hasbro ? E(`h5.hasbro`, console.log(hasbro)??Markup(hasbro, 'mode')) : ''
+            hasbro ? E(`h5.hasbro`, Markup(hasbro, 'mode')) : ''
         ].flat(9);
     },
     stat () {
