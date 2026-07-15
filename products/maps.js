@@ -1,7 +1,7 @@
 const Maps = {
     images: new O([
         ['BX-46', {detail: '${no}(_01|_02)'}],
-        [['CX-11','UX-15'], {detail: '${no}(|_2|_3)'}],
+        [['UX-21','CX-11','UX-15'], {detail: '${no}(|_2|_3)'}],
         ['CX-04', {detail: '${no}_(d|p)'}],
         ['UX-07', {detail: '${no}_(r|g|b)', more: '${no}_(r|g|b)'}],
         ['BX-21', {detail: '${no}_(p|y|o)', more: '${no}_(p|y|o)'}],

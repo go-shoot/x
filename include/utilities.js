@@ -36,10 +36,10 @@ class Shohin {
         [/.XG?-/, 'others'],
     ])
     attrs () {
-        let {bit, names: {chi, jap}} = new Bey(this.abbr);
+        let {bit, names: {chi, jap, pure}} = new Bey(this.abbr);
         let h4 = this.div.Q('h4');
-        h4.Q('strong:nth-of-type(1)').innerText = jap;
-        h4.Q('strong:nth-of-type(2)').replaceChildren(E('a', {href: `?${chi}`}, chi));
+        h4.Q('strong:nth-of-type(1)').replaceChildren(...jap);
+        h4.Q('strong:nth-of-type(2)').replaceChildren(E('a', {href: `?${pure}`}, chi));
         this.div.Q('h5').prepend(Shohin.ruby([...bit.attr][0]));
     }
     images () {
@@ -77,7 +77,7 @@ class Keihin {
                     } : '')
                 ]),
             ]),
-            E('h4', {lang: 'zh'}, [chi || '　', E('small', ver?.[1] ?? '')]),
+            E('h4', {lang: 'zh'}, [...chi || ['　'], E('small', ver?.[1] ?? '')]),
             E('time', Markup.upgrade(date, 'figureDash'))
         ], {title: bey});
     }
@@ -257,7 +257,7 @@ Markup.replacer = {
     cell: [/(?<=[a-z]{2,})(?=\\?[A-Z])/, ' '],
     mode: new O([
         [/(.+)_([一-龢]{4,})/, ([, $1, $2]) => [$1, E('sub.long', $2)]],
-        [/(.+)_(.+)/s, ([, $1, $2]) => [$1, E('sub', $2)]]
+        [/(.+)_([^ ]+)(.*)/s, ([, $1, $2, $3]) => [$1, E('sub', $2), $3]]
     ]),
     tile: new O([
         [/(.+)\\(.+)/, ([, $1, $2]) => [$1, E('span', $2)]],

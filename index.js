@@ -174,7 +174,7 @@ class Result {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
             href, target: href.startsWith('//') ? '_blank' : ''
         })
-    weight = bey => Object.assign(E('li>button', [` 重量估算【${bey.names.chi}】`, E('b', bey.weight)]), {bey})
+    weight = bey => Object.assign(E('li>button', [` 重量估算【`, ...bey.names.chi, `】`, E('b', bey.weight)]), {bey})
 }
 
 import {Shohin} from './include/utilities.js'
