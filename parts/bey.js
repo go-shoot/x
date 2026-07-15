@@ -34,14 +34,13 @@ class Bey {
         let blade = [this.blade].flat();
         let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
             + Markup.upgrade(this.ratchet.abbr, 'nobreak') + (this.bit.abbr ?? '');
-        this.names = {
-            chi: Markup.cell([...new Set([
-                blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
-                blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
-            ])].join(' ')).join('') + others,
-            jap: blade.map(b => b.only.name() ? b.names?.jap : '').join('') + others
-        };
-        (this.names.chi == others) && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
+        this.names = {pure: [...new Set([
+            blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
+            blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
+        ])].join(' ') + ' ' + others};
+        this.names.chi = Markup.cell(this.names.pure);
+        this.names.jap = [...Markup.cell(blade.map(b => b.only.name() ? b.names?.jap : '').join('')), others];
+        this.names.pure[0] == ' ' && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
     }}}
     get weight () {
         let adjust = {'+': .3, '=': 0, '-': -.3};
