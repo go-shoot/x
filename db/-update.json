@@ -11,7 +11,7 @@
   "news": {
     "2026-08-08":[
  {
-    "code": "UX-21 deck set",
+    "code": "UX-21 deck set","type":"bal",
     "name": [
         "ヘルズネザーデッキセット",
         "Hells Nether Deck Set"
@@ -22,7 +22,7 @@
     ],
     "imgs": ["https://m.media-amazon.com/images/I/712PbSkR+lL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/717rp02z9bL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61X0TFrGjhL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/8bb5afef-f93c-45bd-a5e7-0d96089ea356.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/e7be1608-4ff8-41b2-b87f-bdff0907e0c9.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/3b63036f-6d93-43fa-89d8-cb494569b769.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
 },{
-    "code": "BXG-?? booster","type":"att",
+    "code": "BXG-49 booster","type":"att",
     "name": [
         "ドランソード3-60F V2",
         "Dran Sword 3-60F Version 2"
@@ -43,12 +43,21 @@
         "https://m.media-amazon.com/images/I/51MsqrPGo5L._AC_SL1100_.jpg"
     ]
 } ],
-    "2026-08-29":[{
-    "code": "BXG-?? starter","type":"att",
-    "name": [
-        "グローリーワルキューレLF メタルコート：ブルー",
-        "Glory Valkyrie LF Metal Coat: Blue"
+"2026-08-15":[{
+    "code": "BXC-??",
+    "bey": "ClMr 4-55 S","ver":[
+        "メタルコート：ブラック","Metal Coat: Black"
     ],
+    "desc": [
+        "填寫雜誌內表格購買"
+    ],
+    "imgs": [
+        "https://preview.redd.it/hells-nether-at-last-v0-yuc6rw16nech1.jpg?width=1080&crop=smart&auto=webp&s=e375a9cf6031b551a963a742623355675e925b66"
+    ]
+}],
+    "2026-08-29":[{
+    "code": "BXG-63 starter",
+    "bey": "GlVl = LF",
     "desc": [
         "G1等場合發售"
     ],
@@ -71,19 +80,7 @@
     ]
 },{
       "code":"CX-19 random booster select"
-    },{
-    "code": "BXC-??","type":"def",
-    "name": [
-        "クロックミラージュ4-55S メタルコート：ブラック",
-        "Clock Mirage 4-55S Metal Coat: Black"
-    ],
-    "desc": [
-        "填寫雜誌內表格購買"
-    ],
-    "imgs": [
-        "https://preview.redd.it/hells-nether-at-last-v0-yuc6rw16nech1.jpg?width=1080&crop=smart&auto=webp&s=e375a9cf6031b551a963a742623355675e925b66"
-    ]
-}],"2026-10":[{
+    }],"2026-10":[{
     "code":"BX-52 starter"
 },{
     "code":"BX-53 entry set"
