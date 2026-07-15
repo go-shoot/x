@@ -37,10 +37,10 @@ class Bey {
         this.names = {pure: [...new Set([
             blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
             blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
-        ])].join(' ') + ' ' + others};
+        ])].join(' ') + ' ' + others};
         this.names.chi = Markup.cell(this.names.pure);
         this.names.jap = [...Markup.cell(blade.map(b => b.only.name() ? b.names?.jap : '').join('')), others];
-        this.names.pure[0] == ' ' && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
+        this.names.pure[0] == ' ' && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
     }}}
     get weight () {
         let adjust = {'+': .3, '=': 0, '-': -.3};
