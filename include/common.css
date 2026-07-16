@@ -168,6 +168,7 @@ body {
     text-align: center; -webkit-text-size-adjust: 100%;
 
     &:has(db-state[title=更新中]) {pointer-events: none;}
+    &:has(:popover-open) {overflow: hidden;}
 }
 html,body {
     overscroll-behavior-y: none;

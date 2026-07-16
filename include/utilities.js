@@ -60,10 +60,22 @@ class Shohin {
     });
 }
 class Keihin {
-    constructor({type, note, link, date, code, bey, ver, img: [src, style]}) {
-        if (!note) return '';
+    static observer = new IntersectionObserver(entries => entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.Keihin.fill();
+        en.target.classList.remove('loading');
+        Keihin.observer.unobserve(en.target);
+    }));
+    constructor(content) {
+        if (!content.note) return;
+        this.content = content, this.article = E(`article.loading`, {title: content.bey});
+        Keihin.observer.observe(this.article);
+        return Object.assign(this.article, {Keihin: this});
+    }
+    fill ({type, note, link, date, code, bey, ver, img: [src, style]} = this.content) {
+        if (this.article.Q('em')) return;
         let {line, names: {jap, chi}} = new Bey(bey);   
-        return E(`article.keihin-${type}.${line}`, [
+        E(this.article).set([
             E('em', Keihin.type[type]), 
             E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note), //DMM
             E('div', [
@@ -77,9 +89,9 @@ class Keihin {
                     } : '')
                 ]),
             ]),
-            E('h4', {lang: 'zh'}, [...chi || ['　'], E('small', ver?.[1] ?? '')]),
+            E('h4', {lang: 'zh'}, [...chi || ['　'], E('small', ver?.[1] ?? ver?.[0])]),
             E('time', Markup.upgrade(date, 'figureDash'))
-        ], {title: bey});
+        ], {classList: [`keihin-${type}`, line]});
     }
     static type = new O({t: '比賽', d: '抽獎', m: '限定商品', g: '贈品'})
 }

@@ -39,8 +39,9 @@ Object.assign(Prize, {
     },
     after () {
         Prize.filter();
+        Q('nav form').addEventListener('change', () => Prize.all.forEach(article => article.Keihin.fill()), {once: true});
         FilterForm.event(Prize.all);
-        Q('.loading').classList.remove('loading');
+        Q('#beys').classList.remove('loading');
     },
     filter: () => Q('nav form').append(
         new FilterForm.fieldset(Prize.icons, {name: 'type'}), 
