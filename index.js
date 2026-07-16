@@ -178,26 +178,27 @@ class Result {
     weight = bey => Object.assign(E('li>button', [` 重量估算【`, ...bey.names.chi, `】`, E('b', bey.weight)]), {bey})
 }
 
+sessionStorage.news && (Q('#news').innerHTML = sessionStorage.news);
 import {Shohin} from './include/utilities.js'
 const plugins = {
-    announce: news => new O(news).each(([date, beys]) => 
-        Q('#products').append(E('time', {title: date}), ...beys.map(bey => new Shohin(bey)))
+    announce: news => Q('#news').replaceChildren(
+        E('h3', '最新產品'),
+        ...new O(news).flatMap(([date, beys]) => [E('time', {title: date}), ...beys.map(bey => new Shohin(bey))])
     )
 };
 Q('header').after(DB(plugins).then(async () => {
+    sessionStorage.news = Q('#news').innerHTML;
     CACHE ??= await new Cache();
     Shohin.after();
     location.search && new Search(location.search.substring(1));
 
-    const seeing = new IntersectionObserver(entries => entries.forEach(entry => 
-        entry.target.classList.toggle('seeing', entry.isIntersecting)
-    ));
+    let seeing = new IntersectionObserver(ens => ens.forEach(en => en.target.classList.toggle('seeing', en.isIntersecting)));
     Q('header,section,time,.scroller', el => seeing.observe(el));
-    const ul = Q('search ul'), scrolling = new IntersectionObserver(entries => 
-        (ul.classList = new URL(entries.reduce((prev, entry) => 
-            entry.intersectionRatio > prev.intersectionRatio ? entry : prev
-        ).target.src).hash.substring(1)) && Input.field.oninput()
-    , {root: ul, threshold: [1]});
+    let ul = Q('search ul'), scrolling = new IntersectionObserver(ens => {
+        let major = ens.reduce((prev, en) => en.intersectionRatio > prev.intersectionRatio ? en : prev);
+        ul.classList = new URL(major.target.src).hash.substring(1);
+        Input.field.oninput();
+    }, {root: ul, threshold: [1]});
     ul.Q('img', img => scrolling.observe(img));
 }));
 
