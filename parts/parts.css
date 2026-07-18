@@ -36,7 +36,7 @@ nav {
         padding-right: .6em; 
         display: flex; align-items: center; gap: .3em;
         overflow: scroll hidden; scrollbar-width: none;
-        background: var(--overlay2); border-radius: 9em; 
+        background: var(--overlay); border-radius: 9em; 
 
         .blade &#group {
             font-size: .85em; text-transform: uppercase;

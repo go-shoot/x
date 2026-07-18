@@ -133,7 +133,7 @@ section {
         img {width: 3em;}
         ruby {
             margin-bottom: .5em;
-            filter: drop-shadow(0 0 .1em var(--overlay1));
+            filter: drop-shadow(0 0 .1em #000000aa);
         }
         rt {
             text-align: center;
@@ -161,7 +161,7 @@ section {
         margin: .2em 0 .2em auto;
         border-radius: 9em;
         width: 16em;
-        background: var(--overlay1);
+        background: var(--theme-trans); backdrop-filter: blur(.3rem) brightness(.3);
         text-align: center;
     }
     i,span {
@@ -169,7 +169,7 @@ section {
         display: inline-flex; justify-content: center; align-items: center;
         border-radius: 9em;
         touch-action: none;
-        background: var(--overlay2);
+        background: var(--overlay);
     }
     i {
         font-size: 1.5em;
@@ -222,8 +222,8 @@ time {
         content: ''; position: absolute;
         width: 120%; height: .8rem;
         left: 50%; top: 50%; transform: translate(-50%,-50%) skew(-20deg);
-        background:linear-gradient(var(--theme) 10%,transparent 10% 90%,var(--theme) 90%),
-        linear-gradient(to right,var(--accent) var(--stop),transparent var(--stop));
+        background: linear-gradient(var(--theme) 10%,transparent 10% 90%,var(--theme) 90%),
+            linear-gradient(to right,var(--accent) var(--stop),transparent var(--stop));
         transition: --stop .5s;
         z-index: -1;
     }

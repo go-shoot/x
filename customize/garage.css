@@ -45,7 +45,7 @@ section {
         }
     }
     ol {
-        background: var(--overlay1);
+        background: var(--theme-trans);
         padding: .2rem !important;
         display: flex; flex-wrap: wrap; gap: .5em .15em; justify-content: space-between;
 
