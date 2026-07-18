@@ -161,7 +161,7 @@ section {
         margin: .2em 0 .2em auto;
         border-radius: 9em;
         width: 16em;
-        background: var(--theme-trans); backdrop-filter: blur(.3rem) brightness(.3);
+        background: var(--theme-trans); backdrop-filter: blur(.2rem) brightness(.4);
         text-align: center;
     }
     i,span {

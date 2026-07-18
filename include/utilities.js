@@ -74,20 +74,22 @@ class Keihin {
     }
     fill ({type, note, link, date, code, bey, ver, img: [src, style]} = this.content) {
         if (this.article.Q('em')) return;
-        let {line, names: {jap, chi}} = new Bey(bey);   
+        let {line, names: {jap, chi}} = new Bey(bey);
+        let h4 = E('h4', {lang: 'ja'}, [
+            E('code', code.includes('?') ? '' : Markup.upgrade(code, 'figureDash').replace(/_.+$/, '')), 
+            E('a', {target: '_blank'}, jap), 
+            E('small', ver?.[0] ? {
+                classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
+                innerHTML: ver[0]
+            } : '')
+        ]);
+        h4.Q('a').href = `//google.com/search?q="${h4.Q('a').innerText}" ${h4.Q('small').innerText}`;
         E(this.article).set([
             E('em', Keihin.type[type]), 
             E('a', link || parseInt(style?.width) > 300 ? {href: link ?? src} : {}, note), //DMM
             E('div', [
                 E('figure>img', {src, loading: 'lazy', style: typeof style == 'object' ? style : {width: style + '%'}}), 
-                E('h4', {lang: 'ja'}, [
-                    E('code', code.includes('?') ? '' : Markup.upgrade(code, 'figureDash').replace(/_.+$/, '')), 
-                    E('a', /^\w+$/.test(jap) ? {} : {href: `//google.com/search?q="${jap}" ${ver?.[0] ?? ''}`, target: '_blank'}, jap), 
-                    E('small', ver?.[0] ? {
-                        classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
-                        innerHTML: ver[0]
-                    } : '')
-                ]),
+                h4
             ]),
             E('h4', {lang: 'zh'}, [...chi || ['　'], E('small', ver?.[1] ?? ver?.[0])]),
             E('time', Markup.upgrade(date, 'figureDash'))

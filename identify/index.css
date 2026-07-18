@@ -104,7 +104,7 @@ aside {
     position: fixed !important; bottom: 0;
     display: flex; gap: .5em; 
     width: 100%;
-    background: var(--theme-trans); backdrop-filter: blur(.3rem) brightness(.3);
+    background: var(--theme-trans); backdrop-filter: blur(.2rem) brightness(.4);
     font-size: .9em;
     padding: .5em 0;
     transition: transform .5s;
