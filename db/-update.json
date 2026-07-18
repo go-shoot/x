@@ -1,8 +1,8 @@
 {
   "part-bit":          "2026/07/01 13:55:00",
   "part-blade-divided":"2026/07/18 14:00:00",
-  "prod-beys":         "2026/07/16 01:07:00",
-  "prod-keihin":       "2026/07/16 01:05:00",
+  "prod-beys":         "2026/07/18 18:00:00",
+  "prod-keihin":       "2026/07/18 18:00:00",
   "part-blade":        "2026/07/15 23:15:00",
   "part-blade-collab": "2026/07/10 23:55:00",
   "part-ratchet":      "2026/07/10 23:55:00",
@@ -34,7 +34,7 @@
         "3on3 Deck Case Black Ver."
     ]
 } ],
-"2026-08-14":[{
+"2026-08-12":[{
     "code": "BXC-??",
     "bey": "ClMr 4-55 S","ver":[
         "メタルコート：ブラック","Metal Coat: Black"
@@ -43,7 +43,7 @@
         "填寫雜誌內表格購買"
     ],
     "imgs": [
-        "https://preview.redd.it/hells-nether-at-last-v0-yuc6rw16nech1.jpg?width=1080&crop=smart&auto=webp&s=e375a9cf6031b551a963a742623355675e925b66"
+        "https://corocoro-news.jp/wp-content/uploads/2026/07/8dff3a12f1d5cf75a5aa1bdb414d404f.jpg"
     ]
 }],
     "2026-08-29":[{
@@ -53,7 +53,6 @@
         "G1等場合發售"
     ],
     "imgs": [
-        "https://preview.redd.it/hells-and-the-mechanics-is-a-dran-with-new-weight-v0-o3qfozmjqech1.jpg?width=1080&crop=smart&auto=webp&s=ba8992a2fe29b4e685bd7e29051e5f2f23c00c3f"
     ]
 },{
       "code":"BXG-57 deck set","name":["エヴァンゲリオンデッキセット","Evangelion Deck Set"],
