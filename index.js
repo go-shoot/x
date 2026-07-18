@@ -53,9 +53,10 @@ class Input {
             [...targets.ratchet].map(r => r.replace(/(?<!-)(?=\d{2}$)/, '-'))
         );
         targets.free &&= new Set([...targets.free,
-            [...targets.free].map(n => /^[一-龥]{4,}$/.test(n) ? 
-                [/^(.{2})(.+)$/.exec(n).slice(1, 3), /^(.+)(.{2})$/.exec(n).slice(1, 3)] : n
-            )
+            [...targets.free].map(n => /^[一-龥]{4,}/.test(n) ? [
+                /^([一-龥]{2})([一-龥]+)/.exec(n).slice(1, 3), 
+                /^([一-龥]+)([一-龥]{2})/.exec(n).slice(1, 3)
+            ] : n)
         ].flat(9));
         let comp = ['over', 'assist', 'bit'];
         targets.complex ?
