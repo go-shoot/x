@@ -40,8 +40,9 @@ Object.assign(Catalog, {
         tile && Catalog.focus(tile);
     },
     info (group) {
-        document.title = document.title.replace(/^.*?(?= 🙼 )/, (PATH[1] ? `〖${PATH[1]}〗` : '') 
-            + Object.values(Part.names[group] || (PATH[1] ? {_: '未出'} : Part.names[PATH[0]])).join(' ⬧ ').replace(' ', ' ⬧ '));
+        let names = Part.names[group] || (PATH[1] ? {_: '未出'} : Part.names[PATH[0]]);
+        let title = (PATH[1] ? `〖${PATH[1]}〗` : '') + Object.values(names).join(' ⬧ ').replace(' ', ' ⬧ ').toUpperCase();
+        document.title = document.title.replace(/^.*?(?= 🙼 )/, title);
         Q('details p', p => p.hidden = p.id != (PATH[1] || PATH[0]));
     },
     focus (tile) {

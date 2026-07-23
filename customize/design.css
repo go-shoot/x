@@ -22,7 +22,7 @@ nav {
         margin: 0 .2em 0 .3em; padding: .1em;
         vertical-align: middle;
     }
-    continuous-knob {
+    :is(continuous-knob,drag-knob) {
         grid-area: 1/3/3/4; place-self: center end;
         margin-right: .4em; 
         font-size: .8em;
@@ -123,9 +123,9 @@ main form {
 fieldset:not(#layer) {
     font-size: .9em;
     
-    label,continuous-knob::before {font-size: .9em;}
-    continuous-knob::part(output) {font-size: .65em;}
-    continuous-knob {margin: 0 .25em .3em .25em;}
+    label,:is(continuous-knob,drag-knob)::before {font-size: .9em;}
+    :is(continuous-knob,drag-knob)::part(output) {font-size: .65em;}
+    :is(continuous-knob,drag-knob) {margin: 0 .25em .3em .25em;}
 
     hr {
         border-bottom: .1em solid var(--on);

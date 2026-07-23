@@ -143,7 +143,6 @@ const Links = {
         if (!P) return Links.div.title = '';
         let comp = Part.names[P.subcomp];
         comp.eng = comp.eng.replace(' ', '');
-        comp.eng == 'MetalBlade' && (comp.eng = 'MainBlade');
         let name = P.only.name() ? {
             chi: Markup.clear(P.names.chi).replace(' ', ','),
             jap: P.names.jap

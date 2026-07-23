@@ -2,14 +2,14 @@
     "general": { 
         "part": {
             "names": {
-                "blade": {"chi": "刃擊環 鋼鐵戰刃", "eng": "BLADE", "jap": "ブレード"}, 
-                "chip": {"chi": "紋章鎖 鎖定紋章", "eng": "LOCK CHIP", "jap": "ロックチップ"},
-                "over": {"chi": "超越刃 超越戰刃", "eng": "OVER BLADE", "jap": "オーバーブレード"},
-                "main": {"chi": "主刃 主要戰刃", "eng": "MAIN BLADE", "jap": "メインブレード"},
-                "metal": {"chi": "金屬刃 鋼鐵戰刃", "eng": "METAL BLADE", "jap": "メタルブレード"},
-                "assist": {"chi": "支援刃 輔助戰刃", "eng": "ASSIST BLADE", "jap": "アシストブレード"},
-                "ratchet": {"chi": "核輪 固鎖輪盤", "eng": "RATCHET", "jap": "ラチェット"},
-                "bit": {"chi": "軸心", "eng": "BIT", "jap": "ビット"}
+                "blade": {"chi": "刃擊環 鋼鐵戰刃", "eng": "Blade", "jap": "ブレード"}, 
+                "chip": {"chi": "紋章鎖 鎖定紋章", "eng": "Lock Chip", "jap": "ロックチップ"},
+                "over": {"chi": "超越刃 超越戰刃", "eng": "Over Blade", "jap": "オーバーブレード"},
+                "main": {"chi": "主刃 主要戰刃", "eng": "Main Blade", "jap": "メインブレード"},
+                "metal": {"chi": "金屬刃 鋼鐵戰刃", "eng": "Metal Blade", "jap": "メタルブレード"},
+                "assist": {"chi": "支援刃 輔助戰刃", "eng": "Assist Blade", "jap": "アシストブレード"},
+                "ratchet": {"chi": "核輪 固鎖輪盤", "eng": "Ratchet", "jap": "ラチェット"},
+                "bit": {"chi": "軸心", "eng": "Bit", "jap": "ビット"}
             },
             "named": ["blade","chip","main","metal"]
         },
