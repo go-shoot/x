@@ -93,7 +93,7 @@ class Keihin {
             ]),
             E('h4', {lang: 'zh'}, [...chi || ['　'], E('small', ver?.[1] ?? ver?.[0])]),
             E('time', Markup.upgrade(date, 'figureDash'))
-        ], {classList: [`keihin-${type}`, line]});
+        ], {classList: [`keihin-${type}`, line, ...this.article.classList]});
     }
     static type = new O({t: '比賽', d: '抽獎', m: '限定商品', g: '贈品'})
 }

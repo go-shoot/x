@@ -114,7 +114,7 @@ aside {
         padding-bottom: 1em;
         justify-content: center; align-items: end;
 
-        continuous-knob::before {font-size: .9em;}
+        drag-knob::before {font-size: .9em;}
         i {color: var(--theme);}
     }
     &#correct {

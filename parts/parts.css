@@ -102,7 +102,7 @@ nav {
         }
         @media (min-width:631px) {
             & {grid-area: 1/4/3/5;}
-            continuous-knob {
+            drag-knob {
                 display: inline-grid;
                 margin-top: .15em; 
                 font-size: .9em;

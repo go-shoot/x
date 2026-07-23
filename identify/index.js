@@ -14,7 +14,7 @@ E.img = src => new Promise(res => E('img', {
     src, crossOrigin: 'anonymous', referrerPolicy: 'no-referrer', 
     onload: function() {res(this)}, onerror: () => res(null)
 }));
-let COLLAGE, KNOBS = Object.fromEntries(Q('continuous-knob', []).map(knob => [knob.id, knob.value]));
+let COLLAGE, KNOBS = Object.fromEntries(Q('drag-knob', []).map(knob => [knob.id, knob.value]));
 class Asset {
     constructor(P, prop = {}) {
         this.prop = prop;

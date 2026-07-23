@@ -82,7 +82,7 @@ Object.assign(Filter, {
 
 const Magnifier = () => {
     Q('.magnifier').append(
-        E('continuous-knob', {min: .75, max: 2, value: Storage('pref')?.knob || 1}, E('i.center', '')),
+        E('drag-knob', {range: '.75/2/.1', value: Storage('pref')?.knob || 1}, E('i', '')),
         ...E.radios([.54, .81, 1.6].map((value, i) => ({id: `mag${i}`, name: 'mag', value}) ))
     );
     Q(`#${Storage('pref')?.button || 'mag1'}`).click();
@@ -97,7 +97,7 @@ Object.assign(Magnifier, {
         }
         new ResizeObserver(Magnifier.switch).observe(Q('nav'));
     },
-    switch: () => E(Catalog.place).set({'--font': Q(innerWidth > 630 ? 'continuous-knob' : '[name=mag]:checked').value})
+    switch: () => E(Catalog.place).set({'--font': Q(innerWidth > 630 ? 'drag-knob' : '[name=mag]:checked').value})
 });
 
 const Sorter = () => {
