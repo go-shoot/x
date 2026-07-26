@@ -5,10 +5,9 @@
             "jap": "ヘルズネザー",
             "eng": "HellsNether",
             "hasbro": "Nether Incendio",
-            "chi": "",
-            "aka": "煉獄 惡魔"
+            "chi": "煉獄下界"
         },
-        "stat": [""],
+        "stat": ["42+"],
         "desc": "利用可切替Blade高度的機關，能分別使用強撞擊攻擊刃及化解刃，特化於向各種高度對手的對應力。",
         "attr": ["bal","right","UX","fused"]
     },
@@ -726,8 +725,7 @@
         "names": {
             "jap": "ワイバーンホバー",
             "eng": "WyvernHover",
-            "chi": "",
-            "aka": "飛龍 翼龍"
+            "chi": "飛龍翱翔"
         },
         "stat": ["35+"],
         "desc": "向下收窄的階梯形狀兩枚刃把對手攻擊由上向下壓制，擅於分散衝擊。",
