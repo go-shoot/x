@@ -419,7 +419,7 @@
         },
         "Hr": {
             "names": {"jap":"ハリケーン", "eng":"Hurricane"},
-            "stat": [""],
+            "stat": ["24+"],
             "desc": "(IS7-55T tent.)",
             "attr": ["bal","right","expand"],
             "from": "metal."
@@ -440,7 +440,7 @@
         },
         "I": {
             "names": {"jap":"", "eng":""},
-            "stat": [""],
+            "stat": ["4-"],
             "desc": "",
             "attr": ["bal","right","expand"],
             "from": "over."
