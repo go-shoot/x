@@ -8,7 +8,7 @@ Q('nav').classList = DESIGNING;
 const [MAIN, FORM] = [{ctx: Q('canvas').getContext('2d', {alpha: false})}, {nav: Q('nav form'), main: Q('main form')}];
 const App = () => {
     App.loading(true);
-    Controls.show(null);
+    Controls.reset();
     Q('form button', button => button.type = 'button');
     App.events();
     Promise.try(() => DESIGNING == 'sheet' ? E.img('./sheet.png') : {naturalHeight: 300, naturalWidth: 300}).then(img => {
@@ -25,13 +25,12 @@ Object.assign(App, {
     reset () {
         DESIGNING == 'emblem' && Layers.put(JSON.parse(Q(`#template`).innerText));
         Controls.reset();
-        Layers.reset();
+        Layers.set(null);
         App.loading(false);
-        Draw();
     },
     loading: loading => Q('summary').classList[loading ? 'add' : 'remove']('loading'),
     save: () => Layers.modified && DB.put('user', {[`${DESIGNING}-${location.hash.substring(1)}`]: Layers.get()}),
-    load: hash => DB.get('user', `${DESIGNING}-${hash.substring(1)}`).then(layers => layers ? Layers.put(layers) : App.reset()),
+    load: hash => DB.get('user', `${DESIGNING}-${hash.substring(1)}`).then(layers => layers ? Layers.set(layers) : App.reset()),
     stage (design) {
         if (design === true) 
             return Promise.all(App.designs.map(a => a.canvas ? 
@@ -42,7 +41,7 @@ Object.assign(App, {
     },
     switch (ev) {
         App.loading(true);
-        Layers.solo(false);
+        Layer.solo(false);
         typeof ev == 'object' && App.stage(Q(`a[href='${new URL(ev.oldURL).hash}']`));
         /^#[1-6]$/.test(location.hash) ? App.load(location.hash).then(App.loading) : location.href = '#1'
     },
@@ -55,21 +54,19 @@ Object.assign(App, {
     },
     import (ev) {
         App.loading(true);
-        Layers.solo(false);
-        let reader = new FileReader;
-        reader.readAsText(ev.target.files[0]);
-        reader.onload = () => Layers.put(JSON.parse(reader.result)).then(App.loading);
+        Layer.solo(false);
+        ev.target.files[0]?.text().then(JSON.parse).then(Layers.set).then(App.loading);
         gtag('event', 'IMPORT-JSON');
     },
     sample () {
         if (DESIGNING == 'emblem') return App.reset();
         App.loading(true);
-        Layers.solo(false);
-        fetch('./sheet-sample.json').then(resp => resp.json()).then(Layers.put).then(App.loading);    
+        Layer.solo(false);
+        fetch('./sheet-sample.json').then(resp => resp.json()).then(Layers.set).then(App.loading);    
     },
     print () {
         App.loading(true);
-        Layers.solo(false);
+        Layer.solo(false);
         let perDesign = [...FORM.nav.amount.value];  
         let [perPage, perRow, y0, scale] = DESIGNING == 'sheet' ? [12, 6, 84.5, .291] : [81, 9, 700, .168];
         Promise.all([PDFLib.PDFDocument.create(), App.stage(true)]).then(([pdf]) => {
@@ -97,9 +94,9 @@ Object.assign(App, {
     },
     events () {
         PI.events([
-            ['#layers label', {click: click => click.for(2).to(() => Layers.solo(true))}],
+            ['#layers label', {click: click => click.for(2).to(() => Layer.solo())}],
             [FORM.nav.sample, {hold: hold => hold.for(2).to(App.sample)}],
-            [FORM.main.delete, {hold: hold => hold.for(2).to(Layers.delete)}]
+            [FORM.main.delete, {hold: hold => hold.for(2).to(() => Layer.selected.layer.delete())}]
         ]);
         E(FORM.main).set({
             oncontextmenu: () => false,
@@ -107,11 +104,11 @@ Object.assign(App, {
             onclick: ev => ev.target.matches('button.type') ? Controls.chooseType(ev) : null
         });
         E(FORM.main.layer).set({
-            onchange: Layers.switch,
+            onchange: ev => ev.target.labels[0].layer.select(),
             onpointerdown: ev => ev.target.id == 'delete' && App.warn(ev),
             onclick (ev) {
-                if (ev.target.id == 'create') return Layers.create(ev);
-                ['up', 'down'].includes(ev.target.id) && Layers.move(ev);
+                if (ev.target.id == 'create') return new Layer();
+                ['up', 'down'].includes(ev.target.id) && Layer.selected.layer.move(ev.target.id);
             },
         });
         E(FORM.main['control-image']).set({
@@ -143,36 +140,35 @@ Object.assign(App, {
             if (ev.target.tagName.includes('KNOB')) 
                 return ev.key == 'Enter' ? ev.target.sQ('input').onblur() : '';
             ev.key == 'Control' ? FORM.main.fine.click() : 
-            ev.key == 'ArrowUp' ? Layers.selected.previousSibling?.click() :
-            ev.key == 'ArrowDown' ? Layers.selected.nextSibling?.click() : null;
+            ev.key == 'ArrowUp' ? Layer.selected.previousSibling?.click() :
+            ev.key == 'ArrowDown' ? Layer.selected.nextSibling?.click() : null;
         }
         onhashchange = App.switch;
     }
 });
 const Controls = {
-    show: type => FORM.main.classList = type || '',
     reset () {
+        FORM.main.classList = '';
         Q('input[type=color]', input => input.value = '#000000');
         FORM.main.gradient[0].checked = true;
         FORM.main.shape[0].checked = FORM.main.shape[1].checked = false;
-        Q('continuous-knob', knob => knob.set.value({v: knob.getAttribute('value')}));
+        Q('main drag-knob', knob => knob.value = knob.getAttribute('value'));
     },
-    put () {
-        let {type, ...controls} = Layers.selected.dataset;
+    put ({type, ...controls} = {}) {
         Controls.reset();
-        Controls.show(type);
+        if (!type) return;
+        FORM.main.classList = type;
         FORM.main.shape.forEach(input => (input.disabled = controls.path) && (input.checked = false));
-        new O(controls).each(([n, v]) => {
-            Q(`continuous-knob[name=${n}]`)?.set.value({v});
-            FORM.main[n] && (FORM.main[n].value = v);
-        });
+        new O(controls).each(([n, v]) => FORM.main[n] && (FORM.main[n].value = v));
     },
     get (ev) {
         if (ev.target.id == 'fine') 
-            return Q('continuous-knob', knob => knob.classList.toggle('fine', ev.target.checked));
-        if (!Layers.selected || !ev.target.name) return;
-        Layers.selected.dataset[ev.target.name] = ev.target.value;
-        Layers.selected.dirty = true;
+            return Q('drag-knob', knob => knob.classList.toggle('fine', ev.target.checked));
+        if (!Layer.selected || !ev.target.name || 
+            ev.target.tagName == 'DRAG-KNOB' && !ev.dragged ||
+            ev.target.tagName != 'DRAG-KNOB' && !ev.isTrusted) return;
+        Layer.selected.dataset[ev.target.name] = ev.target.value;
+        Layer.selected.dirty = true;
         Draw();
     },
     image (ev) {
@@ -181,9 +177,18 @@ const Controls = {
         const reader = new FileReader;
         reader.readAsDataURL(ev.target.files[0]);
         reader.onload = () => E.img(reader.result).then(img => {
-            Layers.selected.Q('img').replaceWith(Layers.selected.img = img);
-            Layers.selected.dirty = true;
-            Draw();
+            let w, h;
+            if (img.width / img.height < MAIN.W / MAIN.H) {
+                w = Math.min(img.width, MAIN.W);
+                h = Math.round(w * img.height / img.width);
+            } else {
+                h = Math.min(img.height, MAIN.H);
+                w = Math.round(h * img.width / img.height);
+            }
+            let cvs = E('canvas', {width: w, height: h});
+            cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+            Layer.selected.img.src = cvs.toDataURL('image/png');
+            Layer.selected.img.onload = () => (Layer.selected.dirty = true) && Draw();
         });
         reader.onloadend = () => {
             Layers.fieldset.disabled = false;
@@ -192,80 +197,79 @@ const Controls = {
         }
     },
     chooseType (ev) {
-        Layers.selected.dataset.type = ev.target.id;
-        ev.target.id == 'image' && Layers.selected.append(E('img'));
-        Controls.show(ev.target.id);
+        Layer.selected.dataset.type = ev.target.id;
+        ev.target.id == 'image' && Layer.selected.append(Layer.selected.img = E('img'));
+        Controls.put({type: ev.target.id});
     }
+}
+class Layer {
+    constructor ({image, ...dataset} = {}) {
+        this.label = E.radio({label: dataset ? {dataset} : {}, name: 'layer'})
+        this.label.cvs = new OffscreenCanvas(MAIN.W, MAIN.H);
+        this.label.ctx = this.label.cvs.getContext('2d');
+        this.label.dirty = true;
+        this.label.layer = this;
+        if (!dataset || Object.keys(dataset).length === 0) {
+            Layer.selected ? Layer.selected.after(this.label) : Q('#layers').append(this.label);
+            this.label.click();
+            Controls.reset();
+        } else {
+            Q('#layers').append(this.label);
+            if (image) return E.img(image).then(img => this.label.img = this.label.appendChild(img ?? E('img')));
+        }
+    }
+    select () {
+        Layer.selected = this.label;
+        Controls.put(this.label.dataset);
+        Layer.soloing && Draw();
+    }
+    move (dir) {
+        let {scrollTop} = Layers.fieldset;
+        this.#adjacent(dir)?.[dir == 'up' ? 'before' : 'after'](this.label);
+        Layers.fieldset.scrollTop = scrollTop;
+        Draw();
+    }
+    delete () {
+        this.#adjacent()?.click();
+        this.label.remove();
+        Layers.labels.length > 0 ? Draw() : Layers.set(null);
+    }
+    #adjacent (dir) {
+        let priority = ['previousElementSibling', 'nextElementSibling'];
+        dir != 'up' && priority.reverse();
+        return this.label[priority[0]] ?? (dir === null ? null : this.label[priority[1]]);
+    }
+    static solo (flag) {
+        Layer.soloing = flag == null ? !Layer.soloing : flag;
+        Layers.fieldset.classList.toggle('solo', Layer.soloing);
+        flag == null && Draw();
+    }
+    static soloing = false;
 }
 const Layers = {
     fieldset: FORM.main.layer,
     labels: Q('#layers').children,
     get modified () {return Layers.labels.length > 1 || Layers.labels[0]?.dataset.type},
-    reset () {
-        Q('#layers').replaceChildren(Layers.label());
-        Layers.labels[0].click();
-        Layers.solo(false);
-    },
-    label (dataset, img) {
-        let label = E.radio({label: dataset ? {dataset} : {}, name: 'layer'});
-        dataset?.type == 'image' && (label.img = label.appendChild(img ?? E('img')));
-        label.cvs = new OffscreenCanvas(MAIN.W, MAIN.H);
-        label.ctx = label.cvs.getContext('2d');
-        label.dirty = true;
-        return label;
-    },
-    switch (ev) {
-        FORM.main.delete.disabled = Layers.labels.length === 1;
-        Layers.selected = ev.target.parentElement;
-        Layers.selected.dataset.type ? Controls.put() : Controls.show(0);
-        Q('.solo') && Draw();
-    },
-    create () {
-        let label = Layers.label();
-        Layers.labels[0].before(label);
-        label.click();
-        FORM.main.delete.disabled = false;
-        Controls.reset();
-        Controls.show(0);
-    },
-    delete () {
-        Layers.selected.remove();
-        Layers.labels[0].click();
-        Draw();
-    },
-    move (ev) {
-        let current = Layers.selected, scrollTop = Layers.fieldset.scrollTop;
-        let sibling = current[`${ev.target.id == 'up' ? 'previous' : 'next'}ElementSibling`];
-        sibling?.tagName == 'LABEL' && sibling[ev.target.id == 'up' ? 'before' : 'after'](current);
-        Layers.fieldset.scrollTop = scrollTop;
-        Draw();
-    },
-    solo (go) {
-        Layers.fieldset.classList.toggle('solo', go === true ? undefined : false);
-        (go || !Q('.solo')) && Draw();
-    },
-    async put (layers) {
-        DB._tx = null;
-        const labels = await Promise.all(layers.map(({image, ...others}) => image ?
-            E.img(image).then(img => Layers.label(others, img)) : Layers.label(others)
-        ));
-        Q('#layers').replaceChildren(...labels);
-        labels[0]?.click();
+    async set (datasets) {
+        Layer.selected = null;
+        Q('#layers').replaceChildren('');
+        datasets ? await Promise.all(datasets.map(dataset => new Layer(dataset))) : new Layer();
         Draw(true);
+        Q('#layers').children[0]?.click();
     },
     get: () => [...Layers.labels]
         .map(label => ({...label.dataset, ...label.img ? {image: label.img.src} : {}}))
         .filter(obj => Object.keys(obj).length)
 };
-const Draw = all => {
+const Draw = all => {console.log('draw');
     clearTimeout(App.timer);
     Draw.clear();
     [...Layers.labels].reverse().forEach(label => {
-        if (all || Layers.selected === label) {
+        if (all || Layer.selected === label) {
             label.img?.src && label.dirty && Draw.image(label);
             label.dataset.type == 'color' && Draw.color(label);
         }
-        (!Q('.solo') || label.control.checked) && MAIN.ctx.drawImage(label.bitmap ?? label.cvs, 0, 0);
+        (Layer.soloing === false || label.control.checked) && MAIN.ctx.drawImage(label.bitmap ?? label.cvs, 0, 0);
     });
     Layers.frame && Draw.frame();
     App.timer = setTimeout(App.save, 1000);
@@ -280,7 +284,7 @@ Object.assign(Draw, {
     transform (ctx, {sk, sc, ro, st, x, y}, img) { //translate -> skew -> scale -> rotate -> stretch
         sk ??= 0, sc ??= 1, ro ??= 0, st ??= 1, x ??= 0, y ??= 0;
         x /= 100; y /= 100;
-        let drawing = img ? {W: img.naturalWidth, H: img.naturalHeight} : {W: MAIN.H, H: MAIN.H};
+        let drawing = img ? {W: img.naturalWidth, H: img.naturalHeight} : {W: MAIN.W, H: MAIN.W};
         if (img) {
             img.fit ??= Draw.transform.fit(drawing, {xW: drawing.W - MAIN.W, xH: drawing.H - MAIN.H});
             drawing.W *= img.fit, drawing.H *= img.fit;
@@ -332,7 +336,7 @@ Object.assign(Draw, {
         path ? ctx.fill(path) : ctx.fillRect(x, y, MAIN.H, MAIN.H);
         ctx.restore();
     },
-    polygon (x, y, shape, side, r = MAIN.hH) {
+    polygon (x, y, shape, side, r = MAIN.hW) {
         side = parseInt(side);
         x += r; y += r;
         if (side === 0) 

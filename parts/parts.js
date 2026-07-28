@@ -83,7 +83,7 @@ Object.assign(Filter, {
 
 const Magnifier = () => {
     Q('.magnifier').append(
-        E('drag-knob', {range: '.75/2/.1', value: Storage('pref')?.knob || 1}, E('i', '')),
+        E('drag-knob', {range: '.75/2/.01', value: Storage('pref')?.knob || 1}, E('i', '')),
         ...E.radios([.54, .81, 1.6].map((value, i) => ({id: `mag${i}`, name: 'mag', value}) ))
     );
     Q(`#${Storage('pref')?.button || 'mag1'}`).click();
