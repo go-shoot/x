@@ -12,7 +12,6 @@ Object.assign(Garage, {
     put: (mode, code, content) => (Garage[mode][code] = content) && DB.put('user', {[mode]: Garage[mode]}),
 
     async before () {
-        Q('nav button', button => button.type = 'button');
         let [resp, acquired] = await Promise.all([fetch('../sitemap.txt'), Garage.get('acquired')]), hrefs;
         if (!Object.keys(acquired).length) {
             Q('.loading')?.classList.remove('loading');

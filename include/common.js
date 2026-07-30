@@ -67,6 +67,7 @@ Object.assign(Menu, {
 
 addEventListener('DOMContentLoaded', () => {
     Menu();
+    Q('form button', button => button.type = 'button');
     new CSSStyleSheet().replace(LINES.flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('')).then(css => document.adoptedStyleSheets.push(css));

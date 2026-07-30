@@ -9,7 +9,6 @@ const [MAIN, FORM] = [{ctx: Q('canvas').getContext('2d', {alpha: false})}, {nav:
 const App = () => {
     App.loading(true);
     Controls.show(null);
-    Q('form button', button => button.type = 'button');
     App.events();
     Promise.try(() => DESIGNING == 'sheet' ? E.img('./sheet.png') : {naturalHeight: 300, naturalWidth: 300}).then(img => {
         MAIN.W = MAIN.ctx.canvas.width = img.naturalWidth, MAIN.H = MAIN.ctx.canvas.height = img.naturalHeight;

@@ -55,8 +55,9 @@ main {
     touch-action: manipulation;
     position: relative;
 
-    db-state,canvas:not([width])~* {display: none;}
+    db-state,summary:has(em:not([hidden])) span,canvas:not([width])~* {display: none;}
     details {margin-top: .5em !important;}
+    summary em {color: var(--accent); small {display: block;}}
     canvas {
         height: min(35em,100svh - 4.15rem);
         position: sticky; top: 4.15rem;
@@ -190,7 +191,7 @@ fieldset:not(#layer) {
     }
     &.solo label:not(:has(:checked)) {filter: saturate(0) brightness(.7);}
     label {
-        border: .1em solid gray; border-radius: .3em;
+        border: .1em solid gray; border-radius: .3em; transition: border-color .5s;
         width: 100%; aspect-ratio: 1;
         filter: none;
 
@@ -200,16 +201,20 @@ fieldset:not(#layer) {
         &[data-type=image]:not(:has(img[src]))::before {content: '';}
         &[data-type=color]:not([style])::before {content: '';}
         &[data-path]::before {content: '';}
+        &.dirty {border-color: var(--accent) !important;}
         &:has(input:checked) {
             background: var(--theme); color: black;
             border-color: var(--theme);
         }
-        img {
+        img,svg {
             display: block; 
             max-width: 100%; aspect-ratio: 1; object-fit: contain;
             pointer-events: none;
-
-            &:not([src]) {display: none;}
+        }
+        img:not([src]),svg:has(path[d=undefined]) {display: none;}
+        svg {
+            margin: .2em;
+            path {stroke-width: 10px; stroke: black; fill: none;}
         }
     }
 }

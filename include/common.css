@@ -428,8 +428,8 @@ details.tool {
 
     summary {
         color: var(--theme);
-        &::before {content: '▶';}
-        &::after  {content: '◀';}
+        &:not(:has(em:not([hidden])))::before {content: '▶';}
+        &:not(:has(em:not([hidden])))::after  {content: '◀';}
         &.loading span,&.loading::before {display: none;}
     }
     &[open] summary::before,&[open] summary::after {content: '▼';}

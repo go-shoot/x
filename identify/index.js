@@ -242,7 +242,7 @@ class ScoreMatrix { //row: parts, col: boxes
         cutout.Parts = new Set(scores.sort((a, b) => a.v - b.v).map(({r}) => Asset.find(r, this.comp)).filter(P => P));
     }) ?? this;
 }
-const App = () => Promise.all([DB.get.essentials({flat: true}), App.worker.session(), Q('form button', b => b.type = 'button')])
+const App = () => Promise.all([DB.get.essentials({flat: true}), App.worker.session()])
     .then(([Parts]) => {
         Asset.raw = Parts = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());        
         App.events();

@@ -29,9 +29,8 @@
 </nav>
 
 <main>
-    <em class="message"><span>按住兩秒以使用<small>無法回復！</span></small></em>
     <details class="tool">
-        <summary>提示</summary>
+        <summary><span>提示</span><em hidden>按住兩秒以使用<small>無法回復！</small></em></summary>
         <ul class="default">
             <li>以左上的拉桿前往Emblem貼紙設計或跳至不同專案（上限6）</li>
             <li>右邊是圖層操作，每一圖層只可加入一張圖片</li>
@@ -107,7 +106,7 @@
 <script type="module">
 location.search ||= '?sheet';
 import DB from '../include/DB.js'
-import {App, Layers} from './design_.js';
+import {App} from './design_.js';
 Q('main').prepend(DB().then(App));
 
 App.picker = () => {
@@ -133,9 +132,9 @@ App.picker = () => {
 }, {
     "type":"image", "image":"./emblem-base.webp"
 }, {
-    "type":"color", "path":"M 150 0 A 150 150 0 0 0 20.0961894323342 225 L 54.73720558371174 205 A 110 110 0 0 1 150 40 Z", "color1": "#85fb5c"
-}, {
     "type":"color", "shape": "regular", "side": 0, "sc": 0.72, "color1": "#e9b10c"
+}, {
+    "type":"color", "shape": "regular", "side": 0, "color1": "#85fb5c"
 }]
 </script>
     
