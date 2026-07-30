@@ -125,7 +125,7 @@ Object.assign(App, {
             }
         });
         E(FORM.nav).set({
-            onpointerdown: ev => ev.target.id == 'sample' && Layers.labels.length > 1 && App.warn(),
+            onpointerdown: ev => ev.target.id == 'sample' && Layers.labels.length > 1 ? App.warn() : '',
             onclick (ev) {
                 if (ev.target.id == 'sample' && Layers.labels.length <= 1) return App.sample();
                 ['export', 'print'].includes(ev.target.id) && App[ev.target.id]();
