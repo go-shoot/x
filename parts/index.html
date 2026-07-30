@@ -15,7 +15,9 @@ shopt -s nullglob && for f in *.webp *.avif *.png; do mogrify -format png -resiz
     <form>
         <output name="count"></output>
     </form>
-    <div class="magnifier"></div>
+    <div class="magnifier">
+        <drag-knob range=".75/2/.01"><i></i></drag-knob>
+    </div>
 </nav>
 
 <main>
