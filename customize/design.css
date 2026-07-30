@@ -211,7 +211,7 @@ fieldset:not(#layer) {
             max-width: 100%; aspect-ratio: 1; object-fit: contain;
             pointer-events: none;
         }
-        img:not([src]),svg:has(path[d=undefined]) {display: none;}
+        img:not([src]),&:not([style]) svg {display: none;}
         svg {
             margin: .2em;
             path {stroke-width: 10px; stroke: black; fill: none;}
