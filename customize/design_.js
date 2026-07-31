@@ -203,7 +203,7 @@ const Layer = new Proxy(class {
         if (type) {
             this.label.dataset.type = type;
             this.label.append(this.img = type == 'image' ? 
-                E('img') : E('svg', {viewBox: `-${MAIN.hW} -${MAIN.hW} ${MAIN.W} ${MAIN.W}`}, E('path'))
+                E('img') : E('svg', {viewBox: `-${MAIN.hW} -${MAIN.hW} ${MAIN.W} ${MAIN.W}`}, E('path', {fill: 'white'}))
             );
             Inputs.set({type});
         }
@@ -314,9 +314,13 @@ Object.assign(Draw, {
         Draw.clear(ctx);
         ctx.save();
         path = Draw.polygon(shape ?? 'regular', side ?? 0);
+        E(layer.img.firstChild).set({d: path});
         let [gradient, colors] = Draw.gradient(type ??= 'Linear', angle ?? 0, layer);
-        layer.style.background = `${type}-gradient(${colors.join(',')}),white`;
-        layer.img.firstChild.setAttribute('d', path);
+        layer.img.removeAttribute('style');
+        E(layer.img).set({style: {
+            maskImage: `url('data:image/svg+xml,${layer.img.outerHTML}')`,
+            background: `${type}-gradient(${colors.join(',')}),white`
+        }});
         [x, y] = Draw.transform(ctx, {sk, sc, ro, x, y});
         ctx.translate(x, y); 
         ctx.fillStyle = gradient;

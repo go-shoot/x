@@ -192,6 +192,7 @@ fieldset:not(#layer) {
     &.solo label:not(:has(:checked)) {filter: saturate(0) brightness(.7);}
     label {
         border: .1em solid gray; border-radius: .3em; transition: border-color .5s;
+        background: gray;
         width: 100%; aspect-ratio: 1;
         filter: none;
 
@@ -199,7 +200,7 @@ fieldset:not(#layer) {
             all: unset; line-height: 1.8em;
         }
         &[data-type=image]:not(:has(img[src]))::before {content: '';}
-        &[data-type=color]:not([style])::before {content: '';}
+        &[data-type=color]:not(:has(svg[style*=background]))::before {content: '';}
         &[data-path]::before {content: '';}
         &.dirty {border-color: var(--accent) !important;}
         &:has(input:checked) {
@@ -211,10 +212,10 @@ fieldset:not(#layer) {
             max-width: 100%; aspect-ratio: 1; object-fit: contain;
             pointer-events: none;
         }
-        img:not([src]),&:not([style]) svg {display: none;}
+        img:not([src]),svg:not([style*=background]) {display: none;}
         svg {
-            margin: .2em;
-            path {stroke-width: 10px; stroke: black; fill: none;}
+            margin: .1em;
+            path {fill: none;}
         }
     }
 }
