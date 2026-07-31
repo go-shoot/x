@@ -4,8 +4,7 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
 const DESIGN = location.search.substring(1);
-const MAIN = {ctx: Q(`canvas[id="${location.hash[1]}"]`).getContext('2d', {alpha: false})};
-const FORM = {nav: Q('nav form'), main: Q('main form')};
+const MAIN = {}, FORM = {nav: Q('nav form'), main: Q('main form')};
 Q('nav').classList = DESIGN;
 
 const App = () => {
@@ -16,7 +15,7 @@ const App = () => {
         MAIN.W = img.naturalWidth, MAIN.H = img.naturalHeight;
         MAIN.hW = MAIN.W/2, MAIN.hH = MAIN.H/2;
         img instanceof Node && (Layers.frame = img);
-        Design.switch(location.hash ||= '#1');
+        location.hash ? Design.load(location.hash) : location.hash ||= '#1';
     });
     FORM.nav.scale.value = Storage('pref')?.print || 100;
     PDFLib.A4 = PDFLib.PageSizes.A4.sort((a, b) => a - b); //portrait
@@ -73,7 +72,7 @@ Object.assign(App, {
             ev.key == 'Control' ? FORM.main.fine.click() : 
             ev.key == 'ArrowUp' ? Layer.active.previousSibling?.click() :
             ev.key == 'ArrowDown' ? Layer.active.nextSibling?.click() : null;        
-        onhashchange = Design.switch;
+        onhashchange = Design.load;
     }
 });
 const Design = {
@@ -82,7 +81,7 @@ const Design = {
         Layers.set(DESIGN == 'emblem' ? JSON.parse(Q(`#template`).innerText) : undefined);
         Inputs.set();
     },
-    async switch (ev, force) {console.log(ev);
+    async load (ev, force) {
         App.loading(true);
         Layer.solo(false);
         let id = ev.newURL?.at(-1) ?? ev.substring(1);
@@ -90,7 +89,7 @@ const Design = {
         let drawn = !!cvs.getAttribute('width');
         MAIN.ctx = cvs.getContext('2d', {alpha: false});
         drawn || ([cvs.width, cvs.height] = [MAIN.W, MAIN.H]);
-        if (force || typeof ev == 'object' || !drawn) {
+        if (typeof ev == 'object' || force || !drawn) {
             let layers = await DB.get('user', `${DESIGN}-${id}`);
             layers ? await Layers.set(layers) : Design.reset();
         }
@@ -119,25 +118,25 @@ const Design = {
         let perDesign = [...FORM.nav.amount.value].map(n => parseInt(n));  
         let [perPage, perRow, y0, scale] = DESIGN == 'sheet' ? [12, 6, 84.5, .291] : [81, 9, 700, .168];
         let pages = Math.ceil(perDesign.reduce((sum, n) => sum += n, 0)/perPage);
-        for (const id of [1,2,3,4,5,6]) {
-            if (Q('canvas')[id - 1].getAttribute('width')) continue;
-            await Design.switch(`#${id}`);
-        }
-        let canvases = Q('canvas');
         let pdf = await PDFLib.PDFDocument.create();
         for (let i = 0; i < pages; i++) pdf.addPage(PDFLib.A4);
-        
-        (await Promise.all(canvases.map(cvs => pdf.embedPng(cvs.toDataURL("image/png", 1)))))
-        .flatMap((image, i) => Array(perDesign[i]).fill({image, ...image.scale(scale * FORM.nav.scale.value / 100)}))
-        .forEach(({image, width, height}, i) => {
-            let [x, y] = [16 + i % perRow * (11 + width), y0 + (1 - Math.floor(i/perRow) % (perPage/perRow)) * (20 + height)];
-            pdf.getPage(Math.floor(i/perPage)).drawImage(image, {x, y, width, height});
+
+        let images = [];
+        for (const i of [0,1,2,3,4,5]) {
+            let cvs = Q('canvas')[i];
+            cvs.getAttribute('width') || await Design.load(`#${i+1}`);
+            images[i] = await pdf.embedPng(cvs.toDataURL("image/png", 1));
+        }
+        let {width: w, height: h} = images[0].scale(scale * FORM.nav.scale.value / 100);
+        images.flatMap((image, i) => Array(perDesign[i]).fill(image)).forEach((image, i) => {
+            let [x, y] = [16 + i % perRow * (11 + w), y0 + (1 - Math.floor(i/perRow) % (perPage/perRow)) * (20 + h)];
+            pdf.getPage(Math.floor(i/perPage)).drawImage(image, {x, y, width: w, height: h});
         });
         tab.location.href = URL.createObjectURL(new Blob([await pdf.save()], {type: 'application/pdf'}));
-        Design.switch(location.hash, true);
+        Design.load(location.hash, true);
         gtag('event', 'EXPORT-PDF', {SCALE: FORM.nav.scale.value});
     },
-};window.Design=Design;
+};
 const Inputs = {
     knobs: Q('main drag-knob'),
     set ({type, ...data} = {}) {
