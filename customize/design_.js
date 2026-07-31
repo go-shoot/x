@@ -4,7 +4,7 @@ import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
 const DESIGN = location.search.substring(1);
-const MAIN = {ctx: Q('canvas').getContext('2d', {alpha: false})};
+const MAIN = {ctx: Q(`canvas[id="${location.hash[1]}"]`).getContext('2d', {alpha: false})};
 const FORM = {nav: Q('nav form'), main: Q('main form')};
 Q('nav').classList = DESIGN;
 
@@ -13,10 +13,10 @@ const App = () => {
     App.events();
     Promise.try(() => DESIGN == 'sheet' ? E.img('./sheet.png') : {naturalHeight: 300, naturalWidth: 300})
     .then(img => {
-        MAIN.W = MAIN.ctx.canvas.width = img.naturalWidth, MAIN.H = MAIN.ctx.canvas.height = img.naturalHeight;
+        MAIN.W = img.naturalWidth, MAIN.H = img.naturalHeight;
         MAIN.hW = MAIN.W/2, MAIN.hH = MAIN.H/2;
         img instanceof Node && (Layers.frame = img);
-        Design.load(location.hash ||= '#1');
+        Design.switch(location.hash ||= '#1');
     });
     FORM.nav.scale.value = Storage('pref')?.print || 100;
     PDFLib.A4 = PDFLib.PageSizes.A4.sort((a, b) => a - b); //portrait
@@ -82,15 +82,18 @@ const Design = {
         Layers.set(DESIGN == 'emblem' ? JSON.parse(Q(`#template`).innerText) : undefined);
         Inputs.set();
     },
-    switch (ev) {
-        Layer.solo(false);
-        typeof ev == 'object' && Design.stage(Q(`a[href='${new URL(ev.oldURL).hash}']`));
-        /^#[1-6]$/.test(location.hash) ? Design.load(location.hash) : location.href = '#1';
-    },
-    async load (hash) {
+    async switch (ev, force) {console.log(ev);
         App.loading(true);
-        let layers = await DB.get('user', `${DESIGN}-${hash.substring(1)}`);
-        layers ? Layers.set(layers) : Design.reset();
+        Layer.solo(false);
+        let id = ev.newURL?.at(-1) ?? ev.substring(1);
+        let cvs = Q(`canvas[id='${id}']`);
+        let drawn = !!cvs.getAttribute('width');
+        MAIN.ctx = cvs.getContext('2d', {alpha: false});
+        drawn || ([cvs.width, cvs.height] = [MAIN.W, MAIN.H]);
+        if (force || typeof ev == 'object' || !drawn) {
+            let layers = await DB.get('user', `${DESIGN}-${id}`);
+            layers ? await Layers.set(layers) : Design.reset();
+        }
         App.loading(false);
     },
     save: () => console.log('save')??DB.put('user', {[`${DESIGN}-${location.hash.substring(1)}`]: Layers.get()}),
@@ -102,20 +105,6 @@ const Design = {
             fetch('./sheet-sample.json').then(resp => resp.json()) : ev.target.files[0]?.text().then(JSON.parse);
         layers.then(Layers.set).then(App.loading);
         ev == 'sample' || gtag('event', 'IMPORT-JSON');
-    },
-    async stage (anchor) {
-        if (!anchor) return;console.log('stage',anchor)
-        if (anchor !== true) {
-            anchor.canvas ??= MAIN.ctx.canvas.cloneNode(true);
-            return anchor.canvas.getContext('2d').drawImage(MAIN.ctx.canvas, 0, 0);
-        }
-        Design.stage(Q('nav a.current'));
-        for (const a of Design.links) {
-            if (a.canvas) continue;
-            await Design.load(a.getAttribute('href'));
-            await new Promise(res => setTimeout(() => res(Design.stage(a))));
-        }
-        return Design.links.map(a => a.canvas);
     },
     async export (type) {
         if (type == 'json')
@@ -130,8 +119,12 @@ const Design = {
         let perDesign = [...FORM.nav.amount.value].map(n => parseInt(n));  
         let [perPage, perRow, y0, scale] = DESIGN == 'sheet' ? [12, 6, 84.5, .291] : [81, 9, 700, .168];
         let pages = Math.ceil(perDesign.reduce((sum, n) => sum += n, 0)/perPage);
-
-        let [pdf, canvases] = await Promise.all([PDFLib.PDFDocument.create(), Design.stage(true)]);
+        for (const id of [1,2,3,4,5,6]) {
+            if (Q('canvas')[id - 1].getAttribute('width')) continue;
+            await Design.switch(`#${id}`);
+        }
+        let canvases = Q('canvas');
+        let pdf = await PDFLib.PDFDocument.create();
         for (let i = 0; i < pages; i++) pdf.addPage(PDFLib.A4);
         
         (await Promise.all(canvases.map(cvs => pdf.embedPng(cvs.toDataURL("image/png", 1)))))
@@ -141,10 +134,10 @@ const Design = {
             pdf.getPage(Math.floor(i/perPage)).drawImage(image, {x, y, width, height});
         });
         tab.location.href = URL.createObjectURL(new Blob([await pdf.save()], {type: 'application/pdf'}));
-        Design.switch(location.hash);
+        Design.switch(location.hash, true);
         gtag('event', 'EXPORT-PDF', {SCALE: FORM.nav.scale.value});
     },
-}
+};window.Design=Design;
 const Inputs = {
     knobs: Q('main drag-knob'),
     set ({type, ...data} = {}) {
@@ -255,7 +248,7 @@ const Layers = ((div = Q('#layers')) => new Proxy(div.children, Proxy.getter({
         .filter(obj => Object.keys(obj).length)
 }, true)))();
 
-const Draw = all => {console.log('draw');
+const Draw = all => {console.log('draw',Layers?.length);
     clearTimeout(App.timer);
     Draw.clear();
     [...Layers].reverse().forEach(({layer}) => {

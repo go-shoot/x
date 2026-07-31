@@ -55,7 +55,7 @@ main {
     touch-action: manipulation;
     position: relative;
 
-    db-state,summary:has(em:not([hidden])) span,canvas:not([width])~* {display: none;}
+    summary:has(em:not([hidden])) span,canvas:target:not([width])~* {display: none;}
     details {margin-top: .5em !important;}
     summary em {color: var(--accent); small {display: block;}}
     canvas {
@@ -64,6 +64,7 @@ main {
 
         nav.emblem+main & {height: 9em; border-radius: 9em;}
         &:not([width]) {width: 5em;}
+        &:not(:only-of-type):not(:target) {display: none;}
     }
     b {
         position: fixed; top: 16em;
@@ -164,6 +165,7 @@ fieldset:not(#layer) {
     }
 }
 #layer {
+    font-size: 1.1em;
     width: 2em; height: min(35em,100svh - 4.15rem); 
     overflow-y: scroll; padding-bottom: 1rem;
     mask-image: linear-gradient(to bottom,black 0 90%,transparent);
