@@ -78,7 +78,7 @@ Object.assign(App, {
 const Design = {
     canvases: Q('canvas'),
     reset () {
-        Layers.set(DESIGN == 'emblem' ? JSON.parse(Q(`#template`).innerText) : undefined);
+        Layers.set(DESIGN == 'emblem' ? JSON.parse(Q(`#emblem`).innerText) : undefined);
         Inputs.set();
     },
     async load (ev, force) {
@@ -91,7 +91,7 @@ const Design = {
         drawn || ([cvs.width, cvs.height] = [MAIN.W, MAIN.H]);
         if (typeof ev == 'object' || force || !drawn) {
             let layers = await DB.get('user', `${DESIGN}-${id}`);
-            layers ? await Layers.set(layers) : typeof ev == 'object' ? Design.reset() : null;
+            layers ? await Layers.set(layers) : Design.reset();
         }
         App.loading(false);
     },
@@ -100,10 +100,20 @@ const Design = {
         if (DESIGN == 'emblem' && ev == 'sample') return Design.reset();
         App.loading(true);
         Layer.solo(false);
-        let layers = ev == 'sample' ? 
-            fetch('./sheet-sample.json').then(resp => resp.json()) : ev.target.files[0]?.text().then(JSON.parse);
-        layers.then(Layers.set).then(App.loading);
-        ev == 'sample' || gtag('event', 'IMPORT-JSON');
+        if (ev != 'sample')
+            return ev.target.files[0]?.text().then(JSON.parse).then(Layers.set).then(App.loading) && gtag('event', 'IMPORT-JSON');
+        let layers = JSON.parse(Q(`#sheet`).innerText).reverse();
+        for (let i = 0; i <= 10; i++) { 
+            let ro = Math.random() - .5, sc = Math.random() + .2;
+            let x = Math.random() * 200 - 100, y = Math.random() * 200 - 100; 
+            layers.push(
+                {...layers[1], x, y, sc: layers[1].sc * sc, ro: layers[1].ro + ro}, 
+                {...layers[2], x, y, sc: layers[2].sc * sc}, 
+                {...layers[3], x, y, sc: layers[3].sc * sc, ro: layers[3].ro + ro}
+            );
+        }
+        //let layers = ev == 'sample' ? fetch('./sheet-sample.json').then(resp => resp.json()) : ev.target.files[0]?.text().then(JSON.parse);
+        Layers.set(layers.reverse()).then(App.loading);
     },
     async export (type) {
         if (type == 'json')
@@ -327,7 +337,7 @@ Object.assign(Draw, {
             type == 'Radial' ? ctx.createRadialGradient(0, 0, 0, 0, 0, MAIN.hW) :
             type == 'Conic' ? ctx.createConicGradient(angle, 0, 0) : null;
         let format = (color, opacity = 100) => (color + Math.round(opacity*255/100).toString(16).padStart(2, '0'));
-        let colors = [1,2,3].map(i => format(dataset[`color${i}`], dataset[`opacity${i}`])).filter(c => c.length == 9);
+        let colors = [1,2,3].map(i => format(dataset[`color${i}`], dataset[`op${i}`])).filter(c => c.length == 9);
         (colors.length === 1 || type == 'Conic') && colors.push(colors[0]);
         colors.forEach((c, i, ar) => gradient.addColorStop(i / (ar.length - 1), c));
         return [gradient, colors];
@@ -344,7 +354,7 @@ Object.assign(Draw, {
             }
         else if (shape == 'star')
             for (let i = 0; i < side*2; i++) {
-                let [cos, sin] = ['cos', 'sin'].map(f => (i % 2 === 0 ? r : r*.5) * Math[f](Math.PI/side*i - Math.PI/2));
+                let [cos, sin] = ['cos', 'sin'].map(f => (i % 2 === 0 ? r : r*.4) * Math[f](Math.PI/side*i - Math.PI/2));
                 path.push((i === 0 ? 'M' : 'L') + ` ${cos} ${sin}`);
             }
         return path.concat('Z').join(' ');

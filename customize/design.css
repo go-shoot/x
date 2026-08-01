@@ -16,7 +16,7 @@ nav {
             grid-area: 2/4;
         }
     }
-    small {color: var(--on);}
+    small,:is(continuous-knob,drag-knob)::part(output) {color: var(--on);}
     input {
         width: 4.6em; height: 1.3rem;
         margin: 0 .2em 0 .3em; padding: .1em;
@@ -104,6 +104,7 @@ main form,fieldset:not(#layer) {display: contents;}
 form.image :is(#type,#control-color,#control .color),
 form.color :is(#type,#control-image,#control .image),
 form[class=''] fieldset[id|=control] {display: none !important;}
+:is(continuous-knob,drag-knob)::part(output) {font-size: .65em;}
 
 main form {
     * {justify-self: center;}
@@ -126,7 +127,6 @@ fieldset:not(#layer) {
     font-size: .9em;
     
     label,:is(continuous-knob,drag-knob)::before {font-size: .9em;}
-    :is(continuous-knob,drag-knob)::part(output) {font-size: .65em;}
     :is(continuous-knob,drag-knob) {margin: 0 .25em .3em .25em;}
 
     hr {
