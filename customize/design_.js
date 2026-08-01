@@ -76,7 +76,7 @@ Object.assign(App, {
     }
 });
 const Design = {
-    links: Q('nav menu a[href^="#"]').reverse(),
+    canvases: Q('canvas'),
     reset () {
         Layers.set(DESIGN == 'emblem' ? JSON.parse(Q(`#template`).innerText) : undefined);
         Inputs.set();
@@ -85,13 +85,13 @@ const Design = {
         App.loading(true);
         Layer.solo(false);
         let id = ev.newURL?.at(-1) ?? ev.substring(1);
-        let cvs = Q(`canvas[id='${id}']`);
+        let cvs = Design.canvases[id - 1];
         let drawn = !!cvs.getAttribute('width');
         MAIN.ctx = cvs.getContext('2d', {alpha: false});
         drawn || ([cvs.width, cvs.height] = [MAIN.W, MAIN.H]);
         if (typeof ev == 'object' || force || !drawn) {
             let layers = await DB.get('user', `${DESIGN}-${id}`);
-            layers ? await Layers.set(layers) : Design.reset();
+            layers ? await Layers.set(layers) : typeof ev == 'object' ? Design.reset() : null;
         }
         App.loading(false);
     },
@@ -123,7 +123,7 @@ const Design = {
 
         let images = [];
         for (const i of [0,1,2,3,4,5]) {
-            let cvs = Q('canvas')[i];
+            let cvs = Design.canvases[i];
             cvs.getAttribute('width') || await Design.load(`#${i+1}`);
             images[i] = await pdf.embedPng(cvs.toDataURL("image/png", 1));
         }
@@ -285,14 +285,14 @@ Object.assign(Draw, {
         return [x + w/2, y + h/2].map(v => (img ? 0 : MAIN.hW) - v).concat(w, h).map(Math.round);
     },
     image (layer) {
-        let {img, cvs, ctx, dataset: {sc, ro, st, x, y, opacity, bl, sh, co, fl}} = layer, w, h;
+        let {img, cvs, ctx, dataset: {sc, ro, st, x, y, op, bl, sh, co, fl}} = layer, w, h;
         Draw.clear(ctx);
         ctx.save();
         [x, y, w, h] = Draw.transform(ctx, {sc, ro, st, x, y}, img);
         ctx.shadowColor = '#010101';
         ctx.shadowBlur = sh || 0, ctx.shadowOffsetX = 0, ctx.shadowOffsetY = 0;
         ctx.filter = `blur(${bl || 0}px) contrast(${co || 1})`;
-        ctx.globalAlpha = opacity ?? 1;
+        ctx.globalAlpha = (op ?? 100)/100;
         fl == 'x' ? ctx.translate(x, y + h) : fl == 'y' ? ctx.translate(x + w, y) : null;
         fl == 'x' ? ctx.scale(1, -1) : fl == 'y' ? ctx.scale(-1, 1) : null;
         ctx.translate(x, y);
@@ -326,7 +326,7 @@ Object.assign(Draw, {
             type == 'Linear' ? ctx.createLinearGradient(x, y, -x, -y) :
             type == 'Radial' ? ctx.createRadialGradient(0, 0, 0, 0, 0, MAIN.hW) :
             type == 'Conic' ? ctx.createConicGradient(angle, 0, 0) : null;
-        let format = (color, opacity = 1) => (color + Math.round(opacity * 255).toString(16).padStart(2, '0'));
+        let format = (color, opacity = 100) => (color + Math.round(opacity*255/100).toString(16).padStart(2, '0'));
         let colors = [1,2,3].map(i => format(dataset[`color${i}`], dataset[`opacity${i}`])).filter(c => c.length == 9);
         (colors.length === 1 || type == 'Conic') && colors.push(colors[0]);
         colors.forEach((c, i, ar) => gradient.addColorStop(i / (ar.length - 1), c));

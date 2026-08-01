@@ -69,13 +69,13 @@
                 <label>上載<input type="file" accept="image/*" ></label>
                 <button popovertarget="picker">圖片庫</button>
             </div>
-            <drag-knob hidden title="模糊" range="0/10/.01" name="bl" value="0"></drag-knob>
-            <drag-knob hidden title="影子" range="0/20/.01" name="sh" value="0"></drag-knob>
-            <drag-knob hidden title="對比" range="0/10/.01" name="co" value="1" snap="1"></drag-knob>
+            <drag-knob hidden title="模糊" name="bl" range="0/10/.01"></drag-knob>
+            <drag-knob hidden title="影子" name="sh" range="0/20/.01"></drag-knob>
+            <drag-knob hidden title="對比" name="co" range="0/10/.01" value="1" snap="1"></drag-knob>
         </fieldset>
         <fieldset id="control-color">
             <label class="LED">邊形<input type="radio" name="shape" value="regular"></label>
-            <drag-knob hidden name="side" range="0/10/1" value="0"></drag-knob>
+            <drag-knob hidden name="side" range="0/10/1"></drag-knob>
             <label class="LED">芒星<input type="radio" name="shape" value="star"></label>
             <label class="LED">線性<input type="radio" name="gradient" value="Linear" checked></label>
             <label class="LED">放射<input type="radio" name="gradient" value="Radial"></label>
@@ -83,20 +83,20 @@
             <label>顏色1<input type="color" name="color1"></label>
             <label>顏色2<input type="color" name="color2"></label>
             <label>顏色3<input type="color" name="color3"></label>
-            <drag-knob hidden title="不透明度" range="0/1/.01" name="opacity1" value="1"></drag-knob>
-            <drag-knob hidden title="不透明度" range="0/1/.01" name="opacity2" value="1"></drag-knob>
-            <drag-knob hidden title="不透明度" range="0/1/.01" name="opacity3" value="1"></drag-knob>
+            <drag-knob hidden title="不透明度" name="op1" range="0/100/1/%" value="100"></drag-knob>
+            <drag-knob hidden title="不透明度" name="op2" range="0/100/1/%" value="100"></drag-knob>
+            <drag-knob hidden title="不透明度" name="op3" range="0/100/1/%" value="100"></drag-knob>
         </fieldset>
         <fieldset id="control">
             <hr>
-            <drag-knob hidden title="大小" range=".01/10/.01" value="1" name="sc" snap="1"></drag-knob>
-            <drag-knob hidden title="左右" range="-100/100/.1/%" value="0" name="x"></drag-knob>
-            <drag-knob hidden title="上下" range="-100/100/.1/%" value="0" name="y"></drag-knob>
-            <drag-knob hidden title="旋轉" range="-1/1/.01/π" value="0" name="ro" snap="0.5"></drag-knob>
-            <drag-knob hidden class="image" title="伸縮" range=".01/2/.01" value="1" name="st" snap="1"></drag-knob>
-            <drag-knob hidden class="image" title="不透明度" range="0/1/.01" value="1" name="opacity"></drag-knob>
-            <drag-knob hidden class="color" title="歪斜" range="-.49/.49/.01/π" value="0" name="sk"></drag-knob>
-            <drag-knob hidden class="color" title="角度" range="-1/1/.01/π" value="0" name="angle" snap="0.5"></drag-knob>
+            <drag-knob hidden title="大小" name="sc" range=".01/10/.01" snap="1"></drag-knob>
+            <drag-knob hidden title="左右" name="x" range="-100/100/.1/%"></drag-knob>
+            <drag-knob hidden title="上下" name="y" range="-100/100/.1/%"></drag-knob>
+            <drag-knob hidden title="旋轉" name="ro" range="-1/1/.01/π" snap="0.5"></drag-knob>
+            <drag-knob hidden class="image" title="伸縮" name="st" range=".01/2/.01" snap="1"></drag-knob>
+            <drag-knob hidden class="image" title="不透明度" name="op" range="0/100/1/%" value="100"></drag-knob>
+            <drag-knob hidden class="color" title="歪斜" name="sk" range="-.49/.49/.01/π"></drag-knob>
+            <drag-knob hidden class="color" title="角度" name="angle" range="-1/1/.01/π" snap="0.5"></drag-knob>
             <div>微調<small>（Ctrl）</small></div><label class="toggle"><input type="checkbox" id="fine"></label>
         </fieldset>
     </form>

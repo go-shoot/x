@@ -90,7 +90,7 @@ main {
         small {display: block;}
     }
 }
-canvas {grid-area: 1/1/-1/2;}
+canvas,db-state {grid-area: 1/1/-1/2;}
 #layer {grid-area: 1/7/-1/8;}
 main::before {content: ''; grid-area: 1/2/-1/3;}
 main::after {content: ''; grid-area: 1/6/-1/7; z-index: -9;}
