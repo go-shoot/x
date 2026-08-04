@@ -27,10 +27,18 @@ Object.assign(App, {
         setTimeout(() => Q('summary em').hidden = true, 2000);
     },
     events () {
+        const holder = new O({
+            delete: () => Layer.delete(), create: () => Layer.active.clone(), 
+            down: () => Layer.move('down', true), up: () => Layer.move('up', true),
+        }, [[FORM.nav.sample, () => Design.import('sample')]]);
+        const clicker = new O({
+            delete: () => App.warn(), create: () => new Layer(), 
+            down: () => Layer.move('down'), up: () => Layer.move('up'),
+        });
+        const bypassHolding = (ev, action) => ev.isTrusted ? App.holding ? App.holding = false : action?.(ev) : '';
         PI.events([
+            ...new O(holder).map(([k, v]) => [typeof k == 'string' ? FORM.main[k] : k, {hold: hold => hold.for(1.5).to(() => (App.holding = true) && v())}]),
             ['#layers label', {click: click => click.for(2).to(() => Layer.solo())}],
-            [FORM.nav.sample, {hold: hold => hold.for(2).to(() => Design.import('sample'))}],
-            [FORM.main.delete, {hold: hold => hold.for(2).to(() => Layer.delete())}]
         ]);
         E(FORM.main).set({
             oncontextmenu: () => false,
@@ -38,9 +46,7 @@ Object.assign(App, {
         });
         E(FORM.main.layer).set({
             onchange: ev => ev.target.labels[0].layer.select(),
-            onpointerdown: ev => ev.target.id == 'delete' && App.warn(ev),
-            onclick: ev => ev.target.id == 'create' ? new Layer() : 
-                ['up', 'down'].includes(ev.target.id) ? Layer.move(ev.target.id) : '',
+            onclick: ev => bypassHolding(ev, clicker[ev.target.id])
         });
         E(FORM.main['control-image']).set({
             oninput: Inputs.get,
@@ -53,12 +59,11 @@ Object.assign(App, {
             }
         });
         E(FORM.nav).set({
-            onpointerdown: ev => ev.target.id == 'sample' && Layers.length > 1 ? App.warn() : '',
-            onclick: ev => 
-                ev.target.id == 'sample' && Layers.length <= 1 ? Design.import('sample') :
-                ev.target.id == 'export' ? Design.export('json') :
-                ev.target.id == 'print' ? Design.export('pdf') : ''
-            ,
+            onclick: ev => ({
+                sample: () => bypassHolding(ev, () => Layers.length > 1 ? App.warn() : Design.import('sample')),
+                export: () => Design.export('json'),
+                print: () => Design.export('pdf')
+            })[ev.target.id]?.(),
             onchange: ev => ev.target.id == 'import' && Design.import(ev),
             oninput (ev) {
                 if (ev.target.name != 'scale') return;
@@ -187,13 +192,9 @@ const Layer = new Proxy(class {
         this.label.layer = new Proxy(this, Proxy.getter(this.label));
         this.cvs = new OffscreenCanvas(MAIN.W, MAIN.H);
         this.ctx = this.cvs.getContext('2d');
-        if (dataset.type) {
-            Layers.append(this.label);
-            this.set(dataset, false);
-        } else {
-            Layer.active ? Layer.active.after(this.label) : Layers.append(this.label);
-            this.label.click();
-        }
+        Layer.active ? Layer.active.before(this.label) : Layers.append(this.label);
+        dataset.type && this.set(dataset, !!Layer.active);
+        Layer.active && this.label.click();
         return this.label.layer;
     }
     select () {
@@ -201,29 +202,36 @@ const Layer = new Proxy(class {
         Inputs.set(this.label.dataset);
         Layer.soloing && Draw();
     }
-    set ({type, image, ...data} = {}, draw = true) {
+    set ({type, image, node, ...data} = {}, draw) {
         if (type) {
             this.label.dataset.type = type;
-            this.label.append(this.img = type == 'image' ? 
-                E('img') : E('svg', {viewBox: `-${MAIN.hW} -${MAIN.hW} ${MAIN.W} ${MAIN.W}`}, E('path', {fill: 'white'}))
-            );
-            Inputs.set({type});
+            node ??= type == 'image' ? 
+                E('img') : E('svg', {viewBox: `-${MAIN.hW} -${MAIN.hW} ${MAIN.W} ${MAIN.W}`}, E('path'));
+            draw !== false && Inputs.set({type});
+        }
+        node && this.label.append(this.img = node);
+        if (Object.keys(data).length) {
+            Object.assign(this.label.dataset, data);
+            this.dirty = true;
+            draw ??= true;
         }
         if (image) {
             this.img.src = image;
             this.dirty = true;
-            return this.load = new Promise(res => this.img.onload = () => res(this.set(data, type ? false : true)));
+            return this.load = new Promise(res => this.img.onload = () => res(this.set({}, draw ?? true)));
         }
-        data && Object.assign(this.label.dataset, data) && (this.dirty = true);
-        this.label.classList.toggle('dirty', this.dirty);
+        this.label.classList.toggle('dirty', !!this.dirty);
         draw && Draw();
     }
-    move (dir) {
+    move (dir, end) {
         let {scrollTop} = FORM.main.layer;
-        this.#adjacent(dir)?.[dir == 'up' ? 'before' : 'after'](this.label);
+        end ? 
+            Layers[dir == 'up' ? 'prepend' : 'append'](this.label) :
+            this.#adjacent(dir)?.[dir == 'up' ? 'before' : 'after'](this.label);
         FORM.main.layer.scrollTop = scrollTop;
         Draw();
     }
+    clone = () => new Layer({...this.label.dataset, node: this.img?.cloneNode(true)})
     delete () {
         this.#adjacent()?.click();
         this.label.remove();
@@ -245,6 +253,7 @@ const Layer = new Proxy(class {
 
 const Layers = ((div = Q('#layers')) => new Proxy(div.children, Proxy.getter({
     append: () => label => div.append(label),
+    prepend: () => label => div.prepend(label),
     set: () => async (layers = []) => {
         Layer.active = null;
         div.replaceChildren('');

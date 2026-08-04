@@ -74,7 +74,7 @@
         margin-left: .2em;
         letter-spacing: .1em;
         position: relative;
-
+        
         span {
             -webkit-text-stroke: var(--type) .1em; paint-order: stroke fill;
             transform: translateX(calc(50%*(var(--s) - 1) + .025em)) scale(var(--s)); --s: .95;
@@ -111,16 +111,17 @@
         text-align: right;
         white-space: pre-wrap;
     }
+    &:nth-child(1 of .chi) {anchor-name: --chi1; sub {position-anchor: --chi1;}}
+    &:nth-child(2 of .chi) {anchor-name: --chi2; sub {position-anchor: --chi2;}}
     sub {
         vertical-align: unset;
         font-size: .7em;
         margin-inline-start: .3em;
 
         .chi & {
-            position: absolute; 
-            margin: .05em 0 0 .2em;
-            display: inline-flex; align-items: center;
-            width: 2em; height: 100%;
+            position: fixed; position-area: center right;
+            margin: 0 0 -.1em .2em;
+            max-width: 2em; 
             font-size: .6em;
             letter-spacing: 0; line-height: 1;
         }
@@ -209,7 +210,7 @@
             font-size: .6em;
             text-align: right; line-height: 1.1;
             white-space: pre;
-            margin: 0 0 .15em 1em;
+            margin: 0 0 .1em 1em;
         }
         dd {
             font-size: 1.6em; font-style: italic;

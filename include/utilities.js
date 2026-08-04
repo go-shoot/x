@@ -16,7 +16,7 @@ class Shohin {
                 E('small', ver?.[i] ?? '')
             ])),
             ...content
-        ], {classList: [`scroller`, Shohin.classes.find(header, {default: 'Lm'})]});
+        ], {classList: [`scroller`, Shohin.classes.find(header) ?? 'Lm']});
     }
     static zip = (texts, images) => texts.reduce((arr, n, i) => arr.toSpliced(2 * i + 1, 0, n), images)
     static figure = imgORsrc => E('figure', [
@@ -145,7 +145,7 @@ const FilterForm = {
             ], rest)
         }
         legend = el => E('legend', location.pathname.includes('parts') ? {title: el} : el)
-        radios = inputs => E.radios(inputs.flatMap(([id, label]) => ({label, name: 'sort', id})))
+        radios = inputs => E.radios(inputs.flatMap(([id, label]) => ({label, name: 'sort', id})))//E.label
         checkboxes = (inputs, name, negate) => [
             negate ? E('input', {type: 'hidden', name, value: '¬'}) : '',
             ...E.checkboxes(inputs.flatMap(([value, label]) => ({
