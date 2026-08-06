@@ -55,7 +55,7 @@
         "names": {
             "jap": "ホルスシャッター",
             "eng": "HorusShatter",
-            "chi": "",
+            "chi": "33=",
             "aka": "荷魯斯 隼"
         },
         "stat": [""],
@@ -287,7 +287,7 @@
             "eng": "Hulk",
             "chi": "浩克"
         },
-        "stat": ["33-"],
+        "stat": ["33-"],"desc":"3-85N",
         "attr": ["def","right","BX","marvel"],
         "from": "BlSh"
     },
@@ -452,7 +452,7 @@
             "eng": "Grogu",
             "chi": "古古"
         },
-        "stat": ["32="],
+        "stat": ["32="],"desc":"3-85E",
         "attr": ["def","right","BX","star-wars"],
         "from": "RhHr"
     },
@@ -507,7 +507,7 @@
             "eng": "Bumblebee",
             "chi": ""
         },
-        "stat": ["32-"],
+        "stat": ["32-"],"desc":"3-60GP",
         "attr": ["def","right","BX","transformers"],
         "from": "KnSh"
     },
@@ -518,7 +518,7 @@
             "eng": "Shockwave",
             "chi": ""
         },
-        "stat": ["32+"],
+        "stat": ["32+"],"desc":"5-80O",
         "attr": ["sta","right","BX","transformers"],
         "from": "VpTl"
     }

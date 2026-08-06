@@ -1,10 +1,10 @@
 {
   "part-bit":          "2026/07/23 17:15:00",
-  "part-blade-divided":"2026/07/18 14:00:00",
-  "prod-beys":         "2026/07/30 22:47:00",
+  "part-blade-divided":"2026/08/06 23:07:00",
+  "part-blade-collab": "2026/08/06 23:07:00",
+  "prod-beys":         "2026/08/06 23:07:00",
   "prod-keihin":       "2026/07/18 18:00:00",
   "part-blade":        "2026/07/26 12:04:00",
-  "part-blade-collab": "2026/07/10 23:55:00",
   "part-ratchet":      "2026/07/10 23:55:00",
   "meta":              "2026/07/23 18:15:00",
   "prod-gear":         "2026/07/16 13:14:00",
@@ -69,8 +69,12 @@
         "附有兩色Lock Chip及Over Blade，及兩個〔T〕Assist Blade外圈，以模擬三種形態"
     ]
 },{
-      "code":"CX-19 random booster select"
-    }],"2026-10":[{
+    "code": "CX-19 random booster select",
+    "name": ["クロコトレッドTQ5-50GN","Croco Tread TQ5-50GN"],
+    "type": "def",
+    "desc": ["三層CX刃各有7枚刃，分散各方向攻擊，tough地防守"],
+    "imgs": ["https://i.imgur.com/spia21H.jpeg"]
+}],"2026-10":[{
     "code":"BX-52 starter"
 },{
     "code":"BX-53 entry set"

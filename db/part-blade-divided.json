@@ -1,5 +1,10 @@
 {"CX": {
     "over": {
+        "T": {
+            "names": {"jap": "タフ","eng": "Tough"},
+            "stat": [],
+            "attr": ["def","right"]
+        },
         "P": {
             "names": {"jap":"ピーク", "eng":"Peak"},
             "stat": ["3+"],
@@ -32,6 +37,11 @@
         }
     },
     "assist": {
+        "Q": {
+            "names": {"jap": "クエル","eng": "Quell"},
+            "stat": [],
+            "attr": ["def","right"]
+        },
         "G": {
             "names": {"jap":"グラビティ", "eng":"Gravity"},
             "stat": ["12-",140],
@@ -174,6 +184,12 @@
         }
     },
     "main": {
+        "Tr": {
+            "names": {"jap":"トレッド", "eng":"Tread"},
+            "stat": [""],
+            "desc": "",
+            "attr": ["def","right"]
+        },
         "Fr": {
             "names": {"jap":"フレア", "eng":"Flare", "chi":"炎光 閃焰"},
             "stat": ["31="],
@@ -275,6 +291,11 @@
         }
     },
     "chip":{
+        "Cc": {
+            "names": {"jap": "クロコ","eng": "Croco"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
         "Tg": {
             "names": {"jap":"ティガ", "eng":"Tiga", "chi":"迪加 迪卡"},
             "stat": ["2-"],
@@ -410,33 +431,12 @@
         }
     },
     "hasbro": {
-        "Tr": {
-            "names": {"jap":"トレッド", "eng":"Tread"},
-            "stat": [""],
-            "desc": "(TQ5-50GN tent.)",
-            "attr": ["att","right","expand"],
-            "from": "metal."
-        },
         "Hr": {
             "names": {"jap":"ハリケーン", "eng":"Hurricane"},
             "stat": ["24+"],
             "desc": "(IS7-55T tent.)",
             "attr": ["bal","right","expand"],
             "from": "metal."
-        },
-        "T": {
-            "names": {"jap":"", "eng":""},
-            "stat": [""],
-            "desc": "",
-            "attr": ["att","right","expand"],
-            "from": "over."
-        },
-        "Q": {
-            "names": {"jap":"", "eng":""},
-            "stat": [""],
-            "desc": "",
-            "attr": ["att","right"],
-            "from": "assist."
         },
         "I": {
             "names": {"jap":"", "eng":""},
