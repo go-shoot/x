@@ -47,7 +47,7 @@
         },
         "stat": ["28-"],
         "desc": "(9-65S tent.)",
-        "attr": ["def","right","BX"],
+        "attr": ["sta","right","BX"],
         "from": "WyGl"
     },
     "HrSh": {
@@ -55,7 +55,7 @@
         "names": {
             "jap": "ホルスシャッター",
             "eng": "HorusShatter",
-            "chi": "33=",
+            "chi": "",
             "aka": "荷魯斯 隼"
         },
         "stat": ["33="],
