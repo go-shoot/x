@@ -152,6 +152,12 @@
         }
     },
     "metal": {
+        "Tr": {
+            "names": {"jap":"トレッド", "eng":"Tread"},
+            "stat": [""],
+            "desc": "",
+            "attr": ["def","right"]
+        },
         "Wh": {
             "names": {"jap":"ウィップ", "eng":"Whip", "chi":"古鞭 鞭打"},
             "stat": ["28-"],
@@ -184,12 +190,6 @@
         }
     },
     "main": {
-        "Tr": {
-            "names": {"jap":"トレッド", "eng":"Tread"},
-            "stat": [""],
-            "desc": "",
-            "attr": ["def","right"]
-        },
         "Fr": {
             "names": {"jap":"フレア", "eng":"Flare", "chi":"炎光 閃焰"},
             "stat": ["31="],
