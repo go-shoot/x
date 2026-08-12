@@ -2,7 +2,7 @@
     "over": {
         "T": {
             "names": {"jap": "タフ","eng": "Tough"},
-            "stat": [],
+            "stat": ["4+"],
             "desc": "內側的厚連打形狀兼備重心的安定與衝擊的分散。",
             "attr": ["def","right"]
         },
@@ -40,7 +40,7 @@
     "assist": {
         "Q": {
             "names": {"jap": "クエル","eng": "Quell"},
-            "stat": [],
+            "stat": ["4+"],
             "desc": "低矮的高度、如裝甲的七枚刃擅長抵耐由下方來的攻擊。",
             "attr": ["def","right"]
         },
@@ -156,7 +156,7 @@
     "metal": {
         "Tr": {
             "names": {"jap":"トレッド", "eng":"Tread"},
-            "stat": [""],
+            "stat": ["28="],
             "desc": "連續且擁有細溝槽的七枚刃以連打抵受任何攻擊。",
             "attr": ["def","right"]
         },
