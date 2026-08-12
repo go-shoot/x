@@ -9,31 +9,6 @@
   "meta":              "2026/07/23 18:15:00",
   "prod-gear":         "2026/07/16 13:14:00",
   "news": {
-    "2026-08-08":[
- {
-    "code": "UX-21 deck set","type":"bal",
-    "name": [
-        "ヘルズネザーデッキセット",
-        "Hells Nether Deck Set"
-    ],
-    "desc": [
-        "〔Hells Nether〕：金屬刃能調節至不同高度，選擇以刃上方攻擊或中間化解",
-        "UX飛龍首次常規商品中收錄 8-80B"
-    ],
-    "imgs": ["https://m.media-amazon.com/images/I/712PbSkR+lL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/717rp02z9bL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61X0TFrGjhL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/8bb5afef-f93c-45bd-a5e7-0d96089ea356.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/e7be1608-4ff8-41b2-b87f-bdff0907e0c9.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/3b63036f-6d93-43fa-89d8-cb494569b769.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
-},{
-    "code": "BXG-49 booster",
-    "bey": "DrSw2 3-60 F",
-    "desc": [
-        "新版本重量提升3g"
-    ]
-},{
-    "code": "BX-57",
-    "name": [
-        "3on3デッキケース ブラックVer.",
-        "3on3 Deck Case Black Ver."
-    ]
-} ],
 "2026-08-12":[{
     "code": "BXC-??",
     "bey": "ClMr 4-55 S","ver":[
@@ -73,7 +48,7 @@
     "name": ["クロコトレッドTQ5-50GN","Croco Tread TQ5-50GN"],
     "type": "def",
     "desc": ["三層CX刃各有7枚刃，分散各方向攻擊，tough地防守"],
-    "imgs": ["https://i.imgur.com/5b1oqNC.jpeg","https://m.media-amazon.com/images/I/719s+nRbT5L._AC_SX679_.jpg","https://m.media-amazon.com/images/I/71NXi64w1WL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61iTuRi6w-L._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/43475fd4-1111-4fa1-be9c-943482db017c.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/3be6062f-3601-4f0f-bb38-646747c0c7a1.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/7aa6cf9b-f621-47ba-8d87-92493a78428f.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
+    "imgs": []
 }],"2026-10":[{
     "code":"BX-52 starter"
 },{
