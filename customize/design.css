@@ -156,7 +156,7 @@ fieldset:not(#layer) {
         label:has(input[value=conic])::after {
             background: conic-gradient(var(--theme),var(--theme-dark),var(--theme));
         }
-        input[type=color] {display: block;}
+        input[type=color] {display: block; margin: auto;}
         label:has(input[name=shape]) {align-self: center;}
     }
 }
