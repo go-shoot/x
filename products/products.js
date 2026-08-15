@@ -57,7 +57,7 @@ Object.assign(Table, {
         let [input, index] = [ev.target.Q('input'), Q('th').indexOf(ev.target.closest('th'))];
         input.value == 'on' && (input.value = 1);
         let extract = {
-            code: trs => [trs].flat().map(tr => tr.firstChild.innerText.trim()),
+            code: trs => [trs].flat().map(tr => tr.id),
             abbr: trs => [trs].flat().map(tr => tr.title.split(' ')[index - 1])
         }
         Table.body.append(...[...Table.body.children].sort((...trs) => {
