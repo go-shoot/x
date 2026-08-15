@@ -109,12 +109,10 @@ class Bit extends Part {
 }
 class Tile extends HTMLElement {
     static observer = new IntersectionObserver(entries => entries.forEach(en => {
-        if (!en.isIntersecting) return;
-        en.target.fill();
-        en.target.classList.remove('loading');
-        Glossary(en.target.shadowRoot);
-        Tile.observer.unobserve(en.target);
-    }));
+        en.isIntersecting ? en.target.fill() : en.target.shadowRoot.replaceChildren(en.target.shadowRoot.textContent);
+        en.target.classList.toggle('loading', !en.isIntersecting);
+        en.isIntersecting && Glossary(en.target.shadowRoot);
+    }), {rootMargin: '100px 0px'});
     constructor(Part) {
         super();
         Tile.observer.observe(this);
@@ -131,7 +129,7 @@ class Tile extends HTMLElement {
         from &&= from.split('.');
         from &&= path.toSpliced(-from.length, from.length, ...from);
         from?.length > 2 && (path[2] = from[2]);
-        this.shadowRoot.append(
+        this.shadowRoot.replaceChildren(
             E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
             E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
             E('object', {data: this.fill.background(E(this).get('--hue'))}),
@@ -233,12 +231,12 @@ class Cell {
         tds.forEach(td => td.Part = P);
         return tds;
     }
-    static fill = (lang, td = Q('td[title]')) => [td].flat().forEach(td => {
-        if (!td || td.Part.only.abbr()) return;
+    static fill = (lang, parent = document) => parent.Q('td[title]', td => {
+        if (td.Part.only.abbr()) return;
         td.Part.revise('cell');
-        let {path, names} = td.Part, {mode} = td.dataset;
+        let {path, names} = td.Part, {mode} = td.parentElement.dataset;
         let name = names[lang] || names.eng;
-        mode = Markup.cell(JSON.parse(mode ?? '""')[lang]);
+        mode = path[0] == 'blade' ? Markup.cell(JSON.parse(mode ?? '""')[lang]) : [];
         mode[0] && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
             name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`);
         name = Markup.cell(name);

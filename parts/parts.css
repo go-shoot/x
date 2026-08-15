@@ -6,6 +6,8 @@ section {
     font-size: calc(var(--font,1.2)*1em); 
     padding: 2rem 0;
     transition: opacity .5s;
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: .2rem;
     &.under {opacity: 0;}
 }
 

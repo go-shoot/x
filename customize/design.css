@@ -5,9 +5,7 @@ nav {
         white-space: nowrap; 
         text-align: right;
 
-        .right & {
-            margin-right: .3rem;
-        }
+        .right & {margin-right: .3rem;}
         &:first-of-type {
             grid-area: 1/4;
             align-self: center;
@@ -16,13 +14,13 @@ nav {
             grid-area: 2/4;
         }
     }
-    small,:is(continuous-knob,drag-knob)::part(output) {color: var(--on);}
+    small,drag-knob::part(output) {color: var(--on);}
     input {
         width: 4.6em; height: 1.3rem;
         margin: 0 .2em 0 .3em; padding: .1em;
         vertical-align: middle;
     }
-    :is(continuous-knob,drag-knob) {
+    drag-knob {
         grid-area: 1/3/3/4; place-self: center end;
         margin-right: .4em; 
         font-size: .8em;
@@ -50,68 +48,78 @@ main {
     max-width: 30em;
     margin: 4.15rem auto 0 auto;
     display: grid; gap: .5em 0;
-    grid-template: repeat(11,auto) / auto 1fr repeat(3,auto) 1fr auto;
+    grid-template: repeat(9,auto) 1fr / min-content 1fr repeat(4,min-content) 1fr;
     user-select: none; -webkit-user-select: none;
     touch-action: manipulation;
-    position: relative;
 
-    summary:has(em:not([hidden])) span,canvas:target:not([width])~* {display: none;}
-    details {margin-top: .5em !important;}
-    summary em {color: var(--accent); small {display: block;}}
+    button:has(em:not([hidden]))::after,canvas:target:not([width])~* {display: none;}
+    button[popovertarget=reminder] {
+        transform: translateX(-1.1em);
+
+        &::after {
+            content: '';
+            color: var(--theme);
+        }
+        em {
+            color: var(--accent);
+            small {display: block;}
+        }
+    }
     canvas {
         height: min(35em,100svh - 4.15rem);
         position: sticky; top: 4.15rem;
 
         nav.emblem+main & {height: 9em; border-radius: 9em;}
         &:not([width]) {width: 5em;}
-        &:not(:only-of-type):not(:target) {display: none;}
+        &:not(:target) {display: none;}
     }
     b {
-        position: fixed; top: 16em;
         width: 9rem;
-        padding: 0 .5em;
+        padding: 0 .5em; margin-top: 3em;
         font-size: .9em;
         display: none;
 
+        nav.emblem+main & {display: initial;}
         strong {
             display: block;
             border-bottom: .1em solid;
             padding-bottom: .5em; margin-bottom: .5em;
         }
-        nav.emblem+main & {display: initial;}
-    }
-    .message {
-        position: absolute; width: 100%; top: 10%; transform: translateY(-50%);
-        z-index: 5;
-        background: rgba(255,255,255,.8); color: black;
-        padding: 1em;
-    
-        &:not(.active) {display: none;}
-        small {display: block;}
     }
 }
 canvas,db-state {grid-area: 1/1/-1/2;}
-#layer {grid-area: 1/7/-1/8;}
-main::before {content: ''; grid-area: 1/2/-1/3;}
-main::after {content: ''; grid-area: 1/6/-1/7; z-index: -9;}
-details {grid-area: 1/2/2/7;}
-.dual {grid-area: 2/2/3/7;}
-hr {grid-column: 3/6;}
-#control div {grid-column: 4/5;}
-.toggle {grid-column: 5/6;}
+b {grid-area: 4/1/-1/2;}
+#layer {grid-area: 1/3/-1/4;}
+div:nth-child(1 of .empty) {grid-area: 1/1/2/-1;}
+div:nth-child(2 of .empty) {grid-area: 1/2/-1/3;}
+div:nth-child(3 of .empty) {grid-area: 1/7/-1/8;}
+button[popovertarget=reminder] {grid-area: 2/4/3/6;}
+.dual {grid-area: 3/4/4/7;}
+hr {grid-column: 4/7;}
+.toggle {grid-column: 6/7;}
 
 main form,fieldset:not(#layer) {display: contents;}
 form.image :is(#type,#control-color,#control .color),
 form.color :is(#type,#control-image,#control .image),
 form[class=''] fieldset[id|=control] {display: none !important;}
-:is(continuous-knob,drag-knob)::part(output) {font-size: .65em;}
+drag-knob::part(output) {--f: .65;}
 
 main form {
     * {justify-self: center;}
+
+    div:has(+.toggle) {
+        position: absolute; position-anchor: --toggle; left: calc(anchor(left) - 7em); position-area: center;
+        font-size: .8em;
+        small {display: block;}
+    }
+    .toggle {
+        anchor-name: --toggle;
+        font-size: .8em;
+    }
     .dual {
         color: var(--theme);
         display: flex;
-        padding: 1rem 0;
+        padding: .5rem 0;
         
         :not(input) {
             width: 6rem; height: 4rem;
@@ -126,12 +134,11 @@ main form {
 fieldset:not(#layer) {
     font-size: .9em;
     
-    label,:is(continuous-knob,drag-knob)::before {font-size: .9em;}
-    :is(continuous-knob,drag-knob) {margin: 0 .25em .3em .25em;}
-
+    label,drag-knob::before {font-size: .9em;}
+    drag-knob {margin: 0 .25em;}
     hr {
         border-bottom: .1em solid var(--on);
-        width: 100%; height: 0;
+        width: 100%; 
         margin: .1em auto;
     }
     &#control-color {
@@ -140,43 +147,32 @@ fieldset:not(#layer) {
             display: block; width: 1.5em; height: 1.5em;
             margin: .1em auto 0 auto;
         }
-        label:has(input[value=Linear])::after {
+        label:has(input[value=linear])::after {
             background: linear-gradient(var(--theme),var(--theme-dark));
         }
-        label:has(input[value=Radial])::after {
+        label:has(input[value=radial])::after {
             background: radial-gradient(var(--theme),var(--theme-dark));
         }
-        label:has(input[value=Conic])::after {
+        label:has(input[value=conic])::after {
             background: conic-gradient(var(--theme),var(--theme-dark),var(--theme));
         }
-        input[type=color] {
-            display: block;
-        }
+        input[type=color] {display: block;}
         label:has(input[name=shape]) {align-self: center;}
-    }
-    &#control {
-        div {
-            justify-self: end;
-            margin-right: -.5em;
-
-            small {display: block;}
-        }
-        div,label {margin-top: .5rem;}
     }
 }
 #layer {
     font-size: 1.1em;
     width: 2em; height: min(35em,100svh - 4.15rem); 
-    overflow-y: scroll; padding-bottom: 1rem;
+    overflow-y: scroll; 
+    padding-bottom: 1rem; margin-right: .5rem;
     mask-image: linear-gradient(to bottom,black 0 90%,transparent);
 
     div {
-        display: flex; flex-direction: column; gap: .4em;
+        display: flex; flex-direction: column; gap: .4rem;
         width: 100%;
 
         &:has(button) {
-            width: 100%;
-            padding: .3em 0;
+            padding: .4rem 0;
             position: sticky; top: 0;
             background: var(--backdrop);
             z-index: 1;
@@ -196,14 +192,16 @@ fieldset:not(#layer) {
         border: .1em solid gray; border-radius: .3em; transition: border-color .5s;
         background: gray;
         width: 100%; aspect-ratio: 1;
+        position: relative;
         filter: none;
 
-        &::before {
-            all: unset; line-height: 1.8em;
+        &::after {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
         }
-        &[data-type=image]:not(:has(img[src]))::before {content: '';}
-        &[data-type=color]:not(:has(svg[style*=background]))::before {content: '';}
-        &[data-path]::before {content: '';}
+        &[data-type=image]:not(:has(img[src]))::after {content: '';}
+        &[data-type=color]:not(:has(svg[style*=background]))::after {content: '';}
+        &[data-path]::after {content: '';}
+        &[data-note]::after {content: attr(data-note);}
         &.dirty {border-color: var(--accent) !important;}
         &:has(input:checked) {
             background: var(--theme); color: black;
@@ -217,7 +215,7 @@ fieldset:not(#layer) {
         img:not([src]),svg:not([style*=background]) {display: none;}
         svg {
             margin: .1em;
-            path {fill: none;}
+            path {display: none;}
         }
     }
 }
@@ -233,5 +231,22 @@ dialog {
             margin-top: .5em;
         }
     }
-    img {width: 6em;}
+    img {
+        width: 6em;
+        &:first-of-type {
+            display: block;
+            width: min(100%,30em);
+            margin: auto;
+        }
+    }
+}
+#reminder {
+    max-width: 30em;
+    text-align: left;
+    padding: .5em .5em .5em 1.5em;
+    border: none; 
+
+    li {margin: .5em 0;}
+    &::backdrop {background: var(--theme-trans); backdrop-filter: blur(.2rem) brightness(.4);}
+    &:popover-open {display: list-item;}
 }

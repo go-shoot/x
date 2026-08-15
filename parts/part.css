@@ -6,6 +6,7 @@
     overflow: hidden;
     cursor: pointer;
     position: relative;
+    content-visibility: auto;
     opacity: 1 !important; transition: opacity .5s;
 
     &::after,object {
@@ -120,10 +121,10 @@
 
         .chi & {
             position: fixed; position-area: center right;
-            margin: 0 0 -.1em .2em;
+            margin: 0 0 -.2em .2em;
             max-width: 2em; 
             font-size: .6em;
-            letter-spacing: 0; line-height: 1;
+            letter-spacing: 0; 
         }
     }
 }
@@ -199,8 +200,8 @@
 :host dl {
     place-self: end;
     display: grid; place-items: center end;
-    grid-template: repeat(3,1.7em) / repeat(2,auto); gap: .1em 0;
-    margin-right: .2em;
+    grid-template: repeat(3,1.7em) / repeat(2,auto); gap: .1em .6em;
+    margin: 0 .2em .05em 0;
 
     div {
         display: flex; align-items: center; gap: .2em;
@@ -210,7 +211,6 @@
             font-size: .6em;
             text-align: right; line-height: 1.1;
             white-space: pre;
-            margin: 0 0 .1em 1em;
         }
         dd {
             font-size: 1.6em; font-style: italic;
@@ -222,10 +222,9 @@
     div:nth-child(1) {
         dt {
             position: absolute; position-anchor: --weight;
-            right: calc(anchor(right) - .3em); top: calc(anchor(top) - 1.3em);
+            right: calc(anchor(right) - .3em); top: calc(anchor(top) - 1.2em);
             border-bottom: .2em solid;
-            width: 3em;
-            line-height: 1.4;
+            padding: 0 0 .2em 1em;
         }
         dd {anchor-name: --weight;}
     }

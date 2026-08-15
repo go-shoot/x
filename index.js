@@ -3,7 +3,6 @@ import { Bey, Preview } from './parts/bey.js'
 import { Part } from './parts/part.js'
 import { Markup } from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
-Q('#search').prepend(...Menu.links().map((a, i) => (a.innerText += ` ${['產品', '部件', '景品'][i]}`) && a));
 Q('search ul').append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.svg#${l}`})));
 
 let CACHE;

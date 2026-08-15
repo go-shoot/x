@@ -79,36 +79,49 @@ class Bey {
 Bey.import = PARTS_ => ([PARTS, {Blade, Ratchet, Bit}] = [PARTS_, Part]) && Object.assign(window, {PARTS: PARTS_});
 
 class Row {
+    static observer = new IntersectionObserver(entries => {
+        entries.forEach(en => en.isIntersecting ? en.target.row.fill() : en.target.replaceChildren());
+        window.onresize();
+    }, {rootMargin: '100px 0px'});
+    #content;
     constructor(bey, code, classes, others) {
         let [video, more] = ['string', 'object'].map(t => others.find(o => typeof o == t));
-        this.tr = E('tr', [
-            this.cell(code, classes), 
-            ...[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()
-        ].flat(9), {
+        this.tr = E('tr', {
             id: code, title: bey.abbr,
             classList: [bey.line, classes], dataset: video ? {video} : {},
         });
-        this.more(more ?? {});
-        return this.tr;  
+        this.tr.row = this;
+        this.more(more);
+        this.#content = {bey, code, classes};
+        Row.observer.observe(this.tr);
+        return this.tr;
     }
-    cell (code, classes) {
+    fill ({bey, code, classes} = this.#content) {
+        this.tr.replaceChildren(this.code(), 
+            ...[[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()].flat(9)
+        );
+        Cell.fill(document.forms[0].lang.value || 'chi', this.tr);
+    }
+    code ({code, classes} = this.#content) {
         code = code.split('_');
         return E('td', [
             code[0].replace(/(?<=-)\?\d/, '  ').padStart(6, ' '), 
             code[1] && classes.includes('RB') ? E('sub', code[1]) : ''
         ]);
     }
-    more ({coat, mode, get}) {
+    more ({coat, mode, get} = {}) {
         coat && E(this.tr).set({'--coat': coat});
-        mode && (this.tr.Q('td[headers=blade]').dataset.mode = JSON.stringify(mode));
+        mode && (this.tr.dataset.mode = JSON.stringify(mode));
         get && (this.tr.dataset.get = typeof get == 'number' ? `×${get}` : get);
     }
 }
 
 class Search {
+    #byAbbr;
     constructor(query) {
         this.regexp = [];
         if (typeof query == 'string') {
+            this.#byAbbr = /^[^一-龥]{1,2}$/.test(query);
             query = query.replace(/[’'ʼ´ˊ]/g, '′');
             /^\/.+\/\w?$/.test(query) ?
                 this.regexp.push(new RegExp(.../^\/(.+)\/(\w?)$/.exec(query).slice(1))) :
@@ -142,8 +155,8 @@ class Search {
         )]),
         match: (target, {abbr, names = {}}) => Array.isArray(target) ?
             target.some(t => this.#search.match(t, {abbr, names})) :
-            new RegExp(target, 'i').test(abbr) ||
-            !/^[^一-龥]{1,2}$/.test(target) && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.clear(n))),
+            new RegExp(`^${target}$`, 'i').test(abbr) ||
+            !this.#byAbbr && Object.values(names).some(n => new RegExp(target, 'i').test(Markup.clear(n))),
         code: (target, code) => Array.isArray(target) ?
             target.some(t => this.#search.code(t, code)) : 
             new RegExp(RegExp.escape(target.replace('-', '')), 'i').test(code.replace(/[- ]/g, ''))
@@ -191,7 +204,7 @@ class Preview {
             Preview.thead.cloneNode(true), 
             E('tbody', beys.map(bey => new Bey(bey).row))
         ])
-    )).then(() => [window.onresize(), Cell.fill('chi')])
+    ))
 
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))

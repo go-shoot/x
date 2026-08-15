@@ -103,15 +103,14 @@ diamond-grid,drag-knob {transition: opacity .5s;}
 }
 x-part { /*initial style before part.css*/
     display: inline-grid; width: 15em; height: 15em;
-    margin: .1rem;
     opacity: 0;
-    --backdrop: oklch(.25 .03 var(--hue) / .9);
     
     &.loading {
-        opacity: 1;
+        opacity: 1; color: transparent;
         background: var(--backdrop);
         &::before {
-            content: '\e005' !important; font-size: 2rem;
+            content: '\e005' !important; 
+            font-size: 2rem; color: var(--on);
             animation: spin 1s infinite;
             place-self: center;
         }
@@ -160,7 +159,7 @@ html {
     --backdrop: color-mix(in srgb,var(--theme) 5%,black); background: var(--backdrop);
     --theme-dark: color-mix(in srgb,var(--theme) 30%,black);
     --theme-trans: color-mix(in srgb, var(--theme) 11%, #ffffff11);
-    --overlay: color-mix(in srgb, var(--theme) 5%, #444444cc);
+    --overlay: color-mix(in srgb, var(--theme) 5%, #555555cc);
 }
 body {
     margin: 0;

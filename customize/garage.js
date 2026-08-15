@@ -31,7 +31,7 @@ Object.assign(Garage, {
         }));
         new O(acquired).each(([code, obj]) => [...obj].forEach(([subcomp, abbr]) => {
             let P = Bey.comps.includes(subcomp) ? PARTS[subcomp][abbr] : PARTS.blade.CX[subcomp][abbr];
-            grouped[subcomp].get(P).push(code);
+            grouped[subcomp].get(P)?.push(code);
         }));
         return grouped;
     },
@@ -135,7 +135,7 @@ Object.assign(Garage, {
     count: () => Q('ol', ol => ol.Q('summary').title = ol.Q('li:has(details)~:not(.unacquired)', []).length),
     events () {
         E(Q('main')).set({
-            async onclick (ev) {console.log(ev.target);
+            async onclick (ev) {
                 if (ev.target.matches('main,h2,ol')) return Q('li.selected', li => li.classList.remove('selected'));
                 if (Garage.held) return;
                 let path = ev.target.closest('figure')?.firstElementChild.src.match(/(?<=img\/).+(?=\.png)/)[0].split('/');

@@ -5,7 +5,7 @@ import { FilterForm, Markup } from '../include/utilities.js';
 import Garage from '../customize/garage.js';
 import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
 
-let PARTS;
+let PARTS, User = {};
 const Table = () => Table.before().then(Table.display).then(Table.after);
 Object.assign(Table, {
     body: Q('tbody'),
@@ -19,29 +19,35 @@ Object.assign(Table, {
         .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).row))),
     after () {
         Q('.loading').classList.remove('loading');
-        Table.form.onchange();
         Filter.form.onchange();
-        window.onresize();
         location.search ? Table.search(decodeURI(location.search.substring(1)).split(/\.|=/)) : FilterForm.count();
-        Garage.get('acquired').then(beys => Table.select({beys}, 'acquired'));
-        Garage.get('marked').then(beys => Table.select({beys}, 'marked'));
+        Garage.get('acquired').then(beys => User.acquired = beys);
+        Garage.get('marked').then(beys => User.marked = beys);
     },
     
     form: document.forms[0],
     events () {
-        E(Table.form).set({
-            onreset: Table.reset,
-            oninput: ev => ev.target.type == 'search' && Table.search(ev.target.value),
-            onchange: ev => !ev || ev.target.type == 'radio' ? Cell.fill(Table.form.lang.value) : ''
-        });
+        new MutationObserver(() => {
+            Table.select({beys: User.acquired}, 'acquired');
+            Table.select({beys: User.marked}, 'marked');
+        }).observe(Table.body, {childList: true, subtree: true});
         Q('thead').onclick = Table.sort;
         Q('#copy').onclick = Table.copy;
-        let downtime;
+        let timeout, timedown;
+        E(Table.form).set({
+            onreset: Table.reset,
+            onkeydown: ev => !(ev.key == 'Enter'),
+            oninput: ev => {
+                clearTimeout(timeout);
+                ev.target.type == 'radio' && Cell.fill(Table.form.lang.value);
+                ev.target.type == 'search' && (timeout = setTimeout(() => Table.search(ev.target.value), 300));
+            }
+        });
         E(Table.body).set({
-            onpointerdown: () => downtime = Date.now(),
+            onpointerdown: () => timedown = Date.now(),
             onclick: ev => !Q('#garage:checked') || ev.target.matches(':first-child') ? 
                 Preview.for.table(ev) : 
-                Date.now() - downtime < 500 ? Table.select({tr: ev.target.closest('tr')}) : null
+                Date.now() - timedown < 500 ? Table.select({tr: ev.target.closest('tr')}) : null
         });
         PI.events({
             'td:not(:first-child)': {hold: hold => hold.for(.5).to((_, target) => Table.select({td: target}))}
@@ -85,10 +91,10 @@ Object.assign(Table, {
         beys && new O(beys).each(([code, parts]) => {
             let tr = Table.body.Q(`tr[id='${code}']`);
             new O(parts).each(([headers, abbr]) => 
-                Cell.group(tr.Q(`[headers='${headers}'][title='${abbr}']`), td => td?.classList.toggle(mode))
+                Cell.group(tr.Q(`[headers='${headers}'][title='${abbr}']`), td => td?.classList.add(mode))
             );
         });
-        if (!Q('#garage:checked') || (tr ?? td?.parentElement)?.id.includes('?')) return;
+        if (beys || !Q('#garage:checked') || (tr ?? td?.parentElement)?.id.includes('?')) return;
         if (tr) {
             tr[mode] = !(tr[mode] ?? false);
             [...tr.children].forEach((td, i) => i > 0 && td.classList.toggle(mode, tr[mode])); 
