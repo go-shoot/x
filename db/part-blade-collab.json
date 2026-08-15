@@ -1,17 +1,4 @@
 {
-    "SgSp": {
-        "group": "hasbro",
-        "names": {
-            "jap": "ジークスペリオン",
-            "eng": "SiegSuperion",
-            "hasbro": "Suppress Superion",
-            "chi": "",
-            "aka": "巨神"
-        },
-        "stat": ["40="],
-        "desc": "(0-70LP tent.)",
-        "attr": ["bal","right","BX","expand","bbb"]
-    },
     "JgSz": {
         "group": "hasbro",
         "names": {

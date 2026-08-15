@@ -1,4 +1,16 @@
 {
+    "SgSp": {
+        "group": "BX",
+        "names": {
+            "jap": "ジークスペリオン",
+            "eng": "Sieg\\Superion",
+            "hasbro": "Suppress Superion",
+            "chi": ""
+        },
+        "stat": ["40="],
+        "desc": "",
+        "attr": ["bal","right","expand","bbb"]
+    },
     "HlNt": {
         "group": "UX",
         "names": {
