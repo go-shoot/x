@@ -231,7 +231,7 @@ const Transform = content => ({
         })()),
         grouped: () => ({...new O(content)
             .map(([group, parts]) => [group, parts.map(([sym, part]) => [sym, {...part, group}]) ])
-            .flatten(([group, abbr, ...others]) => [`${group}.${abbr}`, ...others])
+            .flatten(([group, abbr, ...rest]) => [`${group}.${abbr}`, ...rest])
         }),
         dict (drop) {
             let OBJ = new O;

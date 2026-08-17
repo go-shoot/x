@@ -41,7 +41,7 @@ class Part {
     cell = () => new Cell(this)
     async tile () {
         let {path, stat} = this;
-        !stat && this.push(await DB.get(...path));
+        !stat && this.push((({abbr, ...rest}) => rest)(await DB.get(...path)));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
     }

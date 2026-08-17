@@ -9,9 +9,9 @@ class Bey {
         if (typeof bey == 'string') {
             this.abbr.to.parts(bey).to.names();
         } else if (Array.isArray(bey)) {
-            let [code, type, abbr, ...others] = bey;
+            let [code, type, abbr, ...rest] = bey;
             this.abbr.to.parts(this.abbr = abbr);
-            this.row = new Row(this, code, type, others);
+            this.row = new Row(this, code, type, rest);
         } else {
             Object.assign(this, bey);
             this.parts.to.names(true);
@@ -32,14 +32,14 @@ class Bey {
     }}}
     parts = {to: {names: (fallback = false) => {
         let blade = [this.blade].flat();
-        let others = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
+        let rest = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
             + Markup.upgrade(this.ratchet.abbr, 'nobreak') + (this.bit.abbr ?? '');
-        this.names = {jap: [...Markup.cell(blade.map(b => b.only.name() ? b.names?.jap : '').join('')), others]};
+        this.names = {jap: [...Markup.cell(blade.map(b => b.only.name() ? b.names?.jap : '').join('')), rest]};
         this.names.chi = [...Markup.cell([...new Set([
             blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
             blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
-        ])].join(' ')), others];
-        !this.names.chi[0] && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + others : '');
+        ])].join(' ')), rest];
+        !this.names.chi[0] && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + rest : '');
     }}}
     get weight () {
         let adjust = {'+': .3, '=': 0, '-': -.3};
@@ -84,8 +84,8 @@ class Row {
         window.onresize();
     }, {rootMargin: '100px 0px'});
     #content;
-    constructor(bey, code, classes, others) {
-        let [video, more] = ['string', 'object'].map(t => others.find(o => typeof o == t));
+    constructor(bey, code, classes, rest) {
+        let [video, more] = ['string', 'object'].map(t => rest.find(o => typeof o == t));
         this.tr = E('tr', {
             id: code, title: bey.abbr,
             classList: [bey.line, classes], dataset: video ? {video} : {},
