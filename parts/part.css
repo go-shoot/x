@@ -124,7 +124,7 @@
             margin: 0 0 -.2em .2em;
             max-width: 2em; 
             font-size: .6em;
-            letter-spacing: 0; 
+            letter-spacing: 0; line-height: 1;
         }
     }
 }
