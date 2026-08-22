@@ -59,7 +59,7 @@
 
 :host object {
     width: 100%;
-    background: var(--backdrop);
+    background: oklch(.25 .03 var(--hue) / .9);
 }
 :host h5 {
     line-height: normal; /*index*/

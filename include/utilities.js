@@ -245,7 +245,8 @@ const Markup = (text, items, values = false) => {
         if (!text || text instanceof Node) return text;
         let replacer = typeof item == 'string' ? Markup.replacer[item] : item;
         let [before, after] = Array.isArray(replacer) ? replacer : replacer.find(([r]) => r.test(text)) ?? [];
-        return typeof after == 'string' ? text.replace(before, after) : after?.(before.exec(text), values) ?? text;
+        return Array.isArray(replacer) && before instanceof RegExp && !before.test(text) ? text :
+            typeof after == 'string' ? text.replace(before, after) : after?.(before.exec(text), values) ?? text;
     }), [text ?? '']);
     return results.length === 1 ? results[0] : results;
 }

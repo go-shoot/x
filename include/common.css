@@ -107,7 +107,7 @@ x-part { /*initial style before part.css*/
     
     &.loading {
         opacity: 1; color: transparent;
-        background: var(--backdrop);
+        background: oklch(.25 .03 var(--hue) / .9);
         &::before {
             content: '\e005' !important; 
             font-size: 2rem; color: var(--on);
