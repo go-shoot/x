@@ -320,6 +320,7 @@ table {
         background: repeating-linear-gradient(45deg, var(--light) 0 var(--strip), var(--dark) var(--strip) calc(1.5*var(--strip)));
         
         &.H {background: var(--dark);}
+        &:empty {visibility: hidden;}
         &.hidden {display: none;}
         &[data-get]::after {
             content: attr(data-get); 
