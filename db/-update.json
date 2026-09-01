@@ -1,6 +1,6 @@
 {
   "part-bit":          "2026/07/23 17:15:00",
-  "part-blade-divided":"2026/08/12 13:35:00",
+  "part-blade-divided":"2026/08/29 15:51:00",
   "prod-beys":         "2026/08/16 00:55:00",
   "prod-keihin":       "2026/08/16 00:55:00",
   "part-blade-collab": "2026/08/28 13:20:00",
@@ -9,30 +9,6 @@
   "meta":              "2026/07/23 18:15:00",
   "prod-gear":         "2026/07/16 13:14:00",
   "news": {
-"2026-08-12":[{
-    "code": "BXC-??",
-    "bey": "ClMr 4-55 S","ver":[
-        "メタルコート：ブラック","Metal Coat: Black"
-    ],
-    "desc": [
-        "填寫雜誌內表格購買"
-    ],
-    "imgs": [
-        "https://corocoro-news.jp/wp-content/uploads/2026/07/8dff3a12f1d5cf75a5aa1bdb414d404f.jpg"
-    ]
-}],
-    "2026-08-29":[{
-    "code": "BXG-63 starter",
-    "bey": "GlVl = LF",
-    "desc": [
-        "G1等場合發售"
-    ], 
-    "imgs": [
-    ]
-},{
-      "code":"BXG-57 deck set","name":["エヴァンゲリオンデッキセット","Evangelion Deck Set"],
-      "desc":["以初号機、零号機、２号機作image設計"]
-    }],
     "2026-09-12":[{
     "code": "BXG-70 starter",
     "name": [

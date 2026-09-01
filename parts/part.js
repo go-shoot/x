@@ -234,13 +234,13 @@ class Cell {
     static fill = (lang, parent = document) => parent.Q('td[title]', td => {
         if (td.Part.only.abbr()) return;
         td.Part.revise('cell');
-        let {path, names} = td.Part, {mode} = td.parentElement.dataset;
+        let {path, names, subcomp} = td.Part, {mode} = td.parentElement.dataset;
         let name = names[lang] || names.eng;
         mode = path[0] == 'blade' ? Markup.cell(JSON.parse(mode ?? '""')[lang]) : [];
         mode[0] && (name = mode.length > 1 && name.includes(' ') ? //'a b'->'a_m b_m' 'a'->'a_m'
             name.replace(' ', `_${mode[0]} `) + `_${mode[2]}` : name + `_${mode.join('')}`);
         name = Markup.cell(name);
-        let limit = Cell.#oversize[lang]?.at(path.slice(0, -1)) ?? 99;        
+        let limit = Cell.#oversize[lang]?.at(subcomp) ?? 99;
         let next = td.nextElementSibling;
         (next.headers ? td : next).replaceChildren(...names[lang]?.length >= limit ? [E('small', name)] : name);
     });
@@ -249,7 +249,7 @@ class Cell {
         let sibling = td.headers ? td.nextElementSibling : td.previousElementSibling;
         [td, td.headers && sibling.headers ? null : sibling].filter(td => td?.title || td?.innerText).forEach(action);
     }
-    static #oversize = {jap: new O({bit: 7})};
+    static #oversize = {jap: new O({bit: 7}), chi: new O({chip: 7})};
     static #colSpan = new O([
         [P => P.path[0] == 'blade' && !P.path[2], 6],
         [P => P.path[0] == 'blade' && P.path[2] == 'main', 3],
