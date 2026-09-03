@@ -2,7 +2,7 @@ import DB from "../include/DB.js";
 import { Markup } from "../include/utilities.js";
 import { Preview } from "../parts/bey.js";
 import 'https://cdn.jsdelivr.net/npm/imagehash-web/dist/imagehash-web.min.js';
-import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
 
 Object.defineProperty(HTMLCanvasElement.prototype, Symbol.toStringTag, {

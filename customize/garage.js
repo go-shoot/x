@@ -2,7 +2,7 @@ import DB from '../include/DB.js'
 import { Part, Tile, Cell } from '../parts/part.js';
 import { Markup, Transition } from '../include/utilities.js';
 import { Bey, Preview } from '../parts/bey.js';
-import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
 navigator.storage.persist();
 let PARTS;
@@ -194,7 +194,7 @@ Object.assign(Garage, {
         }
         PI.events({
             'section li:has(figure)': {
-                hold: hold => hold.for(.5).to((_, target) => (Garage.held = true) && target.classList.toggle('selected'))
+                hold: hold => hold.for(.75).to(PI => (Garage.held = true) && PI.target.classList.toggle('selected'))
             }
         });
     },

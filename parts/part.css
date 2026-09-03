@@ -10,7 +10,7 @@
     opacity: 1 !important; transition: opacity .5s;
 
     &::after,object {
-        position: absolute; inset: 0; z-index: -1;
+        position: absolute; inset: 0; z-index: -1; pointer-events: none;
     }
     h4,h5,dd {text-shadow: 0 0 .05rem,0 0 .05rem black;}
 }
@@ -318,9 +318,10 @@ table {
         height: 1.4rem;
         --strip: .48em;
         background: repeating-linear-gradient(45deg, var(--light) 0 var(--strip), var(--dark) var(--strip) calc(1.5*var(--strip)));
-        
+        transition: opacity .25s;
+
         &.H {background: var(--dark);}
-        &:empty {visibility: hidden;}
+        &:empty {opacity: 0;}
         &.hidden {display: none;}
         &[data-get]::after {
             content: attr(data-get); 
@@ -337,6 +338,7 @@ table {
         z-index: 1;
 
         &:first-child {color: var(--line);}
+        &[headers]:not([title]) {pointer-events: none;}
         &[headers=blade] {min-width: 11em;}
         &:is([headers=ratchet],[title]:has(+:not([headers]))) {
             min-width: 2em;
@@ -376,14 +378,12 @@ td {
     small {letter-spacing: -.05em;}
 }
 
-tbody tr:nth-last-child(1 of :not([hidden],.hidden)) td {
+tbody tr:nth-last-child(1 of :not([hidden],.hidden)) td,
+tr.PI-dragged td {
     border-bottom: solid .5px var(--on);
 }
 tbody td {
     border-top: solid .5px var(--on);
-}
-tbody tr:nth-child(1 of :not([hidden],.hidden)) td {
-    border-top: solid .5px var(--on) !important;
 }
 td[title],td:empty {
     border-left: solid .5px var(--on);    

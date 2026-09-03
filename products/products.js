@@ -3,7 +3,7 @@ import { Part, Cell } from '../parts/part.js';
 import { Bey, Preview, Search } from '../parts/bey.js';
 import { FilterForm, Markup } from '../include/utilities.js';
 import Garage from '../customize/garage.js';
-import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
 let PARTS, User = {};
 const Table = () => Table.before().then(Table.display).then(Table.after);
@@ -49,9 +49,9 @@ Object.assign(Table, {
                 Preview.for.table(ev) : 
                 Date.now() - timedown < 500 ? Table.select({tr: ev.target.closest('tr')}) : null
         });
-        PI.events({
-            'td:not(:first-child)': {hold: hold => hold.for(.5).to((_, target) => Table.select({td: target}))}
-        });
+        PI.events({'body:has(#garage:checked) td:not(:first-child)': {
+            hold: hold => hold.for(.75).to(PI => Table.select({td: PI.target}))
+        }});
     },
     sort (ev) {
         let [input, index] = [ev.target.Q('input'), Q('th').indexOf(ev.target.closest('th'))];

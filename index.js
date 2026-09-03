@@ -222,7 +222,7 @@ Q('header').after(DB(plugins).then(async () => {
         console.error(er);
     });
 
-    const PI = 'https://aeoq.github.io/pointer-interaction/script.js';
+    const PI = 'https://aeoq.github.io/pointer-interaction.mjs';
     const distance = (Q('#reboot div').clientWidth - Q('#reboot i').clientWidth)/2;
     import(PI).then(({default: PI}) => PI.events({
         '.scroller,#search ol': {scroll: {x: true}},

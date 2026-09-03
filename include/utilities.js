@@ -178,9 +178,15 @@ const Transition = {
         Transition.page.pause(true);
         let tr = document.startViewTransition();
         tr.ready.then(() => {
-            action == 'show' ? popover.showPopover() : popover.hidePopover();
             let frames = [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`];
-            action == 'hide' && frames.reverse();
+            if (action == 'show') {
+                popover.showPopover();
+                popover.append(...Q('div[id|=drop]') ?? []);
+            } else {
+                popover.hidePopover();
+                document.body.append(...Q('div[id|=drop]') ?? []);
+                frames = frames.toReversed();
+            }
             Transition.root.animate({clipPath: frames}, {
                 duration: 300,
                 easing: 'ease-in-out',

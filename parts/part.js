@@ -3,6 +3,7 @@ import DB from '../include/DB.js'
 import { Bey, Preview } from './bey.js';
 import { Markup, Glossary } from '../include/utilities.js';
 import Table from '../products/products.js';
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
 
 let PARTS;
 class Part {
@@ -162,6 +163,23 @@ class Tile extends HTMLElement {
         [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
         [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
     ], {left: '\ue01d', right: '\ue01e'});
+    static {
+        PI.events({
+            'x-part,tbody tr': {
+                drag: PI => PI.target.matches('.PI-held') || PI.drag.to.scroll.ancestor(),
+                hold: hold => hold.for(.75).to({
+                    drop: {onto: Q('div[id|=drop]')},
+                    lift: PI => {
+                        if (!Q('div[id|=drop].PI-receiving')) return;
+                        if (PI.target instanceof Tile) {
+                            let node = PI.target.sQ('.hasbro') || PI.target.sQ('.eng') || PI.target.sQ('h4');
+                            return open(`//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`, '_blank');
+                        }
+                    }
+                }),
+            }
+        });
+    }
 }
 Object.assign(Tile.prototype.fill, {
     background (hue) {

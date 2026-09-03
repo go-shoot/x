@@ -18,7 +18,7 @@ html::before {
     display: flex; justify-content: center; align-items: center;
     padding: .25em;
     position: fixed; inset: 0;
-    z-index: 9;
+    z-index: 8;
     color: white; background: gray; 
     transition: color .5s 3s, background 3s .5s;
     @starting-style {color: black; background: black;}
@@ -71,8 +71,9 @@ addEventListener('DOMContentLoaded', () => {
     new CSSStyleSheet().replace(LINES.flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('')).then(css => document.adoptedStyleSheets.push(css));
-    
-    import('https://aeoq.github.io/pointer-interaction/script.js').then(({default: PI}) => PI.events({
+    Q('body').append(...['tl','tr','bl','br'].map(p => E(`div#drop-${p}`)));
+
+    import('https://aeoq.github.io/pointer-interaction.mjs').then(({default: PI}) => PI.events({
         'nav menu': {
             drag: PI => {
                 PI.drag.to.translate({x: false, y: Menu.nav.classList.contains('bottom') ? 
@@ -84,7 +85,7 @@ addEventListener('DOMContentLoaded', () => {
             lift: PI => Q('.PI-selected') && (location.href = PI.target.Q('.PI-selected a').href)
         },
         '.stretch summary': {
-            drag: PI => Math.abs(PI.$drag.dy) > 30 && PI.target.parentElement.classList[PI.$drag.dy > 0 ? 'add' : 'remove']('showing')
+            drag: PI => Math.abs(PI.$drag.dy) > 20 && PI.target.parentElement.classList[PI.$drag.dy > 0 ? 'add' : 'remove']('showing')
         }
     }));
 });

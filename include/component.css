@@ -113,7 +113,7 @@
     div {
         margin: -.7em auto .3em auto;
         max-width: 70%;
-        z-index: 1; position: relative;
+        position: relative;
 
         code {
             line-height: 1.4em;
@@ -180,12 +180,6 @@
     }
     .scroller>:is(h4,h5,p) {
         padding: .5em;
-    }
-    h4 {
-        padding-bottom: 0;
-    }
-    figure::before,figure::after {
-        position: absolute; z-index: 1;
     }
 }
 

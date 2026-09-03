@@ -171,6 +171,7 @@ body {
 html,body {
     overscroll-behavior-y: none;
 
+    &:has(.PI-dragged,.PI-animate) {overflow-x: hidden;}
     &:has(nav:not(.bottom)) {scroll-padding-top: 5em;}
     &:has(nav.bottom) {scroll-padding-bottom: 5em;}
 }
@@ -207,7 +208,7 @@ nav {
     gap: .2rem .3rem;
     padding: .2rem .3rem;
     background: var(--theme-trans); backdrop-filter: blur(.2rem) brightness(.4);
-    position: fixed; z-index: 5; 
+    position: fixed; z-index: 7; 
     user-select: none; -webkit-user-select: none;
     
     &:not(:has(a[href='/x/'])) {display: none;}
@@ -224,7 +225,6 @@ nav {
         display: flex; 
         height: min-content;
         position: relative;
-        z-index: 2;
 
         * {touch-action: none;}
         &:not(.PI-dragged) {animation: pull-down 5s 2s infinite;}
@@ -334,7 +334,6 @@ menu {
     a[class]::after {
         height: 90%;
         filter: saturate(0) brightness(0) !important;
-        z-index: 0 !important;
     }
     a[href$=X]:not([href^='/x/'])::before {
         content: ''; 
@@ -456,3 +455,23 @@ details.tool {
     dfn::after {content: '：'; font-style: initial;}
 }
 @keyframes vanish {to {opacity: 0;}}
+
+div[id|=drop] {
+    position: fixed; background: var(--overlay); z-index: 8;
+    transition: transform .5s, background .5s;
+    width: min(40svw,40svh); aspect-ratio: 1;
+
+    &.PI-receiving {background: var(--theme);}
+    &#drop-tl {border-bottom-right-radius: 99em; bottom: 100%; right: 100%;}
+    &#drop-tr {border-bottom-left-radius: 99em; bottom: 100%; left: 100%;}
+    &#drop-bl {border-top-right-radius: 99em; top: 100%; right: 100%;}
+    &#drop-br {border-top-left-radius: 99em; top: 100%; left: 100%;}
+    &.PI-droppable {
+        &#drop-tl {transform: translate(100%,100%);}
+        &#drop-tr {transform: translate(-100%,100%);}
+        &#drop-bl {transform: translate(100%,-100%);}
+        &#drop-br {transform: translate(-100%,-100%);}
+    }
+}
+x-part,tbody td {touch-action: none;}
+:is(x-part,tbody tr):is(.PI-held,.PI-animate) {z-index: 9 !important;}

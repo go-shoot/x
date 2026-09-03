@@ -1,5 +1,5 @@
 import DB from '../include/DB.js'
-import PI from 'https://aeoq.github.io/pointer-interaction/script.js';
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
 navigator.storage.persist();
 E.img = src => new Promise(res => E('img', {src, onload: function() {res(this);}}));
@@ -36,13 +36,15 @@ Object.assign(App, {
             down: () => Layer.move('down'), up: () => Layer.move('up'),
         });
         const bypassHolding = (ev, action) => ev.isTrusted ? App.holding ? App.holding = false : action?.(ev) : '';
-        PI.events([
-            ...new O(holder).map(([k, v]) => [typeof k == 'string' ? FORM.main[k] : k, {hold: hold => hold.for(1.5).to(() => (App.holding = true) && v())}]),
-            ['#layers label', {
+        PI.events(
+            [...holder].map(([k, f]) => [typeof k == 'string' ? FORM.main[k] : k, {
+                hold: hold => hold.for(1.5).to(() => (App.holding = true) && f())
+            }]), {
+            '#layers label': {
                 click: click => click.for(2).to(() => Layer.solo()),
                 hold: hold => hold.for(1).to((_, target) => E('a', {href: target.Q('img').src, download: 'layer'}).click())
-            }],
-        ]);
+            }
+        });
         E(FORM.main).set({
             onchange: ev => ev.target.id == 'fine' ? 
                 Q('drag-knob', knob => knob.classList.toggle('fine', ev.target.checked)) : 
