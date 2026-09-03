@@ -344,6 +344,28 @@
         "attr": ["sta","right","BX","marvel"],
         "from": "WzAr"
     },
+    "Mist": {
+        "group": "collab",
+        "names": {
+            "jap": "ミスター・ファンタスティック",
+            "eng": "Mister Fantastic",
+            "chi": ""
+        },
+        "stat": [""],"desc":"9-65A",
+        "attr": ["def","right","BX","marvel"],
+        "from": "SpCw"
+    },
+    "Doct": {
+        "group": "collab",
+        "names": {
+            "jap": "ドクター・ドゥーム",
+            "eng": "Doctor Doom",
+            "chi": ""
+        },
+        "stat": [""],"desc":"0-80LO",
+        "attr": ["def","right","BX","marvel"],
+        "from": "KnSh"
+    },
     "Luke": {
         "group": "collab",
         "names": {
