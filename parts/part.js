@@ -172,7 +172,7 @@ class Tile extends HTMLElement {
                     if (!Q('div[id|=drop].PI-receiving')) return;
                     if (PI.target instanceof Tile) {
                         let node = PI.target.sQ('.hasbro') || PI.target.sQ('.eng') || PI.target.sQ('h4');
-                        return open(`//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`, '_blank');
+                        return window.open(`//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`, '_blank');
                     }}catch(er) {document.body.append(er);}
                 }
             })
