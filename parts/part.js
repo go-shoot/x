@@ -166,7 +166,7 @@ class Tile extends HTMLElement {
     static {
         PI.events({'x-part,tbody tr': {
             hold: hold => hold.for(.75).to({
-                drop: {onto: Q('div[id|=drop]')},
+                drop: {onto: Q('div[id|=drop]'), autoscroll: false},
                 lift: PI => {
                     if (!Q('div[id|=drop].PI-receiving')) return;
                     if (PI.target instanceof Tile) {
