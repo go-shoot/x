@@ -84,8 +84,8 @@ Object.assign(App, {
         onkeyup = ev => ev.key == 'Control' ? App.undo ? App.undo = false : FORM.main.fine.click() : '';
         onkeydown = ev => 
             (ev.ctrlKey || ev.metaKey) && /^z$/i.test(ev.key) ? (App.undo = true) && Layer.active.undo() :
-            ev.key == 'ArrowUp' ? Layer.active.previousSibling?.click() :
-            ev.key == 'ArrowDown' ? Layer.active.nextSibling?.click() : '';        
+            ev.key == 'ArrowUp' ? Layer.active.previousElementSibling?.click() :
+            ev.key == 'ArrowDown' ? Layer.active.nextElementSibling?.click() : '';        
         onhashchange = Design.load;
     }
 });

@@ -473,5 +473,5 @@ div[id|=drop] {
         &#drop-br {transform: translate(-100%,-100%);}
     }
 }
-/* x-part,tbody td {touch-action: none;} */
+x-part,tbody td {touch-action: none;}
 :is(x-part,tbody tr):is(.PI-held,.PI-animate) {z-index: 9 !important;}
