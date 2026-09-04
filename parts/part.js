@@ -164,21 +164,18 @@ class Tile extends HTMLElement {
         [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
     ], {left: '\ue01d', right: '\ue01e'});
     static {
-        // PI.events({
-        //     'x-part,tbody tr': {
-        //         drag: PI => PI.target.matches('.PI-held') || PI.drag.to.scroll('ancestor'),
-        //         hold: hold => hold.for(.75).to({
-        //             drop: {onto: Q('div[id|=drop]')},
-        //             lift: PI => {
-        //                 if (!Q('div[id|=drop].PI-receiving')) return;
-        //                 if (PI.target instanceof Tile) {
-        //                     let node = PI.target.sQ('.hasbro') || PI.target.sQ('.eng') || PI.target.sQ('h4');
-        //                     return open(`//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`, '_blank');
-        //                 }
-        //             }
-        //         }),
-        //     }
-        // });
+        PI.events({'x-part,tbody tr': {
+            hold: hold => hold.for(.75).to({
+                drop: {onto: Q('div[id|=drop]')},
+                lift: PI => {
+                    if (!Q('div[id|=drop].PI-receiving')) return;
+                    if (PI.target instanceof Tile) {
+                        let node = PI.target.sQ('.hasbro') || PI.target.sQ('.eng') || PI.target.sQ('h4');
+                        return open(`//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`, '_blank');
+                    }
+                }
+            })
+        }});
     }
 }
 Object.assign(Tile.prototype.fill, {
