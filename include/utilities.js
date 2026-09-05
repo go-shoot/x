@@ -181,10 +181,10 @@ const Transition = {
             let frames = [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`];
             if (action == 'show') {
                 popover.showPopover();
-                popover.append(...Q('div[id|=drop]') ?? []);
+                popover.append(...Q('a[id|=drop]') ?? []);
             } else {
                 popover.hidePopover();
-                document.body.append(...Q('div[id|=drop]') ?? []);
+                document.body.append(...Q('a[id|=drop]') ?? []);
                 frames = frames.toReversed();
             }
             Transition.root.animate({clipPath: frames}, {

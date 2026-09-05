@@ -71,7 +71,7 @@ addEventListener('DOMContentLoaded', () => {
     new CSSStyleSheet().replace(LINES.flatMap(([line, {color}]) => 
         `.${line}, a[href*=${line}] {--line: ${color}; --img-line: url(/x/img/lines.svg#${line});}`
     ).join('')).then(css => document.adoptedStyleSheets.push(css));
-    Q('body').append(...['tl','tr','bl','br'].map(p => E(`div#drop-${p}`)));
+    Q('body').append(...['tl','tr','bl','br'].map(p => E(`a#drop-${p}`, {target: '_blank'})));
 
     import('https://aeoq.github.io/pointer-interaction.mjs').then(({default: PI}) => PI.events({
         'nav menu': {

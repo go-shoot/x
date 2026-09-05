@@ -131,8 +131,8 @@ class Tile extends HTMLElement {
         from &&= path.toSpliced(-from.length, from.length, ...from);
         from?.length > 2 && (path[2] = from[2]);
         this.shadowRoot.replaceChildren(
-            E('link', {rel: 'stylesheet', href: '/x/include/common.css'}),
-            E('link', {rel: 'stylesheet', href: '/x/parts/part.css'}),
+            E.link({href: '/x/include/common.css'}),
+            E.link({href: '/x/parts/part.css'}),
             E('object', {data: this.fill.background(E(this).get('--hue'))}),
             E('figure>img', {src: `/x/img/${path.join('/')}.png`}),
             E('slot'),
@@ -166,14 +166,14 @@ class Tile extends HTMLElement {
     static {
         PI.events({'x-part,tbody tr': {
             hold: hold => hold.for(.75).to({
-                drop: {onto: Q('div[id|=drop]'), autoscroll: false},
-                lift: PI => {try{
-                    getSelection().removeAllRanges();
-                    if (!Q('div[id|=drop].PI-receiving')) return;
+                drop: {onto: Q('a[id|=drop]'), autoscroll: false},
+                lift: PI => {
+                    window.getSelection().removeAllRanges();
+                    if (!Q('a[id|=drop].PI-receiving')) return;
                     if (PI.target instanceof Tile) {
                         let node = PI.target.sQ('.hasbro') || PI.target.sQ('.eng') || PI.target.sQ('h4');
-                        return window.open(`//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`, '_blank');
-                    }}catch(er) {document.body.append(er);}
+                        E(PI.onto).set({href: `//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`}).click();
+                    }
                 }
             })
         }});

@@ -456,7 +456,7 @@ details.tool {
 }
 @keyframes vanish {to {opacity: 0;}}
 
-div[id|=drop] {
+a[id|=drop] {
     position: fixed; background: var(--overlay); z-index: 8;
     transition: transform .5s, background .5s;
     width: min(40svw,40svh); aspect-ratio: 1;
