@@ -56,7 +56,7 @@
     a {grid-area: 1/1;}
     a:not(:empty) {grid-area: 2/2;}
 }
-
+:host :not(p) {user-select: none; -webkit-user-select: none;}
 :host object {
     width: 100%;
     background: oklch(.25 .03 var(--hue) / .9);
@@ -338,7 +338,6 @@ table {
         z-index: 1;
 
         &:first-child {color: var(--line);}
-        &[headers]:not([title]) {pointer-events: none;}
         &[headers=blade] {min-width: 11em;}
         &:is([headers=ratchet],[title]:has(+:not([headers]))) {
             min-width: 2em;

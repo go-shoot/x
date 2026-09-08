@@ -35,10 +35,8 @@ class Part {
         (Array.isArray(type) ? type : this.constructor.revisions[type])?.forEach(prop => this[prop] = this.revised[prop](base, pref));
         return this;
     }
-    href = () => `/x/parts/` + Part.href.join(this.path, '?=#.')
-    static href = {
-        join: (path, joiner) => [...path].map((p, i) => `${joiner[joiner.length/path.length*i]}${p}`).join(''),
-    }
+    href = () => `/x/parts/` + Part.href(this.path, '?=#.')
+    static href = (path, joiner) => [...path].map((p, i) => `${joiner[joiner.length/path.length*i]}${p}`).join('')
     cell = () => new Cell(this)
     async tile () {
         let {path, stat} = this;
@@ -46,6 +44,21 @@ class Part {
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
         return new Tile(this);
     }
+    keyword (locale, subcomp = false) {
+        let lang = ['hk','tw'].includes(locale) ? 'chi' : ['hasbro','eng'].includes(locale) ? 'eng' : locale;
+        let split = (chi, locale) => {
+            if (lang != 'chi') return chi;
+            chi = chi?.split(' ') ?? [];
+            return locale == 'tw' && chi[1] || chi[0] || '';
+        }
+        if (!this.abbr) return '';
+        if (!this.only.name()) // abbr used
+            return this.abbr + (subcomp ? ' ' + split(this.constructor.names[this.subcomp][lang], 'tw') : '');
+        if (locale == 'hasbro' && this.hasbroReorder()) 
+            return this.names.eng.replace(/^(.+?)([A-Z][^_]+)_?(.+)?$/, '$2 $1 $3');
+        return Markup(split(this.names[locale] || this.names[lang], locale), ['cell', 'clear']);
+    }
+    hasbroReorder = () => !this.names.hasbro && ['BX','UX','hasbro'].includes(this.group) && !this.names.eng.includes('\\')
     static types = Object.assign(['att','bal','sta','def'], {
         chi: {att:'攻擊', def:'防禦', sta:'持久', bal:'平衡'},
         eng: {att:'ATTACK', def:'DEFENSE', sta:'STAMINA', bal:'BALANCE'}
@@ -126,6 +139,7 @@ class Tile extends HTMLElement {
         });
     }
     fill () {
+        if (this.sQ('link')) return;
         let {path, desc, from} = this.fill.Part = this.Part;
         from &&= from.split('.');
         from &&= path.toSpliced(-from.length, from.length, ...from);
@@ -166,15 +180,10 @@ class Tile extends HTMLElement {
     static {
         PI.events({'x-part,tbody tr': {
             hold: hold => hold.for(.75).to({
+                press: PI => DropSearch.zone.set(PI.target instanceof Tile ? 'tile' : 'row'),
+                drag: () => window.getSelection().removeAllRanges(),
                 drop: {onto: Q('a[id|=drop]'), autoscroll: false},
-                lift: PI => {
-                    window.getSelection().removeAllRanges();
-                    if (!Q('a[id|=drop].PI-receiving')) return;
-                    if (PI.target instanceof Tile) {
-                        let node = PI.target.sQ('.hasbro') || PI.target.sQ('.eng') || PI.target.sQ('h4');
-                        E(PI.onto).set({href: `//amazon.com/s?k=${[...node.childNodes].map(node => node.textContent.replace('\n', '+')).join('+')}+beyblade+x`}).click();
-                    }
-                }
+                lift: PI => Q('a[id|=drop].PI-receiving') && DropSearch.open(PI)
             })
         }});
     }
@@ -199,7 +208,7 @@ Object.assign(Tile.prototype.fill, {
         let {path, group, names, attr} = this.Part;
         let segment = {eng: group != 'collab'};
         segment.chi = segment.eng && !attr.has('BSB');
-        let hasbro = ['BX','UX','hasbro'].includes(group) && !names.eng.includes('\\') && !names.hasbro ?
+        let hasbro = this.Part.hasbroReorder() ?
             names.eng.replace(/^(.+?)([A-Z].+?)(_.+)?$/, '$2\n$1$3') : names.hasbro?.replace(' ', '\n');
         return [
             this.Part.only.name() ? 
@@ -210,7 +219,7 @@ Object.assign(Tile.prototype.fill, {
         ].flat(9);
     },
     stat () {
-        let {comp, stat, date, attr} = this.Part;
+        let {comp, stat, attr} = this.Part;
         let terms = Tile[comp][comp == 'bit' && attr.has('fused') ? 'terms.fused' : 'terms'];
         return E('dl', stat.flatMap((s, i) => E('div', [
             E('dt', s ? i > 0 ? Markup(terms[i], 'stat') : terms[i] : ''), 

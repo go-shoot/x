@@ -216,6 +216,7 @@ details.stretch {
     transition: transform .5s, max-height .5s;
 
     &.showing {transform: none; max-height:50em;}
+    &:not(.showing) summary~* {pointer-events: none;}
     nav:not(:has(a[href='/x/']))+main & {display: none;}
     summary {
         position: absolute !important; left: 1em; bottom: -1.5em; 

@@ -11,8 +11,8 @@ i {
 summary:focus {
     outline: none;
 }
-:root,input,input::placeholder,button,db-state {
-    font-family: Chiron GoRound TC,COND,sans-serif;
+:root,input,input::placeholder,button,select,db-state {
+    font-family: Chiron GoRound TC, COND, sans-serif;
 }
 h1,h2,h3 {
     font-weight: 700;
@@ -32,7 +32,7 @@ th,nav dd,summary>*,small {
 }
 tr[data-get]::after,
 td:is(:first-child,[headers=ratchet],[title]:has(+:not([headers]))),
-.boards code, option {
+.boards code,select[name=tier] option {
     font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;
 }
 @font-face {
@@ -110,9 +110,9 @@ x-part { /*initial style before part.css*/
         background: oklch(.25 .03 var(--hue) / .9);
         &::before {
             content: '\e005' !important; 
+            position: absolute; place-self: center;
             font-size: 2rem; color: var(--on);
             animation: spin 1s infinite;
-            place-self: center;
         }
     }
 }
@@ -460,12 +460,15 @@ a[id|=drop] {
     position: fixed; background: var(--overlay); z-index: 8;
     transition: transform .5s, background .5s;
     width: min(40svw,40svh); aspect-ratio: 1;
+    padding: min(8svw,8svh); white-space: nowrap;
+    font-size: 1.2em;
+    display: flex; flex-direction: column;
 
     &.PI-receiving {background: var(--theme);}
-    &#drop-tl {border-bottom-right-radius: 99em; bottom: 100%; right: 100%;}
-    &#drop-tr {border-bottom-left-radius: 99em; bottom: 100%; left: 100%;}
-    &#drop-bl {border-top-right-radius: 99em; top: 100%; right: 100%;}
-    &#drop-br {border-top-left-radius: 99em; top: 100%; left: 100%;}
+    &#drop-tl {border-bottom-right-radius: 99em; bottom: 100%; right: 100%; align-items: start;}
+    &#drop-tr {border-bottom-left-radius: 99em; bottom: 100%; left: 100%; align-items: end;}
+    &#drop-bl {border-top-right-radius: 99em; top: 100%; right: 100%; justify-content: end; align-items: start;}
+    &#drop-br {border-top-left-radius: 99em; top: 100%; left: 100%; justify-content: end; align-items: end;}
     &.PI-droppable {
         &#drop-tl {transform: translate(100%,100%);}
         &#drop-tr {transform: translate(-100%,100%);}

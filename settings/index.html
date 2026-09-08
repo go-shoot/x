@@ -1,0 +1,65 @@
+<title>設定</title>
+<script defer src=../include/common.js></script>
+<link rel=stylesheet href=../parts/part.css>
+<style>
+    main {
+        padding: 0 .5em;
+        max-width: min(100%,25em);
+
+        p,form {text-align: left;}
+        x-part {margin: 1em 0;}
+    }
+    form {
+        margin: 2em auto 0 auto;
+
+        dl {
+            margin: 1em 0;
+            display: grid; grid-template-columns: max-content 1fr 1fr 1fr; gap: .5em;
+        }
+        dt {align-self: end;}
+        dd {display: contents; &>* {width: 100%;}}
+        select,input {
+            background: none; border: none; outline: none !important;
+            border-bottom: .1em solid var(--theme);
+            color: var(--on); font-size: .9em;
+
+            &:open {border-color: var(--accent);}
+            option {background: var(--backdrop);}
+        }    
+    }
+</style>
+
+<nav><menu></menu></nav>
+<form><input name="lang" value="chi" type="hidden"></form>
+<main>
+    <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：</p>
+    <form>
+        <fieldset id="tile">部件磚<dl></dl></fieldset>
+        <fieldset id="row">陀螺列<dl></dl></fieldset>
+    </form>
+</main>
+
+<script type="module">
+import DB from '../include/DB.js';
+import {Bey, Search} from '../parts/bey.js';
+Q('main').prepend(DB().then(async () => {
+    let PARTS = await DB.get.essentials();
+    let {beys} = await new Search('CX-13');
+    Q('p').after(await PARTS.blade.WyHv.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
+
+    let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
+    Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [
+        E('dt', chi[n]), 
+        E('dd', [
+            E('select', {name: `${dl.parentElement.id}-${n}-where`}, 
+                Object.keys(DropSearch.zone.href).map(p => E('option', {value: p}, p))),
+            E('select', {name: `${dl.parentElement.id}-${n}-what`}, 
+                Object.entries(DropSearch.zone.text).map(([v, t]) => E('option', {value: v}, t))),
+            E('input', {name: `${dl.parentElement.id}-${n}-add`, placeholder: '外加關鍵字'})
+        ])
+    ])));
+    let form = Q('main form'), config = new O(Storage('drop-search') || DropSearch.default);
+    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => form[n].value = v);
+    form.onchange = ev => Storage('drop-search', {...new O(new FormData(form)).reshape(([k]) => k.split('-'))});
+}));
+</script>

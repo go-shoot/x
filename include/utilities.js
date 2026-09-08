@@ -36,9 +36,9 @@ class Shohin {
         [/.XG?-/, 'others'],
     ])
     attrs () {
-        let {bit, names: {chi, jap}} = new Bey(this.abbr);
-        let h4 = this.div.Q('h4'), a = E('a', chi);
-        h4.Q('strong:nth-of-type(1)').replaceChildren(...jap);
+        let {bit, names: {chi, jap, rest}} = new Bey(this.abbr);
+        let h4 = this.div.Q('h4'), a = E('a', chi, rest);
+        h4.Q('strong:nth-of-type(1)').replaceChildren(...jap, rest);
         h4.Q('strong:nth-of-type(2)').replaceChildren(Object.assign(a, {href: `?${a.innerText}`}));
         this.div.Q('h5').prepend(Shohin.ruby([...bit.attr][0]));
     }
@@ -74,10 +74,10 @@ class Keihin {
     }
     fill ({type, note, link, date, code, bey, ver, img: [src, style]} = this.content) {
         if (this.article.Q('em')) return;
-        let {line, names: {jap, chi}} = new Bey(bey);
+        let {line, names: {jap, chi, rest}} = new Bey(bey);
         let h4 = E('h4', {lang: 'ja'}, [
             E('code', code.includes('?') ? '' : Markup.upgrade(code, 'figureDash').replace(/_.+$/, '')), 
-            E('a', {target: '_blank'}, jap), 
+            E('a', {target: '_blank'}, jap + rest), 
             E('small', ver?.[0] ? {
                 classList: ver[0].length > 12 && !ver[0].includes('<br>') ? 'tight' : '',
                 innerHTML: ver[0]
@@ -91,7 +91,7 @@ class Keihin {
                 E('figure>img', {src, loading: 'lazy', style: typeof style == 'object' ? style : {width: style + '%'}}), 
                 h4
             ]),
-            E('h4', {lang: 'zh'}, [...chi || ['　'], E('small', ver?.[1] ?? ver?.[0])]),
+            E('h4', {lang: 'zh'}, [...chi?.[0] ? chi.concat(rest) : ['　'], E('small', ver?.[1] ?? ver?.[0])]),
             E('time', Markup.upgrade(date, 'figureDash'))
         ], {classList: [`keihin-${type}`, line, ...this.article.classList]});
     }

@@ -152,7 +152,7 @@ class Search {
                 new Preview(['cell', 'tile'], {path: ev.target.dataset.path.split(',')}, ev) : 
                 new Preview(['cell', 'image'], {code: ev.target.innerText}, ev)
             );
-            ev.target.matches('ol.links button') && ev.target.parentElement.bey.preview(ev);
+            ev.target.matches('ol.links button') && ev.target.parentElement.Bey.preview(ev);
         }
         document.onclick = ev => {
             let a = ev.target.closest('a[href^="?"]');
@@ -175,7 +175,11 @@ class Result {
             classList: /(?<=parts\/\?).+?(?=[=#])/.exec(href)?.[0] || '',
             href, target: href.startsWith('//') ? '_blank' : ''
         })
-    weight = bey => Object.assign(E('li>button', [` 重量估算【`, ...bey.names.chi, `】`, E('b', bey.weight)]), {bey})
+    weight = bey => {
+        let button = E('li>button', [` 重量估算【`, ...bey.names.chi, ...bey.names.rest, `】`, E('b', bey.weight)]);
+        button.Bey = bey;
+        return button;
+    }
 }
 
 sessionStorage.news && (Q('#news').innerHTML = sessionStorage.news);

@@ -7,20 +7,21 @@ let PARTS, Blade, Ratchet, Bit;
 class Bey {
     constructor(bey) {
         if (typeof bey == 'string') {
-            this.abbr.to.parts(bey).to.names();
+            this.abbr.to.parts(bey).to.names(['hk', 'tw', 'jap']);
         } else if (Array.isArray(bey)) {
             let [code, type, abbr, ...rest] = bey;
             this.abbr.to.parts(this.abbr = abbr);
-            this.row = new Row(this, code, type, rest);
+            this.Row = new Row(this, code, type, rest);
         } else {
             Object.assign(this, bey);
-            this.parts.to.names(true);
+            this.parts.to.names(['hk', 'tw'], true);
         }
     }
     abbr = {to: {parts: abbr => {
         abbr = new O(abbr.split(' ').map((a, i) => [Bey.comps[i], a]));
-        ['ratchet', 'bit'].forEach(comp => this[comp] = PARTS[comp][abbr[comp]] ?? new Part[comp](abbr[comp] == '=' ? {fused: true} : {}));
-        
+        ['ratchet', 'bit'].forEach(comp => this[comp] = 
+            PARTS[comp][abbr[comp]] ?? new Part[comp](abbr[comp] == '=' ? {fused: true} : {})
+        );
         let line = Blade.sub.find(([, {delim}]) => (abbr.blade = abbr.blade.split(delim)).length > 1)?.[0];
         if (abbr.blade.length > 1) {
             let subs = Blade.sub[line][abbr.blade.length];
@@ -30,16 +31,20 @@ class Bey {
         this.line = line || (/^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '');
         return this.parts;
     }}}
-    parts = {to: {names: (fallback = false) => {
-        let blade = [this.blade].flat();
-        let rest = blade.filter(b => !b.only.name()).map(b => b.abbr).join('') 
-            + Markup.upgrade(this.ratchet.abbr, 'nobreak') + (this.bit.abbr ?? '');
-        this.names = {jap: [...Markup.cell(blade.map(b => b.only.name() ? b.names?.jap : '').join('')), rest]};
-        this.names.chi = [...Markup.cell([...new Set([
-            blade.map(b => b.names?.chi?.split(' ')[0]).join(''),
-            blade.map(b => b.names?.chi?.split(' ')[1] || b?.names?.chi).join('')
-        ])].join(' ')), rest];
-        !this.names.chi[0] && (this.names.chi = fallback ? blade.map(b => b.abbr).join('.') + rest : '');
+    parts = {to: {names: (locales, index = false) => {
+        let {true: named = [], false: abbrd = []} = Object.groupBy([this.blade].flat(), P => P.only.name());
+        let rest = (abbrd?.map(b => b.abbr) ?? []).join('') + Markup.upgrade(this.ratchet.abbr, 'nobreak') + (this.bit.abbr ?? '');
+        this.names = {rest};
+        [locales].flat().forEach(l =>
+            this.names[l] = (l == 'hasbro' ? named.reverse() : named).map(b => b.keyword(l))
+                .join(['hasbro', 'eng'].includes(l) ? ' ' : '')
+        );
+        if (this.names.hk && this.names.tw) {
+            this.names.chi = [...new Set([this.names.hk, this.names.tw])].join(' ');
+            this.names.chi = this.names.chi ?
+                [...Markup.cell(this.names.chi)] : index ? blade.map(b => b.abbr).join('.') : '';
+        }
+        return this.names;
     }}}
     get weight () {
         let adjust = {'+': .3, '=': 0, '-': -.3};
@@ -80,33 +85,32 @@ Bey.import = PARTS_ => ([PARTS, {Blade, Ratchet, Bit}] = [PARTS_, Part]) && Obje
 
 class Row {
     static observer = new IntersectionObserver(entries => {
-        entries.forEach(en => en.isIntersecting ? en.target.row.fill() : en.target.replaceChildren());
+        entries.forEach(en => en.isIntersecting ? en.target.Row.fill() : en.target.replaceChildren());
         window.onresize();
     }, {rootMargin: '100px 0px'});
-    #content;
-    constructor(bey, code, classes, rest) {
+    constructor(Bey, code, classes, rest) {
         let [video, more] = ['string', 'object'].map(t => rest.find(o => typeof o == t));
         this.tr = E('tr', {
-            id: code, title: bey.abbr,
-            classList: [bey.line, classes], dataset: video ? {video} : {},
+            id: code, title: Bey.abbr,
+            classList: [Bey.line, classes], dataset: video ? {video} : {},
         });
-        this.tr.row = this;
+        this.tr.Row = this;
+        this.tr.Bey = this.Bey = Bey;
         this.more(more);
-        this.#content = {bey, code, classes};
         Row.observer.observe(this.tr);
         return this.tr;
     }
-    fill ({bey, code, classes} = this.#content) {
+    fill (Bey = this.Bey) {
         this.tr.replaceChildren(this.code(), 
-            ...[[bey.blade].flat().map(b => b.cell()), bey.ratchet.cell(), bey.bit.cell()].flat(9)
+            ...[[Bey.blade].flat().map(b => b.cell()), Bey.ratchet.cell(), Bey.bit.cell()].flat(9)
         );
         Cell.fill(document.forms[0].lang.value || 'chi', this.tr);
     }
-    code ({code, classes} = this.#content) {
+    code ({id: code, classList: classes} = this.tr) {
         code = code.split('_');
         return E('td', [
             code[0].replace(/(?<=-)\?\d/, '  ').padStart(6, ' '), 
-            code[1] && classes.includes('RB') ? E('sub', code[1]) : ''
+            code[1] && classes.contains('RB') ? E('sub', code[1]) : ''
         ]);
     }
     more ({coat, mode, get} = {}) {
@@ -129,7 +133,7 @@ class Search {
                 this.lookup(RegExp.escape(query)) : '';
         } else {
             this.query = query.toReversed().slice(1).reduce((obj, key) => new O({[key]: obj}), query.at(-1));
-            this.href = Part.href.join(query, query.length == 4 ? '?..=' : '?=');
+            this.href = Part.href(query, query.length == 4 ? '?..=' : '?=');
         }
         this.build();
         return Search.beys().then(beys => ({
@@ -202,7 +206,7 @@ class Preview {
         E('table', {onclick: Preview.for.table}, [
             E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
             Preview.thead.cloneNode(true), 
-            E('tbody', beys.map(bey => new Bey(bey).row))
+            E('tbody', beys.map(bey => new Bey(bey).Row))
         ])
     ))
 
@@ -261,11 +265,12 @@ class Preview {
     static for = {
         table (ev) {
             if (!location.pathname.includes('products')) return;
-            new Preview(...ev.target.matches(':first-child') ? ev.target.matches('.Lm td') ? 
-                ['diamond', {code: ev.target.parentElement.id, bey: ev.target.parentElement.title}] :
-                ['image', {code: ev.target.parentElement.id.split('_')[0]}] : 
-                ['tile', {path: ev.target.Part.path}]
-            , ev);
+            if (ev.target.matches('.Lm :first-child')) 
+                return new Preview('diamond', {code: ev.target.parentElement.id, bey: ev.target.parentElement.title}, ev);
+            if (ev.target.matches(':first-child'))
+                return new Preview('image', {code: ev.target.parentElement.id.split('_')[0]}, ev);
+            if (ev.target.Part)
+                return new Preview('tile', {path: ev.target.Part.path}, ev);
         }
     }
     static dialog = Q('#preview') || Q('body').appendChild(E('dialog#preview', {
