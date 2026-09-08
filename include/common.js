@@ -58,7 +58,7 @@ Object.assign(Menu, {
     selectable: () => Q('nav li:not(:has(.current)):not(:last-child)'),
     links: () => [
         E('a', {href: '/x/products/'}),
-        E('a', {href: '/x/parts/?blade'}),
+        E('a', {href: '/x/parts/' + (Storage('pref')?.parts ?? '?blade')}),
         E('a', {href: '/x/prizes/'})
     ],
     lines: () => LINES.filter(([_, {divided}]) => divided)
@@ -68,21 +68,21 @@ const DropSearch = () => Q('body').append(...['tl','tr','bl','br'].map(p => E(`a
 Object.assign(DropSearch, {
     default: {
         tile: {
-            tl: {where: 'Amazon US', what: 'hasbro', add: 'beyblade x'},
-            tr: {where: 'Mercari JP', what: 'jap'},
-            bl: {where: 'Google', what: 'tw'},
-            br: {where: 'Reddit', what: 'eng'}
+            tl: {site: 'Amazon US', locale: 'hasbro', append: 'beyblade x'},
+            tr: {site: 'Mercari JP', locale: 'jap'},
+            bl: {site: 'Google', locale: 'tw'},
+            br: {site: 'Reddit', locale: 'eng'}
         },
         row: {
-            tl: {where: 'Amazon US', what: 'hasbro', add: 'beyblade x'},
-            tr: {where: 'Mercari JP', what: 'jap'},
-            bl: {where: 'Google', what: 'tw'},
-            br: {where: 'Reddit', what: 'eng'}
+            tl: {site: 'Amazon US', locale: 'hasbro', append: 'beyblade x'},
+            tr: {site: 'Mercari JP', locale: 'jap'},
+            bl: {site: 'Google', locale: 'tw'},
+            br: {site: 'Reddit', locale: 'eng'}
         }
     },
     zone: {
         href: {
-            複製: '${}#',
+            複製: '${}',
             'Amazon US': '//amazon.com/s?k=${}', 'Amazon JP': '//amazon.co.jp/s?k=${}',
             'Carousell HK': '//carousell.com.hk/search/${}', 'Mercari JP': '//jp.mercari.com/search?keyword=${}',
             Shopee: '//shopee.tw/search?keyword=${}', 淘寶: '//world.taobao.com/product/${}.htm',
@@ -94,27 +94,28 @@ Object.assign(DropSearch, {
         set (type) {
             let config = (Storage('drop-search') || DropSearch.default)[type];
             (DropSearch.zones ??= Q('a[id|=drop]')).forEach(a => {
-                let {where, what} = config[a.id.split('-')[1]];
-                E(a).set([E('span', where), E('small', DropSearch.zone.text[what])]);
+                let {site, locale} = config[a.id.split('-')[1]];
+                E(a).set([E('span', site), E('small', DropSearch.zone.text[locale])]);
             });
         },
     },
     open: (PI, query = []) => {
         let type = PI.target.tagName == 'X-PART' ? 'tile' : 'row';
         let config = (Storage('drop-search') || DropSearch.default)[type], pos = PI.onto.id.split('-')[1];
-        let {where, what, add} = config[pos];
+        let {site, locale, append} = config[pos];
         if (PI.target.tagName == 'X-PART') {
-            query = [PI.target.Part.keyword(what, true)];
+            query = [PI.target.Part.keyword(locale, true)];
         } else {
             let code = [...PI.target.firstChild.childNodes].map(n => n?.textContent.trim());
-            /^BX.-/.test(code[0]) && code.push(` ${PI.target.Bey.line}-00`);
-            query = PI.target.Bey.parts.to.names(what);
-            query = [...what == 'hasbro' ? [] : code, query[what], query.rest];
+            /^BX.-/.test(code[0]) && PI.target.Bey.line && (code[0] = `${PI.target.Bey.line}-00`);
+            query = PI.target.Bey.parts.to.names(locale);
+            query = [...locale == 'hasbro' ? [] : code, query[locale], query.rest];
+            E(PI.target).get('--coat') && locale == 'jap' && query.push('メタルコート');
         }
-        query = [...query, add || ''].join(' ');
-        where == '複製' ? 
+        query = [...query, append || ''].join(' ');
+        site == '複製' ? 
             navigator.clipboard.writeText(query) :
-            E(PI.onto).set({href: DropSearch.zone.href[where].replace('${}', query.trim())}).click();
+            E(PI.onto).set({href: DropSearch.zone.href[site].replace('${}', query.trim())}).click();
         PI.onto.removeAttribute('href');
     }
 })

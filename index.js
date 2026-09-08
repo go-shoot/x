@@ -207,9 +207,9 @@ Q('header').after(DB(plugins).then(async () => {
 }));
 
 (() => {
-    new O({cache: 30, parts: 60}).each(([cache, days]) =>
-        Date.now() > Storage(`no-update-${cache}`) && 
-        fetch(`sw/?delete=${cache}`).then(() => Storage(`no-update-${cache}`, Date.now() + days*24*60*60*1000))
+    [['cache', 30], ['parts', 60]].forEach(([item, days]) =>
+        Date.now() > Storage('no-update')?.[item] && 
+        fetch(`sw/?delete=${item}`).then(() => Storage('no-update', {[item]: Date.now() + days*24*60*60*1000}))
     );
 
     const reset = () => Promise.all([

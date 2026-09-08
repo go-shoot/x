@@ -9,23 +9,37 @@
         p,form {text-align: left;}
         x-part {margin: 1em 0;}
     }
-    form {
-        margin: 2em auto 0 auto;
-
-        dl {
-            margin: 1em 0;
-            display: grid; grid-template-columns: max-content 1fr 1fr 1fr; gap: .5em;
-        }
+    fieldset {
+        margin-top: 2em;
+        legend {margin-bottom: 1em; padding: 0;}
+    }
+    dl {
+        display: grid; grid-template-columns: max-content 1fr 1fr 1fr; gap: .5em;
         dt {align-self: end;}
         dd {display: contents; &>* {width: 100%;}}
-        select,input {
-            background: none; border: none; outline: none !important;
-            border-bottom: .1em solid var(--theme);
-            color: var(--on); font-size: .9em;
+    }
+    select,input {
+        background: none; border: none; outline: none !important;
+        border-bottom: .1em solid var(--theme);
+        color: var(--on); font-size: .9em;
 
-            &:open {border-color: var(--accent);}
-            option {background: var(--backdrop);}
-        }    
+        &:open {border-color: var(--accent);}
+        option {background: var(--backdrop);}
+    }
+    form:last-of-type {
+        gap: .5em;
+        margin-top: 1em;
+        font-weight: 500;
+
+        label {font-size: .8em;}
+        &,fieldset {display: flex; align-items: center;}
+        fieldset {
+            font-weight: normal; gap: .25em;
+            margin: 0;
+    
+            &:has([name=bottom]) {flex-direction: column;}
+        }
+        .toggle::before {line-height: 1.5;}
     }
 </style>
 
@@ -34,8 +48,18 @@
 <main>
     <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：</p>
     <form>
-        <fieldset id="tile">部件磚<dl></dl></fieldset>
-        <fieldset id="row">陀螺列<dl></dl></fieldset>
+        <fieldset><legend>部件磚</legend><dl id="tile"></dl></fieldset>
+        <fieldset><legend>陀螺列</legend><dl id="row"></dl></fieldset>
+    </form>
+    <form>
+        <fieldset><legend>部件頁首頁</legend><select></select></fieldset>
+    </form>
+    <form id="reboot">
+        功能列
+        <fieldset>上<label class="toggle bilateral vertical"><input type="checkbox" name="bottom"></label>下</fieldset>
+        ｜
+        <fieldset>左<label class="toggle bilateral"><input type="checkbox" name="right"></label>右</fieldset>
+        連結
     </form>
 </main>
 
@@ -43,23 +67,37 @@
 import DB from '../include/DB.js';
 import {Bey, Search} from '../parts/bey.js';
 Q('main').prepend(DB().then(async () => {
+    let forms = document.forms;
     let PARTS = await DB.get.essentials();
     let {beys} = await new Search('CX-13');
-    Q('p').after(await PARTS.blade.WyHv.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
+    forms[1].before(await PARTS.blade.WyHv.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
 
     let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
     Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [
         E('dt', chi[n]), 
         E('dd', [
-            E('select', {name: `${dl.parentElement.id}-${n}-where`}, 
+            E('select', {name: `${dl.id}-${n}-site`}, 
                 Object.keys(DropSearch.zone.href).map(p => E('option', {value: p}, p))),
-            E('select', {name: `${dl.parentElement.id}-${n}-what`}, 
+            E('select', {name: `${dl.id}-${n}-locale`}, 
                 Object.entries(DropSearch.zone.text).map(([v, t]) => E('option', {value: v}, t))),
-            E('input', {name: `${dl.parentElement.id}-${n}-add`, placeholder: '外加關鍵字'})
+            E('input', {name: `${dl.id}-${n}-append`, placeholder: '外加關鍵字'})
         ])
     ])));
-    let form = Q('main form'), config = new O(Storage('drop-search') || DropSearch.default);
-    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => form[n].value = v);
-    form.onchange = ev => Storage('drop-search', {...new O(new FormData(form)).reshape(([k]) => k.split('-'))});
+    let config = new O(Storage('drop-search') || DropSearch.default);
+    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[1][n].value = v);
+    forms[1].onchange = ev => Storage('drop-search', {...new O(new FormData(forms[1])).reshape(([k]) => k.split('-'))});
+
+    fetch('../sitemap.txt').then(resp => resp.text()).then(text => {
+        let pref = Storage('pref')?.parts ?? '?blade';
+        forms[2].Q('select').append(...text.split('\n').filter(url => url.includes('parts')).map(url => {
+            url = new URL(url);
+            url = url.search + url.hash;
+            return E('option', url, {selected: pref == url});
+        }));
+    });
+    forms[2].onchange = ev => Storage('pref', {parts: ev.target.value});
+
+    Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
+    forms[3].onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
 }));
 </script>

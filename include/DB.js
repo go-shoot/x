@@ -108,7 +108,8 @@ Object.assign(DB, {
 
             ev.type == 'upgradeneeded' && DB.setup(ev);
             DB.fresh = ev.oldVersion === 0;
-            let [index, expired] = [location.pathname == '/x/', Date.now() > Storage('no-update-jsons')];
+            let expiry = Storage('no-update')?.jsons, index = location.pathname == '/x/';
+            let expired = expiry === null || Date.now() > expiry;
             return DB.update({skip: {
                 all: !index && location.host == 'go-shoot.github.io' && !expired,
                 check: !index && DB.fresh
@@ -117,13 +118,15 @@ Object.assign(DB, {
     ,
     update: ({skip}) => skip.all || Promise.try(() => skip.check || DB.fetch.updates())
         .then(DB.filter.files).then(DB.fetch.files).then(DB.cache.files)
-        .then(() => Storage('no-update-jsons', Date.now() + 5*60*1000))
+        .then(() => Storage('no-update', {json: Date.now() + 5*60*1000}))
     ,
     setup (ev) {
         DB.os.others.forEach(s => DB.db.objectStoreNames.contains(s) || DB.db.createObjectStore(s));
         DB.os.parts.map(s => DB.db.objectStoreNames.contains(s.toUpperCase()) || 
             DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
         DB.tx.bind(ev.target.transaction);
+        [['cache', 30], ['parts', 60]].forEach(([item, days]) => 
+            Storage('no-update', {[item]: Date.now() + days*24*60*60*1000}));
     },
     fetch: {
         aborter: new AbortController(),

@@ -121,6 +121,10 @@
 
 <link rel="stylesheet" href="parts/part.css">
 <script type="module" src="index.js"></script>
+<script type="module">
+let pref = Storage('pref')?.parts;
+pref && (Q('#search a[href^="/x/parts"]').href = '/x/parts/' + pref);
+</script>
 <script>
 document.querySelector('body>input').onkeypress = ev => {
     if ((ev.keyCode || ev.which) != 13) return;
