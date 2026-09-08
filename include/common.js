@@ -71,13 +71,13 @@ Object.assign(DropSearch, {
             tl: {where: 'Amazon US', what: 'hasbro'},
             tr: {where: 'Mercari JP', what: 'jap'},
             bl: {where: 'Google', what: 'tw'},
-            br: {where: 'Reddit', what: 'hk'}
+            br: {where: 'Reddit', what: 'eng'}
         },
         row: {
             tl: {where: 'Amazon US', what: 'hasbro'},
             tr: {where: 'Mercari JP', what: 'jap'},
             bl: {where: 'Google', what: 'tw'},
-            br: {where: 'Reddit', what: 'hk'}
+            br: {where: 'Reddit', what: 'eng'}
         }
     },
     zone: {

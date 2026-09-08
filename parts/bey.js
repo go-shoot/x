@@ -276,7 +276,7 @@ class Preview {
     static dialog = Q('#preview') || Q('body').appendChild(E('dialog#preview', {
         popover: 'auto',
         onclick (ev) {
-            if (Preview.dialog.Q('.PI-animate')) return;
+            if (Preview.dialog.Q('.PI-animate,.PI-receiving')) return;
             Transition.popover('hide', ev, ev.currentTarget);
             Preview.clear();
         }

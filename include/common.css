@@ -461,7 +461,7 @@ a[id|=drop] {
     transition: transform .5s, background .5s;
     width: min(40svw,40svh); aspect-ratio: 1;
     padding: min(8svw,8svh); white-space: nowrap;
-    font-size: 1.2em;
+    font-size: 1.2em; color: var(--theme) !important;
     display: flex; flex-direction: column;
 
     &.PI-receiving {background: var(--theme);}

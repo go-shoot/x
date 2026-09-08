@@ -165,35 +165,37 @@ const Transition = {
         resume: () => Q('html').classList.remove('pause-page', 'prepare-popover')
     },
     allow: {for: action => {
-        Transition.page.pause();
-        document.startViewTransition(action).finished.then(Transition.page.resume);
+        this.page.pause();
+        document.startViewTransition(action).finished.then(this.page.resume);
     }},
-    popover: (action, ev, popover) => {
+    popover (action, ev, popover) {
         let [x, y] = [ev.clientX, ev.clientY];
         if (x == null) {
             let {left, width, top, height} = ev.target.getBoundingClientRect();
             [x, y] = [left + width/2, top + height/2];
         };
         let r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        Transition.page.pause(true);
+        this.page.pause(true);
         let tr = document.startViewTransition();
         tr.ready.then(() => {
             let frames = [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`];
-            if (action == 'show') {
-                popover.showPopover();
-                popover.append(...Q('a[id|=drop]') ?? []);
-            } else {
-                popover.hidePopover();
-                document.body.append(...Q('a[id|=drop]') ?? []);
-                frames = frames.toReversed();
-            }
-            Transition.root.animate({clipPath: frames}, {
+            this.popover.callback(action, popover);
+            this.root.animate({clipPath: action == 'show' ? frames : frames.toReversed()}, {
                 duration: 300,
                 easing: 'ease-in-out',
                 pseudoElement: `::view-transition-${action == 'show' ? 'new' : 'old'}(root)`,
             });
-        });
-        tr.finished.then(Transition.page.resume);
+        }).catch(() => this.popover.callback(action, popover));
+        tr.finished.then(this.page.resume);
+    },
+}
+Transition.popover.callback = (action, popover) => {
+    if (action == 'show') {
+        popover.showPopover();
+        popover.append(...Q('a[id|=drop]') ?? []);
+    } else {
+        popover.hidePopover();
+        document.body.append(...Q('a[id|=drop]') ?? []);
     }
 }
 
