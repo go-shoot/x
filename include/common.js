@@ -68,13 +68,13 @@ const DropSearch = () => Q('body').append(...['tl','tr','bl','br'].map(p => E(`a
 Object.assign(DropSearch, {
     default: {
         tile: {
-            tl: {where: 'Amazon US', what: 'hasbro'},
+            tl: {where: 'Amazon US', what: 'hasbro', add: 'beyblade x'},
             tr: {where: 'Mercari JP', what: 'jap'},
             bl: {where: 'Google', what: 'tw'},
             br: {where: 'Reddit', what: 'eng'}
         },
         row: {
-            tl: {where: 'Amazon US', what: 'hasbro'},
+            tl: {where: 'Amazon US', what: 'hasbro', add: 'beyblade x'},
             tr: {where: 'Mercari JP', what: 'jap'},
             bl: {where: 'Google', what: 'tw'},
             br: {where: 'Reddit', what: 'eng'}
@@ -115,6 +115,7 @@ Object.assign(DropSearch, {
         where == '複製' ? 
             navigator.clipboard.writeText(query) :
             E(PI.onto).set({href: DropSearch.zone.href[where].replace('${}', query.trim())}).click();
+        PI.onto.removeAttribute('href');
     }
 })
 addEventListener('DOMContentLoaded', () => {
