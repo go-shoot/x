@@ -247,7 +247,7 @@ const App = () => Promise.all([DB.get.essentials({flat: true}), App.worker.sessi
         Asset.raw = Parts = Object.groupBy(Parts, P => P.path[2] ? P.path[1] : P.constructor.name.toLowerCase());        
         App.events();
         Q(`input[value=${Storage('pref')?.lang || 'hk'}]`).click();
-        Q('.loading', el => el.classList.remove('loading'));
+        Q('.loading', node => node.classList.remove('loading'));
     });
 Object.assign(App, {
     worker: Comlink.wrap(new Worker('./worker.js', {type: 'module'})),

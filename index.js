@@ -197,7 +197,7 @@ Q('header').after(DB(plugins).then(async () => {
     location.search && new Search(location.search.substring(1));
 
     let seeing = new IntersectionObserver(ens => ens.forEach(en => en.target.classList.toggle('seeing', en.isIntersecting)));
-    Q('header,section,time,.scroller', el => seeing.observe(el));
+    Q('header,section,time,.scroller', node => seeing.observe(node));
     let ul = Q('search ul'), scrolling = new IntersectionObserver(ens => {
         let major = ens.reduce((prev, en) => en.intersectionRatio > prev.intersectionRatio ? en : prev);
         ul.classList = new URL(major.target.src).hash.substring(1);

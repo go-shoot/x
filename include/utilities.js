@@ -104,13 +104,13 @@ const FilterForm = {
         negative: form => form.Q('input:not(:checked)', []).map(input => [input.name, input.value])
     },
     filter (query, action, ev) {
-        [...this.targets].forEach(el => 
-            el.hidden = query.some(classes => el.matches(classes) ^ (this.type == 'positive'))
+        [...this.targets].forEach(node => 
+            node.hidden = query.some(classes => node.matches(classes) ^ (this.type == 'positive'))
         );
         this.form.count && this.count();
         action?.[ev?.target.name]?.(ev);
     },
-    count () {this.form.count.value = [...this.targets].filter(el => !el.matches('[hidden],.hidden')).length;},
+    count () {this.form.count.value = [...this.targets].filter(node => !node.matches('[hidden],.hidden')).length;},
     event (targets, {type, legend, single, action} = {}, form = document.forms[0]) {
         this.targets = targets;
         this.form = Object.assign(form, {
@@ -144,7 +144,7 @@ const FilterForm = {
                 ...legend == '排序' ? this.radios(inputs) : this.checkboxes(inputs, name, negate)
             ], rest)
         }
-        legend = el => E('legend', location.pathname.includes('parts') ? {title: el} : el)
+        legend = node => E('legend', location.pathname.includes('parts') ? {title: node} : node)
         radios = inputs => E.radios(inputs.flatMap(([id, label]) => ({label, name: 'sort', id})))//E.label
         checkboxes = (inputs, name, negate) => [
             negate ? E('input', {type: 'hidden', name, value: '¬'}) : '',
@@ -200,7 +200,7 @@ Transition.popover.callback = (action, popover) => {
 }
 
 const Glossary = async (where = document) => {
-    let p = [where.Q('p'), where.Q('x-part', []).map(tile => tile.sQ('p'))].flat(9).filter(el => el);
+    let p = [where.Q('p'), where.Q('x-part', []).map(tile => tile.sQ('p'))].flat(9).filter(node => node);
     if (!p.length) return;
     if (!Q('#glossary')) {
         addEventListener('click', ev => {

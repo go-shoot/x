@@ -160,16 +160,18 @@ class Tile extends HTMLElement {
         );
     }
     #onclick (ev) {
-        let el = ev.composedPath().find(el => ['A', 'H5'].includes(el.tagName));
+        let node = ev.composedPath().find(n => ['A', 'H5'].includes(n.tagName));
         ({
-            H5: () => navigator.clipboard.writeText(el.innerText).then(() => {
-                let html = el.innerHTML;
-                el.innerText = '';
-                setTimeout(() => el.innerHTML = html, 1000);
-            }),
+            H5: async ev => {
+                ev.stopPropagation();
+                await navigator.clipboard.writeText(node.innerText);
+                let html = node.innerHTML;
+                node.innerText = '';
+                setTimeout(() => node.innerHTML = html, 1000);
+            },
             '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
             '/x/products/': () => Table.search(this.Part.path)
-        })[el?.tagName ?? location.pathname]?.(ev);
+        })[node?.tagName ?? location.pathname]?.(ev);
     }
     static icons = new O([
         [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],

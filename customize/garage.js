@@ -245,7 +245,7 @@ Garage.element = {
                 .filter(ch => ch.matches('i:not(:empty),img[src*=types]'))
                 .concat(E('b', P.only.name() ? {lang: ''} : P.path.at(-1))),
             'select[name=acquired]': [E('option', `${codes.length}`), ...codes.map(c => E('option', {value: c}, Markup.cell(c)))]
-        }).forEach(([el, content]) => E(li.Q(el)).set(content));
+        }).forEach(([node, content]) => E(li.Q(node)).set(content));
         return li;
     },
     summary: comp => [

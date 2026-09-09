@@ -57,6 +57,7 @@
     a:not(:empty) {grid-area: 2/2;}
 }
 :host :not(p) {user-select: none; -webkit-user-select: none;}
+:host :not(figure img) {-webkit-user-drag: none;}
 :host object {
     width: 100%;
     background: oklch(.25 .03 var(--hue) / .9);

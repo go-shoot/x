@@ -1,7 +1,7 @@
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'>
     <script>// <![CDATA[
     const q = Object.fromEntries([...new URLSearchParams(location.search || location.hash.substring(1))].map(([p, v]) => [p, v || true]));
-    const Q = el => document.querySelector(el);
+    const Q = node => document.querySelector(node);
     const add = (html, where) => where.insertAdjacentHTML('beforeend', html);
     const root = document.querySelector(':root');
     root.style.setProperty('--hue', q.hue ?? 110);

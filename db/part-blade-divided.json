@@ -155,7 +155,7 @@
     },
     "metal": {
         "Tr": {
-            "names": {"jap":"トレッド", "eng":"Tread"},
+            "names": {"jap":"トレッド", "eng":"Tread", "chi":"戰紋"},
             "stat": ["28="],
             "desc": "連續且擁有細溝槽的七枚刃以連打抵受任何攻擊。",
             "attr": ["def","right"]
@@ -294,7 +294,7 @@
     },
     "chip":{
         "Cc": {
-            "names": {"jap": "クロコ","eng": "Croco","hasbro":"Croc"},
+            "names": {"jap":"クロコ", "eng":"Croco", "hasbro":"Croc", "chi":"鱷魚"},
             "stat": ["2-"],
             "attr": ["right"]
         },
@@ -356,7 +356,7 @@
             "attr": ["right","mfb"]
         },
         "Vl": {
-            "names": {"jap":"ワルキューレ", "eng":"Valkyrie", "chi":"戰神"},
+            "names": {"jap":"ワルキューレ", "eng":"Valkyrie", "hasbro":"Valkerion", "chi":"戰神"},
             "stat": ["6-"],
             "desc": "金屬零件增加重量。",
             "attr": ["right","bbb"]
