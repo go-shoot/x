@@ -105,12 +105,14 @@ Object.assign(DropSearch, {
         let {site, locale, append} = config[pos];
         if (PI.target.tagName == 'X-PART') {
             query = [PI.target.Part.keyword(locale, true)];
+            gtag('event', 'DROP-TILE', {SITE: site});
         } else {
             let code = [...PI.target.firstChild.childNodes].map(n => n?.textContent.trim());
             /^BX.-/.test(code[0]) && PI.target.Bey.line && (code[0] = `${PI.target.Bey.line}-00`);
             query = PI.target.Bey.parts.to.names(locale);
             query = [...locale == 'hasbro' ? [] : code, query[locale], query.rest];
             E(PI.target).get('--coat') && locale == 'jap' && query.push('メタルコート');
+            gtag('event', 'DROP-ROW', {SITE: site});
         }
         query = [...query, append || ''].join(' ');
         site == '複製' ? 
