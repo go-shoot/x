@@ -181,7 +181,7 @@ class Tile extends HTMLElement {
         PI.events({'x-part,tbody tr': {
             hold: hold => hold.for(.75).to({
                 press: PI => {
-                    navigator.vibrate(200);
+                    navigator.vibrate?.(200);
                     DropSearch.zone.set(PI.target instanceof Tile ? 'tile' : 'row')
                 },
                 drag: () => window.getSelection().removeAllRanges(),
