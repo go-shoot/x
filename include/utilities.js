@@ -165,8 +165,8 @@ const Transition = {
         resume: () => Q('html').classList.remove('pause-page', 'prepare-popover')
     },
     allow: {for: action => {
-        this.page.pause();
-        document.startViewTransition(action).finished.then(this.page.resume);
+        Transition.page.pause();
+        document.startViewTransition(action).finished.then(Transition.page.resume);
     }},
     popover (action, ev, popover) {
         let [x, y] = [ev.clientX, ev.clientY];

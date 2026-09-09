@@ -187,6 +187,7 @@ a[href],a[onclick],nav,form summary,caption label,:is(caption,details:has(#filte
 }
 output {
     color: var(--accent);
+    white-space: nowrap;
 }
 button.text::before {content: ' ';}
 button.text::after {content: ' ';}
