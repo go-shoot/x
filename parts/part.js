@@ -180,13 +180,10 @@ class Tile extends HTMLElement {
     static {
         PI.events({'x-part,tbody tr': {
             hold: hold => hold.for(.75).to({
-                press: PI => {
-                    navigator.vibrate?.(200);
-                    DropSearch.zone.set(PI.target instanceof Tile ? 'tile' : 'row')
-                },
+                press: PI => (navigator.vibrate?.(200), DropSearch.zone.set(PI.target instanceof Tile ? 'tile' : 'row')),
                 drag: () => window.getSelection().removeAllRanges(),
-                drop: {onto: Q('a[id|=drop]'), autoscroll: false},
-                lift: PI => Q('a[id|=drop].PI-receiving') && DropSearch.open(PI)
+                drop: {onto: 'a[id|=drop]', autoscroll: false},
+                lift: PI => PI.onto && DropSearch.open(PI)
             })
         }});
     }
