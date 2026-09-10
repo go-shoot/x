@@ -15,8 +15,7 @@ Object.assign(Table, {
         Links.events();
         PARTS = await DB.get.essentials();
     },
-    display: () => DB.get('product', 'beys')
-        .then(beys => Table.body.append(...beys.map(bey => new Bey(bey).Row))),
+    display: () => DB.get('product', 'beys').then(beys => Table.body.append(...beys.map(bey => new Bey(bey).Row))),
     after () {
         Q('.loading').classList.remove('loading');
         Filter.form.onchange();
