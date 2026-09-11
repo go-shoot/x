@@ -477,4 +477,7 @@ a[id|=drop] {
         &#drop-br {transform: translate(-100%,-100%);}
     }
 }
+html:has(.PI-dragged) * {   
+    user-select: none; -webkit-user-select: none; -webkit-user-drag: none;
+}
 :is(x-part,tbody tr):is(.PI-held,.PI-animate) {z-index: 9 !important;}
