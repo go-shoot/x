@@ -1,4 +1,15 @@
 {
+    "LsDg": {
+        "group": "BX",
+        "names": {
+            "jap": "ラスタードラグーン",
+            "eng": "Luster\\Dragoon",
+            "chi": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["att","left","expand","bsb","mfb","bbb"]
+    },
     "SgSp": {
         "group": "BX",
         "names": {
@@ -526,6 +537,17 @@
         "desc": "兩枚大型圓形刃為産生強離心力的外重心設計。",
         "attr": ["sta","right"]
     },
+    "WzAr2": {
+        "group": "BX",
+        "names": {
+            "jap": "ウィザードアロー_バージョン2.0",
+            "eng": "WizardArrow_Version 2.0",
+            "chi": "巫師弩箭_V2 魔導幻箭_V2"
+        },
+        "stat": ["36="],
+        "desc": "",
+        "attr": ["sta","right"]
+    },
     "KnSh": {
         "group": "BX",
         "names": {
@@ -536,6 +558,18 @@
         },
         "stat": ["32+"],
         "desc": "採用容易以六枚防禦刃吸收衝擊的阻尼器構造。",
+        "attr": ["def","right"]
+    },
+    "KnSh2": {
+        "group": "BX",
+        "names": {
+            "jap": "ナイトシールド_バージョン2.0",
+            "eng": "KnightShield_Version 2.0",
+            "hasbro": "Helm Knight_Version 2.0",
+            "chi": "騎士護盾_V2 騎士重盾_V2"
+        },
+        "stat": [""],
+        "desc": "",
         "attr": ["def","right"]
     },
     "KnLn": {

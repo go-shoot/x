@@ -28,7 +28,7 @@ const Prize = () => Prize.before().then(Prize.display).then(Prize.after);
 Object.assign(Prize, {
     async before () {
         let [beys, keihins] = await Promise.all([DB.get('product', 'beys'), DB.get('product', 'keihins'), DB.get.essentials()]);
-        return beys.filter(([, classes]) => classes.includes('Lm'))
+        return beys.filter(([code, classes]) => classes.includes('Lm') && keihins[code])
             .map(([code, _, bey]) => ({code, bey, ...keihins[code]}))
     },
     display (keihins) {

@@ -100,10 +100,9 @@ Object.assign(DropSearch, {
         },
     },
     open: (PI, query = []) => {
-        let type = PI.target.tagName == 'X-PART' ? 'tile' : 'row';
-        let config = (Storage('drop-search') || DropSearch.default)[type], pos = PI.onto.id.split('-')[1];
-        let {site, locale, append} = config[pos];
-        if (PI.target.tagName == 'X-PART') {
+        let type = PI.target.tagName == 'X-PART' ? 'tile' : 'row', corner = PI.onto.id.split('-')[1];
+        let {site, locale, append} = (Storage('drop-search') || DropSearch.default)[type][corner];
+        if (type == 'tile') {
             query = [PI.target.Part.keyword(locale, true)];
             gtag('event', 'DROP-TILE', {SITE: site});
         } else {

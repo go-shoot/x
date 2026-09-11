@@ -293,6 +293,11 @@
         }
     },
     "chip":{
+        "Kd": {
+            "names": {"jap":"キッド", "eng":"Kid"},
+            "stat": ["2-"],
+            "attr": ["right"]
+        },
         "Cc": {
             "names": {"jap":"クロコ", "eng":"Croco", "hasbro":"Croc", "chi":"鱷魚"},
             "stat": ["2-"],
