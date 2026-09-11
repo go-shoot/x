@@ -192,9 +192,6 @@ output {
 button.text::before {content: ' ';}
 button.text::after {content: ' ';}
 
-.animating menu {
-    transition: transform .5s;
-}
 @keyframes pull-down {
     25% {transform: translateY(2em);}
     50%,to {transform: none;}
@@ -273,6 +270,7 @@ nav {
             content: '\e00d';
             margin-bottom: -.925em; line-height: .75;
         }
+        body:has(a[id|=drop].PI-droppable) & {animation: none !important;}
     }
     .LED {
         grid-area: 1/2/3/3; place-self: center start;
