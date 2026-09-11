@@ -24,16 +24,19 @@
 }],"2026-10-10":[{
     "code":"BX-52 starter","imgs":["https://i.imgur.com/S6Gl6uj.jpeg"]
 },{
-    "code":"BX-53 entry set","imgs":["https://i.imgur.com/wB0FNb0.jpeg"]
+    "code":"BX-53 entry set","imgs":["https://i.imgur.com/wB0FNb0.jpeg"],
+    "desc":["三陀螺、兩發射器、一標準對戰盤"]
 },{
     "code":"BX-56 string launcher L"
 }],"2026-10-23":[{
     "code":"BXG-??",
-    "imgs":["https://i.imgur.com/tkcGW0P.jpeg"]
+    "imgs":["https://i.imgur.com/tkcGW0P.jpeg"],
+    "desc":["みんなのくじA賞/Last Get賞"]
 }],
 "2026-11-13":[{
     "code":"BXC-??",
-    "imgs":["https://i.imgur.com/8gzXfyD.jpeg"]
+    "imgs":["https://i.imgur.com/8gzXfyD.jpeg"],
+    "desc":["コロコロ雜誌應募品"]
 }],
 "2026-11":[{
     "code":"BX-54 booster",
