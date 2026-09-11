@@ -102,7 +102,7 @@ Object.assign(DropSearch, {
     open: (PI, query = []) => {
         let type = PI.target.tagName == 'X-PART' ? 'tile' : 'row';
         let config = (Storage('drop-search') || DropSearch.default)[type], pos = PI.onto.id.split('-')[1];
-        let {site, locale, append} = config[pos];try {
+        let {site, locale, append} = config[pos];
         if (PI.target.tagName == 'X-PART') {
             query = [PI.target.Part.keyword(locale, true)];
             gtag('event', 'DROP-TILE', {SITE: site});
@@ -118,7 +118,6 @@ Object.assign(DropSearch, {
         site == '複製' ? 
             navigator.clipboard.writeText(query) :
             E(PI.onto).set({href: DropSearch.zone.href[site].replace('${}', query.trim())}).click();
-        PI.onto.removeAttribute('href');}catch(er) {Q('main').prepend(er)}
     }
 })
 addEventListener('DOMContentLoaded', () => {
