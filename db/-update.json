@@ -1,12 +1,12 @@
 {
   "part-bit":          "2026/09/11 23:00:00",
-  "part-blade-divided":"2026/09/11 23:00:00",
   "prod-beys":         "2026/09/11 23:00:00",
-  "part-blade":        "2026/09/11 23:00:00",
-  "prod-keihin":       "2026/09/11 23:00:00",
+  "meta":              "2026/09/12 18:15:00",
+  "part-blade-divided":"2026/09/12 21:08:00",
+  "part-blade":        "2026/09/12 21:08:00",
+  "prod-keihin":       "2026/09/12 21:08:00",
   "part-blade-collab": "2026/09/03 22:39:00",
   "part-ratchet":      "2026/08/12 13:35:00",
-  "meta":              "2026/07/23 18:15:00",
   "prod-gear":         "2026/07/16 13:14:00",
   "news": {
     "2026-09-12":[{
@@ -22,16 +22,19 @@
     "desc": ["三層CX刃各有7枚刃，分散各方向攻擊，tough地防守"],
     "imgs": []
 }],"2026-10-10":[{
-    "code":"BX-52 starter","imgs":["https://i.imgur.com/S6Gl6uj.jpeg"]
+    "code":"BX-52 starter","name":["ラスタードラグーン6-60LC","Luster Dragoon 6-60LC"],
+    "desc":["大型兩枚Upper刃加上中央三頭重量級龍"],"type":"att",
+    "imgs":["https://i.imgur.com/S6Gl6uj.jpeg"]
 },{
-    "code":"BX-53 entry set","imgs":["https://i.imgur.com/wB0FNb0.jpeg"],
-    "desc":["三陀螺、兩發射器、一標準對戰盤"]
+    "code":"BX-53 entry set","name":["オールインワンセット","All-in-one Set"],
+    "imgs":["https://i.imgur.com/wB0FNb0.jpeg"],
+    "desc":["三陀螺、兩發射器、一標準對戰盤","兩個新V2陀螺，重量提升","UX天馬首次於常規商品再錄"]
 },{
     "code":"BX-56 string launcher L"
 }],"2026-10-23":[{
     "code":"BXG-??",
-    "imgs":["https://i.imgur.com/tkcGW0P.jpeg"],
-    "desc":["みんなのくじA賞/Last Get賞"]
+    "imgs":["https://i.imgur.com/tkcGW0P.jpeg","https://animes-pro.com/cdn/shop/files/BBX-KUJI02-CTN_2.jpg"],
+    "desc":["DMMくじA賞/Last Get賞"]
 }],
 "2026-11-13":[{
     "code":"BXC-??",

@@ -20,8 +20,7 @@ Object.assign(Table, {
         Q('.loading').classList.remove('loading');
         Filter.form.onchange();
         location.search ? Table.search(decodeURI(location.search.substring(1)).split(/\.|=/)) : FilterForm.count();
-        Garage.get('acquired').then(beys => User.acquired = beys);
-        Garage.get('marked').then(beys => User.marked = beys);
+        ['acquired','marked'].forEach(w => Garage.get(w).then(beys => User[w] = beys));
     },
     
     form: document.forms[0],

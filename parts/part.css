@@ -20,18 +20,18 @@
     scroll-margin-top: 5rem;
 }
 @keyframes highlight {from {filter:brightness(300%);} }
-:host(.bsb)::after {
-    --reincar2: url(../img/reincarnated.svg#bsb) no-repeat center / 70%;
-}
 :host(.mfb)::after {
     --reincar1: url(../img/reincarnated.svg#mfb) no-repeat 50% 74.8% / 60%;
 }
+:host(.bsb)::after {
+    --reincar2: url(../img/reincarnated.svg#bsb) no-repeat center / 70%;
+}
 :host(.bbb)::after {
-    content: url(../img/reincarnated.svg#bbb); 
+    --reincar3: url(../img/reincarnated.svg#bbb) no-repeat 50% 73% / 125%;
 }
 :host::after {
     content: '';
-    background: var(--reincar1,linear-gradient(transparent)), var(--reincar2,linear-gradient(transparent));
+    background: var(--reincar1,linear-gradient(transparent)), var(--reincar2,linear-gradient(transparent)), var(--reincar3,linear-gradient(transparent));
     transform: rotate(225deg) translate(0,5.43em);
 }
 :host img {
@@ -56,7 +56,7 @@
     a {grid-area: 1/1;}
     a:not(:empty) {grid-area: 2/2;}
 }
-:host :not(p) {user-select: none; -webkit-user-select: none;}
+:host * {user-select: none; -webkit-user-select: none;}
 :host :not(figure img) {-webkit-user-drag: none;}
 :host object {
     width: 100%;
@@ -117,17 +117,28 @@
     &:nth-child(2 of .chi) {anchor-name: --chi2; sub {position-anchor: --chi2;}}
     sub {
         vertical-align: unset;
-        font-size: .7em;
-        margin-inline-start: .3em;
+        font-size: calc(.7em*var(--scale,1)); font-weight: normal;
+        margin-inline-start: calc(.3em/var(--scale,1));
 
         .chi & {
             position: fixed; position-area: center right;
-            margin: 0 0 -.2em .2em;
-            max-width: 2em; 
-            font-size: .6em;
+            margin: 0 0 calc(-.2em/var(--scale,1)) calc(.2em/var(--scale,1));
+            max-width: 2em;
+            font-size: calc(.6em*var(--scale,1));
             letter-spacing: 0; line-height: 1;
         }
+        .hasbro & {display: none;}
     }
+}
+:host([id$='2']) h5 sub {
+    color: transparent; 
+    max-width: initial; 
+    --scale: .01;
+
+    &::after {color: var(--on); font-size: calc(1em/var(--scale,1));}
+    .jap &::after {content: 'バージョン2.0';}
+    .eng &::after {content: 'Version 2.0';}
+    .chi &::after {content: '版本2.0';}
 }
 :host ul {
     display: flex; gap: .2em;

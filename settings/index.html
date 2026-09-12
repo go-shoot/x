@@ -70,7 +70,7 @@ Q('main').prepend(DB().then(async () => {
     let forms = document.forms;
     let PARTS = await DB.get.essentials();
     let {beys} = await new Search('CX-13');
-    forms[1].before(await PARTS.blade.WyHv.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
+    forms[1].before(await PARTS.blade.LsDg.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
 
     let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
     Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [

@@ -31,8 +31,17 @@ class Part {
             !fields.includes(key) && typeof this[key] != 'function' && delete this[key];
         return this;
     }
-    revise (type = 'cell', base, pref) {
-        (Array.isArray(type) ? type : this.constructor.revisions[type])?.forEach(prop => this[prop] = this.revised[prop](base, pref));
+    async revise (type = 'cell', comp = this.constructor.name.toLowerCase(), base, pref) {
+        let isComplete = (P, props) => props.every(p => P[p] != null);
+        let props = Array.isArray(type) ? type : this.constructor.revisions[type];
+        if (!this.abbr || !props || isComplete(this, props)) return this;
+        if (comp != 'ratchet') {
+            [, pref, base] = this.splitAbbr();
+            let P = PARTS[comp][base];
+            base = isComplete(P, props) ? P : P.push(await DB.get(comp, base));
+        } else
+            base = {stat: [, ...this.abbr.split('-')]};
+        props.forEach(prop => this[prop] = this.revised[prop](base, pref));
         return this;
     }
     href = () => `/x/parts/` + Part.href(this.path, '?=#.')
@@ -75,16 +84,18 @@ class Blade extends Part {
         let {line, group, abbr, path} = this;
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
+    splitAbbr = () => new RegExp(`^()(.{2,})2$`).exec(this.abbr)
     revised = {
-        attr: () => ['over', 'metal'].includes(this.group) || 
+        group: base => base.group,
+        names: base => ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}),
+        attr: base => base ? base.attr : ['over', 'metal'].includes(this.group) || 
             this.group == 'UX' && this.attr.has('fused') || this.attr.has('UX') && this.attr.has('fused') ?
             this.attr.add('expand') : this.attr
     }
-    static revisions = {tile: ['attr']};
+    static revisions = {cell: ['group', 'names'], tile: ['group', 'names', 'attr']};
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
-    revise = type => super.revise(type, type == 'tile' && {stat: [, ...this.abbr.split('-')]});
     revised = {
         group: () => new O(Tile.ratchet.height).find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
@@ -103,15 +114,7 @@ class Ratchet extends Part {
 }
 class Bit extends Part {
     constructor(json) {super(json);}
-    async revise (type) {
-        let props = Array.isArray(type) ? type : Bit.revisions[type];
-        if (!this.abbr || !this.isPartial(props)) return this;
-        let [, pref, base] = this.decompose();
-        PARTS.bit[base].isPartial(props) && PARTS.bit[base].push(await DB.get('bit', base));
-        return super.revise(props, PARTS.bit[base], pref);
-    }
-    decompose = () => new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr)
-    isPartial = props => props.some(p => this[p] == null)
+    splitAbbr = () => new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr)
     revised = {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
@@ -164,7 +167,7 @@ class Tile extends HTMLElement {
         ({
             H5: async ev => {
                 ev.stopPropagation();
-                await navigator.clipboard.writeText(node.innerText);
+                await navigator.clipboard.writeText(node.textContent.replaceAll(/(?<! )(?=[A-Z])/g, ' '));
                 let html = node.innerHTML;
                 node.innerText = '';
                 setTimeout(() => node.innerHTML = html, 1000);

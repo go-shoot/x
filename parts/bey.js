@@ -123,20 +123,22 @@ class Row {
 class Search {
     #byAbbr;
     constructor(query) {
-        this.regexp = [];
-        if (typeof query == 'string') {
-            this.#byAbbr = /^[^一-龥]{1,2}$/.test(query);
-            query = query.replace(/[’'ʼ´ˊ]/g, '′');
-            /^\/.+\/\w?$/.test(query) ?
-                this.regexp.push(new RegExp(.../^\/(.+)\/(\w?)$/.exec(query).slice(1))) :
-            !/^.X/i.test(query) ?
-                this.lookup(RegExp.escape(query)) : '';
-        } else {
-            this.query = query.toReversed().slice(1).reduce((obj, key) => new O({[key]: obj}), query.at(-1));
-            this.href = Part.href(query, query.length == 4 ? '?..=' : '?=');
-        }
-        this.build();
-        return Search.beys().then(beys => ({
+        return Promise.all(DB.transform(PARTS).to.array().map(P => P.revise('cell'))).then(() => {
+            this.regexp = [];
+            if (typeof query == 'string') {
+                this.#byAbbr = query.toUpperCase() != 'V2' && /^[^一-龥]{1,2}$/.test(query);
+                query = query.replace(/[’'ʼ´ˊ]/g, '′');
+                /^\/.+\/\w?$/.test(query) ?
+                    this.regexp.push(new RegExp(.../^\/(.+)\/(\w?)$/.exec(query).slice(1))) :
+                !/^.X/i.test(query) ?
+                    this.lookup(RegExp.escape(query)) : '';
+            } else {
+                this.query = query.toReversed().slice(1).reduce((obj, key) => new O({[key]: obj}), query.at(-1));
+                this.href = Part.href(query, query.length == 4 ? '?..=' : '?=');
+            }
+            this.build();
+            return Search.beys;
+        }).then(beys => ({
             beys: beys.filter(bey =>
                 this.regexp.some(r => r.test(bey.title ?? bey[2])) ||
                 typeof query == 'string' && query.length >= 2 && 
@@ -185,7 +187,7 @@ class Search {
         if (q.bit?.length || q.bit?.size)
             this.regexp.push(new RegExp(` ${Search.#or(q.bit instanceof A ? [...q.bit] : q.bit)}$`, 'u'));
     }
-    static beys = async () => Q('tbody tr') ?? await DB.get('product', 'beys');
+    static get beys () {return Promise.try(() => Q('tbody tr') ?? DB.get('product', 'beys'));}
     static #or = abbrs => abbrs?.length ? `(?:${[abbrs].flat().filter(a => typeof a == 'string').join('|')})` : '[^.]+?'
 }
 class Preview {
@@ -202,16 +204,16 @@ class Preview {
         return [kind].flat().reduce((pr, w) => pr.then(() => this[w]({code, bey, path})), Promise.resolve())
         .then(() => Glossary(Preview.dialog));
     }
-    cell = ({path, code}) => new Search(code?.split('_')[0] || path).then(({beys, href}) => Q('#cells').append(
+    cell = ({path, code}) => new Search(code?.split('_')[0] || path)
+    .then(({beys, href}) => Q('#cells').append(
         E('table', {onclick: Preview.for.table}, [
             E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
             Preview.thead.cloneNode(true), 
             E('tbody', beys.map(bey => new Bey(bey).Row))
         ])
     ))
-
     diamond = ({code, bey}) => DB.get('product', 'keihins')
-        .then(beys => Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
+        .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
 
     tile = ({path}) => PARTS.at(path).tile?.().then(tile => Q('#tiles').append(tile))
     

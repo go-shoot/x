@@ -40,7 +40,7 @@
         },
         "tile": {
             "blade": {
-                "terms": ["重量","厚度"]
+                "terms": ["重量","高度"]
             },
             "ratchet": {
                 "height": {"high": 80, "mid": 65, "low": 50},
