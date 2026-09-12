@@ -109,7 +109,7 @@ Object.assign(DB, {
             ev.type == 'upgradeneeded' && DB.setup(ev);
             DB.fresh = ev.oldVersion === 0;
             let expiry = Storage('no-update')?.jsons, index = location.pathname == '/x/';
-            let expired = expiry === null || Date.now() > expiry;
+            let expired = expiry == null || Date.now() > expiry;
             return DB.update({skip: {
                 all: !index && location.host == 'go-shoot.github.io' && !expired,
                 check: !index && DB.fresh
