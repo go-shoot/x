@@ -232,7 +232,7 @@ Q('header').after(DB(plugins).then(async () => {
         '.scroller,#search ol': {scroll: {x: true}},
         '#reboot i': {
             drop: {onto: 'span'},
-            drag: PI => PI.drag.to.translate({x: {min: distance*-1, max: distance}, y: false}),
+            drag: {x: {min: distance*-1, max: distance}, y: false},
             lift: PI => PI.onto?.id == 'image' ? fetch('sw/?delete=parts') : PI.onto?.id == 'all' ? reset() : '',
         }
     }))

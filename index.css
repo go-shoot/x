@@ -152,43 +152,33 @@ section {
 }
 
 #reboot {
+    flex-wrap: wrap;
     user-select: none; -webkit-user-select: none;
     padding: 0 .5em; 
-    text-align: right; font-size: .8em;
+    font-size: .8em;
 
+    &,div,i,span {display: flex; justify-content: space-between; align-items: center;}
     div {
-        display: flex; justify-content: space-between; align-items: center;
-        margin: .2em 0 .2em auto;
         border-radius: 9em;
         width: 16em;
         background: var(--theme-trans); backdrop-filter: blur(.2rem) brightness(.4);
-        text-align: center;
     }
     i,span {
+        justify-content: center;
         width: 2.5rem; height: 2.5rem;
-        display: inline-flex; justify-content: center; align-items: center;
         border-radius: 9em;
-        touch-action: none;
         background: var(--overlay);
     }
     i {
-        font-size: 1.5em;
-        color: var(--accent);
+        font-size: 1.5em; color: var(--accent);
     
-        &.PI-reached {
-            background: var(--theme);
-        }
+        &.PI-reached {background: var(--theme);}
     }
     span {
         padding: .1em;
         line-height: 1.1em;
     }
-    p {
-        margin: 0 0 1em auto;
-        text-align: center;
-        width: 16em;
-    }
-    a {margin-left: auto;}
+    p {width: 100%;}
     a img {width: 7em;}
 }
 
