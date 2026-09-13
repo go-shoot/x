@@ -94,7 +94,10 @@ Q('main').prepend(DB().then(async () => {
             return E('option', url, {selected: pref == url});
         }));
     });
-    forms[2].onchange = ev => Storage('pref', {parts: ev.target.value});
+    forms[2].onchange = ev => {
+        Storage('pref', {parts: ev.target.value});
+        Q('a[href*="/parts/"]', a => a.href = '/x/parts/' + ev.target.value);
+    }
 
     Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
     forms[3].onchange = ev => {
