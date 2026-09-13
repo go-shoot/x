@@ -114,10 +114,10 @@ Object.assign(DropSearch, {
             gtag('event', 'DROP-ROW', {SITE: site});
         }
         query = [...query, append || ''].join(' ');
-        Q('main').prepend(DropSearch.zone.href[site].replace('${}', query.trim()));
         site == '複製' ? 
-            navigator.clipboard.writeText(query) :
-            E(PI.onto).set({href: DropSearch.zone.href[site].replace('${}', query.trim())}).click();
+        navigator.clipboard.writeText(query) :
+        E(PI.onto).set({href: DropSearch.zone.href[site].replace('${}', query.trim())}).click();
+        Q('main').prepend(PI.onto.href);
     }
 })
 addEventListener('DOMContentLoaded', () => {
