@@ -104,7 +104,7 @@ class Row {
         this.tr.replaceChildren(this.code(), 
             ...[[Bey.blade].flat().map(b => b.cell()), Bey.ratchet.cell(), Bey.bit.cell()].flat(9)
         );
-        Cell.fill(document.forms[0].lang.value || 'chi', this.tr);
+        Cell.fill(document.forms[0]?.lang.value || 'chi', this.tr);
     }
     code ({id: code, classList: classes} = this.tr) {
         code = code.split('_');
