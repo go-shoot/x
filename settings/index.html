@@ -3,8 +3,7 @@
 <link rel=stylesheet href=../parts/part.css>
 <style>
     main {
-        padding: 0 .5em;
-        max-width: min(100%,25em);
+        max-width: min(100% - 1em,25em);
 
         p,form {text-align: left;}
         x-part {margin: 1em 0;}
@@ -19,7 +18,7 @@
         dd {display: contents; &>* {width: 100%;}}
     }
     select,input {
-        background: none; border: none; outline: none !important;
+        background: none; border-radius: 0; border: none; outline: none !important;
         border-bottom: .1em solid var(--theme);
         color: var(--on); font-size: .9em;
 
