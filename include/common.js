@@ -71,13 +71,13 @@ Object.assign(DropSearch, {
     default: {
         tile: {
             tl: {site: 'Amazon US', locale: 'hasbro', append: 'beyblade x'},
-            tr: {site: 'Mercari JP', locale: 'jap'},
+            tr: {site: 'Mercari JP', locale: 'jap', append: 'ベイブレードX'},
             bl: {site: 'Google', locale: 'tw'},
             br: {site: 'Reddit', locale: 'eng'}
         },
         row: {
             tl: {site: 'Amazon US', locale: 'hasbro', append: 'beyblade x'},
-            tr: {site: 'Mercari JP', locale: 'jap'},
+            tr: {site: 'Mercari JP', locale: 'jap', append: 'ベイブレードX'},
             bl: {site: 'Google', locale: 'tw'},
             br: {site: 'Reddit', locale: 'eng'}
         }
