@@ -85,7 +85,7 @@ Object.assign(DropSearch, {
             複製: '${}',
             'Amazon US': '//amazon.com/s?k=${}', 'Amazon JP': '//amazon.co.jp/s?k=${}',
             'Carousell HK': '//carousell.com.hk/search/${}', 'Mercari JP': '//jp.mercari.com/search?keyword=${}',
-            Shopee: '//shopee.tw/search?keyword=${}', 淘寶: '//world.taobao.com/product/${}.htm',
+            Shopee: '//shopee.tw/search?keyword=${}',
             X: '//x.com/search?q=${}', Reddit: '//reddit.com/search/?q=${}',
             Google: '//google.com/search?q=${}', YouTube: '//youtube.com/results?search_query=${}',
             Threads: '//threads.net/search?q=${}', Facebook: '//facebook.com/search/top?q=${}'
