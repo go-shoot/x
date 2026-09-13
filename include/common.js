@@ -64,7 +64,9 @@ Object.assign(Menu, {
     lines: () => LINES.filter(([_, {divided}]) => divided)
         .flatMap(([line]) => E('li>a.icon-blade', {href: `?blade=${line}`}))
 });
-const DropSearch = () => Q('body').append(...['tl','tr','bl','br'].map(p => E(`a#drop-${p}`, {target: '_blank'})));
+const DropSearch = () => Q('body').append(...['tl','tr','bl','br'].map(p => 
+    E(`a#drop-${p}`, {target: [true, undefined].includes(Storage('pref')?.['drop-popup']) ? '_blank' : ''})
+));
 Object.assign(DropSearch, {
     default: {
         tile: {

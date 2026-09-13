@@ -7,6 +7,8 @@
 
         p,form {text-align: left;}
         x-part {margin: 1em 0;}
+        .toggle {font-size: .8em;}
+        hr {margin-top: 2em;}
     }
     fieldset {
         margin-top: 2em;
@@ -25,12 +27,11 @@
         &:open {border-color: var(--accent);}
         option {background: var(--overlay);}
     }
-    form:last-of-type {
+    form:last-of-type,form:nth-of-type(2) {
         gap: .5em;
         margin-top: 1em;
         font-weight: 500;
 
-        label {font-size: .8em;}
         &,fieldset {display: flex; align-items: center;}
         fieldset {
             font-weight: normal; gap: .25em;
@@ -47,9 +48,13 @@
     <form><input name="lang" value="chi" type="hidden"></form>
     <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：（在iOS可能不暢順）</p>
     <form>
+        彈出式<label class="toggle"><input type="checkbox" name="drop-popup" checked="true"></label>
+    </form>
+    <form>
         <fieldset><legend>部件磚</legend><dl id="tile"></dl></fieldset>
         <fieldset><legend>陀螺列</legend><dl id="row"></dl></fieldset>
     </form>
+    <hr>
     <form>
         <fieldset><legend>部件頁首頁</legend><select></select></fieldset>
     </form>
@@ -70,6 +75,12 @@ Q('main').prepend(DB().then(async () => {
     let PARTS = await DB.get.essentials();
     let [tile, {beys}] = await Promise.all([PARTS.blade.HlNt.tile(), new Search('CX-13')]);
     forms[1].before(tile, E('table>tbody', beys.map(bey => new Bey(bey).Row)));
+    Q('.toggle input').forEach(input => input.checked = Storage('pref')?.[input.name] ?? input.checked);
+
+    forms[1].onchange = ev => {
+        Storage('pref', {'drop-popup': ev.target.checked});
+        Q('a[id|=drop]', a => a.target = ev.target.checked ? '_blank' : '');
+    }
 
     let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
     Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [
@@ -83,24 +94,23 @@ Q('main').prepend(DB().then(async () => {
         ])
     ])));
     let config = new O(Storage('drop-search') || DropSearch.default);
-    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[1][n].value = v);
-    forms[1].onchange = ev => Storage('drop-search', {...new O(new FormData(forms[1])).reshape(([k]) => k.split('-'))});
+    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[2][n].value = v);
+    forms[2].onchange = ev => Storage('drop-search', {...new O(new FormData(forms[1])).reshape(([k]) => k.split('-'))});
 
     fetch('../sitemap.txt').then(resp => resp.text()).then(text => {
         let pref = Storage('pref')?.parts ?? '?blade';
-        forms[2].Q('select').append(...text.split('\n').filter(url => url.includes('parts')).map(url => {
+        forms[3].Q('select').append(...text.split('\n').filter(url => url.includes('parts')).map(url => {
             url = new URL(url);
             url = url.search + url.hash;
             return E('option', url, {selected: pref == url});
         }));
     });
-    forms[2].onchange = ev => {
+    forms[3].onchange = ev => {
         Storage('pref', {parts: ev.target.value});
         Q('a[href*="/parts/"]', a => a.href = '/x/parts/' + ev.target.value);
     }
 
-    Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
-    forms[3].onchange = ev => {
+    forms[4].onchange = ev => {
         Storage('pref', {[ev.target.name]: ev.target.checked});
         ev.target.name == 'bottom' && Menu.nav.classList.toggle('bottom', ev.target.checked);
         ev.target.name == 'right' && Menu.nav.classList.toggle('right', ev.target.checked);
