@@ -93,7 +93,7 @@ Q('main').prepend(DB().then(async () => {
         ])
     ])));
     let config = new O(Storage('drop-search') || DropSearch.default);
-    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[1][n].value = v);
+    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[1][n] && (forms[1][n].value = v));
     forms[1].onchange = ev => Storage('drop-search', {...new O(new FormData(forms[1])).reshape(([k]) => k.split('-'))});
 
     fetch('../sitemap.txt').then(resp => resp.text()).then(text => {
