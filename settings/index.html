@@ -24,7 +24,7 @@
         color: var(--on); font-size: .9em;
 
         &:open {border-color: var(--accent);}
-        option {background: var(--backdrop);}
+        option {background: var(--overlay);}
     }
     form:last-of-type {
         gap: .5em;
@@ -44,9 +44,9 @@
 </style>
 
 <nav><menu></menu></nav>
-<form><input name="lang" value="chi" type="hidden"></form>
 <main>
-    <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：</p>
+    <form><input name="lang" value="chi" type="hidden"></form>
+    <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：（在iOS可能不暢順）</p>
     <form>
         <fieldset><legend>部件磚</legend><dl id="tile"></dl></fieldset>
         <fieldset><legend>陀螺列</legend><dl id="row"></dl></fieldset>
@@ -70,7 +70,7 @@ Q('main').prepend(DB().then(async () => {
     let forms = document.forms;
     let PARTS = await DB.get.essentials();
     let {beys} = await new Search('CX-13');
-    forms[1].before(await PARTS.blade.LsDg.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
+    forms[1].before(await PARTS.blade.HlNt.tile(), E('table>tbody', beys.map(bey => new Bey(bey).Row)));
 
     let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
     Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [
@@ -98,6 +98,10 @@ Q('main').prepend(DB().then(async () => {
     forms[2].onchange = ev => Storage('pref', {parts: ev.target.value});
 
     Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
-    forms[3].onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
+    forms[3].onchange = ev => {
+        Storage('pref', {[ev.target.name]: ev.target.checked});
+        ev.target.name == 'bottom' && Menu.nav.classList.toggle('bottom', ev.target.checked);
+        ev.target.name == 'right' && Menu.nav.classList.toggle('right', ev.target.checked);
+    }
 }));
 </script>

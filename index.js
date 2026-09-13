@@ -238,9 +238,6 @@ Q('header').after(DB(plugins).then(async () => {
     }))
     .catch(() => caches.open('X').then(cache => cache.delete(PI)));
 
-    Q('#reboot input', input => input.checked = Storage('pref')?.[input.name]);
-    Q('#reboot form').onchange = ev => Storage('pref', {[ev.target.name]: ev.target.checked});
-
     let swapped, sec = 1;
     Q('video', video => E(video).set({
         '--crossfade': sec,

@@ -56,7 +56,7 @@
     a {grid-area: 1/1;}
     a:not(:empty) {grid-area: 2/2;}
 }
-:host * {user-select: none; -webkit-user-select: none;}
+:host :not(p) {user-select: none; -webkit-user-select: none;}
 :host :not(figure img) {-webkit-user-drag: none;}
 :host object {
     width: 100%;

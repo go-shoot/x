@@ -188,22 +188,8 @@ section {
         text-align: center;
         width: 16em;
     }
-    form,fieldset {
-        display: flex; align-items: center;
-        font-weight: bold;
-
-        a {margin-left: auto;}
-        a img {width: 7em;}
-    }
-    form {
-        gap: .5em;
-        padding-left: .5em;
-    }
-    fieldset {
-        font-weight: normal; gap: .25em;
-
-        &:has([name=bottom]) {flex-direction: column;}
-    }
+    a {margin-left: auto;}
+    a img {width: 7em;}
 }
 
 footer {
