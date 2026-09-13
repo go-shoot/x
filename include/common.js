@@ -115,9 +115,8 @@ Object.assign(DropSearch, {
         }
         query = [...query, append || ''].join(' ');
         site == '複製' ? 
-        navigator.clipboard.writeText(query) :
-        E(PI.onto).set({href: DropSearch.zone.href[site].replace('${}', query.trim())}).click();
-        Q('main').prepend(PI.onto.href);
+            navigator.clipboard.writeText(query) :
+            E(PI.onto).set({href: DropSearch.zone.href[site].replace('${}', query.trim())}).click();
     }
 })
 addEventListener('DOMContentLoaded', () => {
