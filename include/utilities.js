@@ -74,7 +74,7 @@ class Keihin {
     }
     fill ({type, note, link, date, code, bey, ver, img: [src, style]} = this.content) {
         if (this.article.Q('em')) return;
-        let {line, names: {jap, chi, rest}} = new Bey(bey);
+        let {line, names: {jap, chi, rest}} = this.article.Bey = new Bey(bey);
         let h4 = E('h4', {lang: 'ja'}, [
             E('code', code.includes('?') ? '' : Markup.upgrade(code, 'figureDash').replace(/_.+$/, '')), 
             E('a', {target: '_blank'}, jap + rest), 

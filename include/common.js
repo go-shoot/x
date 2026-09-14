@@ -108,11 +108,14 @@ Object.assign(DropSearch, {
             query = [PI.target.Part.keyword(locale, true)];
             gtag('event', 'DROP-TILE', {SITE: site});
         } else {
-            let code = [...PI.target.firstChild.childNodes].map(n => n?.textContent.trim());
-            /^BX.-/.test(code[0]) && PI.target.Bey.line && (code[0] = `${PI.target.Bey.line}-00`);
+            let code = PI.target.tagName == 'TR' ? 
+                [...PI.target.firstChild.childNodes].map(n => n?.textContent.trim()) : [];
+            (/^BX.-/.test(code[0]) || code.length == 0) && PI.target.Bey.line && (code[0] = `${PI.target.Bey.line}-00`);
             query = PI.target.Bey.parts.to.names(locale);
             query = [...locale == 'hasbro' ? [] : code, query[locale], query.rest];
-            E(PI.target).get('--coat') && locale == 'jap' && query.push('メタルコート');
+            PI.target.tagName == 'TR' ? 
+                locale == 'jap' && E(PI.target).get('--coat') && query.push('メタルコート') :
+                ['jap','eng','hasbro'].includes(locale) && query.push(PI.target.Q('small')[locale == 'jap' ? 0 : 1].innerText);
             gtag('event', 'DROP-ROW', {SITE: site});
         }
         query = [...query, append || ''].join(' ');

@@ -45,6 +45,7 @@ diamond-grid {
         grid-template-areas: '. type . .' '. desc . .' '. img img .' '. name . .' '. date . .';
         
         &:only-child {transform: none;}
+        &.PI-target {transition: none; z-index: 9;}
     }
     a[href] {color: green !important;}
     em {
