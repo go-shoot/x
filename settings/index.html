@@ -2,7 +2,7 @@
 <script defer src=../include/common.js></script>
 <link rel=stylesheet href=../parts/part.css>
 <style>
-    #reset {width: 5em;}
+    button[type=reset] {width: 7em;}
     main {
         max-width: min(100% - 1em,25em);
 
@@ -44,7 +44,7 @@
     }
 </style>
 
-<nav><menu></menu><button id="reset">重設</button></nav>
+<nav><menu></menu><button type="reset"> 重設</button></nav>
 <main>
     <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：</p>
     <form>
@@ -118,7 +118,7 @@ Q('main').prepend(DB().then(async () => {
         ev.target.name == 'right' && Menu.nav.classList.toggle('right', ev.target.checked);
     }
 
-    Q('#reset').onclick = () => {
+    Q('button[type=reset]').onclick = () => {
         localStorage.removeItem('drop-search');
         localStorage.removeItem('pref');
         location.reload();
