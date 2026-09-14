@@ -12,13 +12,14 @@
 "2026-10-10":[{
     "code":"BX-52 starter","name":["ラスタードラグーン6-60LC","Luster Dragoon 6-60LC"],
     "desc":["大型兩枚Upper刃加上中央三頭重量級龍"],"type":"att",
-    "imgs":["https://i.imgur.com/S6Gl6uj.jpeg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9934a9ff-a036-42b0-bc34-fa68e71ca5c7.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/c9ad95a7-b11d-4266-a1c8-69fcf68ef9f4.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/c9ad95a7-b11d-4266-a1c8-69fcf68ef9f4.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
+    "imgs":["https://i.imgur.com/S6Gl6uj.jpeg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9934a9ff-a036-42b0-bc34-fa68e71ca5c7.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/6176-wZqXML._AC_SX679_.jpg","https://m.media-amazon.com/images/I/610VAsUL9LL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61dCcEU-MSL._AC_SX679_.jpg"]
 },{
     "code":"BX-53 entry set","name":["オールインワンセット","All-in-one Set"],
     "imgs":["https://i.imgur.com/wB0FNb0.jpeg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9f44853d-bd22-4367-8c59-0d1f255de26d.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/61Zy6WQ+4WL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/71JmpfanwWL._AC_SX679_.jpg"],
     "desc":["三陀螺、兩發射器、一標準對戰盤","兩個新V2陀螺，重量提升","UX天馬首次於常規商品再錄"]
 },{
-    "code":"BX-56 string launcher L"
+    "code":"BX-56 tool","name":["ストリングランチャーL","String Launcher L"],
+    "imgs":["https://m.media-amazon.com/images/I/51NDWvVFUxL._AC_SX679_.jpg"]
 }],"2026-10-23":[{
     "code":"BXG-??","name":["バイソンバローDB","Bison Burrow DB"],"type":"sta",
     "imgs":["https://i.imgur.com/tkcGW0P.jpeg","https://animes-pro.com/cdn/shop/files/BBX-KUJI02-CTN_2.jpg"],
