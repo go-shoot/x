@@ -475,4 +475,5 @@ a[id|=drop] {
         &#drop-br {transform: translate(-100%,-100%);}
     }
 }
-:is(x-part,tbody tr):is(.PI-held,.PI-animate) {z-index: 9 !important;}
+:is(x-part,tbody tr,diamond-grid article):is(.PI-held,.PI-animate) {z-index: 9 !important;}
+body:has(.PI-dragged) {user-select: none; -webkit-user-select: none;}
