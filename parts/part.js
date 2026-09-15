@@ -32,17 +32,17 @@ class Part {
         return this;
     }
     async revise (type = 'cell', comp = this.constructor.name.toLowerCase(), base, pref) {
-        let isComplete = (P, props) => props.every(p => P[p] != null);
-        let props = Array.isArray(type) ? type : this.constructor.revisions[type];
-        if (!this.abbr || !props || !this.revisable.test(this.abbr) || isComplete(this, props)) return this;
+        let props = Array.isArray(type) ? type : this.constructor.revisions?.[type] ?? Object.keys(this.revised);
+        let revisable = this.revisable ?? this.constructor.revisions?.regexp?.test(this.abbr) ?? true;
+        if (!this.abbr || !props || !revisable) return this;
         if (comp == 'ratchet') {
             base = {stat: [, ...this.abbr.split('-')]};
         } else {
-            [, pref, base] = this.revisable.exec(this.abbr);
+            [, pref, base] = this.constructor.revisions.regexp?.exec(this.abbr) ?? [];
             let P = PARTS[comp][base];
-            base = isComplete(P, props) ? P : P.push(await DB.get(comp, base));
+            base &&= props.every(p => P[p] != null) ? P : P.push(await DB.get(comp, base));
         }
-        props.forEach(prop => this[prop] = this.revised[prop](base, pref));
+        props.forEach(prop => this[prop] = this.revised[prop](base, pref) || this[prop]);
         return this;
     }
     href = () => `/x/parts/` + Part.href(this.path, '?=#.')
@@ -85,20 +85,18 @@ class Blade extends Part {
         let {line, group, abbr, path} = this;
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
-    get revisable () {return /^()(.{2,})2$/}
+    get revisable () {return Blade.revisions.regexp.test(this.abbr) || 
+        ['over', 'metal'].includes(this.group) || (this.group == 'UX' || this.attr.has('UX')) && this.attr.has('fused')}
     revised = {
-        group: base => base.group,
-        names: base => ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}),
-        attr: base => base ? base.attr : ['over', 'metal'].includes(this.group) || 
-            this.group == 'UX' && this.attr.has('fused') || this.attr.has('UX') && this.attr.has('fused') ?
-            this.attr.add('expand') : this.attr,
-        desc: base => base.desc + '性能有所更新的V2 Model。'
+        group: base => base ? base.group : null,
+        names: base => base ? ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}) : null,
+        attr: base => base ? base.attr : this.attr.add('expand'),
+        desc: base => base ? base.desc + '性能有所更新的V2 Model。' : null
     }
-    static revisions = {cell: ['group', 'names'], tile: ['group', 'names', 'attr', 'desc']};
+    static revisions = {regexp: /^()(.{2,})2$/, cell: ['group', 'names']};
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
-    get revisable () {return /^.-\d{2}$/}
     revised = {
         group: () => new O(Tile.ratchet.height).find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
@@ -109,7 +107,6 @@ class Ratchet extends Part {
         attr: () => this.attr?.has('simple') ? this.attr : (this.attr ??= new Set()).add('normal'),
         stat: base => this.stat.length === 1 ? [...this.stat, ...base.stat.slice(1)] : this.stat
     }
-    static revisions = {tile: ['group', 'names', 'attr', 'stat']};
     static eng = {
         digit: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
         tens: ['', '', '', '', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
@@ -117,7 +114,6 @@ class Ratchet extends Part {
 }
 class Bit extends Part {
     constructor(json) {super(json);}
-    get revisable () {return new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`)}
     revised = {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
@@ -125,7 +121,7 @@ class Bit extends Part {
         stat: base => [this.stat[0], ...base.stat.slice(1, base.stat.length - this.stat.length + 1), ...this.stat.slice(1)],
         desc: (base, pref) => [...pref].map(p => Bit.prefix[p].desc).join('、') + `的〔${base.abbr}〕Bit${this.desc?.replace(/^(?=[^，。：；])/, '，') || '。'}`,
     }
-    static revisions = {cell: ['names'], tile: ['group', 'names', 'attr', 'stat', 'desc']};
+    static get revisions () {return {regexp: new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`), cell: ['names']}};
 }
 class Tile extends HTMLElement {
     static observer = new IntersectionObserver(entries => entries.forEach(en => {
