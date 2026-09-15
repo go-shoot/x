@@ -42,7 +42,7 @@ Object.assign(App, {
             }]), {
             '#layers label': {
                 click: click => click.for(2).to(() => Layer.solo()),
-                hold: hold => hold.for(1).to((_, target) => E('a', {href: target.Q('img').src, download: 'layer'}).click())
+                //hold: hold => hold.for(1).to((_, target) => E('a', {href: target.Q('img').src, download: 'layer'}).click())
             }
         });
         E(FORM.main).set({

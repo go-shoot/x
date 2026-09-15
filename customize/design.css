@@ -162,7 +162,7 @@ fieldset:not(#layer) {
 }
 #layer {
     font-size: 1.1em;
-    width: 2em; height: min(35em,100svh - 4.15rem); 
+    width: 2em; height: calc(100svh - 4.15rem); 
     overflow-y: scroll; 
     padding-bottom: 1rem; margin-right: .5rem;
     mask-image: linear-gradient(to bottom,black 0 90%,transparent);
