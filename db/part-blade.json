@@ -7,7 +7,7 @@
             "chi": ""
         },
         "stat": [""],
-        "desc": "金屬連接至中央能提高剛性；擅長由低位置攻擊的偏重心兩枚刃剷起對手，強烈地將其撞飛的重量級左迴轉Blade。",
+        "desc": "金屬連接至中央能提高剛性；有擅長由低位置攻擊的偏重心兩枚刃剷起對手並強烈地撞飛的重量級左迴轉Blade。",
         "attr": ["att","left","expand","bsb","mfb","bbb"]
     },
     "SgSp": {
@@ -492,8 +492,7 @@
         "attr": ["att","right"]
     },
     "DrSw2": {
-        "stat": ["38-"],
-        "desc": "三攻Upper刃擅於把對手向斜上方撞飛。性能有所更新的V2 Model。"
+        "stat": ["38-"]
     },
     "HlCh": {
         "group": "BX",
@@ -531,8 +530,7 @@
         "attr": ["sta","right"]
     },
     "WzAr2": {
-        "stat": ["36="],
-        "desc": ""
+        "stat": ["36="]
     },
     "KnSh": {
         "group": "BX",
@@ -547,8 +545,7 @@
         "attr": ["def","right"]
     },
     "KnSh2": {
-        "stat": [""],
-        "desc": ""
+        "stat": [""]
     },
     "KnLn": {
         "group": "BX",

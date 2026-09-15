@@ -90,7 +90,8 @@ class Blade extends Part {
         names: base => ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}),
         attr: base => base ? base.attr : ['over', 'metal'].includes(this.group) || 
             this.group == 'UX' && this.attr.has('fused') || this.attr.has('UX') && this.attr.has('fused') ?
-            this.attr.add('expand') : this.attr
+            this.attr.add('expand') : this.attr,
+        desc: base => base.desc + '性能有所更新的V2 Model。'
     }
     static revisions = {cell: ['group', 'names'], tile: ['group', 'names', 'attr']};
 }
