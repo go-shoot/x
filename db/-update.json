@@ -20,15 +20,15 @@
 },{
     "code":"BX-56 tool","name":["ストリングランチャーL","String Launcher L"],
     "imgs":["https://m.media-amazon.com/images/I/51NDWvVFUxL._AC_SX679_.jpg"]
-}],"2026-10-23":[{
-    "code":"BXG-??","name":["バイソンバローDB","Bison Burrow DB"],"type":"sta",
-    "imgs":["https://i.imgur.com/tkcGW0P.jpeg","https://animes-pro.com/cdn/shop/files/BBX-KUJI02-CTN_2.jpg"],
-    "desc":["DMMくじA賞/Last Get賞"]
 }],
-"2026-11-13":[{
+"2026-10-14":[{
     "code":"BXC-??","name":["キッドハントK4-70TK","Kid Hunt K4-70TK"],"type":"bal",
     "imgs":["https://i.imgur.com/8gzXfyD.jpeg"],
     "desc":["コロコロ雜誌應募品"]
+}],"2026-10-23":[{
+    "code":"BXG-??","name":["バイソンバローDB","Bison Burrow DB"],"type":"sta",
+    "imgs":["https://i.imgur.com/tkcGW0P.jpeg","https://animes-pro.com/cdn/shop/files/BBX-KUJI02-CTN_2.jpg","https://scratch.dmm.com/s3/dmmkuji_long_img/v25zaqW37wOGTsci6RWM6yN6YrXs1Gr9ACdKFT0r.jpeg"],
+    "desc":["DMMくじA賞/Last Get賞"]
 }],
 "2026-11":[{
     "code":"BX-54 booster",
