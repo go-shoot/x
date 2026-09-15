@@ -34,13 +34,14 @@ class Part {
     async revise (type = 'cell', comp = this.constructor.name.toLowerCase(), base, pref) {
         let isComplete = (P, props) => props.every(p => P[p] != null);
         let props = Array.isArray(type) ? type : this.constructor.revisions[type];
-        if (!this.abbr || !props || isComplete(this, props)) return this;
-        if (comp != 'ratchet') {
-            [, pref, base] = this.splitAbbr();
+        if (!this.abbr || !props || !this.revisable.test(this.abbr) || isComplete(this, props)) return this;
+        if (comp == 'ratchet') {
+            base = {stat: [, ...this.abbr.split('-')]};
+        } else {
+            [, pref, base] = this.revisable.exec(this.abbr);
             let P = PARTS[comp][base];
             base = isComplete(P, props) ? P : P.push(await DB.get(comp, base));
-        } else
-            base = {stat: [, ...this.abbr.split('-')]};
+        }
         props.forEach(prop => this[prop] = this.revised[prop](base, pref));
         return this;
     }
@@ -84,7 +85,7 @@ class Blade extends Part {
         let {line, group, abbr, path} = this;
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
     }
-    splitAbbr = () => new RegExp(`^()(.{2,})2$`).exec(this.abbr)
+    get revisable () {return /^()(.{2,})2$/}
     revised = {
         group: base => base.group,
         names: base => ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}),
@@ -93,10 +94,11 @@ class Blade extends Part {
             this.attr.add('expand') : this.attr,
         desc: base => base.desc + '性能有所更新的V2 Model。'
     }
-    static revisions = {cell: ['group', 'names'], tile: ['group', 'names', 'attr']};
+    static revisions = {cell: ['group', 'names'], tile: ['group', 'names', 'attr', 'desc']};
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}
+    get revisable () {return /^.-\d{2}$/}
     revised = {
         group: () => new O(Tile.ratchet.height).find(([, dmm]) => this.abbr.split('-')[1] >= dmm)[0],
         names: () => {
@@ -115,7 +117,7 @@ class Ratchet extends Part {
 }
 class Bit extends Part {
     constructor(json) {super(json);}
-    splitAbbr = () => new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`).exec(this.abbr)
+    get revisable () {return new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`)}
     revised = {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
