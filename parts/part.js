@@ -111,6 +111,7 @@ class Ratchet extends Part {
         digit: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
         tens: ['', '', '', '', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
     }
+    static revisions = {cell: []};
 }
 class Bit extends Part {
     constructor(json) {super(json);}
