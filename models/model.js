@@ -8,7 +8,7 @@ class Model {
     ));
     constructor(code, comp) {
         this.url = `/x-model/${code.replace('-', '')}/${comp}.glb`;
-        Model.observer.observe(this.canvas = this.makeCanvas(code, comp));
+        this.canvas = this.makeCanvas(code, comp);
     }
     render () {
         const {clientWidth: w, clientHeight: h} = this.canvas;
@@ -56,10 +56,12 @@ class Model {
         animate();
     }
     destroy () {
+        if (!this.canvas.dataset.engine) return;
         this.animation &&= cancelAnimationFrame(this.animation);
         this.controls?.dispose();
         this.renderer?.dispose();
         this.scene?.traverse(child => {
+            if (!child.isMesh) return;
             child.geometry?.dispose();
             [child.material ?? []].flat().forEach(material => material.dispose());
         });

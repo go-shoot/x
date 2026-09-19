@@ -46,7 +46,7 @@
         <use href='#top-art'/>
         <use y='15' href='#top-art'/>
     </g>
-    <polygon points='65,34 85,34 116,65 116,85 85,116 65,116 34,85 34,65' fill='rgba(255,255,255,.2)'/>
+    <polygon points='59.674,38 90.326,38 112,59.674 112,90.326 90.326,112 59.674,112 38,90.326 38,59.674' fill='rgba(255,255,255,.2)'/> <!--regular octa-->
     <script>// <![CDATA[
         Q('#top').setAttribute('transform', 'rotate(-45) translate(-55,30)');
         (q.left || q.right) && (Q('#top').classList = 'spin') && Q('use:last-of-type').setAttribute('x', 30);

@@ -2,6 +2,8 @@
 import DB from '../include/DB.js'
 import { Bey, Preview, Search } from './bey.js';
 import { Markup, Glossary } from '../include/utilities.js';
+let Model;
+import('../models/model.js').then(m => Model = m.default);
 import Table from '../products/products.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
 
@@ -138,7 +140,7 @@ class Tile extends HTMLElement {
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
-            onpointerup: ev => this.#onpointerup(ev)
+            onclick: ev => this.#onclick(ev)
         });
     }
     fill () {
@@ -152,7 +154,6 @@ class Tile extends HTMLElement {
             E.link({href: '/x/parts/part.css'}),
             E('object', {data: this.fill.background(E(this).get('--hue'))}),
             E('figure>img', {src: `/x/img/${path.join('/')}.png`}),
-            E('slot'),
             E('ul', this.fill.icons()),
             E('p', desc),
             this.fill.stat(),
@@ -162,23 +163,17 @@ class Tile extends HTMLElement {
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
     }
-    static icons = new O([
-        [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
-        [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
-        [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
-        [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
-    ], {left: '\ue01d', right: '\ue01e'});
-    #onpointerup (ev) {
-        if (this.matches('.PI-dragged')) return;
+    #onclick (ev) {
+        if (ev.button !== 0 || this.matches('.PI-dragged')) return;
         let node = ev.composedPath().find(n => ['A', 'H5', 'use'].includes(n.tagName));
         ({
-            H5: ev => this.#pointerup.copy(ev, node),
-            use: ev => this.#pointerup.model(ev, node),
+            H5: ev => this.#click.copy(ev, node),
+            use: ev => this.#click.model(ev, node),
             '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
             '/x/products/': () => Table.search(this.Part.path)
         })[node?.tagName ?? location.pathname]?.(ev);
     }
-    #pointerup = {
+    #click = {
         async copy (ev, node) {
             ev.stopPropagation();
             await navigator.clipboard.writeText(node.textContent.replaceAll(/(?<! )(?=[A-Z])/g, ' '));
@@ -187,9 +182,10 @@ class Tile extends HTMLElement {
             setTimeout(() => node.innerHTML = html, 1000);
         },
         model: async (ev, node) => {
-            let figure = this.sQ('figure');
+            ev.stopPropagation();
+            let figure = this.sQ('figure'), beys = (await new Search(this.Part.path)).beys;
             figure.childElementCount <= 1 && figure.append(...
-                (await new Search(this.Part.path)).beys.reverse().map(([code]) => new Model(code, this.Part.subcomp).canvas)
+                beys.map(({id, 0: code}) => new Model(id || code, this.Part.subcomp).canvas)
             );
             let showing = E(figure).get('--showing') || 0, way = {def: -1, sta: 1}[node.classList];
             if (showing === 0 && way === -1 || showing == figure.childElementCount - 1 && way === 1) return;
@@ -199,6 +195,12 @@ class Tile extends HTMLElement {
             });
         }
     }
+    static icons = new O([
+        [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
+        [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
+        [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
+        [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
+    ], {left: '\ue01d', right: '\ue01e'});
     static {
         PI.events({'x-part, tbody tr, diamond-grid article': {
             hold: hold => hold.for(.75).to({
@@ -254,7 +256,7 @@ Tile.svg = () => {
     corner.side.x = r1 / Math.tan(Math.PI / 8);
     corner.side.y = corner.side.x * Math.SQRT1_2;
     corner.top = r2 / Math.SQRT2;
-    return Tile.svg = E('svg', {viewBox: '-75 -75 150 150'}, [
+    return Tile.svg = E('svg', {viewBox: '-50 -50 100 100'}, [
         E('defs>path#triangle', {d: `
             M ${corner.side.x-10},-10 A ${r1},${r1},0,0,0,${corner.side.y-10},${corner.side.y-10}
             L -${corner.top},-${corner.top} A ${r2},${r2},0,0,0,${corner.top},-${corner.top}

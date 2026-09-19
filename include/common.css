@@ -172,7 +172,7 @@ body {
 html,body {
     overscroll-behavior-y: none;
 
-    &:has(.PI-dragged,.PI-animate) {overflow-x: hidden;}
+    &:has(.PI-dragged,.PI-animate,.PI-animating) {overflow-x: hidden;}
     &:has(nav:not(.bottom)) {scroll-padding-top: 5em;}
     &:has(nav.bottom) {scroll-padding-bottom: 5em;}
 }
@@ -476,5 +476,5 @@ a[id|=drop] {
         &#drop-br {transform: translate(-100%,-100%);}
     }
 }
-:is(x-part,tbody tr,diamond-grid article):is(.PI-held,.PI-animate) {z-index: 9 !important;}
+:is(x-part,tbody tr,diamond-grid article):is(.PI-held,.PI-animate,.PI-animating) {z-index: 9 !important;}
 body:has(.PI-dragged) {user-select: none; -webkit-user-select: none;}
