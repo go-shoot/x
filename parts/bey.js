@@ -205,13 +205,13 @@ class Preview {
         .then(() => Glossary(Preview.dialog));
     }
     cell = ({path, code}) => new Search(code?.split('_')[0] || path)
-    .then(({beys, href}) => Q('#cells').append(
-        E('table', {onclick: Preview.for.table}, [
-            E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
-            Preview.thead.cloneNode(true), 
-            E('tbody', beys.map(bey => new Bey(bey).Row))
-        ])
-    ))
+        .then(({beys, href}) => Q('#cells').append(
+            E('table', {onclick: Preview.for.table}, [
+                E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
+                Preview.thead.cloneNode(true), 
+                E('tbody', beys.map(bey => new Bey(bey).Row))
+            ])
+        ))
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
 

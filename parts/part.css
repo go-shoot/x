@@ -1,7 +1,7 @@
 :host(:not([hidden])) { /* &common.css:114 */
     --icon: 1.6em;
     aspect-ratio: 1;
-    grid-template: 2em auto .1em .9em .9em / var(--icon) calc(50% - var(--icon)) auto var(--icon) var(--icon);
+    grid-template: 2em auto .1em .1em .9em .9em / var(--icon) calc(50% - var(--icon)) auto var(--icon);
     padding: .3em .4em;
     overflow: hidden;
     cursor: pointer;
@@ -43,16 +43,16 @@
 :host figure img {filter: drop-shadow(0 0 .4em rgba(255,255,255,.3));}
 
 :host {
-    h4 {grid-area: 4/2/6/3;}
-    .chi:nth-of-type(1) {grid-area: 4/2/5/4;}
-    .chi:nth-of-type(2) {grid-area: 5/2/6/4;}
-    .chi:nth-of-type(1):not(:has(+.chi)) {grid-area: 4/2/6/4;}
-    .jap {grid-area: 1/1/3/2;}
-    .eng {grid-area: 2/1;}
+    h4 {grid-area: -3/2/-1/3;}
+    .chi:nth-of-type(1) {grid-area: -3/2/-2/4;}
+    .chi:nth-of-type(2) {grid-area: -2/2/-1/4;}
+    .chi:nth-of-type(1):not(:has(+.chi)) {grid-area: -3/2/-1/4;}
+    .jap {grid-area: 1/1/4/2;}
+    .eng {grid-area: 2/1/4/2;}
     figure {grid-area: 2/1/3/-1;}
     p {grid-area: 1/3/-1/-1;}
     dl {grid-area: 2/2/-1/-1;}
-    ul {grid-area: 4/1/-1/-1;}
+    ul {grid-area: -3/1/-1/-1;}
     a {grid-area: 1/1;}
     a:not(:empty) {grid-area: 2/2;}
 }
@@ -260,12 +260,24 @@
 
 :host figure {
     place-self: center;
-    width: 6em; height: 6em;
+    width: 8.2em; height: 8.2em;
+    display: grid; grid-template-rows: 100%; place-items: center;
+    grid-auto-columns: 100%; grid-auto-flow: column; 
+    position: relative;
+    overflow: hidden;
 
-    img {
-        width: 100%; height: 100%;
-        object-fit: contain;
+    &::after {
+        content: attr(title); font-size: .6em;
+        position: absolute; bottom: 15%; left: 15%; transform: translate(-50%,50%) rotate(45deg);
     }
+    img {width: 6em; height: 6em; object-fit: contain;}
+    span {min-width: 100%; align-self: center;}
+    canvas {
+        max-width: 100%; min-height: 100%;
+        clip-path: polygon(37.8% 0,62.2% 0,100% 37.8%,100% 62.2%,62.2% 100%,37.8% 100%,0 62.2%,0 37.8%);
+        z-index: 1;
+    }
+    * {transform: translateX(calc(var(--showing)*-8.2em));}
 }
 :host p {
     text-align: left; font-size: .6em;
@@ -288,11 +300,11 @@
 }
 :host svg {
     position: absolute; inset: 2em; height: 11em; /*safari*/
-    pointer-events: none;
 
     use {
         stroke: var(--type); fill: none;
         transform: rotate(var(--angle)) translateY(70px);
+        pointer-events: visible;
 
         &.att {--angle: 000deg;}
         &.bal {--angle: 180deg;}

@@ -1,6 +1,6 @@
 
 import DB from '../include/DB.js'
-import { Bey, Preview } from './bey.js';
+import { Bey, Preview, Search } from './bey.js';
 import { Markup, Glossary } from '../include/utilities.js';
 import Table from '../products/products.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
@@ -138,7 +138,7 @@ class Tile extends HTMLElement {
         E(this).set({
             id: path.length > 2 ? path.slice(-2).join('.') : path.at(-1),
             classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
-            onclick: ev => this.#onclick(ev)
+            onpointerup: ev => this.#onpointerup(ev)
         });
     }
     fill () {
@@ -162,26 +162,43 @@ class Tile extends HTMLElement {
             location.pathname.includes('parts') ? '' : E('a', {href: this.Part.href()})
         );
     }
-    #onclick (ev) {
-        let node = ev.composedPath().find(n => ['A', 'H5'].includes(n.tagName));
-        ({
-            H5: async ev => {
-                ev.stopPropagation();
-                await navigator.clipboard.writeText(node.textContent.replaceAll(/(?<! )(?=[A-Z])/g, ' '));
-                let html = node.innerHTML;
-                node.innerText = '';
-                setTimeout(() => node.innerHTML = html, 1000);
-            },
-            '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
-            '/x/products/': () => Table.search(this.Part.path)
-        })[node?.tagName ?? location.pathname]?.(ev);
-    }
     static icons = new O([
         [/^(?:[A-Z]+X|expand)$/, l => E('img', {src: `/x/img/lines.svg#${l}`})],
         [['BSB','MFB','BBB'], g => E('img', {src: `/x/img/system-${g}.png`})],
         [['att','bal','def','sta'], t => E('img', {src: `/x/img/types.svg#${t}`})],
         [['normal','simple'], t => E('img', {src: `/x/img/joint.svg#${t}`})]
     ], {left: '\ue01d', right: '\ue01e'});
+    #onpointerup (ev) {
+        if (this.matches('.PI-dragged')) return;
+        let node = ev.composedPath().find(n => ['A', 'H5', 'use'].includes(n.tagName));
+        ({
+            H5: ev => this.#pointerup.copy(ev, node),
+            use: ev => this.#pointerup.model(ev, node),
+            '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
+            '/x/products/': () => Table.search(this.Part.path)
+        })[node?.tagName ?? location.pathname]?.(ev);
+    }
+    #pointerup = {
+        async copy (ev, node) {
+            ev.stopPropagation();
+            await navigator.clipboard.writeText(node.textContent.replaceAll(/(?<! )(?=[A-Z])/g, ' '));
+            let html = node.innerHTML;
+            node.innerText = '';
+            setTimeout(() => node.innerHTML = html, 1000);
+        },
+        model: async (ev, node) => {
+            let figure = this.sQ('figure');
+            figure.childElementCount <= 1 && figure.append(...
+                (await new Search(this.Part.path)).beys.reverse().map(([code]) => new Model(code, this.Part.subcomp).canvas)
+            );
+            let showing = E(figure).get('--showing') || 0, way = {def: -1, sta: 1}[node.classList];
+            if (showing === 0 && way === -1 || showing == figure.childElementCount - 1 && way === 1) return;
+            E(figure).set({
+                '--showing': showing + (way ?? 0), 
+                title: figure.children[showing + (way ?? 0)]?.title || ''
+            });
+        }
+    }
     static {
         PI.events({'x-part, tbody tr, diamond-grid article': {
             hold: hold => hold.for(.75).to({
