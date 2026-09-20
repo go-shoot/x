@@ -50,11 +50,11 @@ class Part {
     href = () => `/x/parts/` + Part.href(this.path, '?=#.')
     static href = (path, joiner) => [...path].map((p, i) => `${joiner[joiner.length/path.length*i]}${p}`).join('')
     cell = () => new Cell(this)
-    async tile () {
+    async tile (callback) {
         let {path, stat} = this;
         !stat && this.push((({abbr, ...rest}) => rest)(await DB.get(...path)));
         await this.revise('tile'); //Subclass revise() called. No then() for blade, ratchet
-        return new Tile(this);
+        return new Tile(this, callback);
     }
     keyword (locale, subcomp = false) {
         let lang = ['hk','tw'].includes(locale) ? 'chi' : ['hasbro','eng'].includes(locale) ? 'eng' : locale;
@@ -128,11 +128,10 @@ class Bit extends Part {
 }
 class Tile extends HTMLElement {
     static observer = new IntersectionObserver(entries => entries.forEach(en => {
-        en.isIntersecting ? en.target.fill() : en.target.shadowRoot.replaceChildren(en.target.shadowRoot.textContent);
         en.target.classList.toggle('loading', !en.isIntersecting);
-        en.isIntersecting && Glossary(en.target.shadowRoot);
+        en.isIntersecting ? en.target.callback.intersect() : en.target.shadowRoot.replaceChildren(en.target.shadowRoot.textContent);
     }), {rootMargin: '100px 0px'});
-    constructor(Part) {
+    constructor(Part, callback) {
         super();
         Tile.observer.observe(this);
         this.attachShadow({mode: 'open'});
@@ -142,6 +141,11 @@ class Tile extends HTMLElement {
             classList: ['loading', ...path.slice(0, -1), group, ...[...attr].filter(a => !/^.X$/.test(a))], //BX vs collab
             onclick: ev => this.#onclick(ev)
         });
+        this.callback = {intersect: () => {
+            this.fill();
+            Glossary(this.shadowRoot);
+            callback?.intersect?.(this);
+        }};
     }
     fill () {
         if (this.sQ('link')) return;
@@ -167,32 +171,47 @@ class Tile extends HTMLElement {
         if (ev.button !== 0 || this.matches('.PI-dragged')) return;
         let node = ev.composedPath().find(n => ['A', 'H5', 'use'].includes(n.tagName));
         ({
-            H5: ev => this.#click.copy(ev, node),
-            use: ev => this.#click.model(ev, node),
-            '/x/parts/': ev => new Preview('cell', {path: this.Part.path}, ev),
+            H5: ev => this.act.copy(ev, node),
+            use: ev => this.act.model(ev, node),
+            '/x/parts/': ev => new Preview('cell', {path: this.Part.path, code: this.sQ('canvas[data-engine]')?.title}, ev),
             '/x/products/': () => Table.search(this.Part.path)
         })[node?.tagName ?? location.pathname]?.(ev);
     }
-    #click = {
-        async copy (ev, node) {
+    act = {
+        async copy (ev, h5) {
             ev.stopPropagation();
-            await navigator.clipboard.writeText(node.textContent.replaceAll(/(?<! )(?=[A-Z])/g, ' '));
-            let html = node.innerHTML;
-            node.innerText = '';
-            setTimeout(() => node.innerHTML = html, 1000);
+            await navigator.clipboard.writeText(h5.textContent.replaceAll(/(?<! )(?=[A-Z])/g, ' '));
+            let html = h5.innerHTML;
+            h5.innerText = '';
+            setTimeout(() => h5.innerHTML = html, 1000);
         },
-        model: async (ev, node) => {
-            ev.stopPropagation();
-            let figure = this.sQ('figure'), beys = (await new Search(this.Part.path)).beys;
-            figure.childElementCount <= 1 && figure.append(...
-                beys.map(({id, 0: code}) => new Model(id || code, this.Part.subcomp).canvas)
+        model: async (ev, use) => {
+            ev?.stopPropagation();
+            let figure = this.sQ('figure'), svg = this.sQ('svg');
+            figure.children.length <= 1 && figure.append(
+                ...(await new Search(this.Part.path)).beys
+                .map(({id, 0: code}) => new Model(id || code, this.Part.subcomp).canvas)
             );
-            let showing = E(figure).get('--showing') || 0, way = {def: -1, sta: 1}[node.classList];
-            if (showing === 0 && way === -1 || showing == figure.childElementCount - 1 && way === 1) return;
-            E(figure).set({
-                '--showing': showing + (way ?? 0), 
-                title: figure.children[showing + (way ?? 0)]?.title || ''
-            });
+            svg.Q('.sta,.def', use => use.onpointerdown ??= ev => this.act.spin(ev, use));
+            let showing = typeof use == 'string' ? 
+                [...figure.children].findIndex(canvas => canvas.title == use) : E(figure).get('--showing') || 0;
+            if (typeof use == 'object') {
+                let way = {bal: -1, att: 1}[use.classList];
+                if (showing === 0 && way === -1 || showing === figure.children.length - 1 && way === 1) return;
+                showing += way ?? 0;
+            }
+            E(svg).set({classList: [showing > 0 && 'model', showing === figure.children.length - 1 && 'ended']});
+            E(figure).set({'--showing': showing, title: figure.children[showing]?.title || '', classList: 'sliding'});
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => figure.classList.remove('sliding'), 500);
+        },
+        spin (ev, use) {
+            ev.stopPropagation();
+            let canvas = this.sQ('canvas[data-engine]');
+            if (!canvas) return;
+            canvas.Model.spin(use.classList == 'sta' ? .02 : -.02);
+            let stopping = () => (canvas.Model.spin(false), removeEventListener('pointerup', stopping));
+            addEventListener('pointerup', stopping);
         }
     }
     static icons = new O([

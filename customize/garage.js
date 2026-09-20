@@ -148,7 +148,7 @@ Object.assign(Garage, {
                     ev.target.firstElementChild.selected = true;
                     await (option.matches('.Lm') ?
                         new Preview(['cell', 'diamond'], {code, bey: option.title}, ev) :
-                        new Preview(['cell', 'image'], {code: code.split('_')[0]}, ev));
+                        new Preview(['cell', 'image'], {code}, ev));
                     return Garage.set.acquired(ev.target);
                 }
                 let changed = [ev.target.closest('li'), ...Q('li.selected', [])];

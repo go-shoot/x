@@ -261,11 +261,12 @@
 :host figure {
     place-self: center;
     --size: 7.4em; width: var(--size); height: var(--size);
-    display: grid; grid-template-rows: 100%; place-items: center;
-    grid-auto-columns: 100%; grid-auto-flow: column; 
+    display: grid; grid-template-columns: 100%; place-items: center;
+    grid-auto-rows: 100%; grid-auto-flow: row; 
     position: relative;
     overflow: hidden;
 
+    &.sliding,canvas {clip-path: polygon(29.3% 0,70.7% 0,100% 29.3%,100% 70.7%,70.7% 100%,29.3% 100%,0 70.7%,0 29.3%);}
     &::after {
         content: attr(title); font-size: .6em;
         position: absolute; bottom: 20%; left: 20%; transform: translate(-50%,50%) rotate(45deg);
@@ -274,10 +275,11 @@
     span {min-width: 100%; align-self: center;}
     canvas {
         max-width: 100%; min-height: 100%;
-        clip-path: polygon(29.3% 0,70.7% 0,100% 29.3%,100% 70.7%,70.7% 100%,29.3% 100%,0 70.7%,0 29.3%);
         z-index: 1;
+        opacity: 0;
+        &[data-engine] {opacity: 1;}
     }
-    * {transform: translateX(calc(var(--showing)*var(--size)*-1));}
+    * {transform: translateY(calc(var(--showing)*var(--size)*-1)); transition: opacity .5s,transform .5s;}
 }
 :host p {
     text-align: left; font-size: .6em;
@@ -302,7 +304,8 @@
     position: absolute; inset: 2em; height: 11em; /*safari*/
 
     use {
-        stroke: var(--type); fill: none;
+        stroke: var(--type); 
+        fill: transparent; transition: fill .5s;
         transform: rotate(var(--angle)) translateY(47px);
         pointer-events: visible;
 
@@ -311,9 +314,8 @@
         &.sta {--angle: -90deg;}
         &.def {--angle: 090deg;}
 
-        :host(.att) &.att, :host(.bal) &.bal, :host(.def) &.def, :host(.sta) &.sta {
-            fill: var(--type);
-        }
+        :host(.att) svg:not(.model) &.att, :host(.bal) &.bal, :host(.def) &.def, :host(.sta) &.sta,
+        svg.model:not(.ended) &, svg.ended &:not(.att) {fill: var(--type);}
     }
 }
 
@@ -374,6 +376,7 @@ table {
         tr[style*='--coat'] &:is([headers=blade],[headers=main],[headers=metal]) {
             color: var(--coat,transparent) !important;
         }
+        &.model {backdrop-filter: brightness(.6);}
     }
 }
 td {

@@ -1,0 +1,30 @@
+<title>Model</title>
+<script defer src=../include/common.js></script>
+<nav><menu></menu></nav>
+<main>
+    <input type="text">
+    <table><tbody></tbody></table>
+    <figure><canvas></canvas></figure>
+</main>
+<style>figure {width:20em; height: 20em;} canvas {width: 100%; height: 100%; pointer-events: auto;}</style>
+<script type="module">
+import DB from '../include/DB.js';
+import {Bey, Search} from '../parts/bey.js';
+import Model from './model.js'
+Model.multiple();
+let PARTS;
+const show = async code => {
+    Q('tbody').replaceChildren();
+    let {beys} = await new Search(code);
+    if (!beys.length) return;
+    Q('tbody').replaceChildren(...beys.map(bey => new Bey(bey).Row));
+    Q('div', div => div.replaceChildren());
+    let tr = Q('tr:first-child');
+    setTimeout(() => Q('figure').replaceChildren(
+        ...tr.Q('td[headers][title]', []).map((td, i) => new Model(tr.id, td.headers).canvas)
+    ), 500);
+}
+Q('input').onchange = ev => show(ev.target.value);
+Q('main').prepend(DB().then(() => DB.get.essentials()));
+onpointerdown=console.log
+</script>

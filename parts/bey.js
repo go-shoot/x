@@ -5,13 +5,13 @@ import Maps from '../products/maps.js';
 
 let PARTS, Blade, Ratchet, Bit;
 class Bey {
-    constructor(bey) {
+    constructor(bey, callback) {
         if (typeof bey == 'string') {
             this.abbr.to.parts(bey).to.names(['hk', 'tw', 'jap']);
         } else if (Array.isArray(bey)) {
             let [code, type, abbr, ...rest] = bey;
             this.abbr.to.parts(this.abbr = abbr);
-            this.Row = new Row(this, code, type, rest);
+            this.Row = new Row(this, code, type, rest, callback);
         } else {
             Object.assign(this, bey);
             this.parts.to.names(['hk', 'tw'], true);
@@ -85,19 +85,20 @@ Bey.import = PARTS_ => ([PARTS, {Blade, Ratchet, Bit}] = [PARTS_, Part]) && Obje
 
 class Row {
     static observer = new IntersectionObserver(entries => {
-        entries.forEach(en => en.isIntersecting ? en.target.Row.fill() : en.target.replaceChildren());
+        entries.forEach(en => en.isIntersecting ? en.target.Row.callback.intersect() : en.target.replaceChildren());
         window.onresize();
     }, {rootMargin: '100px 0px'});
-    constructor(Bey, code, classes, rest) {
+    constructor(Bey, code, classes, rest, callback) {
         let [video, more] = ['string', 'object'].map(t => rest.find(o => typeof o == t));
         this.tr = E('tr', {
             id: code, title: Bey.abbr,
             classList: [Bey.line, classes], dataset: video ? {video} : {},
         });
+        Row.observer.observe(this.tr);
         this.tr.Row = this;
         this.tr.Bey = this.Bey = Bey;
         this.more(more);
-        Row.observer.observe(this.tr);
+        this.callback = {intersect: () => (this.fill(), callback?.intersect?.(this.tr))};
         return this.tr;
     }
     fill (Bey = this.Bey) {
@@ -204,20 +205,22 @@ class Preview {
         return [kind].flat().reduce((pr, w) => pr.then(() => this[w]({code, bey, path})), Promise.resolve())
         .then(() => Glossary(Preview.dialog));
     }
-    cell = ({path, code}) => new Search(code?.split('_')[0] || path)
+    cell = ({code, path}) => new Search(path || code?.split('_')[0])
         .then(({beys, href}) => Q('#cells').append(
             E('table', {onclick: Preview.for.table}, [
                 E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
                 Preview.thead.cloneNode(true), 
-                E('tbody', beys.map(bey => new Bey(bey).Row))
+                E('tbody', beys.map(bey => new Bey(bey, {
+                    intersect: tr => path && tr.id === code && tr.Q(`td[headers='${path.at(-2)}']`)?.classList.add('model')
+                }).Row))
             ])
         ))
+    tile = ({code, path}) => PARTS.at(path).tile?.(/*{intersect: tile => tile.act.model(null, code)}*/)
+        .then(tile => Q('#tiles').append(tile))
     diamond = ({code, bey}) => DB.get('product', 'keihins')
-        .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
-
-    tile = ({path}) => PARTS.at(path).tile?.().then(tile => Q('#tiles').append(tile))
-    
+        .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))    
     image ({code}) {
+        code = code.split('_')[0];
         if (/^BXA-\d+$/.test(code))
             return Preview.dialog.Q('#images').append(
                 ...Maps.images.find(code).map(src => E('img', {
@@ -267,12 +270,13 @@ class Preview {
     static for = {
         table (ev) {
             if (!location.pathname.includes('products')) return;
+            let code = ev.target.parentElement.id;
             if (ev.target.matches('.Lm :first-child')) 
-                return new Preview('diamond', {code: ev.target.parentElement.id, bey: ev.target.parentElement.title}, ev);
+                return new Preview('diamond', {code, bey: ev.target.parentElement.title}, ev);
             if (ev.target.matches(':first-child'))
-                return new Preview('image', {code: ev.target.parentElement.id.split('_')[0]}, ev);
+                return new Preview('image', {code}, ev);
             if (ev.target.Part)
-                return new Preview('tile', {path: ev.target.Part.path}, ev);
+                return new Preview('tile', {code, path: ev.target.Part.path}, ev);
         }
     }
     static dialog = Q('#preview') || Q('body').appendChild(E('dialog#preview', {
