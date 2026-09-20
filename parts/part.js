@@ -205,7 +205,7 @@ class Tile extends HTMLElement {
             clearTimeout(this.timer);
             this.timer = setTimeout(() => figure.classList.remove('sliding'), 500);
         },
-        spin (ev, use) {
+        spin: (ev, use) => {
             ev.stopPropagation();
             let canvas = this.sQ('canvas[data-engine]');
             if (!canvas) return;
