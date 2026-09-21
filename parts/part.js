@@ -206,9 +206,9 @@ class Tile extends HTMLElement {
             this.timer = setTimeout(() => figure.classList.remove('sliding'), 500);
         },
         spin: (ev, use) => {
-            ev.stopPropagation();
             let canvas = this.sQ('canvas[data-engine]');
             if (!canvas) return;
+            ev.stopPropagation();
             canvas.Model.spin(use.classList == 'sta' ? .02 : -.02);
             let stopping = () => (canvas.Model.spin(false), removeEventListener('pointerup', stopping));
             addEventListener('pointerup', stopping);

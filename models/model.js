@@ -35,7 +35,7 @@ class Model {
             const box = new THREE.Box3().setFromObject(model);
             const [size, center] = ['Size','Center'].map(f => box[`get${f}`](new THREE.Vector3()));
             const height = 2 * camera.position.z * Math.tan(camera.fov * Math.PI / 180 / 2);
-            const width = height * camera.aspect;
+            const width = height * camera.models.length;
             const scale = Math.min(width / size.x, height / size.y) * .75 * (Model.scale[this.canvas.classList] ?? 1);
             model.position.copy(center).negate();
             const group = this.group = new THREE.Group();
@@ -89,14 +89,19 @@ class Model {
 }
 Model.multiple = () => {
 const canvas = Q('canvas');
+const comp = location.search.substring(1);
+const models = [
+    `/x-model/BX01/${comp}.glb`,
+    `/x-model/BX02/${comp}.glb`,
+    `/x-model/BX03/${comp}.glb`
+]
 const scene = new THREE.Scene();
-const aspect = (canvas.clientWidth * 3) / canvas.clientHeight;
-const d = 50; // Controls the view size / zoom
+const dim = 5; 
 
-const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 1000);
+const camera = new THREE.OrthographicCamera(-dim * models.length, dim * models.length, dim, -dim, 0.1, 1000);
 camera.position.z = 100;
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-renderer.setSize(canvas.clientWidth * 3, canvas.clientHeight);
+renderer.setSize(canvas.clientWidth * models.length, canvas.clientWidth);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
@@ -105,53 +110,48 @@ directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
 const objects = [];
-let comp = location.search.substring(1);
-Promise.all(['3','4','5','6'].map((n, i, ar) => 
-    Model.fetch(`/x-model/BX0${n}/${comp}.glb`).then(model => {
+Promise.all(models.map((url, i, ar) => 
+    Model.fetch(url).then(model => {
         model.updateMatrixWorld(true);
-        let scale = Model.scale_[comp] ?? 1;
-        model.scale.set(scale, scale, scale)
-        Object.assign(model.rotation, Model.transform[comp] ?? {});
-        let size = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
-        model.position.set((i - (ar.length - 1)/2) * (size.x + 10), 0)//size.y / -2);
-        scene.add(model);
-        objects.push(model);
+        const group = new THREE.Group();
+        group.add(model);
+        scene.add(group);
+
+        let box = new THREE.Box3().setFromObject(model);
+        model.position.sub(box.getCenter(new THREE.Vector3()));
+        box.setFromObject(group);
+        let size = box.getSize(new THREE.Vector3());
+        group.scale.multiplyScalar(2 * dim * .8 / Math.max(size.x, size.y));
+        Object.assign(group.rotation, Model.transform[comp] ?? {});
+
+        let center = box.getCenter(new THREE.Vector3());        
+        let squareCenter = dim * (2 * i - ar.length + 1);
+        group.position.x = squareCenter - center.x;
+        group.position.y = -center.y;
+        group.position.z = 0;
+        objects.push(group);
     })
 ));
 
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-let selectedObject = null;
+let selected = null;
+canvas.onpointermove = ev => {
+    let {x, width: w} = canvas.getBoundingClientRect();
+    selected = objects[Math.floor((ev.clientX - x) / w * models.length)];
+}
+canvas.onwheel = ev => 
+    canvas.onpointermove(ev) ?? selected?.scale.setScalar(selected.scale.x * (ev.deltaY > 0 ? 0.95 : 1.05));
 PI.events([[canvas, {
-    press: PI => {
-        let {x, y, width: w, height: h} = canvas.getBoundingClientRect();
-        pointer.x = (PI.$press.x - x) / w * 2 - 1;
-        pointer.y = (PI.$press.y - y) / -h * 2 + 1;
-        raycaster.setFromCamera(pointer, camera);
-        selectedObject = raycaster.intersectObjects(objects)[0]?.object;
-    },
     drag: PI => {
-        if (!selectedObject) return;
-        selectedObject.rotation.y += PI.$drag.mx * 0.01;
-        selectedObject.rotation.x += PI.$drag.my * 0.01;
-    },
-    lift: () => selectedObject = null
-}]])
+        if (!selected) return;
+        selected.rotation.y += PI.$drag.mx * 0.01;
+        selected.rotation.x += PI.$drag.my * 0.01;
+    }
+}]]);
+
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
 animate();
-window.addEventListener('wheel', (event) => {
-    if (!selectedObject) return;
-
-    // Determine scale direction based on scroll
-    const scaleFactor = event.deltaY > 0 ? 0.95 : 1.05;
-
-    // Apply scale uniformly, with safety bounds (e.g., min 0.2x, max 5x)
-    const currentScale = selectedObject.scale.x;
-    const newScale = Math.max(0.2, Math.min(5.0, currentScale * scaleFactor));
-    
-    selectedObject.scale.set(newScale, newScale, newScale);
-});}
+}
 export default Model;
