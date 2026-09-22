@@ -107,7 +107,7 @@ class Ratchet extends Part {
             return {eng: `${digit[blade] ?? blade}‒${tens[Math.floor(height / 10)]}${digit[height % 10 || ''] ?? ''}`};
         },
         attr: () => this.attr?.has('simple') ? this.attr : (this.attr ??= new Set()).add('normal'),
-        stat: base => this.stat.length === 1 ? [...this.stat, ...base.stat.slice(1)] : this.stat
+        stat: base => this.stat.length == 2 ? this.stat.concat(base.stat.at(-1)) : this.stat
     }
     static eng = {
         digit: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
@@ -185,19 +185,19 @@ class Tile extends HTMLElement {
             h5.innerText = '';
             setTimeout(() => h5.innerHTML = html, 1000);
         },
-        model: async (ev, use) => {
+        model: async (ev, use, figure = this.sQ('figure'), svg = this.sQ('svg')) => {
+            if (typeof use == 'object' && use.classList != 'att' && figure.children.length <= 1) return;
             ev?.stopPropagation();
-            let figure = this.sQ('figure'), svg = this.sQ('svg');
             figure.children.length <= 1 && figure.append(
                 ...(await new Search(this.Part.path)).beys
                 .map(({id, 0: code}) => new Model(id || code, this.Part.subcomp).canvas)
             );
             svg.Q('.sta,.def', use => use.onpointerdown ??= ev => this.act.spin(ev, use));
-            let showing = typeof use == 'string' ? 
-                [...figure.children].findIndex(canvas => canvas.title == use) : E(figure).get('--showing') || 0;
+            let showing = typeof use == 'object' ? 
+                E(figure).get('--showing') || 0 : [...figure.children].findIndex(canvas => canvas.title == use);
             if (typeof use == 'object') {
                 let way = {bal: -1, att: 1}[use.classList];
-                if (showing === 0 && way === -1 || showing === figure.children.length - 1 && way === 1) return;
+                if (figure.children.length <= 1 || showing === 0 && way === -1 || showing === figure.children.length - 1 && way === 1) return;
                 showing += way ?? 0;
             }
             E(svg).set({classList: [showing > 0 && 'model', showing === figure.children.length - 1 && 'ended']});
@@ -209,7 +209,7 @@ class Tile extends HTMLElement {
             let canvas = this.sQ('canvas[data-engine]');
             if (!canvas) return;
             ev.stopPropagation();
-            canvas.Model.spin(use.classList == 'sta' ? .02 : -.02);
+            canvas.Model.spin(use.classList == 'sta' ? -.02 : .02);
             let stopping = () => (canvas.Model.spin(false), removeEventListener('pointerup', stopping));
             addEventListener('pointerup', stopping);
         }

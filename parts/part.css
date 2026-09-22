@@ -240,6 +240,7 @@
         }
         dd {anchor-name: --weight;}
     }
+    :host(.assist) & div:nth-child(3) {grid-column: 1; margin-right: -.5em;}
     :host(.ratchet) & div:nth-child(2),
     :host(.bit) & div:nth-child(3):has(+div) {grid-column: 1;}
     :host(.ratchet) & div:first-child,
@@ -284,7 +285,7 @@
 :host p {
     text-align: left; font-size: .6em;
     line-height: 1.4; letter-spacing: .03em;
-    margin: 0; padding-left: .5em;
+    margin: 0; 
     overflow: hidden;
 
     &::before {
@@ -293,7 +294,7 @@
         --h: 14.4em; --w: 7.1em; /*calculated for safari*/
         float: left;
         visibility: hidden;
-        --y: 14; --x:75;
+        --y: 12; --x: 76;
         shape-outside: polygon(0 calc(var(--y)*var(--h)/100/.6),calc(var(--x)*var(--w)/100/.6) calc(50*var(--h)/100/.6),0 calc((100 - var(--y))*var(--h)/100/.6));
     }
     u {

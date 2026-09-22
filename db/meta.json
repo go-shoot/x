@@ -40,11 +40,11 @@
         },
         "tile": {
             "blade": {
-                "terms": ["重量","高度"]
+                "terms": ["重量","旋轉直徑","高度"]
             },
             "ratchet": {
                 "height": {"high": 80, "mid": 65, "low": 50},
-                "terms": ["重量", "RING刃數", "BASE高度"]
+                "terms": ["重量","旋轉直徑","高度"]
             },
             "bit": {
                 "terms": ["重量", "GEAR齒數", "BURST耐性", "露出高度"],

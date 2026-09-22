@@ -35,7 +35,7 @@ class Model {
             const box = new THREE.Box3().setFromObject(model);
             const [size, center] = ['Size','Center'].map(f => box[`get${f}`](new THREE.Vector3()));
             const height = 2 * camera.position.z * Math.tan(camera.fov * Math.PI / 180 / 2);
-            const width = height * camera.models.length;
+            const width = height * camera.aspect;
             const scale = Math.min(width / size.x, height / size.y) * .75 * (Model.scale[this.canvas.classList] ?? 1);
             model.position.copy(center).negate();
             const group = this.group = new THREE.Group();
