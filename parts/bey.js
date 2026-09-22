@@ -2,6 +2,7 @@ import DB from '../include/DB.js';
 import { Part, Cell } from './part.js';
 import { Glossary, Markup, Transition, Keihin } from '../include/utilities.js';
 import Maps from '../products/maps.js';
+import Model from '../models/model.js';
 
 let PARTS, Blade, Ratchet, Bit;
 class Bey {
@@ -214,11 +215,17 @@ class Preview {
                     intersect: tr => path && tr.id === code && tr.Q(`td[headers='${path.at(-2)}']`)?.classList.add('model')
                 }).Row))
             ])
-        ))
+        )/* ?? this.model(path)*/)
     tile = ({code, path}) => PARTS.at(path).tile?.(/*{intersect: tile => tile.act.model(null, code)}*/)
-        .then(tile => Q('#tiles').append(tile))
+        .then(tile => Q('#tiles').append(tile) /*?? this.model(path)*/)
     diamond = ({code, bey}) => DB.get('product', 'keihins')
-        .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))    
+        .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
+    model = path => Preview.dialog.Q('canvas') || new Search(path)
+        .then(({beys}) => {
+            let codes = beys.map(({id, 0: code}) => id || code);
+            Q('#models').append(E('canvas'), E('p', codes.map(c => E('code', c))));
+            setTimeout(() => new Model(codes, path.at(-2), Q('#models canvas')).render().then(m => m.reorder('$color')), 500);
+        })
     image ({code}) {
         code = code.split('_')[0];
         if (/^BXA-\d+$/.test(code))
@@ -286,7 +293,7 @@ class Preview {
             Transition.popover('hide', ev, ev.currentTarget);
             Preview.clear();
         }
-    }, [E('div#cells'), E('div#tiles'), E('div#images'), E('diamond-grid')]));
+    }, [E('div#cells'), E('div#tiles'), E('div#models'), E('div#images'), E('diamond-grid')]));
     static thead = E('thead>tr', [
         E('th', 'CODE'), 
         E('th.icon-blade', {colSpan: 6}),

@@ -33,7 +33,7 @@ th,nav dd,summary>*,small {
 tr[data-get]::after,
 td:is(:first-child,[headers=ratchet],[title]:has(+:not([headers]))),
 :host(x-part) figure::after,
-.boards code,select[name=tier] option {
+.boards code,#models code,select[name=tier] option {
     font-family: Fira Code, COND, Chiron GoRound TC, sans-serif;
 }
 @font-face {
@@ -394,6 +394,19 @@ dialog {
     }
     #tiles:not(:has(x-part)) a,#images:empty,p:empty {
         display: none;
+    }
+    #models {
+        --height: 8em; height: var(--height); overflow-x: scroll;
+        position: relative;
+
+        p {
+            margin: -1.1em auto 0 auto;
+            display: flex; justify-content: space-evenly; 
+            width: calc(var(--count)*var(--height));
+
+            code {flex: 1; font-size: .75em;} 
+        }
+        canvas {height: 100%;}
     }
     #images {
         display: grid; grid-template-columns: repeat(3,1fr);

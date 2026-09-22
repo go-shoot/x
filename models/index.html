@@ -6,12 +6,14 @@
     <table><tbody></tbody></table>
     <figure><canvas></canvas></figure>
 </main>
-<style>figure {width:20em; height: 20em;} canvas {width: 100%; height: 100%; pointer-events: auto;}</style>
+<style>figure {height: 20em;} canvas {width: 100%; height: 100%; pointer-events: auto;}</style>
 <script type="module">
 import DB from '../include/DB.js';
 import {Bey, Search} from '../parts/bey.js';
 import Model from './model.js'
-Model.multiple();
+let m = await new Model(['BX53_01','BX01','BX02','BX03'], location.search.substring(1), Q('canvas')).render();
+console.log(m.models.map(m=>m?.$color))
+m.reorder('$color');
 let PARTS;
 const show = async code => {
     Q('tbody').replaceChildren();
