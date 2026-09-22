@@ -1,4 +1,9 @@
 {
+    "BXC-?2":{
+        "type":"m", "date":"2026-10", "note":"コロコロ雜誌應募", 
+        "ver":["メタルコート：ホワイト","Metal Coat: White"], "link":"https://corocoro-news.jp/news/402435/",
+        "img":["https://corocoro-news.jp/wp-content/uploads/2026/09/e8fe110a414d86f3d3075ea44804e054.jpg",90]
+    },
     "BXC-19":{
         "type":"m", "date":"2027-05", "note":"Full color版漫畫同梱",
         "ver":["メタルコート：イエロー","Metal Coat: Yellow"], "link":"https://lifetunes-mall.jp/shop/g/gR20260075/",
@@ -29,7 +34,7 @@
         "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news260615_6.html", 
         "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news260615_6_bitU.webp",200]
     },
-    "BXC-?1":{
+    "BXC-20":{
         "type":"m", "date":"2026-08", "note":"コロコロ雜誌應募", 
         "ver":["メタルコート：ブラック","Metal Coat: Black"], "link":"https://corocoro-news.jp/news/401960/",
         "img":["https://corocoro-news.jp/wp-content/uploads/2026/07/8dff3a12f1d5cf75a5aa1bdb414d404f.jpg",90]

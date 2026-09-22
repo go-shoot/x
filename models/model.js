@@ -32,20 +32,13 @@ class Model {
 
         Model.fetch(this.url).then(model => {
             model.updateMatrixWorld(true);
-            const box = new THREE.Box3().setFromObject(model);
-            const [size, center] = ['Size','Center'].map(f => box[`get${f}`](new THREE.Vector3()));
-            const height = 2 * camera.position.z * Math.tan(camera.fov * Math.PI / 180 / 2);
-            const width = height * camera.aspect;
-            const scale = Math.min(width / size.x, height / size.y) * .75 * (Model.scale[this.canvas.classList] ?? 1);
-            model.position.copy(center).negate();
             const group = this.group = new THREE.Group();
             group.add(model);
-            group.scale.set(scale, scale, scale);
-            Object.assign(group.rotation, Model.transform[this.canvas.classList] ?? {});
+            const {center} = new THREE.Box3().setFromObject(model).getBoundingSphere(new THREE.Sphere());
+            model.position.copy(center).negate();
+            group.scale.setScalar(0.07 * (Model.scale[this.canvas.classList] ?? 1));
+            Object.assign(group.rotation, Model.rotate[this.canvas.classList] ?? Model.rotate.blade);
             scene.add(group);
-            controls.target.set(0, 0, 0);
-            controls.update();
-            renderer.render(scene, camera);
         }).catch(er => `${er}`.includes('404') ? 
             this.canvas.replaceWith(E('span', '未有模型', {title: this.canvas.title})) : console.error(er)
         );
@@ -76,12 +69,10 @@ class Model {
         Model.observer.observe(canvas);
         return canvas;
     }
-    static scale = {chip: .8}
-    static scale_ = {bit: 1.2, ratchet: 1.1}
-    static transform = {
+    static scale = {chip: 1.5, bit: 1.6}
+    static rotate = {
         blade: {x: Math.PI/2, y: Math.PI},
         ratchet: {x: -Math.PI/3},
-        chip: {z: Math.PI},
         bit: {x: -Math.PI/6, z: -Math.PI/12}
     }
     static fetch = url => new Promise((res, rej) => Model.loader.load(url, gltf => res(gltf.scene), null, er => rej(er)))
@@ -122,7 +113,7 @@ Promise.all(models.map((url, i, ar) =>
         box.setFromObject(group);
         let size = box.getSize(new THREE.Vector3());
         group.scale.multiplyScalar(2 * dim * .8 / Math.max(size.x, size.y));
-        Object.assign(group.rotation, Model.transform[comp] ?? {});
+        Object.assign(group.rotation, Model.rotate[comp] ?? {});
 
         let center = box.getCenter(new THREE.Vector3());        
         let squareCenter = dim * (2 * i - ar.length + 1);

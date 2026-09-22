@@ -294,7 +294,7 @@
     },
     "chip":{
         "Kd": {
-            "names": {"jap":"キッド", "eng":"Kid"},
+            "names": {"jap":"キッド", "eng":"Kid", "chi":"基德"},
             "stat": ["2-"],
             "attr": ["right"]
         },
