@@ -12,7 +12,7 @@ import DB from '../include/DB.js';
 import {Bey, Search} from '../parts/bey.js';
 import Model from './model.js'
 let m = await new Model(['BX53_01','BX01','BX02','BX03'], location.search.substring(1), Q('canvas')).render();
-console.log(m.models.map(m=>m?.$color))
+//console.log(m.models.map(m=>m?.$color))
 m.reorder('$color');
 let PARTS;
 const show = async code => {

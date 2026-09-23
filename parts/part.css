@@ -280,7 +280,7 @@
         opacity: 0;
         &[data-engine] {opacity: 1;}
     }
-    * {transform: translateY(calc(var(--showing)*var(--size)*-1)); transition: opacity .5s,transform .5s;}
+    * {transform: translateY(calc(var(--showing)*var(--size)*-1)); transition: opacity .5s,transform var(--s,0);}
 }
 :host p {
     text-align: left; font-size: .6em;
@@ -363,6 +363,7 @@ table {
         position: relative;
         text-align: left; line-height: 2;
         z-index: 1;
+        transition: backdrop-filter .5s;
 
         &:first-child {color: var(--line);}
         &[headers=blade] {min-width: 11em;}
@@ -377,7 +378,7 @@ table {
         tr[style*='--coat'] &:is([headers=blade],[headers=main],[headers=metal]) {
             color: var(--coat,transparent) !important;
         }
-        &.model {backdrop-filter: brightness(.6);}
+        &.model {backdrop-filter: brightness(.5);}
     }
 }
 td {

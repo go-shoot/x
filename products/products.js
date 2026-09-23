@@ -67,13 +67,16 @@ Object.assign(Table, {
         }));
         (input.checked = true) && (input.value *= -1);
     },
-    async search (query) {
+    async search (query, code) {
         Filter.form.onreset();
         query[0] == 'search' && (query = query[1]) && (Q('input[type=search]').value ||= query);
         typeof query == 'string' && (query = query.trim());
         if (!query) return Table.reset();
         let {beys, href} = await new Search(query);
-        [...Table.body.rows].forEach(tr => tr.classList.toggle('hidden', !beys.includes(tr)));
+        [...Table.body.rows].forEach(tr => {
+            tr.classList.toggle('hidden', !beys.includes(tr));
+            tr.id == code && tr.Row.select(query.at(-2));
+        });
         Links.link(href ? query : '');
         href && history.replaceState('', '', href);
         FilterForm.count();

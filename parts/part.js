@@ -36,13 +36,15 @@ class Part {
     async revise (type = 'cell', comp = this.constructor.name.toLowerCase(), base, pref) {
         let props = Array.isArray(type) ? type : this.constructor.revisions?.[type] ?? Object.keys(this.revised);
         let revisable = this.revisable ?? this.constructor.revisions?.regexp?.test(this.abbr) ?? true;
-        if (!this.abbr || !props || !revisable) return this;
+        let isPartial = P => props.some(p => P[p] == null);
+        
+        if (!this.abbr || !props || !revisable || !isPartial(this)) return this;
         if (comp == 'ratchet') {
             base = {stat: [, ...this.abbr.split('-')]};
         } else {
             [, pref, base] = this.constructor.revisions.regexp?.exec(this.abbr) ?? [];
             let P = PARTS[comp][base];
-            base &&= props.every(p => P[p] != null) ? P : P.push(await DB.get(comp, base));
+            base &&= isPartial(P) ? P.push(await DB.get(comp, base)) : P;
         }
         props.forEach(prop => this[prop] = this.revised[prop](base, pref) || this[prop]);
         return this;
@@ -145,6 +147,7 @@ class Tile extends HTMLElement {
             this.fill();
             Glossary(this.shadowRoot);
             callback?.intersect?.(this);
+            setTimeout(() => callback?.timeout?.(this), 100);
         }};
     }
     fill () {
@@ -169,12 +172,13 @@ class Tile extends HTMLElement {
     }
     #onclick (ev) {
         if (ev.button !== 0 || this.matches('.PI-dragged')) return;
+        let color = this.sQ('canvas[data-engine]')?.title;
         let node = ev.composedPath().find(n => ['A', 'H5', 'use'].includes(n.tagName));
         ({
             H5: ev => this.act.copy(ev, node),
             use: ev => this.act.model(ev, node),
-            '/x/parts/': ev => new Preview('cell', {path: this.Part.path, code: this.sQ('canvas[data-engine]')?.title}, ev),
-            '/x/products/': () => Table.search(this.Part.path)
+            '/x/parts/': ev => new Preview('cell', {path: this.Part.path, code: color}, ev),
+            '/x/products/': () => Table.search(this.Part.path, color)
         })[node?.tagName ?? location.pathname]?.(ev);
     }
     act = {
@@ -186,19 +190,24 @@ class Tile extends HTMLElement {
             setTimeout(() => h5.innerHTML = html, 1000);
         },
         model: async (ev, use, figure = this.sQ('figure'), svg = this.sQ('svg')) => {
-            if (typeof use == 'object' && use.classList != 'att' && figure.children.length <= 1) return;
+            if (ev && use.classList != 'att' && figure.children.length <= 1) return;
             ev?.stopPropagation();
             figure.children.length <= 1 && figure.append(
                 ...(await new Search(this.Part.path)).beys
                 .map(({id, 0: code}) => new Model(id || code, this.Part.subcomp).canvas)
             );
             svg.Q('.sta,.def', use => use.onpointerdown ??= ev => this.act.spin(ev, use));
-            let showing = typeof use == 'object' ? 
-                E(figure).get('--showing') || 0 : [...figure.children].findIndex(canvas => canvas.title == use);
-            if (typeof use == 'object') {
+
+            let showing;
+            E(figure).set({'--s': '0s'});
+            if (ev) {
+                showing = E(figure).get('--showing') || 0;
                 let way = {bal: -1, att: 1}[use.classList];
                 if (figure.children.length <= 1 || showing === 0 && way === -1 || showing === figure.children.length - 1 && way === 1) return;
                 showing += way ?? 0;
+                E(figure).set({'--s': '0.5s'});
+            } else {
+                showing = [...figure.children].findIndex(canvas => canvas.title == use);
             }
             E(svg).set({classList: [showing > 0 && 'model', showing === figure.children.length - 1 && 'ended']});
             E(figure).set({'--showing': showing, title: figure.children[showing]?.title || '', classList: 'sliding'});

@@ -6,13 +6,13 @@ import Model from '../models/model.js';
 
 let PARTS, Blade, Ratchet, Bit;
 class Bey {
-    constructor(bey, callback) {
+    constructor(bey, {select} = {}) {
         if (typeof bey == 'string') {
             this.abbr.to.parts(bey).to.names(['hk', 'tw', 'jap']);
         } else if (Array.isArray(bey)) {
             let [code, type, abbr, ...rest] = bey;
             this.abbr.to.parts(this.abbr = abbr);
-            this.Row = new Row(this, code, type, rest, callback);
+            this.Row = new Row(this, code, type, rest, select);
         } else {
             Object.assign(this, bey);
             this.parts.to.names(['hk', 'tw'], true);
@@ -86,12 +86,12 @@ Bey.import = PARTS_ => ([PARTS, {Blade, Ratchet, Bit}] = [PARTS_, Part]) && Obje
 
 class Row {
     static observer = new IntersectionObserver(entries => {
-        entries.forEach(en => en.isIntersecting ? en.target.Row.callback.intersect() : en.target.replaceChildren());
+        entries.forEach(en => en.isIntersecting ? en.target.Row.intersect.callback() : en.target.replaceChildren());
         window.onresize();
     }, {rootMargin: '100px 0px'});
-    constructor(Bey, code, classes, rest, callback) {
+    constructor(Bey, code, classes, rest, select) {
         let [video, more] = ['string', 'object'].map(t => rest.find(o => typeof o == t));
-        this.tr = E('tr', {
+        let tr = this.tr = E('tr', {
             id: code, title: Bey.abbr,
             classList: [Bey.line, classes], dataset: video ? {video} : {},
         });
@@ -99,7 +99,8 @@ class Row {
         this.tr.Row = this;
         this.tr.Bey = this.Bey = Bey;
         this.more(more);
-        this.callback = {intersect: () => (this.fill(), callback?.intersect?.(this.tr))};
+        this.intersect = Object.assign([() => this.fill()], {callback: function() {return this.forEach(f => f(tr))}});
+        select && this.select(select);
         return this.tr;
     }
     fill (Bey = this.Bey) {
@@ -119,6 +120,15 @@ class Row {
         coat && E(this.tr).set({'--coat': coat});
         mode && (this.tr.dataset.mode = JSON.stringify(mode));
         get && (this.tr.dataset.get = typeof get == 'number' ? `×${get}` : get);
+    }
+    select (comp) {
+        let f = td => {
+            td ??= this.tr.Q(`td[headers='${comp}']`);
+            td?.classList.add('model');
+            setTimeout(() => td?.classList.remove('model'), 3000);
+        }
+        let td = this.tr.Q(`td[headers='${comp}']`);
+        td ? f(td) : this.intersect.push(() => f());
     }
 }
 
@@ -207,25 +217,35 @@ class Preview {
         .then(() => Glossary(Preview.dialog));
     }
     cell = ({code, path}) => new Search(path || code?.split('_')[0])
-        .then(({beys, href}) => Q('#cells').append(
-            E('table', {onclick: Preview.for.table}, [
+        .then(({beys, href}) => {
+            Q('#cells').append(E('table', {onclick: Preview.for.table}, [
                 E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
                 Preview.thead.cloneNode(true), 
-                E('tbody', beys.map(bey => new Bey(bey, {
-                    intersect: tr => path && tr.id === code && tr.Q(`td[headers='${path.at(-2)}']`)?.classList.add('model')
-                }).Row))
-            ])
-        )/* ?? this.model(path)*/)
-    tile = ({code, path}) => PARTS.at(path).tile?.(/*{intersect: tile => tile.act.model(null, code)}*/)
-        .then(tile => Q('#tiles').append(tile) /*?? this.model(path)*/)
+                E('tbody', beys.map(bey => new Bey(bey/*, path && bey[0] === code ? {select: path.at(-2)} : {}*/).Row))
+            ]));
+            //this.model(path);
+        })
+    tile = ({code, path}) => PARTS.at(path).tile?.(/*code ? {timeout: tile => tile.act.model(null, code)} : {}*/)
+        .then(tile => {Q('#tiles').append(tile); /*this.model(path);*/})
+
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
-    model = path => Preview.dialog.Q('canvas') || new Search(path)
-        .then(({beys}) => {
+        
+    model (path) {
+        if (Preview.dialog.Q('canvas')) return;
+        let model, reorder = ev => {
+            ev.stopPropagation();
+            ev.target.tagName == 'INPUT' && model.reorder(ev.target.checked ? '$color' : false);
+        }
+        Q('#models').append(
+            E('label.toggle', E('input', {type: 'checkbox'}), {onclick: reorder, title: ' 排序'}), E('figure>canvas') 
+        );
+        return new Search(path).then(({beys}) => {
             let codes = beys.map(({id, 0: code}) => id || code);
-            Q('#models').append(E('canvas'), E('p', codes.map(c => E('code', c))));
-            setTimeout(() => new Model(codes, path.at(-2), Q('#models canvas')).render().then(m => m.reorder('$color')), 500);
-        })
+            Preview.dialog.Q('figure').append(...codes.map(c => E('code', c)));
+            model = new Model(codes, path.at(-2), Q('#models canvas'));
+        });
+    }
     image ({code}) {
         code = code.split('_')[0];
         if (/^BXA-\d+$/.test(code))
@@ -293,7 +313,7 @@ class Preview {
             Transition.popover('hide', ev, ev.currentTarget);
             Preview.clear();
         }
-    }, [E('div#cells'), E('div#tiles'), E('div#models'), E('div#images'), E('diamond-grid')]));
+    }, [E('div#cells'), E('div#models'), E('div#tiles'), E('div#images'), E('diamond-grid')]));
     static thead = E('thead>tr', [
         E('th', 'CODE'), 
         E('th.icon-blade', {colSpan: 6}),

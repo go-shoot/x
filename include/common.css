@@ -392,21 +392,34 @@ dialog {
     #cells table {
         margin: .5em auto;
     }
-    #tiles:not(:has(x-part)) a,#images:empty,p:empty {
+    #tiles:not(:has(x-part)) a, #models:not(:has(code)), #images:empty {
         display: none;
     }
     #models {
-        --height: 8em; height: var(--height); overflow-x: scroll;
-        position: relative;
+        display: inline-block; max-width: 100%; text-align: right;
+        span {font-size: .8em;}
+        label {
+            font-size: .8em;
+            margin-right: .5em;
+            position: relative;
 
-        p {
-            margin: -1.1em auto 0 auto;
-            display: flex; justify-content: space-evenly; 
-            width: calc(var(--count)*var(--height));
-
-            code {flex: 1; font-size: .75em;} 
+            &:not(:has(+figure canvas[data-engine])) {display: none;}
+            &::after {
+                content: attr(title); 
+                font-size: 1.3em; white-space: nowrap; color: var(--theme);
+                position: absolute; right: 100%;
+                margin: .15em .4em 0 0;
+            }
         }
-        canvas {height: 100%;}
+        figure {
+            --height: 7em; height: var(--height); overflow-x: scroll;
+            display: grid; grid-template: var(--height) 0 / repeat(var(--count),var(--height));
+            justify-content: safe center;
+            text-align: center;
+
+            canvas {grid-area: 1/1/2/-1; height: var(--height);}
+            code {font-size: .75em; margin-top: -1.2em;}
+        }
     }
     #images {
         display: grid; grid-template-columns: repeat(3,1fr);
@@ -420,9 +433,7 @@ dialog {
             display: block; width: 3em; height: 3em;
             background: url(https://www.gstatic.com/alkali/e90fc2de5a0e583a01f03acda2e3e61f9577a646.svg) center / contain no-repeat;
         }
-        :is(img,p) {
-            width: 100%;
-        }
+        :is(img,p) {width: 100%;}
         p {
             font-size: .9em;
             border-bottom: .15em dotted;
