@@ -1,4 +1,4 @@
-import * as THREE from 'three/webgpu';
+import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
@@ -60,7 +60,7 @@ class Model {
         }
     }
     async render () {console.log('r',this.canvas.title||'multi')
-        this.renderer = new THREE.WebGPURenderer({alpha: true, antialias: true, canvas: this.canvas});
+        this.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true, canvas: this.canvas});
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.scene = new THREE.Scene();
         this.scene.add(new THREE.AmbientLight(0xffffff, 2));
