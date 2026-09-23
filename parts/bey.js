@@ -2,7 +2,7 @@ import DB from '../include/DB.js';
 import { Part, Cell } from './part.js';
 import { Glossary, Markup, Transition, Keihin } from '../include/utilities.js';
 import Maps from '../products/maps.js';
-import Model from '../models/model.js';
+//import Model from '../models/model.js';
 
 let PARTS, Blade, Ratchet, Bit;
 class Bey {
