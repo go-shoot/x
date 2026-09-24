@@ -69,6 +69,9 @@ ruby {
 label,button,summary,[onclick],a[href] {
     transition: filter .3s,background-color .3s;
 }
+canvas {
+    cursor: grab !important;
+}
 button:not([disabled]),label:has(input:not([disabled])),input[type=reset],
 a[href]:not(.disabled),summary,[onclick]:hover {
     cursor: pointer;

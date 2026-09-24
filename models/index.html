@@ -2,18 +2,31 @@
 <script defer src=../include/common.js></script>
 <nav><menu></menu></nav>
 <main>
-    <input type="text">
+    <input type="search">
     <table><tbody></tbody></table>
-    <figure><canvas></canvas></figure>
+    <figure></figure>
 </main>
-<style>figure {height: 20em;} canvas {width: 100%; height: 100%; pointer-events: auto;}</style>
+<style>figure {height: 20em;width: 20em; margin: auto;} canvas {width: 100%; height: 100%; pointer-events: auto;}</style>
+<!-- 
+find /home/mint/Desktop/go-shoot.github.io/x-model/UX -type f \( -iname "*.glb" -o -iname "*.gltf" \) -print0 | while IFS= read -r -d '' file; do   echo "Optimizing: $file";   gltf-transform optimize "$file" "$file" --compress draco --texture-compress webp; done
+-->
 <script type="module">
 import DB from '../include/DB.js';
+import * as IndexSearch from '../index.js';
 import {Bey, Search} from '../parts/bey.js';
-import Model from './model.js'
-let m = await new Model(['BX53_01','BX01','BX02','BX03'], location.search.substring(1), Q('canvas')).render();
-//console.log(m.models.map(m=>m?.$color))
-m.reorder('$color');
+import Model from './model.js';
+
+let m = new Model({
+    "chip": "CX11_01",
+    "over": "CX13",
+    "metal": "CX13",
+    "assist": "CX01",
+    "ratchet": "BX01",
+    "bit": "UX13"
+});
+Q('figure').append(m.canvas);
+m.render();
+
 let PARTS;
 const show = async code => {
     Q('tbody').replaceChildren();
@@ -26,7 +39,6 @@ const show = async code => {
         ...tr.Q('td[headers][title]', []).map((td, i) => new Model(tr.id, td.headers).canvas)
     ), 500);
 }
-Q('input').onchange = ev => show(ev.target.value);
 Q('main').prepend(DB().then(() => DB.get.essentials()));
 onpointerdown=console.log
 </script>

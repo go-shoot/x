@@ -32,6 +32,7 @@ const actions = ([key, value]) => (actions[key]?.[value] ?? actions[key]?._)?.(v
 
 Object.assign(actions, {
     delete: {
+        models: () => fetch('db/-update.json').then(() => caches.delete('X/models')),
         parts: () => fetch('db/-update.json').then(() => caches.delete('X/parts')),
         cache: () => fetch('db/-update.json').then(() => caches.delete('X')).then(() => actions.init()),
         _: file => fetch('db/-update.json')
@@ -43,11 +44,12 @@ Object.assign(actions, {
 
 const is = {
     internal: url => location.host == new URL(url).host,
-    cacheable: url => is.internal(url) && !/\.(json|glb)$/.test(new URL(url).pathname) 
+    cacheable: url => is.internal(url) && !/\.json$/.test(new URL(url).pathname) 
         || ['aeoq.github.io'].includes(new URL(url).host) 
         || [/cdn\.?js/, /fonts\./].some(r => r.test(url)),
     volatile: url => is.internal(url) && /\.(?:js|css|json)$/.test(new URL(url).pathname),
     part: url => is.internal(url) && new URLPattern({pathname: '/x/img/*/*.png'}).test(url),
+    model: url => new URLPattern({pathname: '*.glb'}).test(url),
     html: url => new URLPattern({pathname: '*(/|.html)'}).test(url),
     font: url => new URL(url).host.includes('fonts.')
 }
@@ -62,7 +64,7 @@ fetch.net = req => fetch(is.volatile(req.url) ? to.random(req) : req, to.opaque(
         if (!res.url || !res.ok || res.status == 206 || !is.cacheable(req.url))
             return res;
         let cloned = res.clone();
-        caches.open(is.part(res.url) ? 'X/parts' : is.font(res.url) ? 'X/fonts' : 'X')
+        caches.open(is.model(res.url) ? 'X/models' : is.part(res.url) ? 'X/parts' : is.font(res.url) ? 'X/fonts' : 'X')
         .then(cache => cache.put(to.stripped(res), cloned)); 
         return res;
     }).catch(() => '');

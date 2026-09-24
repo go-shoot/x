@@ -3,7 +3,7 @@ import { Bey, Preview } from './parts/bey.js'
 import { Part } from './parts/part.js'
 import { Markup } from './include/utilities.js'
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.mjs'
-Q('search ul').append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.svg#${l}`})));
+Q('search ul')?.append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.svg#${l}`})));
 
 let CACHE;
 class Cache {
@@ -89,8 +89,10 @@ class Search {
         return Promise.try(() => CACHE || new Cache()).then(cache => {
             CACHE ??= cache;
             query && (Input.field.value = decodeURI(query));
-            this.preferred = Q('search ul').classList[0];
+            this.preferred = Q('search ul')?.classList[0];
             this.targets = new Input().targets;
+            if (location.pathname != '/x/')
+                return console.log(this.find('parts'));
             Q('#search .preview').replaceChildren(...this.find('products'), ...this.find('parts'));
             this.targets = [...this.targets.free].join('');
             let bey = Bey.build.from(Result.parts);
@@ -164,7 +166,7 @@ class Search {
         };
     }
 }
-Search.events();
+location.pathname == '/x/' && Search.events();
 class Result {
     constructor(type, item) {return this[type](item);}
     code = ({code}) => E('li>button', code)
@@ -181,74 +183,76 @@ class Result {
         return button;
     }
 }
-
-sessionStorage.news && (Q('#news').innerHTML = sessionStorage.news);
 import {Shohin} from './include/utilities.js'
-const plugins = {
-    announce: news => Q('#news').replaceChildren(
-        E('h3', '最新產品'),
-        ...new O(news).flatMap(([date, beys]) => [E('time', {title: date}), ...beys.map(bey => new Shohin(bey))])
-    )
-};
-Q('header').after(DB(plugins).then(async () => {
-    sessionStorage.news = Q('#news').innerHTML;
-    CACHE ??= await new Cache();
-    Shohin.after();
-    location.search && new Search(location.search.substring(1));
+if (location.pathname == '/x/') {
+    sessionStorage.news && (Q('#news').innerHTML = sessionStorage.news);
+    const plugins = {
+        announce: news => Q('#news').replaceChildren(
+            E('h3', '最新產品'),
+            ...new O(news).flatMap(([date, beys]) => [E('time', {title: date}), ...beys.map(bey => new Shohin(bey))])
+        )
+    };
+    Q('header').after(DB(plugins).then(async () => {
+        sessionStorage.news = Q('#news').innerHTML;
+        CACHE ??= await new Cache();
+        Shohin.after();
+        location.search && new Search(location.search.substring(1));
 
-    let seeing = new IntersectionObserver(ens => ens.forEach(en => en.target.classList.toggle('seeing', en.isIntersecting)));
-    Q('header,section,time,.scroller', node => seeing.observe(node));
-    let ul = Q('search ul'), scrolling = new IntersectionObserver(ens => {
-        let major = ens.reduce((prev, en) => en.intersectionRatio > prev.intersectionRatio ? en : prev);
-        ul.classList = new URL(major.target.src).hash.substring(1);
-        Input.field.oninput();
-    }, {root: ul, threshold: [1]});
-    ul.Q('img', img => scrolling.observe(img));
-}));
-
-(() => {
-    [['cache', 30], ['parts', 60]].forEach(([item, days]) =>
-        Date.now() > Storage('no-update')?.[item] && 
-        fetch(`sw/?delete=${item}`).then(() => Storage('no-update', {[item]: Date.now() + days*24*60*60*1000}))
-    );
-
-    const reset = () => Promise.all([
-        DB.discard(ev => Q('#reboot p').innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
-        caches.delete('X'), caches.delete('X/parts'), caches.delete('X/fonts'),
-        localStorage.clear(), sessionStorage.clear(),
-        navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
-    ]).then(() => {
-        gtag('event', 'RESET');
-        onbeforeunload = () => scrollTo(0, 0);
-        location.reload();
-    }).catch(er => {
-        Q('#reboot p').innerText = er;
-        console.error(er);
-    });
-
-    const PI = 'https://aeoq.github.io/pointer-interaction.mjs';
-    const distance = (Q('#reboot div').clientWidth - Q('#reboot i').clientWidth)/2;
-    import(PI).then(({default: PI}) => PI.events({
-        '.scroller,#search ol': {scroll: {x: true}},
-        '#reboot i': {
-            drop: {onto: 'span'},
-            drag: {x: {min: distance*-1, max: distance}, y: false},
-            lift: PI => PI.onto?.id == 'image' ? fetch('sw/?delete=parts') : PI.onto?.id == 'all' ? reset() : '',
-        }
-    }))
-    .catch(() => caches.open('X').then(cache => cache.delete(PI)));
-
-    let swapped, sec = 1;
-    Q('video', video => E(video).set({
-        '--crossfade': sec,
-        ontimeupdate: ev => {
-            if (swapped || ev.target.duration - ev.target.currentTime > sec) return;
-            let next = ev.target[`${ev.target.autoplay ? 'next' : 'previous'}ElementSibling`];
-            next.play();
-            next.style.opacity = 1;
-            ev.target.style.opacity = 0;
-            swapped = true;
-            setTimeout(() => swapped = false, 1000 * sec);
-        }
+        let seeing = new IntersectionObserver(ens => ens.forEach(en => en.target.classList.toggle('seeing', en.isIntersecting)));
+        Q('header,section,time,.scroller', node => seeing.observe(node));
+        let ul = Q('search ul'), scrolling = new IntersectionObserver(ens => {
+            let major = ens.reduce((prev, en) => en.intersectionRatio > prev.intersectionRatio ? en : prev);
+            ul.classList = new URL(major.target.src).hash.substring(1);
+            Input.field.oninput();
+        }, {root: ul, threshold: [1]});
+        ul.Q('img', img => scrolling.observe(img));
     }));
-})();
+
+    (() => {
+        [['cache', 30], ['parts', 60], ['models', 90]].forEach(([item, days]) =>
+            Date.now() > Storage('no-update')?.[item] && 
+            fetch(`sw/?delete=${item}`).then(() => Storage('no-update', {[item]: Date.now() + days*24*60*60*1000}))
+        );
+
+        const reset = () => Promise.all([
+            DB.discard(ev => Q('#reboot p').innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
+            caches.delete('X'), caches.delete('X/parts'), caches.delete('X/fonts'),
+            localStorage.clear(), sessionStorage.clear(),
+            navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
+        ]).then(() => {
+            gtag('event', 'RESET');
+            onbeforeunload = () => scrollTo(0, 0);
+            location.reload();
+        }).catch(er => {
+            Q('#reboot p').innerText = er;
+            console.error(er);
+        });
+
+        const PI = 'https://aeoq.github.io/pointer-interaction.mjs';
+        const distance = (Q('#reboot div').clientWidth - Q('#reboot i').clientWidth)/2;
+        import(PI).then(({default: PI}) => PI.events({
+            '.scroller,#search ol': {scroll: {x: true}},
+            '#reboot i': {
+                drop: {onto: 'span'},
+                drag: {x: {min: distance*-1, max: distance}, y: false},
+                lift: PI => PI.onto?.id == 'image' ? fetch('sw/?delete=parts') : PI.onto?.id == 'all' ? reset() : '',
+            }
+        }))
+        .catch(() => caches.open('X').then(cache => cache.delete(PI)));
+
+        let swapped, sec = 1;
+        Q('video', video => E(video).set({
+            '--crossfade': sec,
+            ontimeupdate: ev => {
+                if (swapped || ev.target.duration - ev.target.currentTime > sec) return;
+                let next = ev.target[`${ev.target.autoplay ? 'next' : 'previous'}ElementSibling`];
+                next.play();
+                next.style.opacity = 1;
+                ev.target.style.opacity = 0;
+                swapped = true;
+                setTimeout(() => swapped = false, 1000 * sec);
+            }
+        }));
+    })();
+}
+export default Search;
