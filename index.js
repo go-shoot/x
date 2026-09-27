@@ -91,12 +91,10 @@ class Search {
             query && (Input.field.value = decodeURI(query));
             this.preferred = Q('search ul')?.classList[0];
             this.targets = new Input().targets;
-            if (location.pathname != '/x/')
-                return console.log(this.find('parts'));
             Q('#search .preview').replaceChildren(...this.find('products'), ...this.find('parts'));
             this.targets = [...this.targets.free].join('');
             let bey = Bey.build.from(Result.parts);
-            Q('#search .links').replaceChildren(bey ? new Result('weight', bey) : '', ...this.find('links'));
+            Q('#search .links')?.replaceChildren(bey ? new Result('weight', bey) : '', ...this.find('links'));
         });
     }
     static precisely = targets => CACHE.parts.filter(P => P.only.name() ? 

@@ -398,32 +398,6 @@ dialog {
     #tiles:not(:has(x-part)) a, #models:not(:has(code)), #images:empty {
         display: none;
     }
-    #models {
-        display: inline-block; max-width: 100%; text-align: right;
-        span {font-size: .8em;}
-        label {
-            font-size: .8em;
-            margin-right: .5em;
-            position: relative;
-
-            &:not(:has(+figure canvas[data-engine])) {display: none;}
-            &::after {
-                content: attr(title); 
-                font-size: 1.3em; white-space: nowrap; color: var(--theme);
-                position: absolute; right: 100%;
-                margin: .15em .4em 0 0;
-            }
-        }
-        figure {
-            --height: 7em; height: var(--height); overflow-x: scroll;
-            display: grid; grid-template: var(--height) 0 / repeat(var(--count),var(--height));
-            justify-content: safe center;
-            text-align: center;
-
-            canvas {grid-area: 1/1/2/-1; height: var(--height);}
-            code {font-size: .75em; margin-top: -1.2em;}
-        }
-    }
     #images {
         display: grid; grid-template-columns: repeat(3,1fr);
         justify-items: center; gap: .5em; 
@@ -445,6 +419,32 @@ dialog {
         img:first-of-type~img:not([src*=detail]):not([src*=twimg]) {
             grid-column: initial;
         }
+    }
+}
+#models {
+    display: inline-block; max-width: 100%; text-align: right;
+    span {font-size: .8em;}
+    label {
+        font-size: .8em;
+        margin-right: .5em;
+        position: relative;
+
+        &:not(:has(+figure canvas[data-engine])) {display: none;}
+        &::after {
+            content: attr(title); 
+            font-size: 1.3em; white-space: nowrap; color: var(--theme);
+            position: absolute; right: 100%;
+            margin: .15em .4em 0 0;
+        }
+    }
+    figure {
+        --height: 7em; height: var(--height); overflow-x: scroll;
+        display: grid; grid-template: var(--height) 0 / repeat(var(--count),var(--height));
+        justify-content: safe center;
+        text-align: center;
+
+        canvas {grid-area: 1/1/2/-1; height: var(--height);}
+        code {font-size: .75em; margin-top: -1.2em;}
     }
 }
 details.tool {

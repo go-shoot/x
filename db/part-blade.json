@@ -6,7 +6,7 @@
             "eng": "Luster\\Dragoon",
             "chi": ""
         },
-        "stat": [""],
+        "stat": ["43="],
         "desc": "金屬連接至中央能提高剛性；有擅長由低位置攻擊的偏重心兩枚刃剷起對手並強烈地撞飛的重量級左迴轉Blade。",
         "attr": ["att","left","expand","bsb","mfb","bbb"]
     },

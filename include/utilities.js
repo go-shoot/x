@@ -199,7 +199,8 @@ Transition.popover.callback = (action, popover) => {
     }
 }
 
-const Glossary = async (where = document) => {
+const Glossary = async (where = document.body) => {
+    if (!(where instanceof Node)) return;
     let p = [where.Q('p'), where.Q('x-part', []).map(tile => tile.sQ('p'))].flat(9).filter(node => node);
     if (!p.length) return;
     if (!Q('#glossary')) {

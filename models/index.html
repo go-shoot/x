@@ -1,44 +1,158 @@
 <title>Model</title>
 <script defer src=../include/common.js></script>
-<nav><menu></menu></nav>
+<script src="https://aeoq.github.io/drag-knob.mjs" type="module"></script>
+<link rel="stylesheet" href="../index.css">
+<style>
+    input::placeholder,drag-knob {font-size: .8em;}
+    nav {
+        input[type=reset] {
+            grid-area: 2/4;
+            font-size: .8em;
+            place-self: center;
+            width: 7rem; height: 1.4rem;
+            border: none;
+            background: var(--theme); border-radius: 3em; 
+            color: var(--backdrop);
+        }
+        fieldset {white-space: nowrap;}
+    }
+    #search {
+        opacity: 1 !important;
+
+        li:has(button:not([class])) {display: none !important;}
+        .assembled:not(:empty)::before {content: '已組合：';}
+    }
+    #canvas {
+        position: fixed; inset: 0; aspect-ratio: 1;
+        z-index: -1;
+        margin-top: 4em;
+
+        canvas {width: 100%; height: 100%; pointer-events: auto;}
+    }
+    #models {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+        transition: transform .25s;
+        backdrop-filter: brightness(.5);
+
+        figure {margin-bottom: .5em;}
+        &:not(:has(code)) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
+    }
+</style>
+
+<nav>
+    <menu></menu>
+    <form>
+        <input type="reset" value=" 重設">
+        <fieldset>
+            <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
+            <drag-knob name="position" range="-5/5/.01" style="display: none;" class="fine"><i>上下</i></drag-knob>
+            <drag-knob name="rotation" range="-1/1/.01/π" style="display: none;" class="fine"><i>角度</i></drag-knob>
+        </fieldset>
+    </form>
+</nav>
 <main>
-    <input type="search">
-    <table><tbody></tbody></table>
-    <figure></figure>
+    <section id="search">
+        <search><input type="search" placeholder="搜索部件。請由底（軸心）開始往上組合"></search>
+        <ol class="preview"></ol>
+        <ol class="assembled"></ol>
+    </section>
+    <section id="canvas"></section>
+    <div id="models"><figure><canvas></canvas></figure></div>
 </main>
-<style>figure {height: 20em;width: 20em; margin: auto;} canvas {width: 100%; height: 100%; pointer-events: auto;}</style>
 <!-- 
 find /home/mint/Desktop/go-shoot.github.io/x-model/UX -type f \( -iname "*.glb" -o -iname "*.gltf" \) -print0 | while IFS= read -r -d '' file; do   echo "Optimizing: $file";   gltf-transform optimize "$file" "$file" --compress draco --texture-compress webp; done
 -->
 <script type="module">
 import DB from '../include/DB.js';
 import * as IndexSearch from '../index.js';
-import {Bey, Search} from '../parts/bey.js';
+import { Bey, Search } from '../parts/bey.js';
 import Model from './model.js';
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
-let m = new Model({
-    "chip": "CX11_01",
+Q('main').prepend(DB().then(() => DB.get.essentials()));
+PI.events({'.scroller,#search ol': {scroll: {x: true}}});
+
+const Configure = {
+    adjust: {position: {}, rotation: {}}, colors: {},
+    events: () => {
+        Q('.preview').onclick = async ev => {
+            if (ev.target.tagName != 'BUTTON') return;
+            let path = ev.target.dataset.path?.split(',');
+            let comp = path.at(-2);
+            let {beys} = await new Search(path), model;
+            Configure.colors[comp] = [ev.target.cloneNode(true), beys.map(([code]) => code)];
+            if (beys.length) 
+                for (let [code] of beys) {
+                    model = await M.fetch(code, comp);
+                    if (model.$height) break;
+                }
+            else
+                model = await Model.fetch(`/x-model/${path.at(-1)}.glb`)
+                    .then(model => Model.setForBey(Object.assign(model, {$comp: comp})));
+            Configure.switch(model, comp);
+        }
+        Q('.assembled').onclick = ev => {
+            if (ev.target.tagName != 'BUTTON') return;
+            Configure.close();
+            Configure.comp = ev.target.dataset.path.split(',').at(-2);
+            Configure.open();
+            setTimeout(() => new Model(
+                {[Configure.comp]: ev.target.dataset.codes.split(',')}, Q('#models canvas'), Configure.switch
+            ), 250); //wait until closed
+        }
+        Q('main').onclick = ev => ev.target.closest('#models,.assembled') || Configure.close();
+        document.forms[0].oninput = ev => {
+            if (ev.target.name == 'speed') return M.speed = -ev.target.value;
+            Configure.adjust[ev.target.name][Configure.comp] = ev.target.value;
+            Object.values(M.parts).filter(v => v).length && M.transform.bey(Configure.adjust);
+        },
+        document.forms[0].onclick = ev => {
+            if (ev.target.type != 'reset') return;
+            ['chip','over','metal','main','assist','blade','ratchet','bit'].forEach(comp => M.bey.replace(comp));
+            Q('.assembled').replaceChildren();
+        }
+    },
+    open () {
+        Configure.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
+            knob.style.display = 'inline-grid';
+            knob.value = Configure.adjust[knob.name][Configure.comp] ?? 0;
+        });
+    },
+    close () {
+        Q('#models code', code => code.remove());
+        Q('drag-knob[name$=tion]', knob => knob.style.display = 'none');
+    },
+    menu () {
+        Q('.assembled').replaceChildren(
+            ...new O(M.parts).filter(([comp, model]) => model).map(([comp, model]) => {
+                let [node, codes] = Configure.colors[comp];
+                return E('li', E(node).set(codes ? {dataset: {codes}} : {}));
+            })
+        );
+    },
+    async switch (model, comp = Configure.comp) {
+        model = typeof model == 'string' ? await M.fetch(model, comp) : Model.setForBey(model);
+        let CXX = new Set(['over', 'metal']);
+        let CX = new Set(['chip', ...CXX, 'main', 'assist']);
+        if (comp == 'blade') {
+            CX.forEach(comp => M.bey.replace(comp));
+        } else if (CX.has(comp)) {
+            M.bey.replace('blade');
+            comp == 'main' ? CXX.forEach(comp => M.bey.replace(comp)) : CXX.has(comp) ? M.bey.replace('main') : null;
+        }
+        M.bey.replace(comp, model);
+        Configure.adjust.position[comp] = Configure.adjust.rotation[comp] = null;
+        Configure.menu();
+    }
+}
+Configure.events();
+let M = new Model({
+    "chip": "CX18_01",
     "over": "CX13",
     "metal": "CX13",
-    "assist": "CX01",
-    "ratchet": "BX01",
+    "assist": "CX13",
+    "ratchet": "CX13",
     "bit": "UX13"
 });
-Q('figure').append(m.canvas);
-m.render();
-
-let PARTS;
-const show = async code => {
-    Q('tbody').replaceChildren();
-    let {beys} = await new Search(code);
-    if (!beys.length) return;
-    Q('tbody').replaceChildren(...beys.map(bey => new Bey(bey).Row));
-    Q('div', div => div.replaceChildren());
-    let tr = Q('tr:first-child');
-    setTimeout(() => Q('figure').replaceChildren(
-        ...tr.Q('td[headers][title]', []).map((td, i) => new Model(tr.id, td.headers).canvas)
-    ), 500);
-}
-Q('main').prepend(DB().then(() => DB.get.essentials()));
-onpointerdown=console.log
+Q('#canvas').append(M.canvas);
 </script>

@@ -194,7 +194,7 @@ class Tile extends HTMLElement {
             ev?.stopPropagation();
             figure.children.length <= 1 && figure.append(
                 ...(await new Search(this.Part.path)).beys
-                .map(({id, 0: code}) => new Model(id || code, this.Part.subcomp).canvas)
+                .map(({id, 0: code}) => new Model({[this.Part.subcomp]: id || code}).canvas)
             );
             svg.Q('.sta,.def', use => use.onpointerdown ??= ev => this.act.spin(ev, use));
 
@@ -218,8 +218,8 @@ class Tile extends HTMLElement {
             let canvas = this.sQ('canvas[data-engine]');
             if (!canvas) return;
             ev.stopPropagation();
-            canvas.Model.spin(use.classList == 'sta' ? -.02 : .02);
-            let stopping = () => (canvas.Model.spin(false), removeEventListener('pointerup', stopping));
+            canvas.Model.speed = use.classList == 'sta' ? -.02 : .02;
+            let stopping = () => (canvas.Model.speed = 0, removeEventListener('pointerup', stopping));
             addEventListener('pointerup', stopping);
         }
     }
