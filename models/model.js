@@ -9,8 +9,9 @@ class Model {
         en.isIntersecting ? en.target.Model.render() : en.target.Model.dispose()
     ), {threshold: .1});
     #mode; #animation;
-    constructor(parts, canvas, onclick) {
-        parts = Object.entries(this.parts = parts), this.onclick = onclick;
+    constructor(parts, canvas, {onclick, adjust} = {}) {
+        parts = Object.entries(this.parts = parts);
+        this.onclick = onclick, this.adjust = adjust ?? {};
         this.#mode = parts.length > 1 ? 'bey' : Array.isArray(parts[0][1]) ? 'list' : 'single';
         parts.length === 1 && ([this.comp, this.code] = parts[0]);
         this.#setup.canvas(Array.isArray(this.code) ? canvas : undefined);
@@ -57,11 +58,11 @@ class Model {
     transform = {
         single: model => this.#transform(model, 1),
         list: (model, i, z = 1) => this.#transform(model, z * .8, z * (2 * i - this.code.length + 1)),
-        bey: (adjust = {}, P = this.parts) => {
-            Object.entries(adjust.rotation ?? {}).forEach(([comp, value]) => 
-                P[comp] && value != null && (P[comp].rotation.y = value * Math.PI)
+        bey: (adjust = this.adjust, P = this.parts) => {
+            adjust?.each(([comp, {rotation: angle}]) => 
+                P[comp] && angle != null && (P[comp].rotation.y = angle * Math.PI)
             );
-            let height = c => stackHeight - P[c].$y - Model.lower[c] + (adjust.position?.[c] ?? 0);
+            let height = c => stackHeight - P[c].$y - Model.lower[c] + (adjust[c]?.position ?? 0);
             let stackHeight = P.bit.$height;
             if (P.ratchet) {
                 P.ratchet.position.y = height('ratchet');
@@ -168,10 +169,12 @@ class Model {
         });
         item.geometry = item.material = null;
     })
-    fetch = (code, iORcomp) => Model.fetch(`/x-model/${code.replace('-', '')}/${this.comp || iORcomp}.glb`)
-        .then(model => {
+    fetch = (code, iORcomp) => Model.fetch(/^.X/.test(code) ? 
+            `/x-model/${code.replace('-', '')}/${this.comp || iORcomp}.glb` : 
+            `/x-model/hasbro/${code}.glb`
+        ).then(model => {
             model.$comp = this.comp || iORcomp;
-            if (this.#mode == 'bey') return Model.setForBey(model);
+            if (this.#mode == 'bey') return Model.setForBey(model, code);
             this.transform[this.#mode](model, iORcomp);
             this._scene.add(model);
             model.$codeNode = this.list.code(iORcomp);
@@ -180,7 +183,8 @@ class Model {
         }).catch(er => `${er}`.includes('404') ? Promise.resolve({$codeNode: this.list.code(iORcomp)}) : console.error(er))
 
     static fetch = url => new Promise((res, rej) => Model.loader.load(url, gltf => res(gltf.scene), null, er => rej(er)))
-    static setForBey (model) {
+    static setForBey (model, code) {
+        model.$code = code;
         model.position.set(0, 0, 0);
         model.rotation.set(0, 0, 0); 
         model.scale.set(1, 1, 1);
