@@ -79,6 +79,7 @@ const Configure = {
             if (ev.target.tagName != 'BUTTON') return;
             let path = ev.target.dataset.path?.split(',');
             let comp = path.at(-2);
+            comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[path.at(-1)]);
             let {beys} = await new Search(path), model;
             Configure.colors[comp] = [ev.target.cloneNode(true), beys.map(([code]) => code)];
             if (beys.length) 
@@ -124,7 +125,7 @@ const Configure = {
     },
     menu () {
         Q('.assembled').replaceChildren(
-            ...new O(M.parts).filter(([comp, model]) => model).map(([comp, model]) => {
+            ...new O(M.parts).filter(([comp, model]) => model && Configure.colors[comp]).map(([comp, model]) => {
                 let [node, codes] = Configure.colors[comp];
                 return E('li', E(node).set(codes ? {dataset: {codes}} : {}));
             })
