@@ -99,6 +99,7 @@ const App = {
             code && (App.data[0][comp].code = code);
             App.comp = comp;
             App.switch(model);
+            Q('#search input').value = '';
             gtag('event', 'ASSEMBLE', {PART: abbr});
         }
         Q('.assembled').onclick = ev => {
@@ -185,12 +186,9 @@ const App = {
         App.save();
     },
     default: {
-        "chip":   {"code":"CX13","abbr":"Bh"},
-        "over":   {"code":"CX13","abbr":"B"},
-        "metal":  {"code":"CX13","abbr":"Bl"},
-        "assist": {"code":"CX13","abbr":"K"},
-        "ratchet":{"code":"CX13","abbr":"1-50"},
-        "bit":    {"code":"CX13","abbr":"I"},
+        "blade":  {"code":"HrSh","abbr":"HrSh"},
+        "ratchet":{"code":"CX17_03","abbr":"9-65"},
+        "bit":    {"code":"BX48_04","abbr":"GB"},
     },
     meta: {}
 }

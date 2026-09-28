@@ -75,7 +75,7 @@ class Model {
                 stackHeight += P.ratchet.$height;
             }
             if (P.blade)
-                return P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) ? 0 : 4) + height('blade');
+                return P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) + height('blade');
             if (P.assist) {
                 P.assist.position.y = height('assist');
                 stackHeight += P.assist.$height;
