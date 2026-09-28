@@ -151,7 +151,7 @@ class Search {
             this.build();
             return Search.beys;
         }).then(beys => ({
-            beys: beys.filter(bey =>
+            beys: [beys].flat().filter(bey =>
                 this.regexp.some(r => r.test(bey.title ?? bey[2])) ||
                 typeof query == 'string' && query.length >= 2 && 
                     this.#search.code(query.split(' '), bey.id?.split('_')[0] ?? bey[0])
@@ -221,12 +221,12 @@ class Preview {
             Q('#cells').append(E('table', {onclick: Preview.for.table}, [
                 E('caption', href ? E('a', {href: `/x/products/${href}`}) : ''),
                 Preview.thead.cloneNode(true), 
-                E('tbody', beys.map(bey => new Bey(bey/*, path && bey[0] === code ? {select: path.at(-2)} : {}*/).Row))
+                E('tbody', beys.map(bey => new Bey(bey, path && bey[0] === code ? {select: path.at(-2)} : {}).Row))
             ]));
-            //this.model(path);
+            this.model(path);
         })
-    tile = ({code, path}) => PARTS.at(path).tile?.(/*code ? {timeout: tile => tile.act.model(null, code)} : {}*/)
-        .then(tile => {Q('#tiles').append(tile); /*this.model(path);*/})
+    tile = ({code, path}) => PARTS.at(path).tile?.(code ? {timeout: tile => tile.act.model(null, code)} : {})
+        .then(tile => {Q('#tiles').append(tile); this.model(path);})
 
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
@@ -235,15 +235,17 @@ class Preview {
         if (Preview.dialog.Q('canvas')) return;
         let model, reorder = ev => {
             ev.stopPropagation();
-            ev.target.tagName == 'INPUT' && model.reorder(ev.target.checked ? '$color' : false);
+            ev.target.tagName == 'INPUT' && model.list.reorder(ev.target.checked ? '$color' : false);
         }
         Q('#models').append(
             E('label.toggle', E('input', {type: 'checkbox'}), {onclick: reorder, title: ' 排序'}), E('figure>canvas') 
         );
         return new Search(path).then(({beys}) => {
             let codes = beys.map(({id, 0: code}) => id || code);
-            Preview.dialog.Q('figure').append(...codes.map(c => E('code', c)));
-            model = new Model(codes, path.at(-2), Q('#models canvas'));
+            model = new Model({[path.at(-2)]: codes}, Q('#models canvas'), {onclick: code => {
+                Q('#preview x-part')?.act.model(null, code);
+                Q(`#preview [id='${code}']`)?.Row.select(path.at(-2));
+            }});
         });
     }
     image ({code}) {
