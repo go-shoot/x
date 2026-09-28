@@ -28,6 +28,7 @@ class Model {
             let box = new THREE.Box3().setFromObject(this.group);
             let size = Math.max(...Object.values(box.getSize(V))), fov = 45;
             let distance = Math.abs(size / 2 / Math.tan(fov * Math.PI / 180 / 2)) * 1.25 / (Model.scale[this.comp] ?? 1);
+            this.#mode == 'bey' && (distance *= Math.max(innerWidth/innerHeight, innerHeight/innerWidth));
             let z = this._camera?.position.z;
             let camera = this._camera ??= new THREE.PerspectiveCamera(fov, 1, distance / 100, distance * 100);
             let center = box.getCenter(V);

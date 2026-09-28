@@ -5,7 +5,7 @@
 <style>
     input::placeholder,drag-knob {font-size: .8em;}
     nav {
-        input[type=reset] {
+        input[type=reset],button {
             grid-area: 2/4;
             font-size: .8em;
             place-self: center;
@@ -14,6 +14,7 @@
             background: var(--theme); border-radius: 3em; 
             color: var(--backdrop);
         }
+        button {grid-area: 1/4;}
         fieldset {white-space: nowrap;}
     }
     #search {
@@ -24,12 +25,12 @@
     }
 
     #canvas {
-        position: fixed; inset: 0; aspect-ratio: 1;
-        top: 50svh; transform: translateY(-50%);
+        position: fixed; width: max(100svh,100svw); aspect-ratio: 1;
+        left: 50svw; top: 50svh; transform: translate(-50%,-50%);
         z-index: -1;
         margin: 0 auto;
         @media (orientation: landscape) {margin-top: 4em;}
-        
+
         canvas {width: 100%; height: 100%; pointer-events: auto;}
     }
 
@@ -45,6 +46,7 @@
 <nav>
     <menu></menu>
     <form>
+        <button type="button">&#xe008; 刪除儲存</button>
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
@@ -76,7 +78,7 @@ let M;
 Q('main').prepend(DB().then(() => DB.get.essentials().then(App.load)));
 
 const App = {
-    data: new O({}), comp: null,
+    data: [new O({})], comp: null,
     events () {
         PI.events({'.scroller,#search ol': {scroll: {x: true}}});
         Q('.preview').onclick = async ev => {
@@ -84,19 +86,19 @@ const App = {
             let path = ev.target.dataset.path.split(',');
             let [abbr, comp] = path.toReversed(), code, model;
             comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
-            App.data[comp] = new O({
+            App.data[0][comp] = new O({
                 abbr, colors: abbr == 'BsBr' ? [] : (await new Search(path)).beys.map(([code]) => code), 
                 li: ev.target.cloneNode(true), adjust: {position: null, rotation: null}
             });
-            if (App.data[comp].colors.length) 
-                for (code of App.data[comp].colors) {
+            if (App.data[0][comp].colors.length) 
+                for (code of App.data[0][comp].colors) {
                     model = await M.fetch(code, comp);
                     if (model.$height) break;
                 }
             else
                 model = await Model.fetch(`/x-model/hasbro/${abbr}.glb`)
                     .then(model => Model.setForBey(Object.assign(model, {$comp: comp}), abbr));
-            code && (App.data[comp].code = code);
+            code && (App.data[0][comp].code = code);
             App.comp = comp;
             App.switch(model);
         }
@@ -105,33 +107,36 @@ const App = {
             App.close();
             let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
             App.show.knobs();
-            setTimeout(() => new Model({[comp]: App.data[comp].colors}, Q('#models canvas'), {onclick: App.switch}), 250); //wait until closed
+            setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.switch}), 250); //wait until closed
         }
         Q('main').onclick = ev => ev.target.closest('#models,.assembled') || App.close();
         document.forms[0].oninput = ev => {
             if (ev.target.name == 'speed') return M.speed = -ev.target.value;
-            if (!App.data[App.comp]) return;
-            App.data[App.comp].adjust[ev.target.name] = ev.target.value;
-            M.transform.bey(App.data.map(([comp, data]) => [comp, data?.adjust ?? {}]));
+            if (!App.data[0][App.comp]) return;
+            App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
+            M.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
             clearTimeout(App.saveTimer);
             App.saveTimer = setTimeout(App.save, 1000);
         },
         document.forms[0].onclick = ev => {
-            if (ev.target.type != 'reset') return;
-            [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.remove);
-            Q('.assembled').replaceChildren();
+            if (ev.target.type == 'button')
+                return DB.prepare.os('user', 'rw').delete('assemble');
+            if (ev.target.type == 'reset') {
+                [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.remove);
+                Q('.assembled').replaceChildren();
+            }
         }
     },
     async load () {
-        App.data = new O(await DB.get('user', 'assemble') ?? App.default);
-        App.data.each(([_, data]) => data.adjust ??= {position: null, rotation: null});
+        App.data = (await DB.get('user', 'assemble') ?? [App.default]).map(data => new O(data));
+        App.data[0].each(([_, data]) => data.adjust ??= {position: null, rotation: null});
         M = new Model(
-            App.data.map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, 
-            {adjust: App.data.map(([comp, {adjust}]) => [comp, adjust])}
+            App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, 
+            {adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust])}
         );
         Q('#canvas').append(M.canvas);
         await Q('#search input').onfocus();
-        App.data.each(async ([comp, data]) => {
+        App.data[0].each(async ([comp, data]) => {
             let path;
             data.li = IndexSearch.find.parts({[comp]: new Set([data.abbr]), free: new Set([data.abbr])})
                 .find(li => {
@@ -142,25 +147,29 @@ const App = {
         });
         App.show.menu();
     },
-    save: () => DB.put('user', {assemble: {...App.data.filter(([_, d]) => d).map(([comp, {li, colors, ...rest}]) => [comp, rest])} }),
+    save: () => DB.put('user', {assemble: App.data.map(data => 
+        ({...data.filter(([_, d]) => d).map(([comp, {li, colors, ...rest}]) => [comp, rest])})
+    )}),
     show: {
-        menu: () => Q('.assembled').replaceChildren(...App.data.filter(([_, d]) => d).map(([comp, {li}]) => li)),
+        menu: () => Q('.assembled').replaceChildren(...App.data[0].filter(([_, d]) => d).map(([comp, {li}]) => li)),
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
             knob.style.display = 'inline-grid';
-            knob.value = App.data[App.comp].adjust[knob.name] ?? 0;
+            knob.value = App.data[0][App.comp].adjust[knob.name] ?? 0;
         })
     },
     close () {
-        Q('#models code', code => code.remove());
+        let figure = Q('#models figure');
+        figure.replaceChildren(figure.firstChild);
+        figure.scrollLeft = 0;
         Q('drag-knob[name$=tion]', knob => knob.style.display = 'none');
     },
     remove (comp) {
         M.bey.replace(comp);
-        App.data[comp] = null;
+        App.data[0][comp] = null;
     },
     async switch (model, comp = App.comp) {
         if (typeof model == 'string') {
-            App.data[comp].code = model;
+            App.data[0][comp].code = model;
             model = await M.fetch(model, comp);
         };
         if (!model.$comp) return;
@@ -170,9 +179,9 @@ const App = {
             App.remove('blade');
             comp == 'main' ? App.meta.CXX.forEach(App.remove) : App.meta.CXX.has(comp) ? App.remove('main') : null;
         }
-        App.data[comp].adjust = {position: null, rotation: null};
+        App.data[0][comp].adjust = {position: null, rotation: null};
         M.bey.replace(comp, model);
-        M.transform.bey(App.data.map(([comp, data]) => [comp, data?.adjust ?? {}]));
+        M.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
         App.show.menu();
         App.save();
     },
