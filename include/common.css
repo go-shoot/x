@@ -444,7 +444,11 @@ dialog {
         text-align: center;
 
         canvas {grid-area: 1/1/2/-1; height: var(--height);}
-        code {font-size: .75em; line-height: 0; margin-top: -.5em;}
+        code {
+            font-size: .75em; 
+            margin-top: -.5em; line-height: 0; 
+            &.absent {color: dimgray;}
+        }
     }
 }
 details.tool {

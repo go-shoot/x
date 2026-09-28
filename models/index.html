@@ -23,7 +23,6 @@
         li:has(button:not([class])) {display: none !important;}
         .assembled:not(:empty)::before {content: '已組合：';}
     }
-
     #canvas {
         position: fixed; width: max(100svh,100svw); aspect-ratio: 1;
         left: 50svw; top: 50svh; transform: translate(-50%,-50%);
@@ -33,7 +32,6 @@
 
         canvas {width: 100%; height: 100%; pointer-events: auto;}
     }
-
     #models {
         position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
         transition: transform .25s;
@@ -92,7 +90,7 @@ const App = {
             });
             if (App.data[0][comp].colors.length) 
                 for (code of App.data[0][comp].colors) {
-                    model = await M.fetch(code, comp);
+                    model = await M.fetch(code, comp);console.log(model);
                     if (model.$height) break;
                 }
             else
@@ -101,6 +99,7 @@ const App = {
             code && (App.data[0][comp].code = code);
             App.comp = comp;
             App.switch(model);
+            gtag('event', 'ASSEMBLE', {PART: abbr});
         }
         Q('.assembled').onclick = ev => {
             if (ev.target.tagName != 'BUTTON') return;

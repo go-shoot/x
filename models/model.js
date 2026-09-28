@@ -28,12 +28,16 @@ class Model {
             let box = new THREE.Box3().setFromObject(this.group);
             let size = Math.max(...Object.values(box.getSize(V))), fov = 45;
             let distance = Math.abs(size / 2 / Math.tan(fov * Math.PI / 180 / 2)) * 1.25 / (Model.scale[this.comp] ?? 1);
-            this.#mode == 'bey' && (distance *= Math.max(innerWidth/innerHeight, innerHeight/innerWidth));
-            let z = this._camera?.position.z;
-            let camera = this._camera ??= new THREE.PerspectiveCamera(fov, 1, distance / 100, distance * 100);
+            this.#mode == 'bey' && (distance *= Math.max(innerWidth / innerHeight, innerHeight / innerWidth));
             let center = box.getCenter(V);
-            camera.position.set(center.x, center.y, z ?? (center.z + distance));
-            camera.updateProjectionMatrix();
+            if (this._camera) {
+                this._camera.position.y += center.y - (this._camera.$lastY ?? center.y);
+            } else {
+                this._camera = new THREE.PerspectiveCamera(fov, 1, distance / 100, distance * 100);
+                this._camera.position.set(center.x, center.y, center.z + distance);
+            }
+            this._camera.$lastY = center.y;
+            this._camera.updateProjectionMatrix();
             return center;
         },
         single: () => {
@@ -63,6 +67,7 @@ class Model {
             adjust?.each(([comp, {rotation: angle}]) => 
                 P[comp] && angle != null && (P[comp].rotation.y = angle * Math.PI)
             );
+            this.#setup.camera();
             let height = c => stackHeight - P[c].$y - Model.lower[c] + (adjust[c]?.position ?? 0);
             let stackHeight = P.bit.$height;
             if (P.ratchet) {
@@ -70,12 +75,12 @@ class Model {
                 stackHeight += P.ratchet.$height;
             }
             if (P.blade)
-                return P.blade.position.y = height('blade');
+                return P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) ? 0 : 4) + height('blade');
             if (P.assist) {
                 P.assist.position.y = height('assist');
                 stackHeight += P.assist.$height;
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
-            }  
+            }
         }
     }
     list = {
@@ -103,7 +108,6 @@ class Model {
             let before = this.parts[comp];
             before && this.group.remove(before) && before?.traverse(child => this.#dispose(child));
             (this.parts[comp] = after) && this.group.add(after) && this.transform.bey();
-            this.#setup.camera();
         }
     }
     async render () {
@@ -181,8 +185,14 @@ class Model {
             model.$codeNode = this.list.code(iORcomp);
             Model.getColor(model).then(color => model.$color = color).catch(console.error);
             return model;
-        }).catch(er => `${er}`.includes('404') ? Promise.resolve({$codeNode: this.list.code(iORcomp)}) : console.error(er))
-
+        }).catch(er => {
+            if (`${er}`.includes('404')) {
+                let code = this.list.code(iORcomp);
+                code && (code.classList = 'absent');
+                return Promise.resolve({$codeNode: code});
+            } 
+            console.error(er);
+        })
     static fetch = url => new Promise((res, rej) => Model.loader.load(url, gltf => res(gltf.scene), null, er => rej(er)))
     static setForBey (model, code) {
         model.$code = code;
