@@ -52,7 +52,7 @@ class Input {
         targets.ratchet &&= new Set(
             [...targets.ratchet].map(r => r.replace(/(?<!-)(?=\d{2}$)/, '-'))
         );
-        targets.free &&= new Set([...targets.blade, ...targets.free,
+        targets.free &&= new Set([...targets.blade ?? [], ...targets.free,
             [...targets.free].map(n => /^[一-龥]{4,}/.test(n) ? [
                 /^([一-龥]{2})([一-龥]+)/.exec(n).slice(1, 3), 
                 /^([一-龥]+)([一-龥]{2})/.exec(n).slice(1, 3)
