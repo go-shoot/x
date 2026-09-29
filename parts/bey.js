@@ -67,20 +67,21 @@ class Bey {
                  Parts.find(P => P.precise && exist(P, 'blade')) ?? Parts.find(P => exist(P, 'blade'));
         if (!bey[0]) return;
         [bey[1], bey[2]] = ['ratchet', 'bit'].map(comp => Parts.find(P => P.precise && exist(P, comp)) ?? Parts.find(P => exist(P, comp)));
-        let valid = Bey.valid.every(rules => rules.some(checks => checks.every((c, i) => c ? c(bey[i]) : true)));
+        let valid = !Bey.invalidity.some(rules => rules.every((r, i) =>
+            r == null || !bey[i] || !bey[i].attr || Array.isArray(bey[i]) ? false : 
+            r === true ? bey[i] : 
+            r.startsWith('!') ? !bey[i].attr.has(r.substring(1)) : bey[i].attr.has(r))
+        );
         return valid ?
             new Bey({blade: bey[0], ratchet: bey[1] ?? new Ratchet, bit: bey[2] ?? new Bit}) :
         bey[0].length ?
             new Bey({blade: bey[0], ratchet: new Ratchet, bit: new Bit}) : '';
     }}
-    static valid = [[
-        [P => P.length || !P.attr.has('fused'), P => P, P => P && !P.attr.has('fused')],
-        [P => !P.length && P?.attr.has('fused'), P => !P, P => P && !P.attr.has('fused')],
-        [P => P.length || !P.attr.has('fused'), P => !P, P => P?.attr.has('fused')],
-    ], [
-        [P => !P.length && P?.attr.has('simple'), P => P?.attr.has('simple')],
-        [P => P.length || !P.attr.has('simple')]
-    ]]
+    static invalidity = [
+        ['simple', '!simple'],
+        ['fused', true],
+        [, true, 'fused']
+    ]
 }
 Bey.import = PARTS_ => ([PARTS, {Blade, Ratchet, Bit}] = [PARTS_, Part]) && Object.assign(window, {PARTS: PARTS_});
 

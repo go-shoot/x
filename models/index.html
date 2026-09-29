@@ -21,7 +21,7 @@
         opacity: 1 !important;
 
         li:has(button:not([class])) {display: none !important;}
-        .assembled:not(:empty)::before {content: '已組合：';}
+        .assembled:not(:empty)::before {content: '已組裝：';}
     }
     #canvas {
         position: fixed; width: max(100svh,100svw); aspect-ratio: 1;
@@ -55,7 +55,7 @@
 </nav>
 <main>
     <section id="search">
-        <search><input type="search" placeholder="搜索部件。請由底（軸心）開始往上組合"></search>
+        <search><input type="search" placeholder="搜索部件。請由底（軸心）開始往上組裝"></search>
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
     </section>
@@ -72,7 +72,7 @@ import { Bey, Search } from '../parts/bey.js';
 import Model from './model.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
-let M;
+let MODEL, PARTS;
 Q('main').prepend(DB().then(() => DB.get.essentials().then(App.load)));
 
 const App = {
@@ -90,7 +90,7 @@ const App = {
             });
             if (App.data[0][comp].colors.length) 
                 for (code of App.data[0][comp].colors) {
-                    model = await M.fetch(code, comp);console.log(model);
+                    model = await MODEL.fetch(code, comp);
                     if (model.$height) break;
                 }
             else
@@ -98,7 +98,7 @@ const App = {
                     .then(model => Model.setForBey(Object.assign(model, {$comp: comp}), abbr));
             code && (App.data[0][comp].code = code);
             App.comp = comp;
-            App.switch(model);
+            App.model.switch(model);
             Q('#search input').value = '';
             gtag('event', 'ASSEMBLE', {PART: abbr});
         }
@@ -107,14 +107,14 @@ const App = {
             App.close();
             let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
             App.show.knobs();
-            setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.switch}), 250); //wait until closed
+            setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.model.switch}), 250); //wait until closed
         }
         Q('main').onclick = ev => ev.target.closest('#models,.assembled') || App.close();
         document.forms[0].oninput = ev => {
-            if (ev.target.name == 'speed') return M.speed = -ev.target.value;
+            if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
             if (!App.data[0][App.comp]) return;
             App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
-            M.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+            MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
             clearTimeout(App.saveTimer);
             App.saveTimer = setTimeout(App.save, 1000);
         },
@@ -122,20 +122,21 @@ const App = {
             if (ev.target.type == 'button')
                 return DB.prepare.os('user', 'rw').delete('assemble');
             if (ev.target.type == 'reset') {
-                [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.remove);
+                [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.model.remove);
                 Q('.assembled').replaceChildren();
             }
         }
     },
     async load () {
-        App.data = (await DB.get('user', 'assemble') ?? [App.default]).map(data => new O(data));
+        let cache = Q('#search input').onfocus();
+        App.data = (await DB.get('user', 'assemble') ?? [App.model.default]).map(data => new O(data));
         App.data[0].each(([_, data]) => data.adjust ??= {position: null, rotation: null});
-        M = new Model(
+        MODEL = new Model(
             App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, 
             {adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust])}
         );
-        Q('#canvas').append(M.canvas);
-        await Q('#search input').onfocus();
+        Q('#canvas').append(MODEL.canvas);
+        await cache;
         App.data[0].each(async ([comp, data]) => {
             let path;
             data.li = IndexSearch.find.parts({[comp]: new Set([data.abbr]), free: new Set([data.abbr])})
@@ -163,32 +164,34 @@ const App = {
         figure.scrollLeft = 0;
         Q('drag-knob[name$=tion]', knob => knob.style.display = 'none');
     },
-    remove (comp) {
-        M.bey.replace(comp);
-        App.data[0][comp] = null;
-    },
-    async switch (model, comp = App.comp) {
-        if (typeof model == 'string') {
-            App.data[0][comp].code = model;
-            model = await M.fetch(model, comp);
-        };
-        if (!model.$comp) return;
-        if (comp == 'blade') {
-            App.meta.CX.forEach(App.remove);
-        } else if (App.meta.CX.has(comp)) {
-            App.remove('blade');
-            comp == 'main' ? App.meta.CXX.forEach(App.remove) : App.meta.CXX.has(comp) ? App.remove('main') : null;
-        }
-        App.data[0][comp].adjust = {position: null, rotation: null};
-        M.bey.replace(comp, model);
-        M.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
-        App.show.menu();
-        App.save();
-    },
-    default: {
-        "blade":  {"code":"HrSh","abbr":"HrSh"},
-        "ratchet":{"code":"CX17_03","abbr":"9-65"},
-        "bit":    {"code":"BX48_04","abbr":"GB"},
+    model: {
+        remove (comp) {
+            MODEL.bey.replace(comp);
+            App.data[0][comp] = null;
+        },
+        async switch (model, comp = App.comp) {
+            if (typeof model == 'string') {
+                App.data[0][comp].code = model;
+                model = await MODEL.fetch(model, comp);
+            };
+            if (!model.$comp) return;
+            if (comp == 'blade') {
+                App.meta.CX.forEach(App.model.remove);
+            } else if (App.meta.CX.has(comp)) {
+                App.model.remove('blade');
+                comp == 'main' ? App.meta.CXX.forEach(App.model.remove) : App.meta.CXX.has(comp) ? App.model.remove('main') : null;
+            }
+            App.data[0][comp].adjust = {position: null, rotation: null};
+            MODEL.bey.replace(comp, model);
+            MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+            App.show.menu();
+            App.save();
+        },
+        default: {
+            "blade":  {"code":"HrSh","abbr":"HrSh"},
+            "ratchet":{"code":"CX17_03","abbr":"9-65"},
+            "bit":    {"code":"BX48_04","abbr":"GB"},
+        },
     },
     meta: {}
 }

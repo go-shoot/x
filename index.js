@@ -8,8 +8,9 @@ Q('search ul')?.append(...LINES.flatMap(([l]) => E('li>img', {src: `img/lines.sv
 let CACHE;
 class Cache {
     constructor() {
+        let meta = DB.get('meta', 'search');
         return DB.get.essentials({drop: false, flat: true})
-        .then(Parts => Promise.all([DB.get('meta', 'search'), ...Parts.map(P => P.revise('tile'))]))
+        .then(Parts => Promise.all([meta, ...Parts.map(P => P.revise('tile'))]))
         .then(([links, ...Parts]) => window.cache = CACHE = {
             links: [
                 ...links,
@@ -51,7 +52,7 @@ class Input {
         targets.ratchet &&= new Set(
             [...targets.ratchet].map(r => r.replace(/(?<!-)(?=\d{2}$)/, '-'))
         );
-        targets.free &&= new Set([...targets.free,
+        targets.free &&= new Set([...targets.blade, ...targets.free,
             [...targets.free].map(n => /^[一-龥]{4,}/.test(n) ? [
                 /^([一-龥]{2})([一-龥]+)/.exec(n).slice(1, 3), 
                 /^([一-龥]+)([一-龥]{2})/.exec(n).slice(1, 3)

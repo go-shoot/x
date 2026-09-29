@@ -55,7 +55,7 @@ section {
     transition: opacity .5s;
 
     &:not(:has(a[href*='products'])) {opacity: 0;}
-    a:nth-last-child(1 of [href^='/x/']),a:has(+search) {margin-right: .3rem;}
+    a:has(+div,+search) {margin-right: .3rem;}
     a+div {flex-basis: 100%; height: 0;}
     search {
         display: flex; height: 2em; width: 100%;
