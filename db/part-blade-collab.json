@@ -32,7 +32,7 @@
             "chi": "",
             "aka": "蟹"
         },
-        "stat": ["28-"],
+        "stat": ["28-",480],
         "desc": "(9-65S tent.)",
         "attr": ["sta","right","BX"],
         "from": "WyGl"
@@ -45,7 +45,7 @@
             "chi": "",
             "aka": "荷魯斯 隼"
         },
-        "stat": ["33="],
+        "stat": ["33=",484],
         "desc": "(9-65GB tent.)",
         "attr": ["sta","right","BX","expand"]
     },
@@ -57,7 +57,7 @@
             "chi": "",
             "aka": "蝙蝠"
         },
-        "stat": ["36+"],
+        "stat": ["36+",498],
         "desc": "(3-85GP tent.)",
         "attr": ["bal","right","BX"],
         "from": "WhWv"
@@ -70,7 +70,7 @@
             "chi": "",
             "aka": "護盾城牆"
         },
-        "stat": ["33-"],
+        "stat": ["33-",450],
         "desc": "(GB tent.)",
         "attr": ["def","right","UX","fused"]
     },
@@ -83,7 +83,7 @@
             "chi": "",
             "aka": "忍者飛鏢 手裡劍"
         },
-        "stat": ["37+"],
+        "stat": ["37+",490],
         "desc": "(LF tent.)",
         "attr": ["bal","right","fused","UX"]
     },
@@ -94,7 +94,7 @@
             "eng": "VikingHack",
             "chi": ""
         },
-        "stat": ["33-"],
+        "stat": ["33-",480],
         "desc": "(4-55O tent.)",
         "attr": ["bal","right","UX"],
         "from": "HlHm"
@@ -106,7 +106,7 @@
             "eng": "MedusaStun",
             "chi": ""
         },
-        "stat": ["28-"],
+        "stat": ["28-",484],
         "desc": "(9-60GB tent.)",
         "attr": ["def","right","UX"],
         "from": "ShSh"
@@ -118,7 +118,7 @@
             "eng": "KongYell",
             "chi": ""
         },
-        "stat": ["31+"],
+        "stat": ["31+",480],
         "desc": "(3-60GB tent.)",
         "attr": ["def","right","BX"],
         "from": "WyGl"

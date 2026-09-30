@@ -712,7 +712,7 @@
             "hasbro": "Ridge Triceratops",
             "aka": "三角龍 莫薩龍 滄龍"
         },
-        "stat": ["30-"],
+        "stat": ["30-",478],
         "desc": "",
         "attr": ["def","right"],
         "from": "SpCw"
