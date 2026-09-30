@@ -72,13 +72,13 @@ class Model {
             let stackHeight = P.bit.$height;
             if (P.ratchet) {
                 P.ratchet.position.y = height('ratchet');
-                stackHeight += P.ratchet.$height;
+                stackHeight += P.ratchet.$height + (adjust.height?.position ?? 0);
             }
             if (P.blade)
                 return P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) + height('blade');
             if (P.assist) {
                 P.assist.position.y = height('assist');
-                stackHeight += P.assist.$height;
+                stackHeight += P.assist.$height + (adjust.assist?.position ?? 0);;
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
             }
         }
