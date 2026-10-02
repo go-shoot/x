@@ -38,12 +38,12 @@ class Part {
         let revisable = this.revisable ?? this.constructor.revisions?.regexp?.test(this.abbr) ?? true;
         let isPartial = P => props.some(p => P[p] == null);
         
-        if (!this.abbr || !props || !revisable || !isPartial(this)) return this;
+        if (!this.abbr || !props || !revisable && !isPartial(this)) return this;
         if (comp == 'ratchet') {
             base = {stat: [, ...this.abbr.split('-')]};
         } else {
             [, pref, base] = this.constructor.revisions.regexp?.exec(this.abbr) ?? [];
-            let P = PARTS[comp][base];
+            let P = PARTS.at(this.path.toSpliced(-1, 1, base));
             base &&= isPartial(P) ? P.push(await DB.get(comp, base)) : P;
         }
         props.forEach(prop => this[prop] = this.revised[prop](base, pref) || this[prop]);
@@ -97,7 +97,7 @@ class Blade extends Part {
         attr: base => base ? base.attr : this.attr.add('expand'),
         desc: base => base ? base.desc + '性能有所更新的V2 Model。' : null
     }
-    static revisions = {regexp: /^()(.{2,})2$/, cell: ['group', 'names']};
+    static revisions = {regexp: /^()(.{3,})2$/, cell: ['group', 'names']};
 }
 class Ratchet extends Part {
     constructor(json) {super(json);}

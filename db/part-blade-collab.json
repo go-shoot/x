@@ -1,13 +1,14 @@
 {
-    "JgSz": {
+    "JgCl": {
         "group": "hasbro",
         "names": {
-            "jap": "",
-            "eng": "JaguarSeize",
+            "jap": "ジャガークラッチ",
+            "eng": "JaguarClutch",
+            "hasbro": "Seize Jaguar",
             "chi": "",
             "aka": "美洲豹"
         },
-        "stat": ["39+"],
+        "stat": ["39+",500],
         "desc": "(HN tent.)",
         "attr": ["def","right","UX","fused"]
     },
@@ -20,7 +21,7 @@
             "chi": "",
             "aka": "獨眼"
         },
-        "stat": ["34+"],
+        "stat": ["34+",490],
         "desc": "(7-55FB tent.)",
         "attr": ["sta","right","BX","expand"]
     },
