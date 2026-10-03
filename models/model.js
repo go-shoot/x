@@ -248,8 +248,14 @@ Model.getColor.distance = (...colors) => {
         v.applyMatrix3(M1);
         v.set(Math.cbrt(v.x), Math.cbrt(v.y), Math.cbrt(v.z));
         v.applyMatrix3(M2);
-        return v;
+        return {L: v.x, C: Math.hypot(v.y, v.z), h: Math.atan2(v.z, v.y)};
     });
-    return colors[0].distanceTo(colors[1]);
+    const delta = new O(colors[0]).minus(colors[1]);
+    delta.h = 2 * Math.sqrt(colors[0].C * colors[1].C) * Math.sin(Math.atan2(Math.sin(delta.h), Math.cos(delta.h)) / 2);
+    return Math.sqrt(
+        Math.pow(0 * delta.L, 2) +
+        Math.pow(1 * delta.C, 2) +
+        Math.pow(2 * delta.h, 2)
+    );
 };window.Model=Model;
 export default Model;

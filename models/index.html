@@ -20,6 +20,17 @@
     #search {
         opacity: 1 !important;
 
+        div {
+            font-size: .9em;
+            padding: 0 1rem 0 .2rem; margin-right: auto;
+
+            button {
+                padding: 0 .5em;
+                background: var(--theme); border-radius: 3em; 
+                color: var(--backdrop);
+            }
+            &>* {margin-right: .5em;}
+        }
         li:has(button:not([class])) {display: none !important;}
         .assembled:not(:empty)::before {content: '已組裝：';}
     }
@@ -55,6 +66,11 @@
 </nav>
 <main>
     <section id="search">
+        <div>
+            配色：
+            <input type="color"><input type="color">
+            <button id="random">隨機組裝</button>或
+        </div>
         <search><input type="search" placeholder="搜索部件。請由底（軸心）開始往上組裝"></search>
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
@@ -72,13 +88,37 @@ import { Bey, Search } from '../parts/bey.js';
 import Model from './model.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
-let MODEL, PARTS;
-Q('main').prepend(DB().then(() => DB.get.essentials().then(App.load)));
+let MODEL, COLORS;
+Q('main').prepend(DB().then(() => DB.get.essentials().then(() => App.load())));
 
 const App = {
     data: [new O({})], comp: null,
     events () {
         PI.events({'.scroller,#search ol': {scroll: {x: true}}});
+        Q('#random').onclick = async ev => {
+            ev.target.innerText = '隨機組裝';
+            let inputs = Q('input[type=color]', []);
+            inputs.every(i => i.value == '#000000') && (inputs[0].value = randomColor());
+            COLORS ??= new O(await fetch('/x-model/colors.json').then(resp => resp.json()));
+            let matched = {};
+            COLORS.each(([code, part]) => part.each(([part, colors]) => {
+                let [comp, abbr] = part.split('.');
+                Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
+                    Math.min(...colors.map(c => c ? Model.getColor.distance(i.value, c) : 0))
+                )) < .15 && (matched[comp] ??= []).push([code, part]);
+            }));
+            if (!matched.ratchet || !matched.bit) return ev.target.innerText = '請嘗試另一顏色';
+            let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
+            let [code, part] = blades[Math.floor(Math.random() * blades.length)];
+            let [comp, abbr] = part.split('.');
+            let drawn = {[comp]: {abbr: part.split('.')[1], code}};
+            let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
+            [...others[comp], 'ratchet', 'bit'].forEach(comp => {
+                let [code, part] = matched[comp][Math.floor(Math.random() * matched[comp].length)];
+                drawn[comp] = {abbr: part.split('.')[1], code};
+            });
+            App.load([drawn]);
+        }
         Q('.preview').onclick = async ev => {
             if (ev.target.tagName != 'BUTTON') return;
             let path = ev.target.dataset.path.split(',');
@@ -99,7 +139,7 @@ const App = {
             code && (App.data[0][comp].code = code);
             App.comp = comp;
             App.model.switch(model);
-            Q('#search input').value = '';
+            Q('input[type=search]').value = '';
             gtag('event', 'ASSEMBLE', {PART: abbr});
         }
         Q('.assembled').onclick = ev => {
@@ -124,18 +164,22 @@ const App = {
             if (ev.target.type == 'reset') {
                 [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.model.remove);
                 Q('.assembled').replaceChildren();
+                Q('input[type=color]', input => input.value = '');
             }
         }
     },
-    async load () {
-        let cache = Q('#search input').onfocus();
-        App.data = (await DB.get('user', 'assemble') ?? [App.model.default]).map(data => new O(data));
+    async load (data) {
+        let cache = Q('input[type=search]').onfocus();
+        App.data = (data ?? await DB.get('user', 'assemble') ?? App.model.default).map(data => new O(data));
         App.data[0].each(([_, data]) => data.adjust ??= {position: null, rotation: null});
-        MODEL = new Model(
-            App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, 
-            {adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust])}
-        );
-        Q('#canvas').append(MODEL.canvas);
+        if (!MODEL) {
+            MODEL = new Model(
+                App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, 
+                {adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust])}
+            );
+            Q('#canvas').append(MODEL.canvas);
+        } else
+            App.data[0].each(async ([comp, {code}]) => App.model.switch(await MODEL.fetch(code, comp), comp));
         await cache;
         App.data[0].each(async ([comp, data]) => {
             let path;
@@ -185,16 +229,24 @@ const App = {
             MODEL.bey.replace(comp, model);
             MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
             App.show.menu();
-            App.save();
+            App.data[0].bit.abbr && App.save();
         },
-        default: {
+        default: [{
             "blade":  {"code":"JgCl","abbr":"JgCl"},
             "bit":    {"code":"BX13","abbr":"HN"},
-        },
+        }],
     },
     meta: {}
 }
 App.meta.CXX = new Set(['over', 'metal']);
 App.meta.CX = new Set(['chip', ...App.meta.CXX, 'main', 'assist']);
 App.events();
+
+const randomColor = () => {
+    let [h, s, l] = [Math.random() * 360, Math.random() / 4 + .75, Math.random() / 4 + .375];
+    let a = s * Math.min(l, 1 - l);
+    const k = n => (n + h / 30) % 12, f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
+    return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+}
 </script>
