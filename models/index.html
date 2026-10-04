@@ -23,13 +23,13 @@
         div {
             font-size: .9em;
             padding: 0 1rem 0 .2rem; margin-right: auto;
+            display: flex; align-items: center; gap: .5em;
 
             button {
                 padding: 0 .5em;
                 background: var(--theme); border-radius: 3em; 
                 color: var(--backdrop);
             }
-            &>* {margin-right: .5em;}
         }
         li:has(button:not([class])) {display: none !important;}
         .assembled:not(:empty)::before {content: '已組裝：';}
@@ -50,6 +50,10 @@
         figure {margin-bottom: .5em;}
         &:not(:has(code:not(:empty))) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
     }
+    dl {
+        position: fixed; bottom: 1em; right: 1em; 
+        * {display: inline-block; margin-left: .5em;}
+    }
 </style>
 
 <nav>
@@ -67,7 +71,7 @@
 <main>
     <section id="search">
         <div>
-            配色：
+            選擇配色：
             <input type="color"><input type="color">
             <button id="random">隨機組裝</button>或
         </div>
@@ -77,6 +81,7 @@
     </section>
     <section id="canvas"></section>
     <div id="models"><figure><canvas></canvas></figure></div>
+    <dl></dl>
 </main>
 <!-- 
 find ./ -type f \( -iname "*.glb" -o -iname "*.gltf" \) -print0 | while IFS= read -r -d '' file; do gltf-transform optimize "$file" "$file" --compress draco --texture-compress webp; done
@@ -95,78 +100,12 @@ const App = {
     data: [new O({})], comp: null,
     events () {
         PI.events({'.scroller,#search ol': {scroll: {x: true}}});
-        Q('#random').onclick = async ev => {
-            ev.target.innerText = '隨機組裝';
-            let inputs = Q('input[type=color]', []);
-            inputs.every(i => i.value == '#000000') && (inputs[0].value = randomColor());
-            COLORS ??= new O(await fetch('/x-model/colors.json').then(resp => resp.json()));
-            let matched = {};
-            COLORS.each(([code, part]) => part.each(([part, colors]) => {
-                let [comp, abbr] = part.split('.');
-                Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
-                    Math.min(...colors.map(c => c ? Model.getColor.distance(i.value, c) : 0))
-                )) < .15 && (matched[comp] ??= []).push([code, part]);
-            }));
-            if (!matched.ratchet || !matched.bit) return ev.target.innerText = '請嘗試另一顏色';
-            let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
-            let [code, part] = blades[Math.floor(Math.random() * blades.length)];
-            let [comp, abbr] = part.split('.');
-            let drawn = {[comp]: {abbr: part.split('.')[1], code}};
-            let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
-            [...others[comp], 'ratchet', 'bit'].forEach(comp => {
-                let [code, part] = matched[comp][Math.floor(Math.random() * matched[comp].length)];
-                drawn[comp] = {abbr: part.split('.')[1], code};
-            });
-            App.load([drawn]);
-        }
-        Q('.preview').onclick = async ev => {
-            if (ev.target.tagName != 'BUTTON') return;
-            let path = ev.target.dataset.path.split(',');
-            let [abbr, comp] = path.toReversed(), code, model;
-            comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
-            App.data[0][comp] = new O({
-                abbr, colors: abbr == 'BsBr' ? [] : (await new Search(path)).beys.map(([code]) => code), 
-                li: ev.target.cloneNode(true), adjust: {position: null, rotation: null}
-            });
-            if (App.data[0][comp].colors.length) 
-                for (code of App.data[0][comp].colors) {
-                    model = await MODEL.fetch(code, comp);
-                    if (model.$height) break;
-                }
-            else
-                model = await Model.fetch(`/x-model/hasbro/${abbr}.glb`)
-                    .then(model => Model.setForBey(Object.assign(model, {$comp: comp}), abbr));
-            code && (App.data[0][comp].code = code);
-            App.comp = comp;
-            App.model.switch(model);
-            Q('input[type=search]').value = '';
-            gtag('event', 'ASSEMBLE', {PART: abbr});
-        }
-        Q('.assembled').onclick = ev => {
-            if (ev.target.tagName != 'BUTTON') return;
-            App.close();
-            let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
-            App.show.knobs();
-            setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.model.switch}), 250); //wait until closed
-        }
-        Q('main').onclick = ev => ev.target.closest('#models,.assembled') || App.close();
-        document.forms[0].oninput = ev => {
-            if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
-            if (!App.data[0][App.comp]) return;
-            App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
-            MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
-            clearTimeout(App.saveTimer);
-            App.saveTimer = setTimeout(App.save, 1000);
-        },
-        document.forms[0].onclick = ev => {
-            if (ev.target.type == 'button')
-                return DB.prepare.os('user', 'rw').delete('assemble');
-            if (ev.target.type == 'reset') {
-                [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.model.remove);
-                Q('.assembled').replaceChildren();
-                Q('input[type=color]', input => input.value = '');
-            }
-        }
+        Q('#random').onclick = App.events.randomize;
+        Q('.preview').onclick = App.events.show.model;
+        Q('.assembled').onclick = App.events.show.controls;
+        Q('main').onclick = ev => ev.target.closest('#models,.assembled') || App.close.controls();
+        document.forms[0].oninput = App.events.adjust;
+        document.forms[0].onclick = App.events.reset;
     },
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
@@ -174,8 +113,10 @@ const App = {
         App.data[0].each(([_, data]) => data.adjust ??= {position: null, rotation: null});
         if (!MODEL) {
             MODEL = new Model(
-                App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, 
-                {adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust])}
+                App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, {
+                    adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust]),
+                    intersect: () => App.show.specs()
+                }
             );
             Q('#canvas').append(MODEL.canvas);
         } else
@@ -200,14 +141,15 @@ const App = {
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
             knob.style.display = 'inline-grid';
             knob.value = App.data[0][App.comp].adjust[knob.name] ?? 0;
-        })
+        }),
+        specs: () => Q('dl')?.replaceChildren(E('dt', '全高'), E('dd', Math.round(MODEL.group.$height*100)/100))
     },
-    close () {
+    close: {controls () {
         let figure = Q('#models figure');
         figure.replaceChildren(figure.firstChild);
         figure.scrollLeft = 0;
         Q('drag-knob[name$=tion]', knob => knob.style.display = 'none');
-    },
+    }},
     model: {
         remove (comp) {
             MODEL.bey.replace(comp);
@@ -228,6 +170,7 @@ const App = {
             App.data[0][comp].adjust = {position: null, rotation: null};
             MODEL.bey.replace(comp, model);
             MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+            App.show.specs();
             App.show.menu();
             App.data[0].bit.abbr && App.save();
         },
@@ -238,6 +181,81 @@ const App = {
     },
     meta: {}
 }
+Object.assign(App.events, {
+    async randomize (ev) {
+        ev.target.innerText = '隨機組裝';
+        let inputs = Q('input[type=color]', []), matched = {};
+        inputs.every(i => i.value == '#000000') && (inputs[0].value = randomColor());
+        COLORS ??= new O(await fetch('/x-model/colors.json').then(resp => resp.json()));
+        COLORS.each(([code, part]) => part.each(([part, colors]) => {
+            let [comp, abbr] = part.split('.');
+            Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
+                Math.min(...colors.map(c => c ? Model.getColor.distance(i.value, c) : 0))
+            )) < .15 && (matched[comp] ??= []).push([code, part]);
+        }));
+        if (!matched.ratchet || !matched.bit) return ev.target.innerText = '請嘗試另一顏色';
+        let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
+        let [code, part] = blades[Math.floor(Math.random() * blades.length)];
+        let [comp, abbr] = part.split('.');
+        let drawn = {[comp]: {abbr: part.split('.')[1], code}};
+        let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
+        [...others[comp], 'ratchet', 'bit'].forEach(comp => {
+            let [code, part] = matched[comp][Math.floor(Math.random() * matched[comp].length)];
+            drawn[comp] = {abbr: part.split('.')[1], code};
+        });
+        App.load([drawn]);
+    },
+    show: {
+        async model (ev) {
+            if (ev.target.tagName != 'BUTTON') return;
+            let path = ev.target.dataset.path.split(',');
+            let [abbr, comp] = path.toReversed(), code, model;
+            comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
+            App.data[0][comp] = new O({
+                abbr, colors: abbr == 'BsBr' ? [] : (await new Search(path)).beys.map(([code]) => code), 
+                li: ev.target.cloneNode(true), adjust: {position: null, rotation: null}
+            });
+            if (App.data[0][comp].colors.length) 
+                for (code of App.data[0][comp].colors) {
+                    model = await MODEL.fetch(code, comp);
+                    if (model.$height) break;
+                }
+            else
+                model = await Model.fetch(`/x-model/hasbro/${abbr}.glb`)
+                    .then(model => Model.setForBey(Object.assign(model, {$comp: comp}), abbr));
+            code && (App.data[0][comp].code = code);
+            App.comp = comp;
+            App.model.switch(model);
+            Q('input[type=search]').value = '';
+            gtag('event', 'ASSEMBLE', {PART: abbr});
+        },
+        controls (ev) {
+            if (ev.target.tagName != 'BUTTON') return;
+            App.close.controls();
+            let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
+            App.show.knobs();
+            setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.model.switch}), 250); //wait until closed
+        }
+    },
+    adjust (ev) {
+        if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
+        if (!App.data[0][App.comp]) return;
+        App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
+        MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+        App.show.specs();
+        clearTimeout(App.saveTimer);
+        App.saveTimer = setTimeout(App.save, 1000);
+    },
+    reset (ev) {
+        if (ev.target.type == 'button')
+            return DB.prepare.os('user', 'rw').delete('assemble');
+        if (ev.target.type == 'reset') {
+            [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.model.remove);
+            Q('.assembled').replaceChildren();
+            Q('input[type=color]', input => input.value = '');
+        }
+    }
+});
 App.meta.CXX = new Set(['over', 'metal']);
 App.meta.CX = new Set(['chip', ...App.meta.CXX, 'main', 'assist']);
 App.events();

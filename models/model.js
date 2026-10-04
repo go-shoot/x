@@ -6,12 +6,12 @@ import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
 
 class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
-        en.isIntersecting ? en.target.Model.render() : en.target.Model.dispose()
+        en.isIntersecting ? en.target.Model.render().then(M => M.intersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
     #mode; #animation;
-    constructor(parts, canvas, {onclick, adjust} = {}) {
+    constructor(parts, canvas, callbacks = {adjust: {}}) {
         parts = Object.entries(this.parts = parts);
-        this.onclick = onclick, this.adjust = adjust ?? {};
+        Object.assign(this, callbacks);
         this.#mode = parts.length > 1 ? 'bey' : Array.isArray(parts[0][1]) ? 'list' : 'single';
         parts.length === 1 && ([this.comp, this.code] = parts[0]);
         this.#setup.canvas(Array.isArray(this.code) ? canvas : undefined);
@@ -26,7 +26,9 @@ class Model {
         },
         camera: (V = new THREE.Vector3()) => {
             let box = new THREE.Box3().setFromObject(this.group);
-            let size = Math.max(...Object.values(box.getSize(V))), fov = 45;
+            let size = box.getSize(V), fov = 45;
+            this.group.$height = size.y;
+            size = Math.max(...Object.values(size));
             let distance = Math.abs(size / 2 / Math.tan(fov * Math.PI / 180 / 2)) * 1.25 / (Model.scale[this.comp] ?? 1);
             this.#mode == 'bey' && (distance *= Math.max(innerWidth / innerHeight, innerHeight / innerWidth));
             let center = box.getCenter(V);
@@ -110,7 +112,7 @@ class Model {
             (this.parts[comp] = after) && this.group.add(after) && this.transform.bey();
         }
     }
-    async render () {
+    async render () {console.log('r');
         this._renderer = new THREE.WebGPURenderer({alpha: true, antialias: true, canvas: this.canvas});
         this._renderer.setPixelRatio(window.devicePixelRatio);
         this._scene = new THREE.Scene();
@@ -139,8 +141,10 @@ class Model {
             this.transform.bey();
         } else {
             this.group = await this.fetch(this.code);
-            if (!this.group.type)
-                return this.canvas.replaceWith(E('span', '未有模型', {title: this.canvas.title}));
+            if (!this.group.type) {
+                this.canvas.replaceWith(E('span', '未有模型', {title: this.canvas.title}));
+                return this;
+            }
         }
         this.#setup.single();
         const animate = () => {
@@ -163,7 +167,7 @@ class Model {
         this.#setup.canvas(Array.isArray(this.code) ? E('canvas') : undefined);
         old.replaceWith(this.canvas);
     }
-    #dispose = (...items) => items.forEach(item => {
+    #dispose = (...items) => console.log('d')??items.forEach(item => {
         if (typeof item == 'string') {
             this[item]?.dispose();
             return this[item] = null;
