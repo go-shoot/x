@@ -6,9 +6,8 @@
     input::placeholder,drag-knob {font-size: .8em;}
     nav {
         input[type=reset],button {
-            grid-area: 2/4;
+            grid-area: 2/4; place-self: center;
             font-size: .8em;
-            place-self: center;
             width: 7rem; height: 1.4rem;
             border: none;
             background: var(--theme); border-radius: 3em; 
@@ -19,20 +18,21 @@
     }
     #search {
         opacity: 1 !important;
+        justify-content: start; gap: 0 .5em;
 
-        div {
-            font-size: .9em;
-            padding: 0 1rem 0 .2rem; margin-right: auto;
-            display: flex; align-items: center; gap: .5em;
-
-            button {
-                padding: 0 .5em;
-                background: var(--theme); border-radius: 3em; 
-                color: var(--backdrop);
-            }
+        >:first-child,ol:last-of-type+* {padding-left: .2rem;}
+        >:not(search) {font-size: .9em;}
+        input[type=color] {background: var(--on);}
+        #random {
+            padding: 0 .5em;
+            background: var(--theme); border-radius: 3em; 
+            color: var(--backdrop);
         }
-        li:has(button:not([class])) {display: none !important;}
         .assembled:not(:empty)::before {content: '已組裝：';}
+        output {
+            margin-left: .5rem; vertical-align: text-top;
+            font-size: 2em; color: var(--on);
+        }
     }
     #canvas {
         position: fixed; width: max(100svh,100svw); aspect-ratio: 1;
@@ -50,10 +50,6 @@
         figure {margin-bottom: .5em;}
         &:not(:has(code:not(:empty))) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
     }
-    dl {
-        position: fixed; bottom: 1em; right: 1em; 
-        * {display: inline-block; margin-left: .5em;}
-    }
 </style>
 
 <nav>
@@ -70,18 +66,15 @@
 </nav>
 <main>
     <section id="search">
-        <div>
-            選擇配色：
-            <input type="color"><input type="color">
-            <button id="random">隨機組裝</button>或
-        </div>
-        <search><input type="search" placeholder="搜索部件。請由底（軸心）開始往上組裝"></search>
+        <span>選擇配色：</span><input type="color"><input type="color">
+        <button id="random">&#xe02f; 隨機組裝</button><span>或</span>
+        <search><input type="search" placeholder="搜索部件：請由底（軸心）開始往上組裝"></search>
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
+        <span>全高<output></output></span><span hidden>主體金屬離地<output></output></span>
     </section>
     <section id="canvas"></section>
     <div id="models"><figure><canvas></canvas></figure></div>
-    <dl></dl>
 </main>
 <!-- 
 find ./ -type f \( -iname "*.glb" -o -iname "*.gltf" \) -print0 | while IFS= read -r -d '' file; do gltf-transform optimize "$file" "$file" --compress draco --texture-compress webp; done
@@ -142,7 +135,7 @@ const App = {
             knob.style.display = 'inline-grid';
             knob.value = App.data[0][App.comp].adjust[knob.name] ?? 0;
         }),
-        specs: () => Q('dl')?.replaceChildren(E('dt', '全高'), E('dd', Math.round(MODEL.group.$height*100)/100))
+        specs: () => ['$height', '$metalHeight'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
     },
     close: {controls () {
         let figure = Q('#models figure');
@@ -156,6 +149,7 @@ const App = {
             App.data[0][comp] = null;
         },
         async switch (model, comp = App.comp) {
+            Q('output', o => o.value = '');
             if (typeof model == 'string') {
                 App.data[0][comp].code = model;
                 model = await MODEL.fetch(model, comp);
@@ -197,6 +191,7 @@ Object.assign(App.events, {
         let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
         let [code, part] = blades[Math.floor(Math.random() * blades.length)];
         let [comp, abbr] = part.split('.');
+        if (comp != 'blade' && !matched.assist) return ev.target.innerText = '請嘗試另一顏色';
         let drawn = {[comp]: {abbr: part.split('.')[1], code}};
         let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
         [...others[comp], 'ratchet', 'bit'].forEach(comp => {

@@ -27,6 +27,7 @@ class Model {
         camera: (V = new THREE.Vector3()) => {
             let box = new THREE.Box3().setFromObject(this.group);
             let size = box.getSize(V), fov = 45;
+            this.group.updateMatrixWorld(true);
             this.group.$height = size.y;
             size = Math.max(...Object.values(size));
             let distance = Math.abs(size / 2 / Math.tan(fov * Math.PI / 180 / 2)) * 1.25 / (Model.scale[this.comp] ?? 1);
@@ -76,12 +77,14 @@ class Model {
                 P.ratchet.position.y = height('ratchet');
                 stackHeight += P.ratchet.$height + (adjust.ratchet?.position ?? 0);
             }
-            if (P.blade)
-                return P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) + height('blade');
-            if (P.assist) {
+            if (P.blade) {
+                P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) + height('blade');
+                this.group.$metalHeight = new THREE.Box3().setFromObject(Model.getSubPart(P.blade, 'Head_metal')).min.y;
+            } else if (P.assist) {
                 P.assist.position.y = height('assist');
                 stackHeight += P.assist.$height + (adjust.assist?.position ?? 0);;
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
+                this.group.$metalHeight = new THREE.Box3().setFromObject(Model.getSubPart(P.main || P.metal, 'Head_metal')).min.y;
             }
         }
     }
@@ -109,10 +112,10 @@ class Model {
         replace: (comp, after) => {
             let before = this.parts[comp];
             before && this.group.remove(before) && before?.traverse(child => this.#dispose(child));
-            (this.parts[comp] = after) && this.group.add(after) && this.transform.bey();
+            (this.parts[comp] = after) && this.group.add(after) //&& this.transform.bey();
         }
     }
-    async render () {console.log('r');
+    async render () {
         this._renderer = new THREE.WebGPURenderer({alpha: true, antialias: true, canvas: this.canvas});
         this._renderer.setPixelRatio(window.devicePixelRatio);
         this._scene = new THREE.Scene();
@@ -167,7 +170,7 @@ class Model {
         this.#setup.canvas(Array.isArray(this.code) ? E('canvas') : undefined);
         old.replaceWith(this.canvas);
     }
-    #dispose = (...items) => console.log('d')??items.forEach(item => {
+    #dispose = (...items) => items.forEach(item => {
         if (typeof item == 'string') {
             this[item]?.dispose();
             return this[item] = null;
@@ -213,6 +216,7 @@ class Model {
     static getSubPart (model, ...names) {
         for (let n of names) {
             let p = model.getObjectByName(n);
+            p?.updateWorldMatrix(true, true);
             if (p) return p;
         }
     }
