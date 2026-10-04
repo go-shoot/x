@@ -70,7 +70,6 @@ class Model {
             adjust?.each(([comp, {rotation: angle}]) => 
                 P[comp] && angle != null && (P[comp].rotation.y = angle * Math.PI)
             );
-            this.#setup.camera();
             let height = c => stackHeight - P[c].$y - Model.lower[c] + (adjust[c]?.position ?? 0);
             let stackHeight = P.bit.$height;
             if (P.ratchet) {
@@ -86,6 +85,7 @@ class Model {
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
                 this.group.$metalHeight = new THREE.Box3().setFromObject(Model.getSubPart(P.main || P.metal, 'Head_metal')).min.y;
             }
+            this.#setup.camera();
         }
     }
     list = {
