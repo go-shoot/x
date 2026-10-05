@@ -352,7 +352,7 @@
             "eng": "Mister Fantastic",
             "chi": ""
         },
-        "stat": [""],"desc":"9-65A",
+        "stat": ["34="],"desc":"9-65A",
         "attr": ["def","right","BX","marvel"],
         "from": "SpCw"
     },
@@ -363,7 +363,7 @@
             "eng": "Doctor Doom",
             "chi": ""
         },
-        "stat": [""],"desc":"0-80LO",
+        "stat": ["32+"],"desc":"0-80LO",
         "attr": ["def","right","BX","marvel"],
         "from": "KnSh"
     },
