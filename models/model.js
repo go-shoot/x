@@ -165,7 +165,7 @@ class Model {
             this.models = this.code.map((c, i) => this.fetch(c, i));
             this.models = (await Promise.allSettled(this.models)).map(p => p.value).filter(model => model);
             this.list.setup(this.models.length, H);
-            setTimeout(() => this.list.reorder());
+            setTimeout(() => this.list.reorder(), 100);
         } else {
             this._renderer.setSize(H, H);
             if (this.#mode == 'part')
