@@ -8,7 +8,7 @@ class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
         en.isIntersecting ? en.target.Model.render().then(M => M.intersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
-    #mode; #animation;
+    #mode; #init; #animation;
     constructor(parts, canvas, callbacks = {adjust: {}}) {
         Object.assign(this, callbacks);
         parts = Object.entries(this.parts = parts);
@@ -26,7 +26,7 @@ class Model {
         scene: () => {
             this._renderer = new THREE.WebGPURenderer({alpha: true, antialias: true, canvas: this.canvas});
             this._renderer.setPixelRatio(window.devicePixelRatio);
-            this._renderer.init();
+            this.#init = this._renderer.init();
             this._scene = new THREE.Scene();
             this._scene.add(new THREE.AmbientLight(0xffffff, 0.2));
             [[0,5,0],[0,-5,0],[-1,0,5],[1,0,5]].forEach((point, i) => {
@@ -165,7 +165,7 @@ class Model {
             this.models = this.code.map((c, i) => this.fetch(c, i));
             this.models = (await Promise.allSettled(this.models)).map(p => p.value).filter(model => model);
             this.list.setup(this.models.length, H);
-            setTimeout(() => this.list.reorder(), 100);
+            setTimeout(() => this.list.reorder());
         } else {
             this._renderer.setSize(H, H);
             if (this.#mode == 'part')
@@ -181,7 +181,7 @@ class Model {
         return this;
     }
     #render () {
-        if (this.#mode == 'list') return this._renderer?.render(this._scene, this._camera);
+        if (this.#mode == 'list') return this.#init.then(r => r.render(this._scene, this._camera));
         this.#setup.orbital();
         this.#animation ?? this.#animate();
     }
@@ -189,7 +189,7 @@ class Model {
         this.#animation = requestAnimationFrame(() => this.#animate());
         this.group && this.speed && (this.group.rotation.y += this.speed);
         this._controls?.update();
-        this._renderer?.render(this._scene, this._camera);
+        this.#init.then(r => r.render(this._scene, this._camera));
     }
     dispose () {
         if (!this.canvas.dataset.engine) return;
