@@ -71,7 +71,7 @@
         <search><input type="search" placeholder="搜索部件：請由底（軸心）開始往上組裝"></search>
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
-        <span>全高<output></output></span><span hidden>主體金屬離地<output></output></span>
+        <span>全高<output></output></span><span>主體金屬離地<output></output></span>
     </section>
     <section id="canvas"></section>
     <div id="models"><figure><canvas></canvas></figure></div>
@@ -163,7 +163,7 @@ const App = {
             }
             App.data[0][comp].adjust = {position: null, rotation: null};
             MODEL.bey.replace(comp, model);
-            MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+            MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
             App.show.specs();
             App.show.menu();
             App.data[0].bit.abbr && App.save();
@@ -184,7 +184,7 @@ Object.assign(App.events, {
         COLORS.each(([code, part]) => part.each(([part, colors]) => {
             let [comp, abbr] = part.split('.');
             Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
-                Math.min(...colors.map(c => c ? Model.getColor.distance(i.value, c) : 0))
+                Math.min(...colors.map(c => c ? Model.get.color.distance(i.value, c) : 0))
             )) < .15 && (matched[comp] ??= []).push([code, part]);
         }));
         if (!matched.ratchet || !matched.bit) return ev.target.innerText = '請嘗試另一顏色';
@@ -236,7 +236,7 @@ Object.assign(App.events, {
         if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
         if (!App.data[0][App.comp]) return;
         App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
-        MODEL.transform.bey(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+        MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
         App.show.specs();
         clearTimeout(App.saveTimer);
         App.saveTimer = setTimeout(App.save, 1000);

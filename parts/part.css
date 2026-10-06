@@ -173,6 +173,7 @@
             height: 100%; width: 100%;
             --glow-size: .05em;
         }
+        :host(.assist) &:first-child {anchor-name: --last-row;}
     }
 }
 :host(.CX.chip) ul::before {
@@ -240,9 +241,14 @@
         }
         dd {anchor-name: --weight;}
     }
-    :host(.assist) & div:nth-child(3) {grid-column: 1; margin-right: -.5em;}
+    :host(.assist) & div:nth-child(3) {
+        margin-right: 0.6em;
+        position: absolute; position-anchor: --last-row; position-area: left center;
+    }
     :host(.ratchet) & div:nth-child(2),
-    :host(.bit) & div:nth-child(3):has(+div) {grid-column: 1;}
+    :host(.bit) & div:nth-child(3):has(+div) {
+        grid-column: 1;
+    }
     :host(.ratchet) & div:first-child,
     :host(.blade) & div:only-child {
         grid-row: 2;
