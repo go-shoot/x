@@ -124,8 +124,8 @@ class Model {
                 this.models.toSorted((m, n) => m?.[by] == null ? 1 : n?.[by] == null ? -1 : (m[by][0] || 0) - (n[by][0] || 0)) :
                 this.models;
             sorted.forEach((g, i) => g.position && (g.position.x = z * (2 * i - this.models.length + 1)));
-            this.#render();
             this.canvas.parentElement?.replaceChildren(this.canvas, ...sorted.map(g => g.$codeNode));
+            this.#render();
         }
     }
     bey = {
@@ -165,7 +165,7 @@ class Model {
             this.models = this.code.map((c, i) => this.fetch(c, i));
             this.models = (await Promise.allSettled(this.models)).map(p => p.value).filter(model => model);
             this.list.setup(this.models.length, H);
-            setTimeout(() => this.list.reorder());
+            this.list.reorder();
         } else {
             this._renderer.setSize(H, H);
             if (this.#mode == 'part')
@@ -181,7 +181,8 @@ class Model {
         return this;
     }
     #render () {
-        if (this.#mode == 'list') return this.#init.then(r => r.render(this._scene, this._camera));
+        if (this.#mode == 'list') 
+            return requestAnimationFrame(() => this.#init.then(r => r.render(this._scene, this._camera)));
         this.#setup.orbital();
         this.#animation ?? this.#animate();
     }
