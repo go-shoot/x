@@ -44,13 +44,14 @@ class Model {
             size = Math.max(...Object.values(size));
             let center = box.getCenter(V);
             if (this._camera) {
-                this._camera.position.y = center.y;
+                this._camera.position.y += center.y - (this._camera.$lastY ?? center.y);
             } else {
                 let distance = Math.abs(size / 2 / Math.tan(Math.PI / 4 / 2)) * 1.25 / (Model.#scale[this.comp] ?? 1);
                 this.#mode == 'bey' && (distance *= Math.max(innerWidth / innerHeight, innerHeight / innerWidth));
                 this._camera = new THREE.PerspectiveCamera();
                 this._camera.position.set(center.x, center.y, center.z + distance);
             }
+            this._camera.$lastY = center.y;
             this._camera.updateProjectionMatrix();
             return center;
         },
@@ -153,7 +154,6 @@ class Model {
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
                 this.group.$metalHeight = Model.get.child(P.main || P.metal, ...Model.#child.blade).min.y;
             }
-            this.#setup.camera();
         }
     }
     async render () {
@@ -235,9 +235,7 @@ class Model {
         ratchet: {x: -Math.PI/3},
         bit: {x: -Math.PI/6, z: -Math.PI/12}
     }
-    static #child = {
-        blade: ['Head_metal', 'Base_metal', 'Headparts_metal', 'Had_metal', 'Material_metal']
-    }
+    static #child = {blade: ['Head_metal', 'Base_metal', 'Headparts_metal', 'Had_metal', 'Material_metal']}
     static {
         const draco = new DRACOLoader();
         draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
