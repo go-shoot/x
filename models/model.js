@@ -38,10 +38,8 @@ class Model {
         },
         camera: (V = new THREE.Vector3()) => {
             let box = new THREE.Box3().setFromObject(this.group);
-            let size = box.getSize(V);
+            let size = Math.max(...Object.values(box.getSize(V)));
             this.group.updateMatrixWorld(true);
-            this.group.$height = size.y;
-            size = Math.max(...Object.values(size));
             let center = box.getCenter(V);
             if (this._camera) {
                 this._camera.position.y += center.y - (this._camera.$lastY ?? center.y);
@@ -154,6 +152,7 @@ class Model {
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
                 this.group.$metalHeight = Model.get.child(P.main || P.metal, ...Model.#child.blade).min.y;
             }
+            this.group.$height = new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y;
         }
     }
     async render () {
