@@ -157,8 +157,8 @@ class Tile extends HTMLElement {
         from &&= path.toSpliced(-from.length, from.length, ...from);
         from?.length > 2 && (path[2] = from[2]);
         this.shadowRoot.replaceChildren(
-            E.link({href: '/x/include/common.css'}),
-            E.link({href: '/x/parts/part.css'}),
+            E('link', {rel: 'stylesheet',href: '/x/include/common.css'}),
+            E('link', {rel: 'stylesheet',href: '/x/parts/part.css'}),
             E('object', {data: this.fill.background(E(this).get('--hue'))}),
             E('figure>img', {src: `/x/img/${path.join('/')}.png`}),
             E('ul', this.fill.icons()),

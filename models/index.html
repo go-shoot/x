@@ -86,8 +86,8 @@ import { Bey, Search } from '../parts/bey.js';
 import Model from './model.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
-let MODEL, COLORS;
-Q('main').prepend(DB().then(() => DB.get.essentials().then(() => App.load())));
+let MODEL, COLORS, PARTS;
+Q('main').prepend(DB().then(() => DB.get.essentials().then(Ps => (PARTS = Ps) && App.load())));
 
 const App = {
     data: [new O({})], comp: null,
@@ -155,18 +155,28 @@ const App = {
                 model = await MODEL.fetch(model, comp);
             };
             if (!model.$comp) return;
+            let fused = comp => PARTS[comp][App.data[0][comp]?.abbr]?.attr?.has('fused');
             if (comp == 'blade') {
                 App.meta.CX.forEach(App.model.remove);
+                if (fused('blade')) {
+                    App.model.remove('ratchet');
+                    fused('bit') && App.model.remove('bit');
+                }
             } else if (App.meta.CX.has(comp)) {
                 App.model.remove('blade');
-                comp == 'main' ? App.meta.CXX.forEach(App.model.remove) : App.meta.CXX.has(comp) ? App.model.remove('main') : null;
+                comp == 'main' ? App.meta.CXX.forEach(App.model.remove) : App.meta.CXX.has(comp) && App.model.remove('main');
+            } else if (comp == 'bit' && fused('bit')) {
+                App.model.remove('ratchet');
+                fused('blade') && App.model.remove('blade');
+            } else if (comp == 'ratchet') {
+                ['blade', 'bit'].forEach(comp => fused(comp) && App.model.remove(comp));
             }
             App.data[0][comp].adjust = {position: null, rotation: null};
             MODEL.bey.replace(comp, model);
             MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
             App.show.specs();
             App.show.menu();
-            App.data[0].bit.abbr && App.save();
+            App.data[0].bit?.abbr && App.save();
         },
         default: [{
             "blade":  {"code":"JgCl","abbr":"JgCl"},
@@ -216,8 +226,7 @@ Object.assign(App.events, {
                     if (model.$height) break;
                 }
             else
-                model = await Model.fetch(`/x-model/hasbro/${abbr}.glb`)
-                    .then(model => Model.setForBey(Object.assign(model, {$comp: comp}), abbr));
+                model = await MODEL.fetch(abbr, comp)
             code && (App.data[0][comp].code = code);
             App.comp = comp;
             App.model.switch(model);

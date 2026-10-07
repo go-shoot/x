@@ -137,14 +137,17 @@ class Model {
             adjust?.each(([comp, {rotation: angle}]) => 
                 P[comp] && angle != null && (P[comp].rotation.y = angle * Math.PI)
             );
+            if (!P.bit) return;
             let height = c => stackHeight - P[c].$y - Model.#lower[c] + (adjust[c]?.position ?? 0);
             let stackHeight = P.bit.$height;
+            let fused = stackHeight > 20;
             if (P.ratchet) {
                 P.ratchet.position.y = height('ratchet');
                 stackHeight += P.ratchet.$height + (adjust.ratchet?.position ?? 0);
             }
             if (P.blade) {
-                P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) + height('blade');
+                P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) 
+                    + height('blade') - (fused ? Model.#lower.ratchet : 0);
                 this.group.$metalHeight = Model.get.child(P.blade, ...Model.#child.blade).min.y;
             } else if (P.assist) {
                 P.assist.position.y = height('assist');
@@ -234,7 +237,7 @@ class Model {
         ratchet: {x: -Math.PI/3},
         bit: {x: -Math.PI/6, z: -Math.PI/12}
     }
-    static #child = {blade: ['Head_metal', 'Base_metal', 'Headparts_metal', 'Had_metal', 'Material_metal']}
+    static #child = {blade: ['Head_metal', 'Base_metal', 'Headparts_metal', 'Had_metal', 'Material_metal', 'Head_metal.001']}
     static {
         const draco = new DRACOLoader();
         draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
