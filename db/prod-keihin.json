@@ -1,5 +1,5 @@
 {
-    "BXC-?2":{
+    "BXC-21":{
         "type":"m", "date":"2026-10", "note":"コロコロ雜誌應募", 
         "ver":["メタルコート：ホワイト","Metal Coat: White"], "link":"https://corocoro-news.jp/news/402435/",
         "img":["https://corocoro-news.jp/wp-content/uploads/2026/09/e8fe110a414d86f3d3075ea44804e054.jpg",90]
@@ -9,12 +9,12 @@
         "ver":["メタルコート：イエロー","Metal Coat: Yellow"], "link":"https://lifetunes-mall.jp/shop/g/gR20260075/",
         "img":["https://corocoro-news.jp/wp-content/uploads/2026/03/c5c3054c95fd6390e58be1cb9f0915ba.jpg"]
     },
-    "BXG-?1_02":{
+    "BXG-71_02":{
         "type":"d", "date":"2026-10", "note":"DMMくじLast Chance賞", 
         "ver":["メタルコート：ホワイト","Metal Coat: White"], "link":"https://scratch.dmm.com/s3/dmmkuji_long_img/v25zaqW37wOGTsci6RWM6yN6YrXs1Gr9ACdKFT0r.jpeg",
         "img":["https://scratch.dmm.com/s3/dmmkuji_double_long_img/25/D6inVcIUUrzkWnxkInr8o29b3l6ShfTKUgaRob92.jpeg",{"width":"300%","left":"-5%","top":"47%"}]
     },
-    "BXG-?1_01":{
+    "BXG-71_01":{
         "type":"d", "date":"2026-10", "note":"DMMくじA賞", 
         "link":"https://scratch.dmm.com/s3/dmmkuji_long_img/v25zaqW37wOGTsci6RWM6yN6YrXs1Gr9ACdKFT0r.jpeg",
         "img":["https://scratch.dmm.com/s3/dmmkuji_double_long_img/25/D6inVcIUUrzkWnxkInr8o29b3l6ShfTKUgaRob92.jpeg",{"width":"300%","left":"102%","top":"47%"}]

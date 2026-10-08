@@ -148,13 +148,26 @@ class Model {
             if (P.blade) {
                 P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) 
                     + height('blade') - (fused ? Model.#lower.ratchet : 0);
-                this.group.$metalHeight = Model.get.child(P.blade, ...Model.#child.blade).min.y;
             } else if (P.assist) {
                 P.assist.position.y = height('assist');
                 stackHeight += P.assist.$height + (adjust.assist?.position ?? 0);;
                 ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
-                this.group.$metalHeight = Model.get.child(P.main || P.metal, ...Model.#child.blade).min.y;
             }
+            this.bey.calculate();
+        },
+        calculate: () => {
+            this.group.updateMatrixWorld(true);
+            let metals = [];
+            this.group.traverse(c => {
+                if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry) return;
+                let {center, volume} = Model.compute.gravity(c.geometry);
+                let {x, y, z} = center.clone().applyMatrix4(c.matrixWorld);
+                metals.push({name: c.name, volume, x, y, z});
+            });console.log(metals);
+            let totalVol = Math.sumPrecise(metals.map(part => part.volume))
+            metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.volume / totalVol * item[p])));
+            this.group.$metalCenter = Math.hypot(metals[0], metals[2]);
+            this.group.$metalHeight = metals[1];
             this.group.$height = new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y;
         }
     }
@@ -218,6 +231,7 @@ class Model {
     static fetch = url => new Promise((res, rej) => Model.loader.load(url, gltf => res(gltf.scene), null, er => rej(er)))
     static get = {
         child (model, ...names) {
+            if (!model) return;
             for (let n of names) {
                 let child = model.getObjectByName(n);
                 child?.updateWorldMatrix(true, true);
@@ -237,7 +251,6 @@ class Model {
         ratchet: {x: -Math.PI/3},
         bit: {x: -Math.PI/6, z: -Math.PI/12}
     }
-    static #child = {blade: ['Head_metal', 'Base_metal', 'Headparts_metal', 'Had_metal', 'Material_metal', 'Head_metal.001']}
     static {
         const draco = new DRACOLoader();
         draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
@@ -245,31 +258,51 @@ class Model {
         Model.loader.setDRACOLoader(draco);
     }
 }
-Model.get.color.distance = (...colors) => {
-    const M1 = new THREE.Matrix3().set(
-        0.4122214708, 0.5363325363, 0.0514459929,
-        0.2119034982, 0.6806995451, 0.1073969566,
-        0.0883024619, 0.2817188376, 0.6299787005
-    );
-    const M2 = new THREE.Matrix3().set(
-        0.2104542553,  0.7936177850, -0.0040720468,
-        1.9779984951, -2.4285922050,  0.4505937099,
-        0.0259040371,  0.7827717662, -0.8086757993
-    );
-    colors = colors.map(c => {
-        c = new THREE.Color(c).convertSRGBToLinear();
-        const v = new THREE.Vector3(c.r, c.g, c.b);
-        v.applyMatrix3(M1);
-        v.set(Math.cbrt(v.x), Math.cbrt(v.y), Math.cbrt(v.z));
-        v.applyMatrix3(M2);
-        return {L: v.x, C: Math.hypot(v.y, v.z), h: Math.atan2(v.z, v.y)};
-    });
-    const delta = new O(colors[0]).minus(colors[1]);
-    delta.h = 2 * Math.sqrt(colors[0].C * colors[1].C) * Math.sin(Math.atan2(Math.sin(delta.h), Math.cos(delta.h)) / 2);
-    return Math.sqrt(
-        Math.pow(0 * delta.L, 2) +
-        Math.pow(1 * delta.C, 2) +
-        Math.pow(2 * delta.h, 2)
-    );
-};window.Model=Model;
+Model.compute = {
+    gravity (geometry) {
+        const posAttr = geometry.attributes.position;
+        if (!posAttr) return null;
+        let index = geometry.index;
+        let vectors = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], cross = new THREE.Vector3();
+        let center = {x: 0, y: 0, z: 0}, totalVol = 0;
+        for (let i = 0; i < (index || posAttr).count / 3; i++) {
+            vectors.forEach((v, j) => v.fromBufferAttribute(posAttr, index ? index.getX(i * 3 + j) : i * 3 + j));
+            cross.crossVectors(vectors[1], vectors[2]);
+            let vol = vectors[0].dot(cross) / 6;
+            totalVol += vol;
+            ['x', 'y', 'z'].forEach(a => center[a] += vol * Math.sumPrecise(vectors.map(v => v[a])) / 4);
+        }
+        return {
+            center: new THREE.Vector3(...Object.values(center).map(c => c/totalVol)),
+            volume: Math.abs(totalVol)
+        };
+    },
+    colorDistance (...colors) {
+        const M1 = new THREE.Matrix3().set(
+            0.4122214708, 0.5363325363, 0.0514459929,
+            0.2119034982, 0.6806995451, 0.1073969566,
+            0.0883024619, 0.2817188376, 0.6299787005
+        );
+        const M2 = new THREE.Matrix3().set(
+            0.2104542553,  0.7936177850, -0.0040720468,
+            1.9779984951, -2.4285922050,  0.4505937099,
+            0.0259040371,  0.7827717662, -0.8086757993
+        );
+        colors = colors.map(c => {
+            c = new THREE.Color(c).convertSRGBToLinear();
+            const v = new THREE.Vector3(c.r, c.g, c.b);
+            v.applyMatrix3(M1);
+            v.set(Math.cbrt(v.x), Math.cbrt(v.y), Math.cbrt(v.z));
+            v.applyMatrix3(M2);
+            return {L: v.x, C: Math.hypot(v.y, v.z), h: Math.atan2(v.z, v.y)};
+        });
+        const delta = new O(colors[0]).minus(colors[1]);
+        delta.h = 2 * Math.sqrt(colors[0].C * colors[1].C) * Math.sin(Math.atan2(Math.sin(delta.h), Math.cos(delta.h)) / 2);
+        return Math.sqrt(
+            Math.pow(0 * delta.L, 2) +
+            Math.pow(1 * delta.C, 2) +
+            Math.pow(2 * delta.h, 2)
+        );
+    }
+}
 export default Model;

@@ -1,4 +1,4 @@
-<title>Model</title>
+<title>陀螺3D模型</title>
 <script defer src=../include/common.js></script>
 <script src="https://aeoq.github.io/drag-knob.mjs" type="module"></script>
 <link rel="stylesheet" href="../index.css">
@@ -19,6 +19,7 @@
     #search {
         opacity: 1 !important;
         justify-content: start; gap: 0 .5em;
+        user-select: none; -webkit-user-select: none;
 
         >:first-child,ol:last-of-type+* {padding-left: .2rem;}
         >:not(search) {font-size: .9em;}
@@ -29,8 +30,15 @@
             color: var(--backdrop);
         }
         .assembled:not(:empty)::before {content: '已組裝：';}
+        dl {
+            display: flex; gap: .5em;
+            margin-top: .2em;
+        } 
+        dt {
+            max-width: 4em;
+            line-height: 1.1;
+        }
         output {
-            margin-left: .5rem; vertical-align: text-top;
             font-size: 2em; color: var(--on);
         }
     }
@@ -71,7 +79,7 @@
         <search><input type="search" placeholder="搜索部件：請由底（軸心）開始往上組裝"></search>
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
-        <span>全高<output></output></span><span>主體金屬離地<output></output></span>
+        <dl><dt>全高<dd><output></output><dt>金屬部件重心高度<dd><output></output><dt hidden>金屬部件偏重心度<dd hidden><output></output></dl>
     </section>
     <section id="canvas"></section>
     <div id="models"><figure><canvas></canvas></figure></div>
@@ -135,7 +143,7 @@ const App = {
             knob.style.display = 'inline-grid';
             knob.value = App.data[0][App.comp].adjust[knob.name] ?? 0;
         }),
-        specs: () => ['$height', '$metalHeight'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
+        specs: () => ['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
     },
     close: {controls () {
         let figure = Q('#models figure');
@@ -186,22 +194,21 @@ const App = {
     meta: {}
 }
 Object.assign(App.events, {
-    async randomize (ev) {
-        ev.target.innerText = '隨機組裝';
+    async randomize () {
         let inputs = Q('input[type=color]', []), matched = {};
         inputs.every(i => i.value == '#000000') && (inputs[0].value = randomColor());
         COLORS ??= new O(await fetch('/x-model/colors.json').then(resp => resp.json()));
         COLORS.each(([code, part]) => part.each(([part, colors]) => {
             let [comp, abbr] = part.split('.');
             Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
-                Math.min(...colors.map(c => c ? Model.get.color.distance(i.value, c) : 0))
+                Math.min(...colors.map(c => c ? Model.compute.colorDistance(i.value, c) : 0))
             )) < .15 && (matched[comp] ??= []).push([code, part]);
         }));
-        if (!matched.ratchet || !matched.bit) return ev.target.innerText = '請嘗試另一顏色';
+        if (!matched.ratchet || !matched.bit) return Q('input[type=reset]').click();
         let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
         let [code, part] = blades[Math.floor(Math.random() * blades.length)];
         let [comp, abbr] = part.split('.');
-        if (comp != 'blade' && !matched.assist) return ev.target.innerText = '請嘗試另一顏色';
+        if (comp != 'blade' && !matched.assist) return Q('input[type=reset]').click();
         let drawn = {[comp]: {abbr: part.split('.')[1], code}};
         let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
         [...others[comp], 'ratchet', 'bit'].forEach(comp => {
@@ -257,6 +264,7 @@ Object.assign(App.events, {
             [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.model.remove);
             Q('.assembled').replaceChildren();
             Q('input[type=color]', input => input.value = '');
+            ev.isTrusted || App.events.randomize();
         }
     }
 });
