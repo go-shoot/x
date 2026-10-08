@@ -244,7 +244,7 @@ class Model {
             res([...colors].sort((a, b) => a === false ? 1 : b === false ? -1 : 0));
         })
     }
-    static #lower = {ratchet: 1.5, blade: 5.5, assist: 5.5, main: 9, metal: 9, over: 8.5, chip: 10.75}
+    static #lower = {ratchet: 1.7, blade: 5.8, assist: 5.8, main: 9.3, metal: 9.3, over: 9, chip: 10.9}
     static #scale = {chip: 0.8, bit: 1.2}
     static #rotate = {
         blade: {x: Math.PI/2, y: Math.PI},

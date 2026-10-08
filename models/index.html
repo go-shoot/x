@@ -224,7 +224,7 @@ Object.assign(App.events, {
             let [abbr, comp] = path.toReversed(), code, model;
             comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
             App.data[0][comp] = new O({
-                abbr, colors: abbr == 'BsBr' ? [] : (await new Search(path)).beys.map(([code]) => code), 
+                abbr, colors: (await new Search(path)).beys.map(([code]) => code), 
                 li: ev.target.cloneNode(true), adjust: {position: null, rotation: null}
             });
             if (App.data[0][comp].colors.length) 
