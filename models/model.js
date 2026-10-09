@@ -58,6 +58,7 @@ class Model {
             let controls = this._controls ??= new OrbitControls(this._camera, this.canvas);
             controls.enableDamping = true;
             controls.target.copy(center);
+            controls.pan(0, 20);
             controls.update();
         },
     }

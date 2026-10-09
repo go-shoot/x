@@ -71,7 +71,7 @@
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
-            <drag-knob name="rotation" range="-1/1/.01/π" class="fine" style="display: none;"><i>角度</i></drag-knob>
+            <drag-knob name="rotation" range="-1/1/.005/π" class="fine" style="display: none;"><i>角度</i></drag-knob>
         </fieldset>
         <fieldset>
             展開
@@ -118,7 +118,7 @@ const App = {
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
         App.data = (data ?? await DB.get('user', 'assemble') ?? App.model.default).map(data => new O(data));
-        App.data[0].each(([_, data]) => data.adjust ??= {position: null, rotation: null});
+        App.data[0].each(([_, data]) => data.adjust ??= {rotation: null});
         if (!MODEL) {
             MODEL = new Model(
                 App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, {
@@ -186,7 +186,7 @@ const App = {
             } else if (comp == 'ratchet') {
                 ['blade', 'bit'].forEach(comp => fused(comp) && App.model.remove(comp));
             }
-            App.data[0][comp].adjust = {position: null, rotation: null};
+            App.data[0][comp].adjust = {rotation: null};
             MODEL.bey.replace(comp, model);
             MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
             App.show.specs();
@@ -232,7 +232,7 @@ Object.assign(App.events, {
             comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
             App.data[0][comp] = new O({
                 abbr, colors: (await new Search(path)).beys.map(([code]) => code), 
-                li: ev.target.cloneNode(true), adjust: {position: null, rotation: null}
+                li: ev.target.cloneNode(true), adjust: {rotation: null}
             });
             if (App.data[0][comp].colors.length) 
                 for (code of App.data[0][comp].colors) {
