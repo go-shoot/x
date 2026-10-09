@@ -36,7 +36,9 @@
     "type":"bal",
     "imgs":["https://i.imgur.com/mteIrPO.jpeg","https://go-shoot.github.io/x/img/blade/SgSp.png"]
 },{
-    "code":"CX-20 customize set",
+    "name":["カスタマイズセットC","Customise Set C"],
+    "code":"CX-20 customize set","type":"bal",
+    "desc":["フェニックスフォースWHM-65MT<br>Phoenix Force WHM-65MT","全身近乎Full Metal"],
     "imgs":["https://i.imgur.com/angMRaJ.jpeg"]
 }],"2026-12":[{
     "code":"UX-22 starter"
