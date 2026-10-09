@@ -8,7 +8,7 @@ class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
         en.isIntersecting ? en.target.Model.render().then(M => M.intersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
-    #mode; #init; #animation;
+    #mode; #initiation; #animation; #opened = 0;
     constructor(parts, canvas, callbacks = {adjust: {}}) {
         Object.assign(this, callbacks);
         parts = Object.entries(this.parts = parts);
@@ -26,7 +26,7 @@ class Model {
         scene: () => {
             this._renderer = new THREE.WebGPURenderer({alpha: true, antialias: true, canvas: this.canvas});
             this._renderer.setPixelRatio(window.devicePixelRatio);
-            this.#init = this._renderer.init();
+            this.#initiation = this._renderer.init();
             this._scene = new THREE.Scene();
             this._scene.add(new THREE.AmbientLight(0xffffff, 0.2));
             [[0,5,0],[0,-5,0],[-1,0,5],[1,0,5]].forEach((point, i) => {
@@ -138,21 +138,22 @@ class Model {
                 P[comp] && angle != null && (P[comp].rotation.y = angle * Math.PI)
             );
             if (!P.bit) return;
-            let height = c => stackHeight - P[c].$y - Model.#lower[c] + (adjust[c]?.position ?? 0);
-            let stackHeight = P.bit.$height;
-            let fused = stackHeight > 20;
+            let place = (c, i = 0) => stackHeight - P[c].$y - Model.#lower[c] + (this.#opened ?? 0) * i;
+            let stack = c => stackHeight += P[c].$height + (this.#opened ?? 0), stackHeight = 0;
+            let fusedBit = stack('bit') > 20;
             if (P.ratchet) {
-                P.ratchet.position.y = height('ratchet');
-                stackHeight += P.ratchet.$height + (adjust.ratchet?.position ?? 0);
+                P.ratchet.position.y = place('ratchet');
+                stack('ratchet');
             }
             if (P.blade) {
-                P.blade.position.y = (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) 
-                    + height('blade') - (fused ? Model.#lower.ratchet : 0);
+                P.blade.position.y = place('blade') + (/^.X-?\d/.test(P.blade.$code) || P.ratchet ? 0 : 4) 
+                    - (fusedBit ? Model.#lower.ratchet + 1.8 : 0);
             } else if (P.assist) {
-                P.assist.position.y = height('assist');
-                stackHeight += P.assist.$height + (adjust.assist?.position ?? 0);;
-                ['main', 'metal', 'over', 'chip'].forEach(c => P[c] && (P[c].position.y = height(c)));
+                P.assist.position.y = place('assist');
+                stack('assist');
+                [...P.metal ? ['metal', 'over'] : ['main'], 'chip'].forEach((c, i) => P[c] && (P[c].position.y = place(c, i)));
             }
+            this.#setup.camera();
             this.bey.calculate();
         },
         calculate: () => {
@@ -163,7 +164,7 @@ class Model {
                 let {center, volume} = Model.compute.gravity(c.geometry);
                 let {x, y, z} = center.clone().applyMatrix4(c.matrixWorld);
                 metals.push({name: c.name, volume, x, y, z});
-            });console.log(metals);
+            });//console.log(metals);
             let totalVol = Math.sumPrecise(metals.map(part => part.volume))
             metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.volume / totalVol * item[p])));
             this.group.$metalCenter = Math.hypot(metals[0], metals[2]);
@@ -197,15 +198,19 @@ class Model {
     }
     #render () {
         if (this.#mode == 'list') 
-            return requestAnimationFrame(() => this.#init.then(r => r.render(this._scene, this._camera)));
+            return requestAnimationFrame(() => this.#initiation.then(r => r.render(this._scene, this._camera)));
         this.#setup.orbital();
         this.#animation ?? this.#animate();
     }
     #animate () {
         this.#animation = requestAnimationFrame(() => this.#animate());
-        this.group && this.speed && (this.group.rotation.y += this.speed);
         this._controls?.update();
-        this.#init.then(r => r.render(this._scene, this._camera));
+        this.group && this.speed && (this.group.rotation.y += this.speed);
+        if (typeof this.parts.bit == 'object') {
+            let amount = this.open === true && this.#opened < 5 ? .1 : this.open === false && this.#opened > 0 ? -.1 : 0;
+            amount && (this.#opened += amount) && this.bey.adjust();
+        }
+        this.#initiation.then(r => r.render(this._scene, this._camera));
     }
     dispose () {
         if (!this.canvas.dataset.engine) return;

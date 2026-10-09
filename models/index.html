@@ -5,7 +5,7 @@
 <style>
     input::placeholder,drag-knob {font-size: .8em;}
     nav {
-        input[type=reset],button {
+        input[type=reset],button,label {
             grid-area: 2/4; place-self: center;
             font-size: .8em;
             width: 7rem; height: 1.4rem;
@@ -67,9 +67,9 @@
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
-            <drag-knob name="position" range="-5/5/.01" style="display: none;" class="fine"><i>上下</i></drag-knob>
-            <drag-knob name="rotation" range="-1/1/.01/π" style="display: none;" class="fine"><i>角度</i></drag-knob>
+            <drag-knob name="rotation" range="-1/1/.01/π" class="fine" style="display: none;"><i>角度</i></drag-knob>
         </fieldset>
+        <label class="toggle"><input type="checkbox"></label>
     </form>
 </nav>
 <main>
@@ -250,6 +250,7 @@ Object.assign(App.events, {
     },
     adjust (ev) {
         if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
+        if (ev.target.type == 'checkbox') return MODEL.open = !MODEL.open;
         if (!App.data[0][App.comp]) return;
         App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
         MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));

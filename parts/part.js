@@ -123,7 +123,7 @@ class Bit extends Part {
         group: base => base.group,
         names: (base, pref) => new O(base.names).prepend(...[...pref].reverse().map(p => Bit.prefix[p])),
         attr: (base, pref) => new Set([...this.attr ?? [], ...base.attr, ...pref]),
-        stat: base => [this.stat[0], ...base.stat.slice(1, base.stat.length - this.stat.length + 1), ...this.stat.slice(1)],
+        stat: base => this.stat[0] ? [this.stat[0], ...base.stat.slice(1, base.stat.length - this.stat.length + 1), ...this.stat.slice(1)] : [],
         desc: (base, pref) => [...pref].map(p => Bit.prefix[p].desc).join('、') + `的〔${base.abbr}〕Bit${this.desc?.replace(/^(?=[^，。：；])/, '，') || '。'}`,
     }
     static get revisions () {return {regexp: new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`), cell: ['names']}};

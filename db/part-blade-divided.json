@@ -1,5 +1,11 @@
 {"CX": {
     "over": {
+        "W": {
+            "names": {"jap": "ウエイト","eng": "Weight"},
+            "stat": [""],
+            "desc": "",
+            "attr": ["bal","right"]
+        },
         "T": {
             "names": {"jap": "タフ","eng": "Tough"},
             "stat": ["4+",440],
@@ -189,7 +195,13 @@
             "stat": ["30-",510],
             "desc": "高撞擊性能的重量級五枚刃，一併持有重心偏側的大型刃以提高重擊性能。",
             "attr": ["att","right"]
-        }
+        },
+        "Fc": {
+            "names": {"jap":"フォース", "eng":"Force", "chi":""},
+            "stat": [""],
+            "desc": "",
+            "attr": ["bal","right"]
+        }        
     },
     "main": {
         "Fr": {
@@ -342,7 +354,8 @@
         "Ph": {
             "names": {"jap":"フェニックス", "eng":"Phoenix", "chi":"鳳凰"},
             "stat": ["2-"],
-            "attr": ["right"]
+            "attr": ["right"],
+            "desc": "（共有兩款）"
         },
         "Em": {
             "names": {"jap":"エンペラー", "eng":"Emperor", "chi":"帝皇"},
