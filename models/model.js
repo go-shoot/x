@@ -58,7 +58,7 @@ class Model {
             let controls = this._controls ??= new OrbitControls(this._camera, this.canvas);
             controls.enableDamping = true;
             controls.target.copy(center);
-            controls.pan(0, 20);
+            this.#mode == 'bey' && controls.pan(0, 20);
             controls.update();
         },
     }
@@ -192,6 +192,7 @@ class Model {
                 this._scene.add(this.group = new THREE.Group());
                 let models = Object.entries(this.parts).map(([comp, code]) => this.fetch(code, comp));
                 models = await Promise.all(models);
+                this._controls
                 this.parts = {...new O(this.parts).map(([comp], i) => [comp, models[i]])};
                 this.bey.adjust();
             }
