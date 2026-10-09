@@ -132,6 +132,7 @@ class Model {
             let before = this.parts[comp];
             before && this.group.remove(before) && before?.traverse(child => this.#dispose(child));
             (this.parts[comp] = after) && this.group.add(after);
+            this.adjust[comp] = {};
         },
         adjust: (adjust = this.adjust, P = this.parts) => {
             adjust?.each(([comp, {rotation: angle}]) => 
