@@ -34,6 +34,10 @@
             color: var(--backdrop);
         }
         .assembled:not(:empty)::before {content: '已組裝：';}
+        img[src$='mode.png'] {
+            height: 1.4em;
+            vertical-align: -.35em; margin-left: .3em;
+        }
         dl {
             display: flex; gap: .5em;
             margin-top: .2em;
@@ -71,7 +75,7 @@
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
-            <drag-knob name="rotation" range="-1/1/.005/π" class="fine" style="display: none;"><i>角度</i></drag-knob>
+            <drag-knob name="rotation" range="-180/180/1/°" class="fine" style="display: none;"><i>角度</i></drag-knob>
         </fieldset>
         <fieldset>
             展開
@@ -109,7 +113,7 @@ const App = {
     events () {
         PI.events({'.scroller,#search ol': {scroll: {x: true}}});
         Q('#random').onclick = App.events.randomize;
-        Q('.preview').onclick = App.events.show.model;
+        Q('.preview').onclick = App.events.select;
         Q('.assembled').onclick = App.events.show.controls;
         Q('main').onclick = ev => ev.target.closest('#models,.assembled') || App.close.controls();
         document.forms[0].oninput = App.events.adjust;
@@ -118,7 +122,6 @@ const App = {
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
         App.data = (data ?? await DB.get('user', 'assemble') ?? App.model.default).map(data => new O(data));
-        App.data[0].each(([_, data]) => data.adjust ??= {rotation: null});
         if (!MODEL) {
             MODEL = new Model(
                 App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, {
@@ -139,6 +142,7 @@ const App = {
                 });
             data.colors = (await new Search(path)).beys.map(([code]) => code);
         });
+        await App.init.data(App.data[0]);
         App.show.menu();
     },
     save: () => DB.put('user', {assemble: App.data.map(data => 
@@ -152,6 +156,19 @@ const App = {
         }),
         specs: () => ['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
     },
+    init: {data: async (data, comp, abbr, path, ev) => {
+        if (!comp) return data.each(([comp]) => App.init.data(data, comp));
+        ev && (data[comp] = new O({
+            abbr, colors: (await new Search(path)).beys.map(([code]) => code), 
+            li: ev.target.closest('li').cloneNode(true)
+        }));
+        data[comp].adjust ??= {rotation: null};
+        Model.Assembly.modes[comp]?.find(data[comp].abbr) && !data[comp].li.Q('img') 
+        && data[comp].li.append(E('label', [
+            E('img', {src: '/x/img/mode.png'}),
+            E('input', {type: 'checkbox'})
+        ]));
+    }},
     close: {controls () {
         let figure = Q('#models figure');
         figure.replaceChildren(figure.firstChild);
@@ -186,9 +203,9 @@ const App = {
             } else if (comp == 'ratchet') {
                 ['blade', 'bit'].forEach(comp => fused(comp) && App.model.remove(comp));
             }
-            App.data[0][comp].adjust = {rotation: null};
+            await App.init.data(App.data[0], comp);
             MODEL.bey.replace(comp, model);
-            MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+            MODEL.adjust = App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]);
             App.show.specs();
             App.show.menu();
             App.data[0].bit?.abbr && App.save();
@@ -224,47 +241,48 @@ Object.assign(App.events, {
         });
         App.load([drawn]);
     },
-    show: {
-        async model (ev) {
-            if (ev.target.tagName != 'BUTTON') return;
-            let path = ev.target.dataset.path.split(',');
-            let [abbr, comp] = path.toReversed(), code, model;
-            comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
-            App.data[0][comp] = new O({
-                abbr, colors: (await new Search(path)).beys.map(([code]) => code), 
-                li: ev.target.cloneNode(true), adjust: {rotation: null}
-            });
-            if (App.data[0][comp].colors.length) 
-                for (code of App.data[0][comp].colors) {
-                    model = await MODEL.fetch(code, comp);
-                    if (model.$height) break;
-                }
-            else
-                model = await MODEL.fetch(abbr, comp)
-            code && (App.data[0][comp].code = code);
-            App.comp = comp;
-            App.model.switch(model);
-            Q('input[type=search]').value = '';
-            gtag('event', 'ASSEMBLE', {PART: abbr});
-        },
-        controls (ev) {
-            if (ev.target.tagName != 'BUTTON') return;
-            App.close.controls();
-            let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
-            App.show.knobs();
-            setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.model.switch}), 250); //wait until closed
-        }
+    async select (ev) {
+        if (ev.target.tagName != 'BUTTON') return;
+        let path = ev.target.dataset.path.split(',');
+        let [abbr, comp] = path.toReversed(), code, model;
+        comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
+        await App.init.data(App.data[0], comp, abbr, path, ev);
+        if (App.data[0][comp].colors.length) 
+            for (code of App.data[0][comp].colors) {
+                model = await MODEL.fetch(code, comp);
+                if (model) break;
+            }
+        else
+            model = await MODEL.fetch(abbr, comp)
+        code && (App.data[0][comp].code = code);
+        App.comp = comp;
+        App.model.switch(model);
+        Q('input[type=search]').value = '';
+        gtag('event', 'ASSEMBLE', {PART: abbr});
     },
+    show: {controls (ev) {
+        if (ev.target.type == 'checkbox') {
+            let comp = ev.target.closest('li').firstChild.dataset.path.split(',').at(-2);
+            let mode = {[comp]: {mode: ev.target.checked, abbr: App.data[0][comp].abbr}};
+            MODEL.adjust = App.data[0].map(([comp, data]) => [comp, {...data?.adjust ?? {}, ...mode[comp] ?? {}}]);
+            return App.show.specs();
+        }
+        if (ev.target.tagName != 'BUTTON') return;
+        App.close.controls();
+        let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
+        App.show.knobs();
+        setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.model.switch}), 250); //wait until closed
+    }},
     adjust (ev) {
         if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
         if (ev.target.type == 'checkbox')
             return (MODEL.open = !MODEL.open) || setTimeout(() => {
-                MODEL.bey.calculate(); 
+                MODEL.bey.compute(); 
                 App.show.specs();
-            }, 1000);
+            }, 1500);
         if (!App.data[0][App.comp]) return;
         App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
-        MODEL.bey.adjust(App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]));
+        MODEL.adjust = App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]);
         App.show.specs();
         clearTimeout(App.saveTimer);
         App.saveTimer = setTimeout(App.save, 1000);
