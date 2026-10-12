@@ -9,8 +9,8 @@ class Model {
         en.isIntersecting ? en.target.Model.render().then(M => M.intersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
     #type; #initiation; #animation; #opened = 0; #adjust;
-    constructor(parts, canvas, callbacks = {adjust: {}}) {
-        Object.assign(this, callbacks);
+    constructor(parts, canvas, options = {adjust: {}}) {
+        Object.assign(this, options);
         parts = Object.entries(this.parts = parts);
         this.#type = parts.length > 1 ? 'bey' : Array.isArray(parts[0][1]) ? 'list' : 'part';
         parts.length === 1 && ([this.comp, this.code] = parts[0]);
@@ -132,18 +132,22 @@ class Model {
             (this.parts[comp] = after) && this.group.add(after);
             this.#adjust[comp] = {};
         },
-        adjust: () => {
-            let P = this.parts;
-            if (!P.bit) return;
-            let assembly = new Model.Assembly(P, this.#opened, this.#adjust).stack('bit').mode().place('ratchet').stack();
-            if (P.blade) {
-                assembly.place('blade').mode();
-            } else if (P.assist) {
-                assembly.place('assist').stack().mode();
-                [...P.metal ? ['metal', 'over'] : ['main'], 'chip'].forEach((c, i) => assembly.place(c, i).mode());
-            }
+        spread: amount => {
+            if (!amount) return; 
+            ['ratchet','blade','assist','main','metal','over','chip']
+            .filter(c => this.parts[c]).forEach((c, i) => this.parts[c].position.y += (i + 1) * amount);
             this.#setup.camera();
-            this.bey.compute();
+        },
+        adjust: () => {
+            if (!this.parts.bit) return;
+            let assembly = new Model.Assembly(this.parts, this.#adjust).stack('bit').mode().place('ratchet').stack();
+            if (this.parts.blade) {
+                assembly.place('blade').mode();
+            } else if (this.parts.assist) {
+                assembly = assembly.place('assist').stack().mode();
+                (this.parts.metal ? ['metal','over'] : ['main']).reduce((chain, c) => chain.place(c).mode(), assembly).place('chip');
+            }
+            this.bey.compute().spread(this.#opened);
         },
         compute: () => {
             this.group.updateMatrixWorld(true);
@@ -151,14 +155,16 @@ class Model {
             this.group.traverse(c => {
                 if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry) return;
                 let {center, volume} = Model.compute.gravity(c);
-                center.applyMatrix4(c.matrixWorld);
                 metals.push({name: c.name, volume, x: center.x, y: center.y, z: center.z});
             });//console.log(metals);
             let totalVol = Math.sumPrecise(metals.map(part => part.volume))
             metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.volume / totalVol * item[p])));
-            this.group.$metalCenter = Math.hypot(metals[0], metals[2]);
-            this.group.$metalHeight = metals[1];
-            this.group.$height = new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y;
+            Object.assign(this.group, {
+                $metalCenter: Math.hypot(metals[0], metals[2]),
+                $metalHeight: metals[1],
+                $height: new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y
+            });
+            return this.bey;
         }
     }
     async render () {
@@ -197,7 +203,8 @@ class Model {
         this.group && this.speed && (this.group.rotation.y += this.speed);
         if (typeof this.parts.bit == 'object') {
             let amount = this.open === true && this.#opened < 5 ? .1 : this.open === false && this.#opened > 0 ? -.1 : 0;
-            amount && (this.#opened += amount) && this.bey.adjust();
+            this.#opened += amount;
+            this.bey.spread(amount);
         }
         this.#initiation.then(r => r.render(this._scene, this._camera));
     }
@@ -252,17 +259,17 @@ class Model {
     }
 }
 Model.Assembly = class {
-    constructor(models, opened, adjust) {
-        this.models = models, this.opened = opened, this.adjust = adjust;
+    constructor(models, adjust) {
+        this.models = models, this.adjust = adjust;
         this.stackHeight = 0;
     }
     #model = comp => (comp ? this.comp = comp : comp = this.comp) && this.models[comp]
-    place (comp, i = 0) {
+    place (comp) {
         let model = this.#model(comp);
         if (!model) return this;
         model.position.y = 0; //init
         model.position.y = this.stackHeight - new THREE.Box3().setFromObject(model).min.y;
-        model.position.y += ({main: .6, chip: -1.3}[comp] ?? 0) + (this.opened ?? 0) * i;
+        model.position.y += ({main: .6, chip: -1.3}[comp] ?? 0);
         model.rotation.y = (this.adjust?.[comp]?.rotation ?? 0) / -180 * Math.PI;
         return this;
     }
@@ -273,7 +280,7 @@ Model.Assembly = class {
             comp == 'bit' && Model.get.child(model, 'Bit_part01', 'Bit_parts01') || model
         ).max.y;
         this.stackHeight > 20 && (comp = 'ratchet');
-        this.stackHeight += ({bit: -1.7, ratchet: -4.1}[comp] ?? 0) + (this.opened ?? 0);
+        this.stackHeight += ({bit: -1.7, ratchet: -4.1}[comp] ?? 0);
         return this;
     }
     mode ({abbr, mode} = this.adjust[this.comp] ?? {}) {
@@ -324,7 +331,7 @@ Model.compute = {
             ['x', 'y', 'z'].forEach(a => center[a] += vol * Math.sumPrecise(v.slice(0, 3).map(v => v[a])) / 4);
         }
         return {
-            center: new THREE.Vector3(...Object.values(center).map(c => c/totalVol)),
+            center: new THREE.Vector3(...Object.values(center).map(c => c/totalVol)).applyMatrix4(child.matrixWorld),
             volume: Math.abs(totalVol)
         };
     },
