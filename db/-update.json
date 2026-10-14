@@ -9,19 +9,7 @@
   "part-blade-collab": "2026/10/06 00:33:00",
   "meta":              "2026/09/22 16:23:00",
   "news": {
-"2026-10-10":[{
-    "code":"BX-52 starter","name":["ラスタードラグーン6-60LC","Luster Dragoon 6-60LC"],
-    "desc":["大型兩枚Upper刃加上中央三頭重量級龍","下半身安裝位置偏離旋轉軸"],"type":"att",
-    "imgs":["https://i.imgur.com/S6Gl6uj.jpeg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9934a9ff-a036-42b0-bc34-fa68e71ca5c7.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/6176-wZqXML._AC_SX679_.jpg","https://m.media-amazon.com/images/I/610VAsUL9LL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61dCcEU-MSL._AC_SX679_.jpg"]
-},{
-    "code":"BX-53 entry set","name":["オールインワンセット","All-in-one Set"],
-    "imgs":["https://i.imgur.com/wB0FNb0.jpeg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9f44853d-bd22-4367-8c59-0d1f255de26d.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/61Zy6WQ+4WL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/71JmpfanwWL._AC_SX679_.jpg"],
-    "desc":["三陀螺、兩發射器、一標準對戰盤","兩個新V2陀螺，重量提升","UX天馬首次於常規商品再錄"]
-},{
-    "code":"BX-56 tool","name":["ストリングランチャーL","String Launcher L"],
-    "imgs":["https://m.media-amazon.com/images/I/51NDWvVFUxL._AC_SX679_.jpg"]
-}],
-"2026-10-14":[{
+"2026-10-15":[{
     "code":"BXC-21","name":["キッドハントK4-70TK","Kid Hunt K4-70TK"],"type":"bal",
     "imgs":["https://i.imgur.com/8gzXfyD.jpeg"],
     "desc":["コロコロ雜誌應募品"]
@@ -34,12 +22,12 @@
     "code":"BX-54 booster",
     "name":["ジークスペリオン0-70LP","Sieg Superion 0-70LP"],
     "type":"bal",
-    "imgs":["https://i.imgur.com/mteIrPO.jpeg","https://go-shoot.github.io/x/img/blade/SgSp.png"]
+    "imgs":["https://m.media-amazon.com/images/I/61-v+-EpzAL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61wsHrZ3uDL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/51Bja6kufqL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/509ca560-72d5-4a7f-8f35-d9f750d4c1d2.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9fada5ad-6c8d-4fd1-8536-809e3adc6638.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/41DMiCxJ9pL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L6TixOvWL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51-l%2BSIAe8L.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41meWNy8tDL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51wQGSLTcBL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41Ex8MIb9aL.__AC_SR150,300___.jpg"]
 },{
     "name":["カスタマイズセットC","Customise Set C"],
     "code":"CX-20 customize set","type":"bal",
     "desc":["フェニックスフォースWHM-65MT<br>Phoenix Force WHM-65MT","全身近乎Full Metal"],
-    "imgs":["https://i.imgur.com/angMRaJ.jpeg"]
+    "imgs":["https://m.media-amazon.com/images/I/61551mS5dzL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61cEx4ftc0L._AC_SX679_.jpg","https://m.media-amazon.com/images/I/619hKynvsmL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61Ov376REbL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/bd398fdb-9b29-4ce2-a712-d8e9d252b2af.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/a6bda65c-7d27-43f3-ac56-18af9061a86c.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/51oGNDMDadL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L6TixOvWL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51-l%2BSIAe8L.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41meWNy8tDL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51wQGSLTcBL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41Ex8MIb9aL.__AC_SR150,300___.jpg"]
 }],"2026-12":[{
     "code":"UX-22 starter"
 },{
