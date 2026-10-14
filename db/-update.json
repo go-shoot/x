@@ -1,11 +1,11 @@
 {
-  "part-bit":          "2026/10/09 22:55:00",
+  "part-bit":          "2026/10/14 23:14:00",
+  "part-blade-divided":"2026/10/14 23:14:00",
+  "part-ratchet":      "2026/10/14 23:14:00",
+  "part-blade":        "2026/10/14 23:14:00",
   "prod-beys":         "2026/10/09 22:55:00",
-  "part-blade-divided":"2026/10/09 22:55:00",
-  "part-ratchet":      "2026/10/09 22:55:00",
   "prod-gear":         "2026/10/08 17:30:00",
   "prod-keihin":       "2026/10/08 17:30:00",
-  "part-blade":        "2026/10/08 19:00:00",
   "part-blade-collab": "2026/10/06 00:33:00",
   "meta":              "2026/09/22 16:23:00",
   "news": {
@@ -22,12 +22,12 @@
     "code":"BX-54 booster",
     "name":["ジークスペリオン0-70LP","Sieg Superion 0-70LP"],
     "type":"bal",
-    "imgs":["https://m.media-amazon.com/images/I/61-v+-EpzAL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61wsHrZ3uDL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/51Bja6kufqL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/509ca560-72d5-4a7f-8f35-d9f750d4c1d2.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9fada5ad-6c8d-4fd1-8536-809e3adc6638.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/41DMiCxJ9pL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L6TixOvWL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51-l%2BSIAe8L.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41meWNy8tDL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51wQGSLTcBL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41Ex8MIb9aL.__AC_SR150,300___.jpg"]
+    "imgs":["https://m.media-amazon.com/images/I/61-v+-EpzAL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61wsHrZ3uDL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/51Bja6kufqL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/509ca560-72d5-4a7f-8f35-d9f750d4c1d2.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/9fada5ad-6c8d-4fd1-8536-809e3adc6638.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
 },{
     "name":["カスタマイズセットC","Customise Set C"],
     "code":"CX-20 customize set","type":"bal",
     "desc":["フェニックスフォースWHM-65MT<br>Phoenix Force WHM-65MT","全身近乎Full Metal"],
-    "imgs":["https://m.media-amazon.com/images/I/61551mS5dzL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61cEx4ftc0L._AC_SX679_.jpg","https://m.media-amazon.com/images/I/619hKynvsmL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61Ov376REbL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/bd398fdb-9b29-4ce2-a712-d8e9d252b2af.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/a6bda65c-7d27-43f3-ac56-18af9061a86c.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/51oGNDMDadL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L6TixOvWL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51-l%2BSIAe8L.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41meWNy8tDL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51wQGSLTcBL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41Ex8MIb9aL.__AC_SR150,300___.jpg"]
+    "imgs":["https://m.media-amazon.com/images/I/61551mS5dzL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61cEx4ftc0L._AC_SX679_.jpg","https://m.media-amazon.com/images/I/619hKynvsmL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61Ov376REbL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/bd398fdb-9b29-4ce2-a712-d8e9d252b2af.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/a6bda65c-7d27-43f3-ac56-18af9061a86c.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
 }],"2026-12":[{
     "code":"UX-22 starter"
 },{

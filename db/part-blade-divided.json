@@ -3,7 +3,7 @@
         "W": {
             "names": {"jap": "ウエイト","eng": "Weight"},
             "stat": [""],
-            "desc": "",
+            "desc": "金屬based的設計，徹底提升陀螺重量及提高全能力。",
             "attr": ["bal","right"]
         },
         "T": {
@@ -199,7 +199,7 @@
         "Fc": {
             "names": {"jap":"フォース", "eng":"Force", "chi":""},
             "stat": [""],
-            "desc": "",
+            "desc": "一併持有在三處巨大及凸出的攻擊刃與圓滑的三枚防禦刃。",
             "attr": ["bal","right"]
         }        
     },
