@@ -243,7 +243,7 @@ class Preview {
         );
         return new Search(path).then(({beys}) => {
             let codes = beys.map(({id, 0: code}) => id || code);
-            model = new Model({[path.at(-2)]: codes}, Q('#models canvas'), {onclick: code => {
+            model = new Model({[path.at(-2)]: codes}, {onclick: code => {
                 Q('#preview x-part')?.act.model(null, code);
                 Q(`#preview [id='${code}']`)?.Row.select(path.at(-2));
             }});

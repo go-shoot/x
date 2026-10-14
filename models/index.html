@@ -34,8 +34,10 @@
             color: var(--backdrop);
         }
         .assembled:not(:empty)::before {content: '已組裝：';}
-        img[src$='mode.png'] {
-            height: 1.4em;
+        label::after {
+            content: '';
+            background: url(/x/img/mode.png) center / contain;
+            display: inline-block; height: 1.4em; width: 1.4em;
             vertical-align: -.35em; margin-left: .3em;
         }
         dl {
@@ -104,6 +106,7 @@ import IndexSearch from '../index.js';
 import { Bey, Search } from '../parts/bey.js';
 import Model from './model.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
+import * as THREE from 'three/webgpu';
 
 let MODEL, COLORS, PARTS;
 Q('main').prepend(DB().then(() => DB.get.essentials().then(Ps => (PARTS = Ps) && App.load())));
@@ -113,7 +116,7 @@ const App = {
     events () {
         PI.events({'.scroller,#search ol': {scroll: {x: true}}});
         Q('#random').onclick = App.events.randomize;
-        Q('.preview').onclick = App.events.select;
+        Q('.preview').onclick = App.events.select.part;
         Q('.assembled').onclick = App.events.show.controls;
         Q('main').onclick = ev => ev.target.closest('#models,.assembled') || App.close.controls();
         document.forms[0].oninput = App.events.adjust;
@@ -121,111 +124,62 @@ const App = {
     },
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
-        App.data = (data ?? await DB.get('user', 'assemble') ?? App.model.default).map(data => new O(data));
-        if (!MODEL) {
-            MODEL = new Model(
-                App.data[0].map(([comp, {code, abbr}]) => [comp, code ?? abbr]), null, {
-                    adjust: App.data[0].map(([comp, {adjust}]) => [comp, adjust]),
-                    intersect: () => App.show.specs()
-                }
-            );
-            Q('#canvas').append(MODEL.canvas);
-        } else
-            App.data[0].each(async ([comp, {code}]) => App.model.switch(await MODEL.fetch(code, comp), comp));
-        await cache;
-        App.data[0].each(async ([comp, data]) => {
-            let path;
-            data.li = IndexSearch.find.parts({[comp]: new Set([data.abbr]), free: new Set([data.abbr])})
-                .find(li => {
+        data = new O(data ?? await DB.get('user', 'assemble') ?? App.default);
+        MODEL ? 
+            await Promise.all(
+                data.map(async([comp, d]) => Object.assign(await MODEL.bey.replace(comp, d.code), d))
+            ).then(MODEL.bey.assemble) :
+            await new Promise(res => {
+                MODEL = new Model(data, {intersect: res, assemble: () => (App.show.specs(), App.save())});
+                Q('#canvas').append(MODEL.canvas);
+            });
+        cache.then(() => Promise.all(data.map(async([comp, part]) => {
+            if (!MODEL.bey[comp]) return;
+            let search = new Set([part.abbr]), path;
+            MODEL.bey[comp].li = 
+                IndexSearch.find.parts({[comp]: search, free: search}).find(li => {
                     path = li.firstChild.dataset.path?.split(',') ?? [];
-                    return path.at(-1) == data.abbr && path.at(-2) == comp;
+                    return path.at(-1) == part.abbr && path.at(-2) == comp;
                 });
-            data.colors = (await new Search(path)).beys.map(([code]) => code);
-        });
-        await App.init.data(App.data[0]);
-        App.show.menu();
+            MODEL.bey[comp].li.dataset.colors = (await new Search(path)).beys.map(([code]) => code);
+        }))).then(App.show.menu);
     },
-    save: () => DB.put('user', {assemble: App.data.map(data => 
-        ({...data.filter(([_, d]) => d).map(([comp, {li, colors, ...rest}]) => [comp, rest])})
-    )}),
+    save: () => App.timer = console.log('save')||clearTimeout(App.timer) || setTimeout(() => 
+        DB.put('user', {assemble: {...new O(MODEL.bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, adjust}])}}),
+    1000),
     show: {
-        menu: () => Q('.assembled').replaceChildren(...App.data[0].filter(([_, d]) => d).map(([comp, {li}]) => li)),
+        menu: () => Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([comp, {abbr, li}]) => {
+            Model.Assembly.modes[comp]?.find(abbr) && !li.Q('input') && li.append(E('label>input', {type: 'checkbox'}));
+            return li;
+        })),
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
             knob.style.display = 'inline-grid';
-            knob.value = App.data[0][App.comp].adjust[knob.name] ?? 0;
+            knob.pauseEvent = true;
+            knob.value = MODEL.bey[App.comp].adjust[knob.name] ?? 0;
+            knob.pauseEvent = false;
         }),
-        specs: () => ['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
+        specs: () => console.log('spec')??['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
     },
-    init: {data: async (data, comp, abbr, path, ev) => {
-        if (!comp) return data.each(([comp]) => App.init.data(data, comp));
-        ev && (data[comp] = new O({
-            abbr, colors: (await new Search(path)).beys.map(([code]) => code), 
-            li: ev.target.closest('li').cloneNode(true)
-        }));
-        data[comp].adjust ??= {rotation: null};
-        Model.Assembly.modes[comp]?.find(data[comp].abbr) && !data[comp].li.Q('img') 
-        && data[comp].li.append(E('label', [
-            E('img', {src: '/x/img/mode.png'}),
-            E('input', {type: 'checkbox'})
-        ]));
-    }},
     close: {controls () {
         let figure = Q('#models figure');
         figure.replaceChildren(figure.firstChild);
         figure.scrollLeft = 0;
         Q('drag-knob[name$=tion]', knob => knob.style.display = 'none');
     }},
-    model: {
-        remove (comp) {
-            MODEL.bey.replace(comp);
-            App.data[0][comp] = null;
-        },
-        async switch (model, comp = App.comp) {
-            Q('output', o => o.value = '');
-            if (typeof model == 'string') {
-                App.data[0][comp].code = model;
-                model = await MODEL.fetch(model, comp);
-            };
-            if (!model.$comp) return;
-            let fused = comp => PARTS[comp][App.data[0][comp]?.abbr]?.attr?.has('fused');
-            if (comp == 'blade') {
-                App.meta.CX.forEach(App.model.remove);
-                if (fused('blade')) {
-                    App.model.remove('ratchet');
-                    fused('bit') && App.model.remove('bit');
-                }
-            } else if (App.meta.CX.has(comp)) {
-                App.model.remove('blade');
-                comp == 'main' ? App.meta.CXX.forEach(App.model.remove) : App.meta.CXX.has(comp) && App.model.remove('main');
-            } else if (comp == 'bit' && fused('bit')) {
-                App.model.remove('ratchet');
-                fused('blade') && App.model.remove('blade');
-            } else if (comp == 'ratchet') {
-                ['blade', 'bit'].forEach(comp => fused(comp) && App.model.remove(comp));
-            }
-            await App.init.data(App.data[0], comp);
-            MODEL.bey.replace(comp, model);
-            MODEL.adjust = App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]);
-            App.show.specs();
-            App.show.menu();
-            App.data[0].bit?.abbr && App.save();
-        },
-        default: [{
-            "blade":  {"code":"JgCl","abbr":"JgCl"},
-            "bit":    {"code":"BX13","abbr":"HN"},
-        }],
+    default: {
+        "blade": {"code":"JgCl","abbr":"JgCl"},
+        "bit":   {"code":"CX09","abbr":"TK"},
     },
-    meta: {}
 }
 Object.assign(App.events, {
     async randomize () {
         let inputs = Q('input[type=color]', []), matched = {};
-        inputs.every(i => i.value == '#000000') && (inputs[0].value = randomColor());
+        inputs.every(i => i.value == '#000000') && (inputs[0].value = color.random());
         COLORS ??= new O(await fetch('/x-model/colors.json').then(resp => resp.json()));
         COLORS.each(([code, part]) => part.each(([part, colors]) => {
             let [comp, abbr] = part.split('.');
             Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
-                Math.min(...colors.map(c => c ? Model.compute.colorDistance(i.value, c) : 0))
+                Math.min(...colors.map(c => c ? color.distance(i.value, c) : 0))
             )) < .15 && (matched[comp] ??= []).push([code, part]);
         }));
         if (!matched.ratchet || !matched.bit) return Q('input[type=reset]').click();
@@ -239,70 +193,100 @@ Object.assign(App.events, {
             let [code, part] = matched[comp][Math.floor(Math.random() * matched[comp].length)];
             drawn[comp] = {abbr: part.split('.')[1], code};
         });
-        App.load([drawn]);
+        App.load(drawn);
     },
-    async select (ev) {
-        if (ev.target.tagName != 'BUTTON') return;
-        let path = ev.target.dataset.path.split(',');
-        let [abbr, comp] = path.toReversed(), code, model;
-        comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
-        await App.init.data(App.data[0], comp, abbr, path, ev);
-        if (App.data[0][comp].colors.length) 
-            for (code of App.data[0][comp].colors) {
+    select: {
+        async part (ev) {
+            if (ev.target.tagName != 'BUTTON') return;
+            let path = ev.target.dataset.path.split(',');
+            let [abbr, comp] = path.toReversed(), code, model;
+            comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
+            let colors = (await new Search(path)).beys.map(([code]) => code);
+            for (code of colors) {
                 model = await MODEL.fetch(code, comp);
                 if (model) break;
             }
-        else
-            model = await MODEL.fetch(abbr, comp)
-        code && (App.data[0][comp].code = code);
-        App.comp = comp;
-        App.model.switch(model);
-        Q('input[type=search]').value = '';
-        gtag('event', 'ASSEMBLE', {PART: abbr});
+            if (!model) return;
+            Q('input[type=search]').value = '';
+            App.comp = comp;
+            Object.assign(await MODEL.bey.replace(comp, model), {
+                abbr, code, li: E(ev.target.closest('li').cloneNode(true)).set({dataset: {colors}})
+            });
+            MODEL.bey.assemble();
+            App.show.menu();
+            gtag('event', 'ASSEMBLE', {PART: abbr});
+        },
+        async color (code) {
+            MODEL.bey[App.comp].model = await MODEL.fetch(code, App.comp);
+            MODEL.bey[App.comp].code = code;
+            MODEL.bey.assemble();
+        }
     },
     show: {controls (ev) {
-        if (ev.target.type == 'checkbox') {
-            let comp = ev.target.closest('li').firstChild.dataset.path.split(',').at(-2);
-            let mode = {[comp]: {mode: ev.target.checked, abbr: App.data[0][comp].abbr}};
-            MODEL.adjust = App.data[0].map(([comp, data]) => [comp, {...data?.adjust ?? {}, ...mode[comp] ?? {}}]);
-            return App.show.specs();
-        }
+        let li = ev.target.closest('li');
+        let [abbr, comp] = li.firstChild.dataset.path.split(',').reverse();
+        if (ev.target.type == 'checkbox')
+            return MODEL.bey[comp].adjust = {...MODEL.bey[comp].adjust, mode: ev.target.checked, abbr};
         if (ev.target.tagName != 'BUTTON') return;
+        App.comp = comp;
         App.close.controls();
-        let comp = App.comp = ev.target.dataset.path.split(',').at(-2);
         App.show.knobs();
-        setTimeout(() => new Model({[comp]: App.data[0][comp].colors}, Q('#models canvas'), {onclick: App.model.switch}), 250); //wait until closed
+        setTimeout(() => new Model({[comp]: li.dataset.colors.split(',')}, {onclick: App.events.select.color}), 250); //wait until closed
     }},
     adjust (ev) {
         if (ev.target.name == 'speed') return MODEL.speed = -ev.target.value;
         if (ev.target.type == 'checkbox') return MODEL.open = !MODEL.open;
-        if (!App.data[0][App.comp]) return;
-        App.data[0][App.comp].adjust[ev.target.name] = ev.target.value;
-        MODEL.adjust = App.data[0].map(([comp, data]) => [comp, data?.adjust ?? {}]);
+        MODEL.bey[App.comp].adjust = {...MODEL.bey[App.comp].adjust, [ev.target.name]: ev.target.value};
         App.show.specs();
-        clearTimeout(App.saveTimer);
-        App.saveTimer = setTimeout(App.save, 1000);
+        App.save();
     },
     reset (ev) {
         if (ev.target.type == 'button')
             return DB.prepare.os('user', 'rw').delete('assemble');
         if (ev.target.type == 'reset') {
-            [...App.meta.CX, 'blade', 'ratchet', 'bit'].forEach(App.model.remove);
+            Object.values(MODEL.bey).forEach(part => part.remove());
             Q('.assembled').replaceChildren();
-            Q('input[type=color]', input => input.value = '');
+            Q('input[type=color],output', node => node.value = '');
             ev.isTrusted || App.events.randomize();
         }
     }
 });
-App.meta.CXX = new Set(['over', 'metal']);
-App.meta.CX = new Set(['chip', ...App.meta.CXX, 'main', 'assist']);
 App.events();
 
-const randomColor = () => {
-    let [h, s, l] = [Math.random() * 360, Math.random() / 4 + .75, Math.random() / 4 + .375];
-    let a = s * Math.min(l, 1 - l);
-    const k = n => (n + h / 30) % 12, f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
-    const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
-    return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+const color = {
+    random: () => {
+        let [h, s, l] = [Math.random() * 360, Math.random() / 4 + .75, Math.random() / 4 + .375];
+        let a = s * Math.min(l, 1 - l);
+        const k = n => (n + h / 30) % 12, f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+        const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
+        return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+    },
+    distance: (...colors) => {
+        const M1 = new THREE.Matrix3().set(
+            0.4122214708, 0.5363325363, 0.0514459929,
+            0.2119034982, 0.6806995451, 0.1073969566,
+            0.0883024619, 0.2817188376, 0.6299787005
+        );
+        const M2 = new THREE.Matrix3().set(
+            0.2104542553,  0.7936177850, -0.0040720468,
+            1.9779984951, -2.4285922050,  0.4505937099,
+            0.0259040371,  0.7827717662, -0.8086757993
+        );
+        colors = colors.map(c => {
+            c = new THREE.Color(c).convertSRGBToLinear();
+            const v = new THREE.Vector3(c.r, c.g, c.b);
+            v.applyMatrix3(M1);
+            v.set(Math.cbrt(v.x), Math.cbrt(v.y), Math.cbrt(v.z));
+            v.applyMatrix3(M2);
+            return {L: v.x, C: Math.hypot(v.y, v.z), h: Math.atan2(v.z, v.y)};
+        });
+        const delta = new O(colors[0]).minus(colors[1]);
+        delta.h = 2 * Math.sqrt(colors[0].C * colors[1].C) * Math.sin(Math.atan2(Math.sin(delta.h), Math.cos(delta.h)) / 2);
+        return Math.sqrt(
+            Math.pow(0 * delta.L, 2) +
+            Math.pow(1 * delta.C, 2) +
+            Math.pow(2 * delta.h, 2)
+        );
+    }
 }
 </script>

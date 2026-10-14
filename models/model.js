@@ -8,13 +8,13 @@ class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
         en.isIntersecting ? en.target.Model.render().then(M => M.intersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
-    #type; #initiation; #animation; #opened = 0; #adjust;
-    constructor(parts, canvas, options = {adjust: {}}) {
+    #type; #initiation; #animation; #opened = 0;
+    constructor(parts, options = {}) {
         Object.assign(this, options);
-        parts = Object.entries(this.parts = parts);
+        parts = this.parts = Object.entries(parts);
         this.#type = parts.length > 1 ? 'bey' : Array.isArray(parts[0][1]) ? 'list' : 'part';
         parts.length === 1 && ([this.comp, this.code] = parts[0]);
-        this.#setup.canvas(Array.isArray(this.code) ? canvas : undefined);
+        this.#setup.canvas(Array.isArray(this.code) ? Q('#models canvas') ?? options.canvas : undefined);
     }
     #setup = {
         canvas: canvas => {
@@ -121,39 +121,51 @@ class Model {
             this.#render();
         }
     }
-    set adjust(adjust) {
-        this.#adjust = adjust;
-        this.parts && this.bey.adjust();
-    }
-    bey = {
-        replace: (comp, after) => {
-            let before = this.parts[comp];
-            before && this.group.remove(before) && before?.traverse(child => this.#dispose(child));
-            (this.parts[comp] = after) && this.group.add(after);
-            this.#adjust[comp] = {};
-        },
-        spread: amount => {
-            if (!amount) return; 
-            ['ratchet','blade','assist','main','metal','over','chip']
-            .filter(c => this.parts[c]).forEach((c, i) => this.parts[c].position.y += (i + 1) * amount);
-            this.#setup.camera();
-        },
-        adjust: () => {
-            if (!this.parts.bit) return;
-            let assembly = new Model.Assembly(this.parts, this.#adjust).stack('bit').mode().place('ratchet').stack();
-            if (this.parts.blade) {
+    bey = Object.defineProperties({}, {
+        replace: {value: async (comp, after) => {
+            typeof after == 'string' && (after = await this.fetch(after, comp));
+            if (!after) return {};
+            after = new Model.BeyPart(this, {model: after});
+            let removal = comp == 'blade' ? Model.meta.CX : new Set();
+            if (comp == 'blade' && after.fused) {
+                removal.add('ratchet');
+                this.bey.bit.fused && removal.add('bit');
+            } else if (Model.meta.CX.has(comp)) {
+                comp == 'main' ? removal = Model.meta.CXX : Model.meta.CXX.has(comp) && removal.add('main');
+                removal.add('blade');
+            } else if (comp == 'bit' && after.fused) {
+                removal.add('ratchet');
+                this.bey.blade.fused && removal.add('blade');
+            } else if (comp == 'ratchet') {
+                this.bey.blade?.fused && removal.add('blade');
+                this.bey.bit?.fused && removal.add('bit');
+            }
+            removal.add(comp).forEach(c => this.bey[c]?.remove());
+            return this.bey[comp] = after;
+        }},
+        assemble: {value: () => {console.log('assemble')
+            if (!this.bey.bit) return;
+            let assembly = new Model.Assembly(this.bey).stack('bit').mode().place('ratchet').stack();
+            if (this.bey.blade) {
                 assembly.place('blade').mode();
-            } else if (this.parts.assist) {
+            } else if (this.bey.assist) {
                 assembly = assembly.place('assist').stack().mode();
-                (this.parts.metal ? ['metal','over'] : ['main']).reduce((chain, c) => chain.place(c).mode(), assembly).place('chip');
+                (this.bey.metal ? ['metal','over'] : ['main']).reduce((chain, c) => chain.place(c).mode(), assembly).place('chip');
             }
             this.bey.compute().spread(this.#opened);
-        },
-        compute: () => {
+            this.assemble?.();
+        }},
+        spread: {value: amount => {
+            if (!amount) return; 
+            ['ratchet','blade','assist','main','metal','over','chip']
+            .filter(c => this.bey[c]?.model).forEach((c, i) => this.bey[c].model.position.y += (i + 1) * amount);
+            this.#setup.camera();
+        }},
+        compute: {value: () => {
             this.group.updateMatrixWorld(true);
             let metals = [];
             this.group.traverse(c => {
-                if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry) return;
+                if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry || !c.applyBoneTransform) return;
                 let {center, volume} = Model.compute.gravity(c);
                 metals.push({name: c.name, volume, x: center.x, y: center.y, z: center.z});
             });//console.log(metals);
@@ -165,8 +177,8 @@ class Model {
                 $height: new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y
             });
             return this.bey;
-        }
-    }
+        }}
+    })
     async render () {
         this.#setup.scene();
         const {clientHeight: H} = this.canvas.parentElement ?? this.canvas;
@@ -183,10 +195,10 @@ class Model {
                 this.fetch(this.code);
             else if (this.#type == 'bey') {
                 this._scene.add(this.group = new THREE.Group());
-                let models = Object.entries(this.parts).map(([comp, code]) => this.fetch(code, comp));
-                models = await Promise.all(models);
-                this.parts = {...new O(this.parts).map(([comp], i) => [comp, models[i]])};
-                this.bey.adjust();
+                await Promise.all(this.parts.map(async([comp, d]) => 
+                    this.bey[comp] = new Model.BeyPart(this, {model: await this.fetch(d.code || d.abbr, comp), ...d})
+                ));
+                this.bey.assemble();
             }
         }
         return this;
@@ -201,8 +213,8 @@ class Model {
         this.#animation = requestAnimationFrame(() => this.#animate());
         this._controls?.update();
         this.group && this.speed && (this.group.rotation.y += this.speed);
-        if (typeof this.parts.bit == 'object') {
-            let amount = this.open === true && this.#opened < 5 ? .1 : this.open === false && this.#opened > 0 ? -.1 : 0;
+        if (typeof this.bey.bit == 'object') {
+            let amount = this.open === true && this.#opened < 7 ? .2 : this.open === false && this.#opened > 0 ? -.2 : 0;
             this.#opened += amount;
             this.bey.spread(amount);
         }
@@ -218,17 +230,16 @@ class Model {
         this.#setup.canvas(Array.isArray(this.code) ? E('canvas') : undefined);
         old.replaceWith(this.canvas);
     }
-    #dispose = (...items) => items.forEach(item => {
-        if (typeof item == 'string') {
-            this[item]?.dispose();
-            return this[item] = null;
-        }
+    #dispose = (...items) => items.forEach(item => 
+        typeof item == 'string' ? this[item] = this[item]?.dispose() : Model.dispose(item)
+    )
+    static dispose (item) {
         [item.geometry, item.material].flat().forEach(item => {
             item?.dispose();
             Object.values(item ?? {}).forEach(item => item?.isTexture && item.dispose());
         });
         item.geometry = item.material = null;
-    })
+    }
     static fetch = url => new Promise((res, rej) => Model.loader.load(url, gltf => res(gltf.scene), null, er => rej(er)))
     static get = {
         child (model, ...names) {
@@ -251,47 +262,78 @@ class Model {
         ratchet: {x: -Math.PI/3},
         bit: {x: -Math.PI/6, z: -Math.PI/12}
     }
+    static meta = {}
     static {
         const draco = new DRACOLoader();
         draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
         Model.loader = new GLTFLoader();
         Model.loader.setDRACOLoader(draco);
+        Model.meta.CXX = new Set(['over', 'metal']);
+        Model.meta.CX = new Set(['chip', ...Model.meta.CXX, 'main', 'assist']);
+    }
+}
+Model.BeyPart = class {
+    #model; #adjust;
+    constructor(model, {adjust, ...rest}) {
+        this.BeyModel = model;
+        Object.assign(this, rest);
+        this.#adjust = adjust ?? {rotation: 0};
+    }
+    get model() {return this.#model;}
+    set model(model) {
+        this.#model && (this.#adjust = {rotation: 0}) && this.remove(false);
+        this.BeyModel.group.add(this.#model = model);
+    }
+    get adjust() {return this.#adjust;}
+    set adjust(adjust) {
+        this.#adjust = adjust;
+        this.BeyModel.bey.assemble();
+    }
+    get fused() {
+        let model = this.model.$comp == 'bit' && Model.get.child(this.model, 'Bit_part01', 'Bit_parts01') || this.model;
+        return new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y > 20;
+    }
+    remove (del = true) {
+        this.BeyModel.group.remove(this.model) && this.model.traverse(child => Model.dispose(child));
+        if (del) delete this.BeyModel.bey[this.model.$comp];
     }
 }
 Model.Assembly = class {
-    constructor(models, adjust) {
-        this.models = models, this.adjust = adjust;
+    constructor(parts, adjust) {
+        this.bey = parts, this.adjust = adjust;
         this.stackHeight = 0;
     }
-    #model = comp => (comp ? this.comp = comp : comp = this.comp) && this.models[comp]
+    #model = comp => (comp ? this.comp = comp : comp = this.comp) && this.bey[comp] || {}
     place (comp) {
-        let model = this.#model(comp);
+        let {model, adjust} = this.#model(comp);
         if (!model) return this;
         model.position.y = 0; //init
         model.position.y = this.stackHeight - new THREE.Box3().setFromObject(model).min.y;
-        model.position.y += ({main: .6, chip: -1.3}[comp] ?? 0);
-        model.rotation.y = (this.adjust?.[comp]?.rotation ?? 0) / -180 * Math.PI;
+        model.position.y += ({main: .6, metal: .6, over: .6, chip: -1.3}[comp] ?? 0);
+        model.rotation.y = (adjust?.rotation ?? 0) / -180 * Math.PI;
         return this;
     }
     stack (comp) {
-        let model = this.#model(comp);
+        let {model} = this.#model(comp);
         if (!model) return this;
         this.stackHeight = new THREE.Box3().setFromObject(
             comp == 'bit' && Model.get.child(model, 'Bit_part01', 'Bit_parts01') || model
-        ).max.y;
+        ).max.y; //evaluate only until now
         this.stackHeight > 20 && (comp = 'ratchet');
         this.stackHeight += ({bit: -1.7, ratchet: -4.1}[comp] ?? 0);
         return this;
     }
-    mode ({abbr, mode} = this.adjust[this.comp] ?? {}) {
+    mode (comp) {
+        let {model, adjust: {abbr, mode} = {}} = this.#model(comp) ?? {};
         if (!abbr) return this;
         let param = Model.Assembly.modes[this.comp]?.find(abbr);
         if (!param) return this;
         if (Array.isArray(param)) {
             let [bone, prop, axis, amount] = param;
-            Model.get.child(this.#model(), bone)[prop][axis] += (mode ? 1 : -1) * amount;
+            Model.get.child(model, bone)[prop][axis] += (mode ? 1 : -1) * amount;
         } else
             this.stackHeight += param[mode];
+        delete this.#model(comp).adjust.abbr;
         return this;
     }
     static modes = {
@@ -335,32 +377,5 @@ Model.compute = {
             volume: Math.abs(totalVol)
         };
     },
-    colorDistance (...colors) {
-        const M1 = new THREE.Matrix3().set(
-            0.4122214708, 0.5363325363, 0.0514459929,
-            0.2119034982, 0.6806995451, 0.1073969566,
-            0.0883024619, 0.2817188376, 0.6299787005
-        );
-        const M2 = new THREE.Matrix3().set(
-            0.2104542553,  0.7936177850, -0.0040720468,
-            1.9779984951, -2.4285922050,  0.4505937099,
-            0.0259040371,  0.7827717662, -0.8086757993
-        );
-        colors = colors.map(c => {
-            c = new THREE.Color(c).convertSRGBToLinear();
-            const v = new THREE.Vector3(c.r, c.g, c.b);
-            v.applyMatrix3(M1);
-            v.set(Math.cbrt(v.x), Math.cbrt(v.y), Math.cbrt(v.z));
-            v.applyMatrix3(M2);
-            return {L: v.x, C: Math.hypot(v.y, v.z), h: Math.atan2(v.z, v.y)};
-        });
-        const delta = new O(colors[0]).minus(colors[1]);
-        delta.h = 2 * Math.sqrt(colors[0].C * colors[1].C) * Math.sin(Math.atan2(Math.sin(delta.h), Math.cos(delta.h)) / 2);
-        return Math.sqrt(
-            Math.pow(0 * delta.L, 2) +
-            Math.pow(1 * delta.C, 2) +
-            Math.pow(2 * delta.h, 2)
-        );
-    }
-};window.THREE=THREE;
+};
 export default Model;
