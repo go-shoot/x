@@ -170,7 +170,7 @@ const App = {
             knob.pauseEvent = false;
         }),
         specs: () => {
-            Q('dl').classList.toggle('abnormal', MODEL.group.$abnormal);
+            Q('dl').classList.toggle('abnormal', !!MODEL.group.$abnormal);
             ['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100);
         }
     },
