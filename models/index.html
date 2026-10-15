@@ -186,6 +186,7 @@ const App = {
     },
 }
 Object.assign(App.events, {
+    redraw: () => Q('input[type=reset]').click(),
     async randomize () {
         let inputs = Q('input[type=color]', []), matched = {};
         inputs.every(i => i.value == '#000000') && (inputs[0].value = color.random());
@@ -196,17 +197,16 @@ Object.assign(App.events, {
                 Math.min(...colors.map(c => c ? color.distance(i.value, c) : 0))
             )) < .15 && (matched[comp] ??= []).push([code, part]);
         }));
-        if (!matched.ratchet || !matched.bit) return Q('input[type=reset]').click();
         let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
         let [code, part] = blades[Math.floor(Math.random() * blades.length)];
         let [comp, abbr] = part.split('.');
-        if (comp != 'blade' && !matched.assist) return Q('input[type=reset]').click();
         let drawn = {[comp]: {abbr: part.split('.')[1], code}};
         let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
-        [...others[comp], 'ratchet', 'bit'].forEach(comp => {
-            let [code, part] = matched[comp][Math.floor(Math.random() * matched[comp].length)];
-            drawn[comp] = {abbr: part.split('.')[1], code};
-        });
+        for (let c of [...others[comp], 'ratchet', 'bit']) {
+            if (!matched[c]) return App.events.redraw();
+            let [code, part] = matched[c][Math.floor(Math.random() * matched[c].length)];
+            drawn[c] = {abbr: part.split('.')[1], code};
+        };
         App.load(drawn);
     },
     select: {
