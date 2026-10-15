@@ -47,7 +47,15 @@
         dt {
             max-width: 4em;
             line-height: 1.1;
+
+            &:last-of-type {
+                font-size: .75em; max-width: 9em; text-align: left;
+                &::before {content: '❗'; font-size: 1.25rem; float: left;}
+                dl:not(.abnormal) & {display: none;}
+            }
         }
+        dd {margin-right: .2em;}
+        dd:nth-of-type(2) {anchor-name: --dd;}
         output {
             font-size: 2em; color: var(--on);
         }
@@ -92,7 +100,10 @@
         <search><input type="search" placeholder="搜索部件：請由底（軸心）開始往上組裝"></search>
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
-        <dl><dt>全高<dd><output></output><dt>金屬部件重心高度<dd><output></output><dt hidden>金屬部件偏重心度<dd hidden><output></output></dl>
+        <dl>
+            <dt>全高<dd><output></output><dt>金屬部件重心高度<dd><output></output>
+            <dt>模型有缺陷，數值可能不準<dd hidden><output></output>
+        </dl>
     </section>
     <section id="canvas"></section>
     <div id="models"><figure><canvas></canvas></figure></div>
@@ -158,7 +169,10 @@ const App = {
             knob.value = MODEL.bey[App.comp].adjust[knob.name] ?? 0;
             knob.pauseEvent = false;
         }),
-        specs: () => console.log('spec')??['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100)
+        specs: () => {
+            Q('dl').classList.toggle('abnormal', MODEL.group.$abnormal);
+            ['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100);
+        }
     },
     close: {controls () {
         let figure = Q('#models figure');

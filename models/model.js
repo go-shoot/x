@@ -143,7 +143,7 @@ class Model {
             removal.add(comp).forEach(c => this.bey[c]?.remove());
             return this.bey[comp] = after;
         }},
-        assemble: {value: () => {console.log('assemble')
+        assemble: {value: () => {
             if (!this.bey.bit) return;
             let assembly = new Model.Assembly(this.bey).stack('bit').mode().place('ratchet').stack();
             if (this.bey.blade) {
@@ -165,13 +165,15 @@ class Model {
             this.group.updateMatrixWorld(true);
             let metals = [];
             this.group.traverse(c => {
-                if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry || !c.applyBoneTransform) return;
-                let {center, volume} = Model.compute.gravity(c);
-                metals.push({name: c.name, volume, x: center.x, y: center.y, z: center.z});
-            });//console.log(metals);
-            let totalVol = Math.sumPrecise(metals.map(part => part.volume))
+                if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry) return;
+                let {center, volume, abnormal} = Model.compute.gravity(c);
+                metals.push({name: c.name, abnormal, volume, ...center});
+            });
+            let abnormal = metals.some(m => m.abnormal);
+            let totalVol = Math.sumPrecise(metals.map(part => part.volume));
             metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.volume / totalVol * item[p])));
             Object.assign(this.group, {
+                $abnormal: abnormal, 
                 $metalCenter: Math.hypot(metals[0], metals[2]),
                 $metalHeight: metals[1],
                 $height: new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y
@@ -353,29 +355,31 @@ Model.Assembly = class {
     }
 }
 Model.compute = {
-    gravity (child, v = [...Array(4)].map(_ => new THREE.Vector3())) {
-        let {position} = child.geometry.attributes, index;
-        let skinnedPos = position.clone();
-        for (let i = 0; i < position.count; i++) {
-            v[3].fromBufferAttribute(position, i);
-            child.applyBoneTransform(i, v[3]);
-            skinnedPos.setXYZ(i, v[3].x, v[3].y, v[3].z);
+    gravity (child, v = [...Array(5)].map(_ => new THREE.Vector3())) {
+        let {attributes: {position}, index} = child.geometry;
+        if (child.applyBoneTransform) {
+            let cloned = position.clone();
+            for (let i = 0; i < position.count; i++) 
+                cloned.setXYZ(i, ...child.applyBoneTransform(i, v[3].fromBufferAttribute(position, i)));
+            ({position} = child.geometry.clone().setAttribute('position', cloned).attributes);
         }
-        let skinned = child.geometry.clone();
-        skinned.setAttribute('position', skinnedPos);
-        ({attributes: {position}, index} = skinned);
-        let center = {x: 0, y: 0, z: 0}, totalVol = 0;
+        let center = v[4], totalVol = 0;
         for (let i = 0; i < index.count / 3; i++) {
-            v.forEach((v, j) => v.fromBufferAttribute(position, index.getX(i * 3 + j)));
-            v[3].crossVectors(v[1], v[2]);
-            let vol = v[0].dot(v[3]) / 6;
+            v.slice(0, 3).forEach((v, j) => v.fromBufferAttribute(position, index.getX(i * 3 + j)));
+            let vol = v[0].dot(v[3].crossVectors(v[1], v[2])) / 6;
             totalVol += vol;
-            ['x', 'y', 'z'].forEach(a => center[a] += vol * Math.sumPrecise(v.slice(0, 3).map(v => v[a])) / 4);
+            ['x','y','z'].forEach(a => center[a] += vol * Math.sumPrecise(v.slice(0, 3).map(v => v[a])) / 4);
         }
+        center.divideScalar(totalVol);
+        
+        let off = center.distanceTo(child.geometry.boundingBox.getCenter(v[3]));
+        let threshold = child.geometry.boundingBox.getSize(v[3]).length() * .25; 
+        let type = index.count % 2 !== 0 ? 'unclosed' : Math.abs(totalVol) < 1e-5 ? 'zero' : off > threshold ? 'deviate' : '';
         return {
-            center: new THREE.Vector3(...Object.values(center).map(c => c/totalVol)).applyMatrix4(child.matrixWorld),
+            abnormal: type,
+            center: center.clone().applyMatrix4(child.matrixWorld),
             volume: Math.abs(totalVol)
         };
     },
-};
+};window.THREE=THREE;
 export default Model;

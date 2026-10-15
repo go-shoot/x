@@ -2,8 +2,7 @@
 import DB from '../include/DB.js'
 import { Bey, Preview, Search } from './bey.js';
 import { Markup, Glossary } from '../include/utilities.js';
-let Model;
-import('../models/model.js').then(m => Model = m.default);
+import Model from '../models/model.js';
 import Table from '../products/products.js';
 import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
 
@@ -34,15 +33,15 @@ class Part {
         return this;
     }
     async revise (type = 'cell', comp = this.constructor.name.toLowerCase(), base, pref) {
-        let props = Array.isArray(type) ? type : this.constructor.revisions?.[type] ?? Object.keys(this.revised);
-        let revisable = this.revisable ?? this.constructor.revisions?.regexp?.test(this.abbr) ?? true;
+        let props = Array.isArray(type) ? type : this.constructor.revisions[type] ?? Object.keys(this.revised);
+        let revisable = comp == 'ratchet' || this.constructor.revisions.regexp.test(this.abbr);
         let isPartial = P => props.some(p => P[p] == null);
         
-        if (!this.abbr || !props || !revisable && !isPartial(this)) return this;
+        if (!this.abbr || !props || !revisable || revisable && !isPartial(this)) return this;
         if (comp == 'ratchet') {
             base = {stat: [, ...this.abbr.split('-')]};
         } else {
-            [, pref, base] = this.constructor.revisions.regexp?.exec(this.abbr) ?? [];
+            [, pref, base] = this.constructor.revisions.regexp.exec(this.abbr) ?? [];
             let P = PARTS.at(this.path.toSpliced(-1, 1, base));
             base &&= isPartial(P) ? P.push(await DB.get(comp, base)) : P;
         }
@@ -86,16 +85,16 @@ Part.import = ({part, blade, bit, tile}, PARTS_) => Object.assign(Part, part) &&
 class Blade extends Part {
     constructor(json) {
         super(json);
-        let {line, group, abbr, path} = this;
+        let {line, group, abbr, path, attr} = this;
         this.path = line || !abbr && group ? ['blade', line, group, abbr] : path;
+        (['over', 'metal'].includes(group) || (group == 'UX' || attr?.has('UX')) && attr.has('fused'))
+        && attr?.add('expand');
     }
-    get revisable () {return Blade.revisions.regexp.test(this.abbr) || 
-        ['over', 'metal'].includes(this.group) || (this.group == 'UX' || this.attr.has('UX')) && this.attr.has('fused')}
     revised = {
-        group: base => base ? base.group : null,
-        names: base => base ? ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}) : null,
-        attr: base => base ? base.attr : this.attr.add('expand'),
-        desc: base => base ? base.desc + '性能有所更新的V2 Model。' : null
+        group: base => base.group,
+        names: base => ({...new O(base.names).map(([_, n]) => [_, n.replaceAll(/(?:[一-龢](?= )|.$)/g, '$&_V2')])}),
+        attr: base => base.attr,
+        desc: base => base.desc + '性能有所更新的V2 Model。'
     }
     static revisions = {regexp: /^()(.{3,})2$/, cell: ['group', 'names']};
 }
@@ -126,7 +125,7 @@ class Bit extends Part {
         stat: base => this.stat[0] ? [this.stat[0], ...base.stat.slice(1, base.stat.length - this.stat.length + 1), ...this.stat.slice(1)] : [],
         desc: (base, pref) => [...pref].map(p => Bit.prefix[p].desc).join('、') + `的〔${base.abbr}〕Bit${this.desc?.replace(/^(?=[^，。：；])/, '，') || '。'}`,
     }
-    static get revisions () {return {regexp: new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`), cell: ['names']}};
+    static get revisions() {return {regexp: new RegExp(`^([${new O(Bit.prefix)}]+)([^a-z].*)$`), cell: ['names']}};
 }
 class Tile extends HTMLElement {
     static observer = new IntersectionObserver(entries => entries.forEach(en => {

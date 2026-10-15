@@ -77,7 +77,7 @@
   ["CX-11","St","Em.Mg.H = Op","QLM-ZRsHABE",{"coat":"Black"}],
   ["CX-11","St","ShGl 5-60 FB"],["CX-11","St H","GlRc M-85 HN",{"coat":"MediumSeaGreen"}],
   ["CX-10","B","Wl.Hn.F 0-60 DB","sXJV_Hr-ITs"],
-  ["BXG-39","Lm H","WyHv 2-80 GN",{"coat":"BlueViolet","get":"J"}],["BXG-39","Lm H","WyHv 2-80 GN",{"get":"J"}],
+  ["BXG-39","Lm H","WyHv 2-80 GN",{"get":"J"}],["BXG-39","Lm H","WyHv 2-80 GN",{"coat":"BlueViolet","get":"J"}],
   ["UX-16","RB","ClMr 9-65 B","OK5xcjuWcdM",{"get":8}],
   ["UX-16","RB H","ClMr 9-65 B",{"get":8}],
   ["UX-16","RB H","ClMr 9-65 B",{"get":8}],
