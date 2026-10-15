@@ -144,7 +144,7 @@ const App = {
             MODEL.bey[comp].li.dataset.colors = (await new Search(path)).beys.map(([code]) => code);
         }))).then(App.show.menu);
     },
-    save: () => App.timer = console.log('save')||clearTimeout(App.timer) || setTimeout(() => 
+    save: () => App.saveTimer = clearTimeout(App.saveTimer) || setTimeout(() => 
         DB.put('user', {assemble: {...new O(MODEL.bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, adjust}])}}),
     1000),
     show: {

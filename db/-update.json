@@ -3,7 +3,7 @@
   "part-blade-divided":"2026/10/14 23:14:00",
   "part-ratchet":      "2026/10/14 23:14:00",
   "part-blade":        "2026/10/14 23:14:00",
-  "prod-beys":         "2026/10/09 22:55:00",
+  "prod-beys":         "2026/10/15 11:17:00",
   "prod-gear":         "2026/10/08 17:30:00",
   "prod-keihin":       "2026/10/08 17:30:00",
   "part-blade-collab": "2026/10/06 00:33:00",
@@ -17,6 +17,11 @@
     "code":"BXG-71","name":["バイソンバローDB","Bison Burrow DB"],"type":"sta",
     "imgs":["https://i.imgur.com/tkcGW0P.jpeg","https://animes-pro.com/cdn/shop/files/BBX-KUJI02-CTN_2.jpg","https://scratch.dmm.com/s3/dmmkuji_long_img/v25zaqW37wOGTsci6RWM6yN6YrXs1Gr9ACdKFT0r.jpeg"],
     "desc":["DMMくじA賞/Last Get賞"]
+}],
+"2026-11-05":[{
+    "code": "BXG-65",
+    "name": ["ワルキューレボルトS4-70V<br>ガンメタVer.","Valkyrie Volt S4-70V Gunmetal Ver."],
+    "desc": ["App抽獎購買品等（會員先行）"]
 }],
 "2026-11-21":[{
     "code":"BX-54 booster",

@@ -333,7 +333,7 @@
         "Ev": {
             "names": {"jap":"エヴァ", "eng":"Eva", "chi":"新世紀福音戰士"},
             "stat": ["2-"],
-            "desc": "（共有三款）",
+            "desc": "（共有三款設計）",
             "attr": ["right"]
         },
         "Rg": {
@@ -355,7 +355,7 @@
             "names": {"jap":"フェニックス", "eng":"Phoenix", "chi":"鳳凰"},
             "stat": ["2-"],
             "attr": ["right"],
-            "desc": "（共有兩款）"
+            "desc": "（共有兩款設計）"
         },
         "Em": {
             "names": {"jap":"エンペラー", "eng":"Emperor", "chi":"帝皇"},
