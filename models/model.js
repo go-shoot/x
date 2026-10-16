@@ -126,7 +126,7 @@ class Model {
             typeof after == 'string' && (after = await this.fetch(after, comp));
             if (!after) return {};
             after = new Model.BeyPart(this, {model: after});
-            let removal = comp == 'blade' ? Model.meta.CX : new Set();
+            let removal = comp == 'blade' ? new Set([...Model.meta.CX]) : new Set();
             if (comp == 'blade' && after.fused) {
                 removal.add('ratchet');
                 this.bey.bit.fused && removal.add('bit');
@@ -164,16 +164,13 @@ class Model {
         compute: {value: () => {
             this.group.updateMatrixWorld(true);
             let metals = [];
-            this.group.traverse(c => {
-                if (!/metal/i.test(c.name) && !/metal/i.test(c.material?.name) || !c.geometry) return;
-                let {center, volume, abnormal} = Model.compute.gravity(c);
-                metals.push({name: c.name, abnormal, volume, ...center});
-            });
-            let abnormal = metals.some(m => m.abnormal);
-            let totalVol = Math.sumPrecise(metals.map(part => part.volume));
-            metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.volume / totalVol * item[p])));
+            this.group.traverse(c => 
+                [c.name, c.material?.name].some(n => /metal/i.test(n)) && c.geometry
+                && metals.push(Model.compute.gravity(c))
+            );
+            let totalArea = Math.sumPrecise(metals.map(part => part.area));
+            metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / totalArea * item[p])));
             Object.assign(this.group, {
-                $abnormal: abnormal, 
                 $metalCenter: Math.hypot(metals[0], metals[2]),
                 $metalHeight: metals[1],
                 $height: new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y
@@ -363,23 +360,19 @@ Model.compute = {
                 cloned.setXYZ(i, ...child.applyBoneTransform(i, v[3].fromBufferAttribute(position, i)));
             ({position} = child.geometry.clone().setAttribute('position', cloned).attributes);
         }
-        let center = v[4], totalVol = 0;
+        let center = v[4], totalArea = 0;
         for (let i = 0; i < index.count / 3; i++) {
-            v.slice(0, 3).forEach((v, j) => v.fromBufferAttribute(position, index.getX(i * 3 + j)));
-            let vol = v[0].dot(v[3].crossVectors(v[1], v[2])) / 6;
-            totalVol += vol;
-            ['x','y','z'].forEach(a => center[a] += vol * Math.sumPrecise(v.slice(0, 3).map(v => v[a])) / 4);
+            v.slice(0, 3).forEach((vec, j) => vec.fromBufferAttribute(position, index.getX(i * 3 + j)));
+            let area = v[3].crossVectors(v[1].clone().sub(v[0]), v[2].clone().sub(v[0])).length() * 0.5;
+            totalArea += area;
+            center.add(v[0].clone().add(v[1]).add(v[2]).multiplyScalar(area / 3));
         }
-        center.divideScalar(totalVol);
-        
-        let off = center.distanceTo(child.geometry.boundingBox.getCenter(v[3]));
-        let threshold = child.geometry.boundingBox.getSize(v[3]).length() * .25; 
-        let type = index.count % 2 !== 0 ? 'unclosed' : Math.abs(totalVol) < 1e-5 ? 'zero' : off > threshold ? 'deviate' : '';
+        center.divideScalar(totalArea);
         return {
-            abnormal: type,
-            center: center.clone().applyMatrix4(child.matrixWorld),
-            volume: Math.abs(totalVol)
+            name: child.name,
+            area: totalArea,
+            ...center.clone().applyMatrix4(child.matrixWorld),
         };
     },
-};window.THREE=THREE;
+};
 export default Model;

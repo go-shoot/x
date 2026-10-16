@@ -6,14 +6,20 @@
     input::placeholder,drag-knob {font-size: .8em;}
     nav {
         input[type=reset],button {
-            grid-area: 2/4; place-self: center;
+            place-self: center;
             font-size: .8em;
-            width: 7rem; height: 1.4rem;
+            width: 6rem; height: 1.4rem;
             border: none;
             background: var(--theme); border-radius: 3em; 
             color: var(--backdrop);
         }
-        button {grid-area: 1/4;}
+        input[type=reset],#share {
+            grid-area: 1/3; justify-self: end;
+            width: 4rem;
+        }
+        #share {grid-area: 2/3;}
+        #delete {grid-area: 1/4;}
+        #save {grid-area: 2/4;}
         fieldset {white-space: nowrap;}
         fieldset:last-child {
             grid-area: 2/3; place-self: start;
@@ -54,12 +60,6 @@
         dt {
             max-width: 4em;
             line-height: 1.1;
-
-            &:last-of-type {
-                font-size: .75em; max-width: 10em; text-align: left;
-                &::before {content: '❗'; font-size: 1.25rem; float: left;}
-                dl:not(.abnormal) & {display: none;}
-            }
         }
         dd {margin-right: .2em;}
         dd:nth-of-type(2) {anchor-name: --dd;}
@@ -88,7 +88,9 @@
 <nav>
     <menu></menu>
     <form>
-        <button type="button">&#xe008; 刪除儲存</button>
+        <button type="button" id="save">&#xe006; 保存</button>
+        <button type="button" id="delete">&#xe008; 刪除儲存</button>
+        <button type="button" id="share">分享連結</button>
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
@@ -108,7 +110,7 @@
         <ol class="assembled"></ol>
         <dl>
             <dt>全高<dd><output></output><dt>金屬部件重心高度<dd><output></output>
-            <dt>模型網格有缺陷 數值可能不準確<dd hidden><output></output>
+            <dt>金屬部件偏重心度<dd><output></output>
         </dl>
     </section>
     <section id="canvas"></section>
@@ -129,7 +131,7 @@ let MODEL, COLORS, PARTS;
 Q('main').prepend(DB().then(() => DB.get.essentials().then(Ps => (PARTS = Ps) && App.load())));
 
 const App = {
-    data: [new O({})], comp: null,
+    comp: null,
     events () {
         PI.events({'.scroller,#search ol': {scroll: {x: true}}, 'canvas': {drag: PI => true}});
         Q('#random').onclick = App.events.randomize;
@@ -141,13 +143,16 @@ const App = {
     },
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
-        data = new O(data ?? await DB.get('user', 'assemble') ?? App.default);
+        data && history.replaceState(null, '', location.pathname);
+        let bey = new URLSearchParams(location.search).get('bey');
+        bey &&= JSON.parse(decodeURIComponent(bey));
+        data = new O(data ?? bey ?? await DB.get('user', 'assemble') ?? App.default);
         MODEL ? 
             await Promise.all(
                 data.map(async([comp, d]) => Object.assign(await MODEL.bey.replace(comp, d.code), d))
             ).then(MODEL.bey.assemble) :
             await new Promise(res => {
-                MODEL = new Model(data, {intersect: res, assemble: () => (App.show.specs(), App.save())});
+                MODEL = new Model(data, {intersect: res, assemble: App.show.specs});
                 Q('#canvas').append(MODEL.canvas);
             });
         cache.then(() => Promise.all(data.map(async([comp, part]) => {
@@ -161,9 +166,10 @@ const App = {
             MODEL.bey[comp].li.dataset.colors = (await new Search(path)).beys.map(([code]) => code);
         }))).then(App.show.menu);
     },
-    save: () => App.saveTimer = clearTimeout(App.saveTimer) || setTimeout(() => MODEL.bey.bit && 
-        DB.put('user', {assemble: {...new O(MODEL.bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, adjust}])}}),
-    1000),
+    serialize: () => ({...new O(MODEL.bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, ...adjust.rotation === 0 ? {} : {adjust}}])}),
+    share: () => MODEL.bey.bit && navigator.clipboard.writeText(`${location.origin}${location.pathname}?bey=${encodeURIComponent(JSON.stringify(App.serialize()))}`),
+    save: () => MODEL.bey.bit && DB.put('user', {assemble: App.serialize()}),
+    delete: () => DB.prepare.os('user', 'rw').delete('assemble'),
     show: {
         menu: () => Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([comp, {abbr, li}]) => {
             Model.Assembly.modes[comp]?.find(abbr) && !li.Q('input') && li.append(E('label>input', {type: 'checkbox'}));
@@ -259,11 +265,13 @@ Object.assign(App.events, {
         if (ev.target.type == 'checkbox') return MODEL.open = !MODEL.open;
         MODEL.bey[App.comp].adjust = {...MODEL.bey[App.comp].adjust, [ev.target.name]: ev.target.value};
         App.show.specs();
-        App.save();
     },
     reset (ev) {
-        if (ev.target.type == 'button')
-            return DB.prepare.os('user', 'rw').delete('assemble');
+        if (ev.target.type == 'button') {
+            App[ev.target.id]();
+            E(ev.target).set({title: ev.target.innerText, innerText: '✔️'});
+            return setTimeout(() => ev.target.innerText = ev.target.title, 1000);
+        }
         if (ev.target.type == 'reset') {
             Object.values(MODEL.bey).forEach(part => part.remove());
             Q('.assembled').replaceChildren();
