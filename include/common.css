@@ -395,7 +395,8 @@ dialog {
     #cells table {
         margin: .5em auto;
     }
-    #tiles:not(:has(x-part)) a, #models:not(:has(code)), #images:empty {
+    #models:not(:has(code)), #models:has(code:only-of-type) .toggle,
+    #tiles:not(:has(x-part)) a, #images:empty {
         display: none;
     }
     #images {

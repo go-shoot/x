@@ -200,7 +200,7 @@
     &:has(input:checked) {flex-direction: row-reverse;}
     &::before {
         content: '·';
-        text-align: center;
+        text-align: center; line-height: 1.4;
         color: var(--theme); text-shadow: 0 0 .15em;
         width: 1.5em; height: 1.5em;
         margin-inline: -.1em;
