@@ -129,13 +129,13 @@ class Model {
             let removal = comp == 'blade' ? new Set([...Model.meta.CX]) : new Set();
             if (comp == 'blade' && after.fused) {
                 removal.add('ratchet');
-                this.bey.bit.fused && removal.add('bit');
+                this.bey.bit?.fused && removal.add('bit');
             } else if (Model.meta.CX.has(comp)) {
                 comp == 'main' ? removal = Model.meta.CXX : Model.meta.CXX.has(comp) && removal.add('main');
                 removal.add('blade');
             } else if (comp == 'bit' && after.fused) {
                 removal.add('ratchet');
-                this.bey.blade.fused && removal.add('blade');
+                this.bey.blade?.fused && removal.add('blade');
             } else if (comp == 'ratchet') {
                 this.bey.blade?.fused && removal.add('blade');
                 this.bey.bit?.fused && removal.add('bit');
