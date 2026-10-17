@@ -181,7 +181,7 @@ const App = {
             parts.blade ??= ['chip','main','over','metal','assist']
                 .filter(c => MODEL.bey[c]).map(c => PARTS.at(MODEL.bey[c].li.firstChild.dataset.path.split()))
             let {names: {chi, rest}} = new Bey(parts);
-            Q('h1').innerText = chi.join('') + rest;
+            Q('h1').innerText = (chi?.join('') || '未命名') + rest;
         },
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
             knob.style.display = 'inline-grid';
