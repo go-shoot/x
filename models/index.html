@@ -18,14 +18,14 @@
         #delete {grid-area: 1/4;}
         #save {grid-area: 2/4;}
         fieldset {white-space: nowrap;}
-        fieldset:last-child {
-            grid-area: 2/3; place-self: start;
-            font-size: .8em; color: var(--on);
+        .toggle {
+            grid-area: 1/3/3/4; place-self: center start;
+            font-size: .8em;
+            position: relative; margin-left: 2.5em;
         }
-        .toggle {position: relative; margin-left: 2em;}
         .toggle::after {
             content: attr(title); 
-            font-size: 1em; white-space: nowrap; color: var(--theme);
+            white-space: nowrap; color: var(--theme);
             position: absolute; right: 100%;
             margin-right: .5em;
         }
@@ -87,15 +87,13 @@
     <form>
         <button type="button" id="save">&#xe006; 保存</button>
         <button type="button" id="delete">&#xe008; 刪除</button>
-        <button type="button" id="share">&#xe023; 分享</button>
+        <button type="button" id="share">&#xe038; 連結</button>
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
             <drag-knob name="rotation" range="-180/180/1/°" class="fine" style="display: none;"><i>角度</i></drag-knob>
         </fieldset>
-        <fieldset>
-            <label class="toggle" title="展開"><input type="checkbox"></label>
-        </fieldset>
+        <label class="toggle" title="展開"><input type="checkbox"></label>
     </form>
 </nav>
 <main>
@@ -136,7 +134,7 @@ const App = {
         Q('.assembled').onclick = App.events.show.controls;
         Q('main').onclick = ev => ev.target.closest('#models,.assembled') || Q('canvas.PI-dragged') || App.close.controls();
         document.forms[0].oninput = App.events.adjust;
-        document.forms[0].onclick = App.events.reset;
+        document.forms[0].onclick = App.events.button;
     },
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
@@ -263,13 +261,13 @@ Object.assign(App.events, {
         MODEL.bey[App.comp].adjust = {...MODEL.bey[App.comp].adjust, [ev.target.name]: ev.target.value};
         App.show.specs();
     },
-    reset (ev) {
-        if (ev.target.type == 'button') {
-            App[ev.target.id]();
-            let origial = ev.target.innerText;
-            ev.target.innerText = '';
-            setTimeout(() => ev.target.innerText = original, 1000);
-        }
+    button (ev) {
+        if (ev.target.type == 'button')
+            Promise.try(App[ev.target.id]).then(() => {
+                let original = ev.target.innerText;
+                ev.target.innerText = '';
+                setTimeout(() => ev.target.innerText = original, 1000);
+            });
         if (ev.target.type == 'reset') {
             Object.values(MODEL.bey).forEach(part => part.remove());
             Q('.assembled').replaceChildren();

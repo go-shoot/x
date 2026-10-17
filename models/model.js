@@ -2,7 +2,7 @@ import * as THREE from 'three/webgpu';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import PI from 'https://aeoq.github.io/pointer-interaction.mjs';window.PI=PI;
+import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
 class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
@@ -327,10 +327,10 @@ Model.Assembly = class {
         if (!abbr) return this;
         let param = Model.Assembly.modes[this.comp]?.find(abbr);
         if (!param) return this;
-        if (Array.isArray(param)) {
-            let [bone, prop, axis, amount] = param;
-            Model.get.child(model, bone)[prop][axis] += (mode ? 1 : -1) * amount;
-        } else
+        Array.isArray(param) ?
+            [param].flat().forEach(([bone, prop, axis, amount]) => 
+                Model.get.child(model, bone)[prop][axis] += (mode ? 1 : -1) * amount
+            ) :
             this.stackHeight += param[mode];
         delete this.#model(comp).adjust.abbr;
         return this;
@@ -340,14 +340,14 @@ Model.Assembly = class {
             [/^T[A-Z]/, {true: -2, false: 0}]
         ]),
         assist: new O([
-            [['D','T'], ['AssistBlade_Mode_Bone', 'rotation', 'z', Math.PI]]
+            [['D','T'], [['AssistBlade_Mode_Bone', 'rotation', 'z', Math.PI]]]
         ]),
         main: new O({
-            Ec: ['Blade_Mode_Bone', 'rotation', 'z', Math.PI]
+            Ec: [['Blade_Mode_Bone', 'rotation', 'z', Math.PI], ['Blade_Mode_Bone', 'position', 'y', -.2]]
         }),
         blade: new O({
-            ScSp: ['Gimmickblade_Bone', 'rotation', 'y', Math.PI], 
-            HlNt: ['Base_Switch_Bone', 'position', 'y', -5.5]
+            ScSp: [['Gimmickblade_Bone', 'rotation', 'y', Math.PI]], 
+            HlNt: [['Base_Switch_Bone', 'position', 'y', -5.5]]
         })
     }
 }
