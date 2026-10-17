@@ -164,9 +164,9 @@ class Model {
         compute: {value: () => {
             this.group.updateMatrixWorld(true);
             let metals = [];
-            this.group.traverse(c => 
-                [c.name, c.material?.name].some(n => /metal/i.test(n)) && c.geometry
-                && metals.push(Model.compute.gravity(c))
+            this.group.traverse(child => 
+                [child.name, child.material?.name].some(n => /^BXH14|metal/i.test(n)) && child.geometry
+                && metals.push(Model.compute.gravity(child))
             );
             let totalArea = Math.sumPrecise(metals.map(part => part.area));
             metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / totalArea * item[p])));
