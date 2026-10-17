@@ -59,7 +59,7 @@ class Bey {
     static build = {from: Parts => {
         if (Parts.length > 10) return;
         let bey = [];
-        let exist = (P, comp, line) => comp == P.subcomp && (line ? line == P.path[1] : true) && P.stat[0]; //only weighted
+        let exist = (P, comp, line) => comp == P.subcomp && (line ? line == P.path[1] : true) && P.stat?.[0]; //only weighted
         let matched = [...Blade.sub].flatMap(([line, obj]) => [...obj.values()].map(subs => 
             Array.isArray(subs) && subs.map(sb => Parts.find(Part => exist(Part, sb, line)))
         )).filter(Parts => Parts);

@@ -80,6 +80,11 @@
         figure {margin-bottom: .5em;}
         &:not(:has(code:not(:empty))) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
     }
+    h1 {
+        position: fixed; right: 0; bottom: 1em;
+        background: rgba(0,0,0,.5);
+        padding: .5em;
+    }
 </style>
 
 <nav>
@@ -109,6 +114,7 @@
         </dl>
     </section>
     <section id="canvas"></section>
+    <h1></h1>
     <div id="models"><figure><canvas></canvas></figure></div>
 </main>
 <!-- 
@@ -166,10 +172,17 @@ const App = {
     save: () => MODEL.bey.bit && DB.put('user', {assemble: App.serialize()}),
     delete: () => DB.prepare.os('user', 'rw').delete('assemble'),
     show: {
-        menu: () => Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([comp, {abbr, li}]) => {
-            Model.Assembly.modes[comp]?.find(abbr) && !li.Q('input') && li.append(E('label>input', {type: 'checkbox'}));
-            return li;
-        })),
+        menu: () => {
+            Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([comp, {abbr, li}]) => {
+                Model.Assembly.modes[comp]?.find(abbr) && !li.Q('input') && li.append(E('label>input', {type: 'checkbox'}));
+                return li;
+            }));
+            let parts = {...new O(MODEL.bey).map(([comp, {li}]) => [comp, PARTS.at(li.firstChild.dataset.path.split())])};
+            parts.blade ??= ['chip','main','over','metal','assist']
+                .filter(c => MODEL.bey[c]).map(c => PARTS.at(MODEL.bey[c].li.firstChild.dataset.path.split()))
+            let {names: {chi, rest}} = new Bey(parts);
+            Q('h1').innerText = chi.join('') + rest;
+        },
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
             knob.style.display = 'inline-grid';
             knob.pauseEvent = true;
