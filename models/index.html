@@ -8,15 +8,12 @@
         input[type=reset],button {
             place-self: center;
             font-size: .8em;
-            width: 6rem; height: 1.4rem;
+            width: 4rem; height: 1.4rem;
             border: none;
             background: var(--theme); border-radius: 3em; 
             color: var(--backdrop);
         }
-        input[type=reset],#share {
-            grid-area: 1/3; justify-self: end;
-            width: 4rem;
-        }
+        input[type=reset],#share {grid-area: 1/3; justify-self: end;}
         #share {grid-area: 2/3;}
         #delete {grid-area: 1/4;}
         #save {grid-area: 2/4;}
@@ -89,8 +86,8 @@
     <menu></menu>
     <form>
         <button type="button" id="save">&#xe006; 保存</button>
-        <button type="button" id="delete">&#xe008; 刪除儲存</button>
-        <button type="button" id="share">分享連結</button>
+        <button type="button" id="delete">&#xe008; 刪除</button>
+        <button type="button" id="share">&#xe023; 分享</button>
         <input type="reset" value=" 重設">
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
@@ -269,8 +266,9 @@ Object.assign(App.events, {
     reset (ev) {
         if (ev.target.type == 'button') {
             App[ev.target.id]();
-            E(ev.target).set({title: ev.target.innerText, innerText: '✔️'});
-            return setTimeout(() => ev.target.innerText = ev.target.title, 1000);
+            let origial = ev.target.innerText;
+            ev.target.innerText = '';
+            setTimeout(() => ev.target.innerText = original, 1000);
         }
         if (ev.target.type == 'reset') {
             Object.values(MODEL.bey).forEach(part => part.remove());
