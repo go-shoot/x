@@ -34,7 +34,7 @@ class Bey {
     }}}
     parts = {to: {names: (locales, index = false) => {
         let {true: named = [], false: abbrd = []} = Object.groupBy([this.blade].flat(), P => P.only.name());
-        let rest = (abbrd?.map(b => b.abbr) ?? []).join('') + Markup.upgrade(this.ratchet.abbr, 'nobreak') + (this.bit.abbr ?? '');
+        let rest = (abbrd?.map(b => b.abbr) ?? []).join('') + Markup.upgrade(this.ratchet?.abbr, 'nobreak') + (this.bit.abbr ?? '');
         this.names = {rest};
         [locales].flat().forEach(l =>
             this.names[l] = (l == 'hasbro' ? named.reverse() : named).map(b => b.keyword(l))

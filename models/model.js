@@ -99,7 +99,7 @@ class Model {
             E(this.canvas.parentElement).set({'--count': count});
             this._renderer.setSize(H * count, H);
             this._camera = new THREE.OrthographicCamera(-z * count, z * count, z, -z);
-            Object.assign(this._camera, { left: -z * count, right: z * count });
+            Object.assign(this._camera, {left: -z * count, right: z * count});
             this._camera.position.z = 100;
         },
         code: i => this.canvas.parentElement?.children[i + 1],
@@ -167,14 +167,13 @@ class Model {
             this.group.traverse(child => 
                 [child.name, child.material?.name].some(n => /^BXH14|metal/i.test(n)) && child.geometry
                 && metals.push(Model.compute.gravity(child))
-            );
-            let totalArea = Math.sumPrecise(metals.map(part => part.area));
-            metals = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / totalArea * item[p])));
-            Object.assign(this.group, {
-                $metalCenter: Math.hypot(metals[0], metals[2]),
-                $metalHeight: metals[1],
-                $height: new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y
-            });
+            );console.log(metals);
+            let [area, moment2] = ['area', 'moment2'].map(p => Math.sumPrecise(metals.map(part => part[p])));
+            let [x, y, z] = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / area * item[p])));
+            this.group.specs = [
+                new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y,
+                y, Math.hypot(x, z), Math.sqrt(moment2 / area)
+            ];
             return this.bey;
         }}
     })
@@ -352,26 +351,28 @@ Model.Assembly = class {
     }
 }
 Model.compute = {
-    gravity (child, v = [...Array(5)].map(_ => new THREE.Vector3())) {
-        let {attributes: {position}, index} = child.geometry;
+    gravity(child, v = [...Array(5)].map(_ => new THREE.Vector3())) {
+        let {attributes: {position}, index} = child.geometry;        
+        let cloned = position;
         if (child.applyBoneTransform) {
-            let cloned = position.clone();
-            for (let i = 0; i < position.count; i++) 
+            cloned = position.clone();
+            for (let i = 0; i < position.count; i++)
                 cloned.setXYZ(i, ...child.applyBoneTransform(i, v[3].fromBufferAttribute(position, i)));
-            ({position} = child.geometry.clone().setAttribute('position', cloned).attributes);
         }
-        let center = v[4], totalArea = 0;
+        let center = v[4].set(0, 0, 0), totalArea = 0, moment2 = 0;
         for (let i = 0; i < index.count / 3; i++) {
-            v.slice(0, 3).forEach((vec, j) => vec.fromBufferAttribute(position, index.getX(i * 3 + j)));
+            for (let j = 0; j < 3; j++)
+                v[j].fromBufferAttribute(cloned, index.getX(i * 3 + j)).applyMatrix4(child.matrixWorld);
             let area = v[3].crossVectors(v[1].clone().sub(v[0]), v[2].clone().sub(v[0])).length() * 0.5;
             totalArea += area;
             center.add(v[0].clone().add(v[1]).add(v[2]).multiplyScalar(area / 3));
+            moment2 += (Math.pow(v[0].x + v[1].x + v[2].x, 2) + Math.pow(v[0].z + v[1].z + v[2].z, 2)) * area / 9;
         }
         center.divideScalar(totalArea);
         return {
             name: child.name,
             area: totalArea,
-            ...center.clone().applyMatrix4(child.matrixWorld),
+            moment2, ...center
         };
     },
 };

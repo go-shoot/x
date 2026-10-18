@@ -35,7 +35,7 @@
         justify-content: start; gap: 0 .5em;
         user-select: none; -webkit-user-select: none;
 
-        >:first-child,ol:last-of-type+* {padding-left: .2rem;}
+        >:first-child,ol:last-of-type~:not(small) {padding: 0 1rem 0 .2rem;}
         >:not(search) {font-size: .9em;}
         input[type=color] {background: var(--on);}
         #random {
@@ -51,15 +51,17 @@
             vertical-align: -.35em; margin-left: .3em;
         }
         dl {
-            display: flex; gap: .5em;
+            display: flex; gap: .3em;
             margin-top: .2em;
-        } 
+            mask-image: linear-gradient(to right,black 95%,transparent);
+            &:has(output:empty) {display: none;}
+        }
         dt {
-            max-width: 4em;
+            min-width: 2em;
             line-height: 1.1;
         }
-        dd {margin-right: .2em;}
-        dd:nth-of-type(2) {anchor-name: --dd;}
+        dt:nth-of-type(n+2):not(:last-of-type) {min-width: 4em;}
+        dd {margin-right: .5em;}
         output {
             font-size: 2em; color: var(--on);
         }
@@ -80,10 +82,10 @@
         figure {margin-bottom: .5em;}
         &:not(:has(code:not(:empty))) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
     }
-    h1 {
-        position: fixed; right: 0; bottom: 1em;
-        background: rgba(0,0,0,.5);
-        padding: .5em;
+    small {
+        margin: .4em 0 0 auto;
+        width: 9em;
+        font-size: .7em !important; line-height: 1.1; color: gray;
     }
 </style>
 
@@ -109,12 +111,16 @@
         <ol class="preview"></ol>
         <ol class="assembled"></ol>
         <dl>
-            <dt>全高<dd><output></output><dt>金屬部件重心高度<dd><output></output>
+            <dt>全高<dd><output></output>
+            <dt>金屬部件重心高度<dd><output></output>
             <dt>金屬部件偏重心度<dd><output></output>
+            <dt>金屬部件外重心度<dd><output></output>
+            <dt>重量<dd><output></output>
         </dl>
+        <h1></h1>
+        <small>重量外數值以模型計算，與實物或有不同</small>
     </section>
     <section id="canvas"></section>
-    <h1></h1>
     <div id="models"><figure><canvas></canvas></figure></div>
 </main>
 <!-- 
@@ -129,12 +135,15 @@ import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 import * as THREE from 'three/webgpu';
 
 let MODEL, COLORS, PARTS;
-Q('main').prepend(DB().then(() => DB.get.essentials().then(Ps => (PARTS = Ps) && App.load())));
-
+Q('main').prepend(DB().then(() => DB.get.essentials({drop: false}).then(Ps => {
+    PARTS = Ps;
+    [...Ps.blade.values()].forEach(P => P.revise?.());
+    App.load();
+})));
 const App = {
     comp: null,
     events () {
-        PI.events({'.scroller,#search ol': {scroll: {x: true}}, 'canvas': {drag: PI => true}});
+        PI.events({'.scroller,#search ol,dl': {scroll: {x: true}}, 'canvas': {drag: PI => true}});
         Q('#random').onclick = App.events.randomize;
         Q('.preview').onclick = App.events.select.part;
         Q('.assembled').onclick = App.events.show.controls;
@@ -180,8 +189,9 @@ const App = {
             let parts = {...new O(MODEL.bey).map(([comp, {li}]) => [comp, PARTS.at(li.firstChild.dataset.path.split())])};
             parts.blade ??= ['chip','main','over','metal','assist']
                 .filter(c => MODEL.bey[c]).map(c => PARTS.at(MODEL.bey[c].li.firstChild.dataset.path.split()))
-            let {names: {chi, rest}} = new Bey(parts);
+            let {names: {chi, rest}, weight} = new Bey(parts);
             Q('h1').innerText = (chi?.join('') || '未命名') + rest;
+            Q('dd:last-of-type output').value = weight;
         },
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
             knob.style.display = 'inline-grid';
@@ -191,7 +201,7 @@ const App = {
         }),
         specs: () => {
             Q('dl').classList.toggle('abnormal', !!MODEL.group.$abnormal);
-            ['$height', '$metalHeight', '$metalCenter'].map((p, i) => Q('output')[i].value = Math.round(MODEL.group[p] * 100) / 100);
+            MODEL.group.specs.map((v, i) => Q('output')[i].value = Math.round(v * 100) / 100);
         }
     },
     close: {controls () {
