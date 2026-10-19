@@ -309,7 +309,8 @@
 }
 :host svg {
     position: absolute; inset: 2em; height: 11em; /*safari*/
-
+    pointer-events: none;
+    
     use {
         stroke: var(--type); 
         fill: transparent; transition: fill .5s;
