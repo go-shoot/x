@@ -263,7 +263,7 @@ class Model {
     static meta = {}
     static {
         const draco = new DRACOLoader();
-        draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+        draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
         Model.loader = new GLTFLoader();
         Model.loader.setDRACOLoader(draco);
         Model.meta.CXX = new Set(['over', 'metal']);
