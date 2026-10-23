@@ -297,6 +297,7 @@ Object.assign(App.events, {
     delete: () => DB.prepare.os('user', 'rw').delete('assemble'),
     button (ev) {
         if (ev.target.id == 'reset') {
+            history.replaceState(null, '', location.pathname);
             Object.values(MODEL.bey).forEach(part => part.remove());
             Q('input[type=color],.assembled,h1,output', node => node.value = node.innerHTML = '');
             return ev.isTrusted || App.events.randomize();

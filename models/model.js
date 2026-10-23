@@ -140,8 +140,8 @@ class Model {
             if (this.#type == 'part')
                 this.fetch(this.code);
             else if (this.#type == 'bey')
-                await Promise.all(this.beys.map(bey => bey.fetching))
-                .then(() => this.beys.forEach((bey, i) => this._scene.add(bey.group) && bey.assemble(i)));
+                await Promise.all(this.beys.map(bey => this._scene.add(bey.group) && bey.fetching))
+                .then(() => this.beys.forEach((bey, i) => bey.assemble(i)));
         }
         return this;
     }
