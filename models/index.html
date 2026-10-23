@@ -132,7 +132,7 @@ Q('main').prepend(DB().then(() => DB.get.essentials({drop: false}).then(Ps => {
 const App = {
     comp: null,
     events () {
-        PI.events({'.scroller,#search ol,dl': {scroll: {x: true}}, 'canvas': {drag: PI => true}});
+        PI.events({'.scroller,#search ol,dl': {scroll: {x: true}}, '#canvas canvas': {drag: PI => true}});
         Q('#random').onclick = App.events.randomize;
         Q('.preview').onclick = App.events.select.part;
         Q('.assembled').onclick = App.events.show.controls;
