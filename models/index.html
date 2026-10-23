@@ -146,6 +146,7 @@ const App = {
         data && history.replaceState(null, '', location.pathname);
         let saved = await DB.get('user', 'assemble');
         saved &&= [saved].flat();
+        saved?.length === 1 && saved.push(App.default.at(-1));
         let bey = new URLSearchParams(location.search).get('bey');
         bey &&= [JSON.parse(decodeURIComponent(bey)), saved?.at(-1) ?? App.default.at(-1)];
         data = (data ? [data] : bey ?? saved ?? App.default).map(data => new O(data));
