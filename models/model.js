@@ -6,17 +6,22 @@ import PI from 'https://aeoq.github.io/pointer-interaction.mjs';
 
 class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
-        en.isIntersecting ? en.target.Model.render().then(M => M.intersect?.()) : en.target.Model.dispose()
+        en.isIntersecting ? en.target.Model.render().then(M => M.onIntersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
-    #type; #initiation; #animation; #opened = 0;
-    constructor(parts, options = {}) {
+    #type; #initiation; #animation;
+    constructor(data, options = {}) {
         Object.assign(this, options);
-        parts = this.parts = Object.entries(parts);
-        this.#type = parts.length > 1 ? 'bey' : Array.isArray(parts[0][1]) ? 'list' : 'part';
-        parts.length === 1 && ([this.comp, this.code] = parts[0]);
-        this.#setup.canvas(Array.isArray(this.code) ? Q('#models canvas') ?? options.canvas : undefined);
+        if (Array.isArray(data)) {
+            this.#type = 'bey';
+            this.beys = data.map(parts => new Model.Bey(this, parts));
+        } else {
+            data = Object.entries(data);
+            this.#type = Array.isArray(data[0][1]) ? 'list' : 'part';
+            data.length === 1 && ([this.comp, this.code] = data[0]);
+        }
+        this.setup.canvas(Array.isArray(this.code) ? Q('#models canvas') ?? options.canvas : undefined);
     }
-    #setup = {
+    setup = {
         canvas: canvas => {
             this.canvas = canvas ?? E('canvas');
             Object.assign(this.canvas, {Model: this, ...this.#type == 'part' ? {classList: this.comp, title: this.code} : {}});
@@ -27,19 +32,19 @@ class Model {
             this._renderer = new THREE.WebGPURenderer({alpha: true, antialias: true, canvas: this.canvas});
             this._renderer.setPixelRatio(window.devicePixelRatio);
             this.#initiation = this._renderer.init();
-            this._scene = new THREE.Scene();
-            this._scene.add(new THREE.AmbientLight(0xffffff, 0.2));
-            [[0,5,0],[0,-5,0],[-1,0,5],[1,0,5]].forEach((point, i) => {
-                let light = new THREE.DirectionalLight(0xffffff, 2 + i % 2);
-                light.position.set(...point);
-                light.target.position.set(0, 0, 0);
-                this._scene.add(light, light.target); 
-            });
+            this._scene = new THREE.Scene().add(
+                new THREE.AmbientLight(0xffffff, 0.2),
+                ...[[0,5,0], [0,-5,0], [-1,1,5], [1,-1,-5]].map((point, i) => {
+                    let light = new THREE.DirectionalLight(0xffffff, 2 + i % 2);
+                    light.position.set(...point);
+                    return light;
+                })
+            );
         },
-        camera: (V = new THREE.Vector3()) => {
-            let box = new THREE.Box3().setFromObject(this.group);
+        camera: (group = this.group, V = new THREE.Vector3()) => {
+            let box = new THREE.Box3().setFromObject(group);
             let size = Math.max(...Object.values(box.getSize(V)));
-            this.group.updateMatrixWorld(true);
+            group.updateMatrixWorld(true);
             let center = box.getCenter(V);
             if (this._camera) {
                 this._camera.position.y += center.y - (this._camera.$lastY ?? center.y);
@@ -54,20 +59,19 @@ class Model {
             return center;
         },
         orbital: () => {
-            let center = this.#setup.camera();
+            let center = this.setup.camera(this.beys?.[0].group);
             let controls = this._controls ??= new OrbitControls(this._camera, this.canvas);
             controls.enableDamping = true;
             controls.target.copy(center);
             this.#type == 'bey' && controls.pan(0, 20);
-            controls.update();
         },
     }
-    fetch = (code, iORcomp) => Model.fetch(/^.X/.test(code) ? 
-            `/x-model/${code.replace('-', '')}/${this.comp || iORcomp}.glb` : 
+    fetch = (code, {i, comp} = {}) => Model.fetch(/^.X/.test(code) ? 
+            `/x-model/${code.replace('-', '')}/${this.comp || comp}.glb` : 
             `/x-model/hasbro/${code}.glb`
         ).then(model => {
-            model.$comp = this.comp || iORcomp;
-            this.#prepare.for[this.#type](model, iORcomp);
+            model.$comp = this.comp || comp;
+            this.#prepare.for[this.#type]?.(model, i);
             this.#render();
             return model;
         }).catch(er => `${er}`.includes('404') ?
@@ -85,7 +89,7 @@ class Model {
             Model.get.color(model).then(color => model.$color = color).catch(console.error);
             this._scene.add(model);
         },
-        bey: model => this.group.add(model)
+        bey: (model, i = 0) => this.beys[i].group.add(model)
     }}
     #transform (model, scale, x = 0, V = new THREE.Vector3()) {
         const box = new THREE.Box3().setFromObject(model);
@@ -121,69 +125,13 @@ class Model {
             this.#render();
         }
     }
-    bey = Object.defineProperties({}, {
-        replace: {value: async (comp, after) => {
-            typeof after == 'string' && (after = await this.fetch(after, comp));
-            if (!after) return {};
-            after = new Model.BeyPart(this, {model: after});
-            let removal = comp == 'blade' ? new Set([...Model.meta.CX]) : new Set();
-            if (comp == 'blade' && after.fused) {
-                removal.add('ratchet');
-                this.bey.bit?.fused && removal.add('bit');
-            } else if (Model.meta.CX.has(comp)) {
-                comp == 'main' ? removal = Model.meta.CXX : Model.meta.CXX.has(comp) && removal.add('main');
-                removal.add('blade');
-            } else if (comp == 'bit' && after.fused) {
-                removal.add('ratchet');
-                this.bey.blade?.fused && removal.add('blade');
-            } else if (comp == 'ratchet') {
-                this.bey.blade?.fused && removal.add('blade');
-                this.bey.bit?.fused && removal.add('bit');
-            }
-            removal.add(comp).forEach(c => this.bey[c]?.remove());
-            return this.bey[comp] = after;
-        }},
-        assemble: {value: () => {
-            if (!this.bey.bit) return;
-            let assembly = new Model.Assembly(this.bey).stack('bit').mode().place('ratchet').stack();
-            if (this.bey.blade) {
-                assembly.place('blade').mode();
-            } else if (this.bey.assist) {
-                assembly = assembly.place('assist').stack().mode();
-                (this.bey.metal ? ['metal','over'] : ['main']).reduce((chain, c) => chain.place(c).mode(), assembly).place('chip');
-            }
-            this.bey.compute().spread(this.#opened);
-            this.assemble?.();
-        }},
-        spread: {value: amount => {
-            if (!amount) return; 
-            ['ratchet','blade','assist','main','metal','over','chip']
-            .filter(c => this.bey[c]?.model).forEach((c, i) => this.bey[c].model.position.y += (i + 1) * amount);
-            this.#setup.camera();
-        }},
-        compute: {value: () => {
-            this.group.updateMatrixWorld(true);
-            let metals = [];
-            this.group.traverse(child => 
-                [child.name, child.material?.name].some(n => /^BXH14|metal/i.test(n)) && child.geometry
-                && metals.push(Model.compute.gravity(child))
-            );console.log(metals);
-            let [area, moment2] = ['area', 'moment2'].map(p => Math.sumPrecise(metals.map(part => part[p])));
-            let [x, y, z] = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / area * item[p])));
-            this.group.specs = [
-                new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y,
-                y, Math.hypot(x, z), Math.sqrt(moment2 / area)
-            ];
-            return this.bey;
-        }}
-    })
     async render () {
-        this.#setup.scene();
+        this.setup.scene();
         const {clientHeight: H} = this.canvas.parentElement ?? this.canvas;
         if (this.#type == 'list') {
             this.list.setup(this.code.length, H);
             this.list.events();
-            this.models = this.code.map((c, i) => this.fetch(c, i));
+            this.models = this.code.map((c, i) => this.fetch(c, {i}));
             this.models = (await Promise.allSettled(this.models)).map(p => p.value).filter(model => model);
             this.list.setup(this.models.length, H);
             this.list.reorder();
@@ -191,30 +139,26 @@ class Model {
             this._renderer.setSize(H, H);
             if (this.#type == 'part')
                 this.fetch(this.code);
-            else if (this.#type == 'bey') {
-                this._scene.add(this.group = new THREE.Group());
-                await Promise.all(this.parts.map(async([comp, d]) => 
-                    this.bey[comp] = new Model.BeyPart(this, {model: await this.fetch(d.code || d.abbr, comp), ...d})
-                ));
-                this.bey.assemble();
-            }
+            else if (this.#type == 'bey')
+                await Promise.all(this.beys.map(bey => bey.fetching))
+                .then(() => this.beys.forEach((bey, i) => this._scene.add(bey.group) && bey.assemble(i)));
         }
         return this;
     }
     #render () {
         if (this.#type == 'list') 
             return requestAnimationFrame(() => this.#initiation.then(r => r.render(this._scene, this._camera)));
-        this.#setup.orbital();
+        this.setup.orbital();
         this.#animation ?? this.#animate();
     }
     #animate () {
         this.#animation = requestAnimationFrame(() => this.#animate());
         this._controls?.update();
-        this.group && this.speed && (this.group.rotation.y += this.speed);
-        if (typeof this.bey.bit == 'object') {
-            let amount = this.open === true && this.#opened < 7 ? .2 : this.open === false && this.#opened > 0 ? -.2 : 0;
-            this.#opened += amount;
-            this.bey.spread(amount);
+        if (typeof this.beys?.[0].bit == 'object') {
+            this.opened ??= 0;
+            let delta = this.open === true && this.opened < 7 ? .2 : this.open === false && this.opened > 0 ? -.2 : 0;
+            this.opened += delta;
+            this.beys.forEach(bey => bey.transform({spread: delta, rotate: this.speed}));
         }
         this.#initiation.then(r => r.render(this._scene, this._camera));
     }
@@ -222,10 +166,11 @@ class Model {
         if (!this.canvas.dataset.engine) return;
         this.#animation &&= cancelAnimationFrame(this.#animation);
         this._scene?.traverse(child => this.#dispose(child));
+        this._scene?.clear();
         this.#dispose('_controls', '_renderer');
         Model.observer.unobserve(this.canvas);
         let old = this.canvas;
-        this.#setup.canvas(Array.isArray(this.code) ? E('canvas') : undefined);
+        this.setup.canvas(Array.isArray(this.code) ? E('canvas') : undefined);
         old.replaceWith(this.canvas);
     }
     #dispose = (...items) => items.forEach(item => 
@@ -270,33 +215,130 @@ class Model {
         Model.meta.CX = new Set(['chip', ...Model.meta.CXX, 'main', 'assist']);
     }
 }
+Model.Bey = class {
+    #Parent;
+    constructor(parent, parts) {
+        this.#Parent = parent;
+        let fetching = Promise.all(Object.entries(parts).map(async ([comp, p]) =>
+            this[comp] = new Model.BeyPart(this, {model: await parent.fetch(p.code || p.abbr, {comp}), ...p})
+        ));
+        Object.defineProperties(this, {
+            group: {value: new THREE.Group()},
+            specs: {value: [], writable: true}, 
+            fetching: {value: fetching}
+        });
+    }
+    async replace (comp, after) {
+        typeof after == 'string' && (after = await this.#Parent.fetch(after, {comp}));
+        if (!after) return {};
+        after = new Model.BeyPart(this, {model: after});
+        let removal = comp == 'blade' ? new Set([...Model.meta.CX]) : new Set();
+        if (comp == 'blade' && after.fused) {
+            removal.add('ratchet');
+            this.bit?.fused && removal.add('bit');
+        } else if (Model.meta.CX.has(comp)) {
+            comp == 'main' ? removal = Model.meta.CXX : Model.meta.CXX.has(comp) && removal.add('main');
+            removal.add('blade');
+        } else if (comp == 'bit' && after.fused) {
+            removal.add('ratchet');
+            this.blade?.fused && removal.add('blade');
+        } else if (comp == 'ratchet') {
+            this.blade?.fused && removal.add('blade');
+            this.bit?.fused && removal.add('bit');
+        }
+        removal.add(comp).forEach(c => this[c]?.remove());
+        return this[comp] = after;
+    }
+    assemble (i) {
+        if (!this.bit) return;
+        let assembly = new Model.BeyAssembly(this).stack('bit').mode().place('ratchet').stack();
+        if (this.blade) {
+            assembly.place('blade').mode();
+        } else if (this.assist) {
+            assembly = assembly.place('assist').stack().mode();
+            (this.metal ? ['metal','over'] : ['main']).reduce((chain, c) => chain.place(c).mode(), assembly).place('chip');
+        }
+        let x = this.group.position.x;
+        i !== false && this.compute();
+        this.transform({x: typeof i == 'number' ? i * 50 : x});
+        this.#Parent.onAssemble?.();
+    }
+    transform ({spread = this.#Parent.opened, rotate, x}) {
+        if (spread) {
+            ['ratchet','blade','assist','main','metal','over','chip']
+            .filter(c => this[c]?.model).forEach((c, i) => this[c].model.position.y += (i + 1) * spread);
+            this.#Parent.setup.camera(this.group);
+        }
+        rotate && (this.group.rotation.y += rotate);
+        x && (this.group.position.x = x);
+    }
+    compute () {
+        let metals = [];
+        this.group.position.x = 0; //for computation
+        this.group.updateMatrixWorld(true);
+        this.group.traverse(child => 
+            [child.name, child.material?.name].some(n => /^BXH14|metal/i.test(n)) && child.geometry
+            && metals.push(Model.Bey.compute.gravity(child))
+        );
+        let [area, moment2] = ['area', 'moment2'].map(p => Math.sumPrecise(metals.map(part => part[p])));
+        let [x, y, z] = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / area * item[p])));
+        this.specs = [
+            new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y,
+            y, Math.hypot(x, z), Math.sqrt(moment2 / area)
+        ];
+    }
+    static compute = {gravity (child, v = [...Array(5)].map(_ => new THREE.Vector3())) {
+        let {attributes: {position}, index} = child.geometry;
+        let cloned = position;
+        if (child.applyBoneTransform) {
+            cloned = position.clone();
+            for (let i = 0; i < position.count; i++)
+                cloned.setXYZ(i, ...child.applyBoneTransform(i, v[3].fromBufferAttribute(position, i)));
+        }
+        let center = v[4].set(0, 0, 0), totalArea = 0, moment2 = 0;
+        for (let i = 0; i < index.count / 3; i++) {
+            for (let j = 0; j < 3; j++)
+                v[j].fromBufferAttribute(cloned, index.getX(i * 3 + j)).applyMatrix4(child.matrixWorld);
+            let area = v[3].crossVectors(v[1].clone().sub(v[0]), v[2].clone().sub(v[0])).length() / 2;
+            totalArea += area;
+            center.add(v[0].clone().add(v[1]).add(v[2]).multiplyScalar(area / 3));
+            moment2 += (Math.pow(v[0].x + v[1].x + v[2].x, 2) + Math.pow(v[0].z + v[1].z + v[2].z, 2)) * area / 9;
+        }
+        center.divideScalar(totalArea);
+        return {
+            name: child.name,
+            area: totalArea,
+            moment2, ...center
+        };
+    }}
+}
 Model.BeyPart = class {
-    #model; #adjust;
-    constructor(model, {adjust, ...rest}) {
-        this.BeyModel = model;
+    #model; #adjust; #Bey;
+    constructor(bey, {adjust, ...rest}) {
+        this.#Bey = bey;
         Object.assign(this, rest);
         this.#adjust = adjust ?? {rotation: 0};
     }
     get model() {return this.#model;}
     set model(model) {
         this.#model && (this.#adjust = {rotation: 0}) && this.remove(false);
-        this.BeyModel.group.add(this.#model = model);
+        this.#Bey.group.add(this.#model = model);
     }
     get adjust() {return this.#adjust;}
     set adjust(adjust) {
         this.#adjust = adjust;
-        this.BeyModel.bey.assemble();
+        this.#Bey.assemble(false);
     }
     get fused() {
         let model = this.model.$comp == 'bit' && Model.get.child(this.model, 'Bit_part01', 'Bit_parts01') || this.model;
         return new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y > 20;
     }
     remove (del = true) {
-        this.BeyModel.group.remove(this.model) && this.model.traverse(child => Model.dispose(child));
-        if (del) delete this.BeyModel.bey[this.model.$comp];
+        this.#Bey.group.remove(this.model) && this.model.traverse(child => Model.dispose(child));
+        if (del) delete this.#Bey[this.model.$comp];
     }
 }
-Model.Assembly = class {
+Model.BeyAssembly = class {
     constructor(parts, adjust) {
         this.bey = parts, this.adjust = adjust;
         this.stackHeight = 0;
@@ -324,7 +366,7 @@ Model.Assembly = class {
     mode (comp) {
         let {model, adjust: {abbr, mode} = {}} = this.#model(comp) ?? {};
         if (!abbr) return this;
-        let param = Model.Assembly.modes[this.comp]?.find(abbr);
+        let param = Model.BeyAssembly.modes[this.comp]?.find(abbr);
         if (!param) return this;
         Array.isArray(param) ?
             [param].flat().forEach(([bone, prop, axis, amount]) => 
@@ -350,30 +392,4 @@ Model.Assembly = class {
         })
     }
 }
-Model.compute = {
-    gravity(child, v = [...Array(5)].map(_ => new THREE.Vector3())) {
-        let {attributes: {position}, index} = child.geometry;        
-        let cloned = position;
-        if (child.applyBoneTransform) {
-            cloned = position.clone();
-            for (let i = 0; i < position.count; i++)
-                cloned.setXYZ(i, ...child.applyBoneTransform(i, v[3].fromBufferAttribute(position, i)));
-        }
-        let center = v[4].set(0, 0, 0), totalArea = 0, moment2 = 0;
-        for (let i = 0; i < index.count / 3; i++) {
-            for (let j = 0; j < 3; j++)
-                v[j].fromBufferAttribute(cloned, index.getX(i * 3 + j)).applyMatrix4(child.matrixWorld);
-            let area = v[3].crossVectors(v[1].clone().sub(v[0]), v[2].clone().sub(v[0])).length() * 0.5;
-            totalArea += area;
-            center.add(v[0].clone().add(v[1]).add(v[2]).multiplyScalar(area / 3));
-            moment2 += (Math.pow(v[0].x + v[1].x + v[2].x, 2) + Math.pow(v[0].z + v[1].z + v[2].z, 2)) * area / 9;
-        }
-        center.divideScalar(totalArea);
-        return {
-            name: child.name,
-            area: totalArea,
-            moment2, ...center
-        };
-    },
-};
 export default Model;

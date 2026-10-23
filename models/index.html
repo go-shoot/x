@@ -3,58 +3,45 @@
 <script src="https://aeoq.github.io/drag-knob.mjs" type="module"></script>
 <link rel="stylesheet" href="../index.css">
 <style>
-    input::placeholder,drag-knob {font-size: .8em;}
+    input::placeholder,drag-knob,nav :is(input,label,button,span) {font-size: .8em;}
     nav {
-        input[type=reset],button {
-            place-self: center;
-            font-size: .8em;
-            width: 4rem; height: 1.4rem;
-            border: none;
-            background: var(--theme); border-radius: 3em; 
-            color: var(--backdrop);
+        button {
+            place-self: center end;
+            min-width: 4rem; height: 1.4rem;
         }
-        input[type=reset],#share {grid-area: 1/3; justify-self: end;}
+        #reset {grid-area: 1/3;}
         #share {grid-area: 2/3;}
         #delete {grid-area: 1/4;}
         #save {grid-area: 2/4;}
-        fieldset {white-space: nowrap;}
-        .toggle {
-            grid-area: 1/3/3/4; place-self: center start;
-            font-size: .8em;
-            position: relative; margin-left: 2.5em;
-        }
-        .toggle::after {
-            content: attr(title); 
-            white-space: nowrap; color: var(--theme);
-            position: absolute; right: 100%;
-            margin-right: .5em;
-        }
+        fieldset {grid-area: 1/3/3/4; place-self: center start;}
+        span {grid-area: 1/2; place-self: end center;}
+        .toggle {grid-area: 2/2; place-self: center;}
     }
     #search {
         opacity: 1 !important;
-        justify-content: start; gap: 0 .5em;
+        justify-content: start; align-items: center; gap: .2rem .4rem;
         user-select: none; -webkit-user-select: none;
 
-        >:first-child,ol:last-of-type~:not(small) {padding: 0 1rem 0 .2rem;}
+        >:first-child,dl,label:has([value="0"]) {margin-left: .2rem;}
         >:not(search) {font-size: .9em;}
         input[type=color] {background: var(--on);}
-        #random {
+        search {margin: 0 .2rem;}
+        #random,label:has(input[name=bey]) {
             padding: 0 .5em;
             background: var(--theme); border-radius: 3em; 
             color: var(--backdrop);
         }
         .assembled:not(:empty)::before {content: '已組裝：';}
-        label::after {
+        .assembled label::after {
             content: '';
             background: url(/x/img/mode.png) center / contain;
             display: inline-block; height: 1.4em; width: 1.4em;
             vertical-align: -.35em; margin-left: .3em;
         }
+        ol:empty,dl:has(output:empty) {display: none;}
         dl {
             display: flex; gap: .3em;
-            margin-top: .2em;
-            mask-image: linear-gradient(to right,black 95%,transparent);
-            &:has(output:empty) {display: none;}
+            mask-image: linear-gradient(to right,black 95%,transparent); padding-right: 1rem;
         }
         dt {
             min-width: 2em;
@@ -62,9 +49,7 @@
         }
         dt:nth-of-type(n+2):not(:last-of-type) {min-width: 4em;}
         dd {margin-right: .5em;}
-        output {
-            font-size: 2em; color: var(--on);
-        }
+        output {font-size: 2em; color: var(--on);}
     }
     #canvas {
         position: fixed; width: max(100svh,100svw); max-width: none; aspect-ratio: 1;
@@ -82,9 +67,10 @@
         figure {margin-bottom: .5em;}
         &:not(:has(code:not(:empty))) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
     }
+    h1 {max-width: calc(100% - 5.8em); white-space: nowrap;}
     small {
-        margin: .4em .2rem 0 auto;
-        width: 9em;
+        margin-left: auto;
+        width: 10em;
         font-size: .7em !important; line-height: 1.1; color: gray;
     }
 </style>
@@ -92,15 +78,16 @@
 <nav>
     <menu></menu>
     <form>
-        <button type="button" id="save">&#xe006; 保存</button>
-        <button type="button" id="delete">&#xe008; 刪除</button>
+        <button type="button" id="save">&#xe006; 保存兩顆</button>
+        <button type="button" id="delete">&#xe008; 刪除兩顆</button>
         <button type="button" id="share">&#xe038; 連結</button>
-        <input type="reset" value=" 重設">
+        <button type="button" id="reset"> 重設</button>
+        <span>展開</span>
+        <label class="toggle"><input type="checkbox"></label>
         <fieldset>
             <drag-knob name="speed" range="-.5/.5/.01"><i>轉速</i></drag-knob>
             <drag-knob name="rotation" range="-180/180/1/°" class="fine" style="display: none;"><i>角度</i></drag-knob>
         </fieldset>
-        <label class="toggle" title="展開"><input type="checkbox"></label>
     </form>
 </nav>
 <main>
@@ -112,11 +99,13 @@
         <ol class="assembled"></ol>
         <dl>
             <dt>全高<dd><output></output>
-            <dt>金屬部件重心高度<dd><output></output>
-            <dt>金屬部件偏重心度<dd><output></output>
-            <dt>金屬部件外重心度<dd><output></output>
+            <dt>金屬零件重心高度<dd><output></output>
+            <dt>金屬零件偏重心度<dd><output></output>
+            <dt>金屬零件外重心度<dd><output></output>
             <dt>重量<dd><output></output>
         </dl>
+        <label><input type="radio" name="bey" value="0" checked>#1</label>
+        <label><input type="radio" name="bey" value="1">#2</label>
         <h1></h1>
         <small>重量外數值以模型計算，與實物或有不同</small>
     </section>
@@ -147,6 +136,7 @@ const App = {
         Q('#random').onclick = App.events.randomize;
         Q('.preview').onclick = App.events.select.part;
         Q('.assembled').onclick = App.events.show.controls;
+        Q('input[name=bey]', input => input.onchange = App.events.switch);
         Q('main').onclick = ev => ev.target.closest('#models,.assembled') || Q('canvas.PI-dragged') || App.close.controls();
         document.forms[0].oninput = App.events.adjust;
         document.forms[0].onclick = App.events.button;
@@ -154,41 +144,49 @@ const App = {
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
         data && history.replaceState(null, '', location.pathname);
+        let saved = await DB.get('user', 'assemble');
+        saved &&= [saved].flat();
         let bey = new URLSearchParams(location.search).get('bey');
-        bey &&= JSON.parse(decodeURIComponent(bey));
-        data = new O(data ?? bey ?? await DB.get('user', 'assemble') ?? App.default);
+        bey &&= [JSON.parse(decodeURIComponent(bey)), saved?.at(-1) ?? App.default.at(-1)];
+        data = (data ? [data] : bey ?? saved ?? App.default).map(data => new O(data));
         MODEL ? 
             await Promise.all(
-                data.map(async([comp, d]) => Object.assign(await MODEL.bey.replace(comp, d.code), d))
-            ).then(MODEL.bey.assemble) :
+                data[0].map(async ([comp, d]) => Object.assign(await MODEL.bey.replace(comp, d.code), d))
+            ).then(() => MODEL.bey.assemble()) :
             await new Promise(res => {
-                MODEL = new Model(data, {intersect: res, assemble: App.show.specs});
+                MODEL = new Model(data, {onIntersect: res, onAssemble: () => {
+                    App.events.switch(Q('input[name=bey]:checked').value);
+                    App.show.specs();
+                }});
                 Q('#canvas').append(MODEL.canvas);
             });
-        cache.then(() => Promise.all(data.map(async([comp, part]) => {
-            if (!MODEL.bey[comp]) return;
-            let search = new Set([part.abbr]), path;
-            MODEL.bey[comp].li = 
-                IndexSearch.find.parts({[comp]: search, free: search}).find(li => {
-                    path = li.firstChild.dataset.path?.split(',') ?? [];
-                    return path.at(-1) == part.abbr && path.at(-2) == comp;
-                });
-            MODEL.bey[comp].li.dataset.colors = (await new Search(path)).beys.map(([code]) => code);
-        }))).then(App.show.menu);
+        cache.then(() => Promise.all(data.flatMap((parts, i) => {
+            let selected = data.length > 1 ? MODEL.beys[i] : MODEL.bey;
+            return parts.filter(([comp]) => selected[comp]).map(async ([comp, part]) => {
+                let query = new Set([part.abbr]), path;
+                selected[comp].li = 
+                    IndexSearch.find.parts({[comp]: query, free: query}).find(li => {
+                        path = li.firstChild.dataset.path?.split(',') ?? [];
+                        return path.at(-1) == part.abbr && path.at(-2) == comp;
+                    });
+                selected[comp].li.dataset.colors = (await new Search(path)).beys.map(([code]) => code);
+            }
+        )}))).then(App.show.info);
     },
-    serialize: () => ({...new O(MODEL.bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, ...adjust.rotation === 0 ? {} : {adjust}}])}),
-    share: () => MODEL.bey.bit && navigator.clipboard.writeText(`${location.origin}${location.pathname}?bey=${encodeURIComponent(JSON.stringify(App.serialize()))}`),
-    save: () => MODEL.bey.bit && DB.put('user', {assemble: App.serialize()}),
-    delete: () => DB.prepare.os('user', 'rw').delete('assemble'),
+    serialize: bey => bey == null ? 
+        MODEL.beys.map(App.serialize) : 
+        {...new O(bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, adjust}])},
     show: {
-        menu: () => {
-            Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([comp, {abbr, li}]) => {
-                Model.Assembly.modes[comp]?.find(abbr) && !li.Q('input') && li.append(E('label>input', {type: 'checkbox'}));
-                return li;
-            }));
-            let parts = {...new O(MODEL.bey).map(([comp, {li}]) => [comp, PARTS.at(li.firstChild.dataset.path.split())])};
+        info: () => {
+            if (Object.keys({...MODEL.bey}).length === 0) return Q('#reset').click();
+            let parts = {};
+            new O(MODEL.bey).each(([comp, {abbr, li}]) => {
+                Model.BeyAssembly.modes[comp]?.find(abbr) && !li.Q('input') && li.append(E('label>input', {type: 'checkbox'}));
+                parts[comp] = PARTS.at(li.firstChild.dataset.path.split());
+            });
             parts.blade ??= ['chip','main','over','metal','assist']
-                .filter(c => MODEL.bey[c]).map(c => PARTS.at(MODEL.bey[c].li.firstChild.dataset.path.split()))
+                .filter(c => MODEL.bey[c]).map(c => PARTS.at(MODEL.bey[c].li.firstChild.dataset.path.split()));
+            Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([, {li}]) => li));
             let {names: {chi, rest}, weight} = new Bey(parts);
             Q('h1').innerText = (chi?.join('') || '未命名') + rest;
             Q('dd:last-of-type output').value = weight;
@@ -199,10 +197,7 @@ const App = {
             knob.value = MODEL.bey[App.comp].adjust[knob.name] ?? 0;
             knob.pauseEvent = false;
         }),
-        specs: () => {
-            Q('dl').classList.toggle('abnormal', !!MODEL.group.$abnormal);
-            MODEL.group.specs.map((v, i) => Q('output')[i].value = Math.round(v * 100) / 100);
-        }
+        specs: () => MODEL.bey.specs.map((v, i) => Q('output')[i].value = Math.round(v * 100) / 100)
     },
     close: {controls () {
         let figure = Q('#models figure');
@@ -210,13 +205,25 @@ const App = {
         figure.scrollLeft = 0;
         Q('drag-knob[name$=tion]', knob => knob.style.display = 'none');
     }},
-    default: {
-        "blade": {"code":"JgCl","abbr":"JgCl"},
-        "bit":   {"code":"CX09","abbr":"TK"},
-    },
+    default: [{
+        "blade": { "code": "JgCl", "abbr": "JgCl" },
+        "bit": { "code": "CX09", "abbr": "TK" },
+    }, {
+        "main": {"abbr": "Fr","code": "CX12"},
+        "assist": {"abbr": "J","code": "BXC14"},
+        "chip": {"abbr": "Vl","code": "BXH14"},
+        "bit": {"abbr": "I","code": "BXH-23"},
+        "ratchet": {"abbr": "1-50","code": "CX-13"}
+    }],
 }
 Object.assign(App.events, {
-    redraw: () => Q('input[type=reset]').click(),
+    switch (ev) {
+        let index = typeof ev == 'object' ? ev.target.value : ev;
+        MODEL.bey = MODEL.beys[index];
+        MODEL._camera.position.x = MODEL._controls.target.x = index * 50;
+        typeof ev == 'object' && (App.show.info(), App.show.specs());
+    },
+    redraw: () => Q('#reset').click(),
     async randomize () {
         let inputs = Q('input[type=color]', []), matched = {};
         inputs.every(i => i.value == '#000000') && (inputs[0].value = color.random());
@@ -248,7 +255,7 @@ Object.assign(App.events, {
             comp == 'hasbro' && (comp = {I: 'over', En: 'chip'}[abbr]);
             let colors = (await new Search(path)).beys.map(([code]) => code);
             for (code of colors) {
-                model = await MODEL.fetch(code, comp);
+                model = await MODEL.fetch(code, {comp});
                 if (model) break;
             }
             if (!model) return;
@@ -258,11 +265,11 @@ Object.assign(App.events, {
                 abbr, code, li: E(ev.target.closest('li').cloneNode(true)).set({dataset: {colors}})
             });
             MODEL.bey.assemble();
-            App.show.menu();
+            App.show.info();
             gtag('event', 'ASSEMBLE', {PART: abbr});
         },
         async color (code) {
-            MODEL.bey[App.comp].model = await MODEL.fetch(code, App.comp);
+            MODEL.bey[App.comp].model = await MODEL.fetch(code, {comp: App.comp});
             MODEL.bey[App.comp].code = code;
             MODEL.bey.assemble();
         }
@@ -284,19 +291,21 @@ Object.assign(App.events, {
         MODEL.bey[App.comp].adjust = {...MODEL.bey[App.comp].adjust, [ev.target.name]: ev.target.value};
         App.show.specs();
     },
+    share: () => MODEL.bey.bit && navigator.clipboard.writeText(`${location.origin}${location.pathname}?bey=${encodeURIComponent(JSON.stringify(App.serialize(MODEL.bey)))}`),
+    save: () => DB.put('user', {assemble: App.serialize()}),
+    delete: () => DB.prepare.os('user', 'rw').delete('assemble'),
     button (ev) {
+        if (ev.target.id == 'reset') {
+            Object.values(MODEL.bey).forEach(part => part.remove());
+            Q('input[type=color],.assembled,h1,output', node => node.value = node.innerHTML = '');
+            return ev.isTrusted || App.events.randomize();
+        }
         if (ev.target.type == 'button')
-            Promise.try(App[ev.target.id]).then(() => {
+            Promise.try(App.events[ev.target.id]).then(() => {
                 let original = ev.target.innerText;
                 ev.target.innerText = '';
                 setTimeout(() => ev.target.innerText = original, 1000);
             });
-        if (ev.target.type == 'reset') {
-            Object.values(MODEL.bey).forEach(part => part.remove());
-            Q('.assembled').replaceChildren();
-            Q('input[type=color],output', node => node.value = '');
-            ev.isTrusted || App.events.randomize();
-        }
     }
 });
 App.events();

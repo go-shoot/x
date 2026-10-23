@@ -9,11 +9,7 @@
   "part-blade-collab": "2026/10/06 00:33:00",
   "meta":              "2026/09/22 16:23:00",
   "news": {
-"2026-10-15":[{
-    "code":"BXC-21","name":["キッドハントK4-70TK","Kid Hunt K4-70TK"],"type":"bal",
-    "imgs":["https://i.imgur.com/8gzXfyD.jpeg"],
-    "desc":["コロコロ雜誌應募品"]
-}],"2026-10-23":[{
+"2026-10-23":[{
     "code":"BXG-71","name":["バイソンバローDB","Bison Burrow DB"],"type":"sta",
     "imgs":["https://i.imgur.com/tkcGW0P.jpeg","https://animes-pro.com/cdn/shop/files/BBX-KUJI02-CTN_2.jpg","https://d89889xojlqhy.cloudfront.net/images/editor/2026-09-15/38f09b840028839bce18dd7c3c0e9d0f6aa8d65d34818.jfif"],
     "desc":["DMMくじA賞/Last Get賞"]
@@ -41,5 +37,15 @@
     "code":"UX-23 booster"
 }],"2027-02":[{
     "code":"CX-21 random booster"
+}],"2027-03":[{
+    "code":"RX-01 starter"
+},{
+    "code":"RX-02 starter"
+},{
+    "code":"RX-03 starter"
+},{
+    "code":"RX-04 entry set"
+},{
+    "code":"BXG-48 starter"
 }]
 }}
