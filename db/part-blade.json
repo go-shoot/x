@@ -16,7 +16,7 @@
             "jap": "ジークスペリオン",
             "eng": "Sieg\\Superion",
             "hasbro": "Suppress Superion",
-            "chi": ""
+            "chi": "凱旋\\超神"
         },
         "stat": ["40="],
         "desc": "金屬連接至中央能提高剛性；一併持有上段大型Upper刃的攻擊性能與下段Counter刃的防禦性能。",
@@ -79,7 +79,7 @@
             "aka": "野牛"
         },
         "stat": ["41=",500],
-        "desc": "",
+        "desc": "外側三處搭載滾輪，特化於卸開對手攻擊。",
         "attr": ["sta","right","fused"]
     },
    "BlGr": {
