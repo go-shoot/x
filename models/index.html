@@ -143,13 +143,13 @@ const App = {
     },
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
-        data && history.replaceState(null, '', location.pathname);
-        let saved = await DB.get('user', 'assemble');
-        saved &&= [saved].flat();
-        saved?.length === 1 && saved.push(App.default.at(-1));
-        let bey = new URLSearchParams(location.search).get('bey');
-        bey &&= [JSON.parse(decodeURIComponent(bey)), saved?.at(-1) ?? App.default.at(-1)];
-        data = (data ? [data] : bey ?? saved ?? App.default).map(data => new O(data));
+        if (data) {
+            history.replaceState(null, '', location.pathname);
+            data = [new O(data)];
+        } else {
+            data = JSON.parse(new URLSearchParams(location.search).get('bey')) || await DB.get('user', 'assemble');
+            data = [data].flat().filter(b => b).concat(...App.default).slice(0, 2).map(data => new O(data));
+        }
         MODEL ? 
             await Promise.all(
                 data[0].map(async ([comp, d]) => Object.assign(await MODEL.bey.replace(comp, d.code), d))

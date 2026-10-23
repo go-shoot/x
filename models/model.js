@@ -327,7 +327,7 @@ Model.BeyPart = class {
     get adjust() {return this.#adjust;}
     set adjust(adjust) {
         this.#adjust = adjust;
-        this.#Bey.assemble(false);
+        this.#Bey.assemble(adjust.mode != null);
     }
     get fused() {
         let model = this.model.$comp == 'bit' && Model.get.child(this.model, 'Bit_part01', 'Bit_parts01') || this.model;
