@@ -66,13 +66,13 @@ class Model {
             this.#type == 'bey' && controls.pan(0, 20);
         },
     }
-    fetch = (code, {i, comp} = {}) => Model.fetch(/^.X/.test(code) ? 
+    fetch = (code, {i, comp, color} = {}) => Model.fetch(/^.X/.test(code) ? 
             `/x-model/${code.replace('-', '')}/${this.comp || comp}.glb` : 
             `/x-model/hasbro/${code}.glb`
         ).then(model => {
             model.$comp = this.comp || comp;
             this.#prepare.for[this.#type]?.(model, i);
-            this.#render();
+            this.#render(color);
             return model;
         }).catch(er => `${er}`.includes('404') ?
             this.#type == 'part' ? this.canvas.replaceWith(E('span', '未有模型', {title: this.canvas.title})) : '' :
@@ -145,10 +145,10 @@ class Model {
         }
         return this;
     }
-    #render () {
+    #render (switchColor) {
         if (this.#type == 'list') 
             return requestAnimationFrame(() => this.#initiation.then(r => r.render(this._scene, this._camera)));
-        this.setup.orbital();
+        switchColor || this.setup.orbital();
         this.#animation ?? this.#animate();
     }
     #animate () {
@@ -160,6 +160,7 @@ class Model {
             this.opened += delta;
             this.beys.forEach(bey => bey.transform({spread: delta, rotate: this.speed}));
         }
+        this.group && this.speed && (this.group.rotation.y += this.speed);
         this.#initiation.then(r => r.render(this._scene, this._camera));
     }
     dispose () {

@@ -106,7 +106,7 @@
         </dl>
         <label><input type="radio" name="bey" value="0" checked>#1</label>
         <label><input type="radio" name="bey" value="1">#2</label>
-        <h1></h1>
+        <h1 class="loading"></h1>
         <small>重量外數值以模型計算，與實物或有不同</small>
     </section>
     <section id="canvas"></section>
@@ -143,6 +143,7 @@ const App = {
     },
     async load (data) {
         let cache = Q('input[type=search]').onfocus();
+        E(Q('h1')).set({classList: 'loading', innerText: ''});
         if (data) {
             history.replaceState(null, '', location.pathname);
             data = [new O(data)];
@@ -189,7 +190,7 @@ const App = {
                 .filter(c => MODEL.bey[c]).map(c => PARTS.at(MODEL.bey[c].li.firstChild.dataset.path.split()));
             Q('.assembled').replaceChildren(...new O(MODEL.bey).map(([, {li}]) => li));
             let {names: {chi, rest}, weight} = new Bey(parts);
-            Q('h1').innerText = (chi?.join('') || '未命名') + rest;
+            E(Q('h1')).set({classList: '', innerText: (chi?.join('') || '未命名') + rest});
             Q('dd:last-of-type output').value = weight;
         },
         knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
@@ -210,9 +211,7 @@ const App = {
         "blade": { "code": "JgCl", "abbr": "JgCl" },
         "bit": { "code": "CX09", "abbr": "TK" },
     }, {
-        "main": {"abbr": "Fr","code": "CX12"},
-        "assist": {"abbr": "J","code": "BXC14"},
-        "chip": {"abbr": "Vl","code": "BXH14"},
+        "blade": {"abbr": "CyEy"},
         "bit": {"abbr": "I","code": "BXH-23"},
         "ratchet": {"abbr": "1-50","code": "CX-13"}
     }],
@@ -267,12 +266,14 @@ Object.assign(App.events, {
             });
             MODEL.bey.assemble();
             App.show.info();
+            Q('drag-knob[name=rotation]').value = 0;
             gtag('event', 'ASSEMBLE', {PART: abbr});
         },
         async color (code) {
-            MODEL.bey[App.comp].model = await MODEL.fetch(code, {comp: App.comp});
+            MODEL.bey[App.comp].model = await MODEL.fetch(code, {comp: App.comp, color: true});
             MODEL.bey[App.comp].code = code;
             MODEL.bey.assemble();
+            Q('drag-knob[name=rotation]').value = 0;
         }
     },
     show: {controls (ev) {
