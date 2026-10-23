@@ -193,8 +193,8 @@ const App = {
             E(Q('h1')).set({classList: '', innerText: (chi?.join('') || '未命名') + rest});
             Q('dd:last-of-type output').value = weight;
         },
-        knobs: () => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
-            knob.style.display = 'inline-grid';
+        knobs: (show = true) => App.comp == 'bit' || Q('drag-knob[name$=tion]', knob => {
+            show && (knob.style.display = 'inline-grid');
             knob.pauseEvent = true;
             knob.value = MODEL.bey[App.comp].adjust[knob.name] ?? 0;
             knob.pauseEvent = false;
@@ -220,8 +220,13 @@ Object.assign(App.events, {
     switch (ev) {
         let index = typeof ev == 'object' ? ev.target.value : ev;
         MODEL.bey = MODEL.beys[index];
-        MODEL._camera.position.x = MODEL._controls.target.x = index * 50;
-        typeof ev == 'object' && (App.show.info(), App.show.specs());
+        if (typeof ev == 'object') {
+            let shift = index * 100 - 50 - MODEL._camera.$lastCenter.x;
+            MODEL._camera.position.x += shift;
+            MODEL._controls.target.x += shift; 
+            App.show.info();
+            App.show.specs();
+        }
     },
     redraw: () => Q('#reset').click(),
     async randomize () {
@@ -266,14 +271,14 @@ Object.assign(App.events, {
             });
             MODEL.bey.assemble();
             App.show.info();
-            Q('drag-knob[name=rotation]').value = 0;
+            App.show.knobs(false);
             gtag('event', 'ASSEMBLE', {PART: abbr});
         },
         async color (code) {
             MODEL.bey[App.comp].model = await MODEL.fetch(code, {comp: App.comp, color: true});
             MODEL.bey[App.comp].code = code;
             MODEL.bey.assemble();
-            Q('drag-knob[name=rotation]').value = 0;
+            App.show.knobs(false);
         }
     },
     show: {controls (ev) {

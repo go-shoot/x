@@ -47,14 +47,14 @@ class Model {
             group.updateMatrixWorld(true);
             let center = box.getCenter(V);
             if (this._camera) {
-                this._camera.position.y += center.y - (this._camera.$lastY ?? center.y);
+                this._camera.position.y += center.y - this._camera.$lastCenter.y;
             } else {
                 let distance = Math.abs(size / 2 / Math.tan(Math.PI / 4 / 2)) * 1.25 / (Model.#scale[this.comp] ?? 1);
                 this.#type == 'bey' && (distance *= Math.max(innerWidth / innerHeight, innerHeight / innerWidth));
                 this._camera = new THREE.PerspectiveCamera();
                 this._camera.position.set(center.x, center.y, center.z + distance);
             }
-            this._camera.$lastY = center.y;
+            this._camera.$lastCenter = {...center};
             this._camera.updateProjectionMatrix();
             return center;
         },
@@ -158,7 +158,7 @@ class Model {
             this.opened ??= 0;
             let delta = this.open === true && this.opened < 7 ? .2 : this.open === false && this.opened > 0 ? -.2 : 0;
             this.opened += delta;
-            this.beys.forEach(bey => bey.transform({spread: delta, rotate: this.speed}));
+            this.beys.forEach(bey => bey.transform({spread: delta, spin: this.speed}));
         }
         this.group && this.speed && (this.group.rotation.y += this.speed);
         this.#initiation.then(r => r.render(this._scene, this._camera));
@@ -264,13 +264,13 @@ Model.Bey = class {
         this.transform({x: typeof i == 'number' ? i * 50 : x});
         this.#Parent.onAssemble?.();
     }
-    transform ({spread = this.#Parent.opened, rotate, x}) {
+    transform ({spread = this.#Parent.opened, spin, x}) {
         if (spread) {
             ['ratchet','blade','assist','main','metal','over','chip']
             .filter(c => this[c]?.model).forEach((c, i) => this[c].model.position.y += (i + 1) * spread);
             this.#Parent.setup.camera(this.group);
         }
-        rotate && (this.group.rotation.y += rotate);
+        spin && (this.group.rotation.y += spin);
         x && (this.group.position.x = x);
     }
     compute () {
