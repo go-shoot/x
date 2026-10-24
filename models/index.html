@@ -26,7 +26,7 @@
         >:not(search) {font-size: .9em;}
         input[type=color] {background: var(--on);}
         search {margin: 0 .2rem;}
-        #random,label:has(input[name=bey]) {
+        #random {
             padding: 0 .5em;
             background: var(--theme); border-radius: 3em; 
             color: var(--backdrop);
@@ -50,6 +50,7 @@
         dt:nth-of-type(n+2):not(:last-of-type) {min-width: 4em;}
         dd {margin-right: .5em;}
         output {font-size: 2em; color: var(--on);}
+        label:has(input[name=bey]:checked) {color: var(--theme); border-bottom: .1em solid;}
     }
     #canvas {
         position: fixed; width: max(100svh,100svw); max-width: none; aspect-ratio: 1;
@@ -219,9 +220,10 @@ const App = {
 Object.assign(App.events, {
     switch (ev) {
         let index = typeof ev == 'object' ? ev.target.value : ev;
+        if (MODEL.bey == MODEL.beys[index]) return;
         MODEL.bey = MODEL.beys[index];
         if (typeof ev == 'object') {
-            let shift = index * 100 - 50 - MODEL._camera.$lastCenter.x;
+            let shift = index * 100 - 50;
             MODEL._camera.position.x += shift;
             MODEL._controls.target.x += shift; 
             App.show.info();

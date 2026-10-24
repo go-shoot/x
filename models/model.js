@@ -42,9 +42,9 @@ class Model {
             );
         },
         camera: (group = this.group, V = new THREE.Vector3()) => {
+            group.updateMatrixWorld(true);
             let box = new THREE.Box3().setFromObject(group);
             let size = Math.max(...Object.values(box.getSize(V)));
-            group.updateMatrixWorld(true);
             let center = box.getCenter(V);
             if (this._camera) {
                 this._camera.position.y += center.y - this._camera.$lastCenter.y;
@@ -56,13 +56,13 @@ class Model {
             }
             this._camera.$lastCenter = {...center};
             this._camera.updateProjectionMatrix();
-            return center;
+            return center.y;
         },
         orbital: () => {
-            let center = this.setup.camera(this.beys?.[0].group);
+            let y = this.setup.camera(this.bey?.group ?? this.beys?.[0].group);
             let controls = this._controls ??= new OrbitControls(this._camera, this.canvas);
             controls.enableDamping = true;
-            controls.target.copy(center);
+            controls.target.copy({x: this.bey ? this.beys.indexOf(this.bey) * 50 : 0, y, z: 0});
             this.#type == 'bey' && controls.pan(0, 20);
         },
     }
