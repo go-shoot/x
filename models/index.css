@@ -1,0 +1,84 @@
+input::placeholder,drag-knob,nav :is(input,label,button,span) {font-size: .8em;}
+nav {
+    button {
+        place-self: center end;
+        min-width: 4rem; height: 1.4rem;
+    }
+    #reset {grid-area: 1/3;}
+    #share {grid-area: 2/3;}
+    #delete {grid-area: 1/4;}
+    #save {grid-area: 2/4;}
+    fieldset {grid-area: 1/3/3/4; place-self: center start;}
+    span {grid-area: 1/2; place-self: end center;}
+    .toggle {grid-area: 2/2; place-self: center;}
+}
+#search {
+    opacity: 1 !important;
+    justify-content: start; align-items: center; gap: .2rem .4rem;
+    user-select: none; -webkit-user-select: none;
+
+    >:first-child,dl,label:has([id="0"]) {margin-left: .2rem;}
+    >:not(search) {font-size: .9em;}
+    input[type=color] {background: var(--on);}
+    search {margin: 0 .2rem;}
+    #random {
+        padding: 0 .5em;
+        background: var(--theme); border-radius: 3em; 
+        color: var(--backdrop);
+    }
+    .assembled:not(:empty)::before {content: '已組裝：';}
+    .assembled input[type=number] {display: none;}
+    .assembled label::after {
+        content: '';
+        background: url(/x/img/mode.png) center / contain;
+        display: inline-block; height: 1.4em; width: 1.4em;
+        vertical-align: -.35em; margin-left: .3em;
+    }
+    ol:empty,dl:has(output:empty),.preview li:has(button:not([data-path])) {display: none;}
+    dl {
+        display: flex; gap: .3em;
+        mask-image: linear-gradient(to right,black 95%,transparent); padding-right: 1rem;
+    }
+    dt {
+        min-width: 2em;
+        line-height: 1.1;
+    }
+    dt:nth-of-type(n+2):not(:last-of-type) {min-width: 4em;}
+    dd {margin-right: .5em;}
+    output {
+        font-size: 2em; color: var(--on);
+        sup {
+            line-height: 0; 
+            display: inline-block; transform: translateY(.05em);
+        }
+    }
+    label.LED {
+        color: var(--theme); filter: none !important;
+        align-self: baseline;
+
+        &:has(.selected) {border-bottom: .1em solid;}
+        &::before {margin: -.3rem 0 .3rem 0;}
+    }
+}
+#canvas {
+    position: fixed; width: max(100svh,100svw); max-width: none; aspect-ratio: 1;
+    left: 50svw; top: 50svh; transform: translate(-50%,-50%);
+    z-index: -1;
+    margin: 0 auto;
+    @media (orientation: landscape) {margin-top: 4em;}
+
+    canvas {width: 100%; height: 100%; pointer-events: auto;}
+}
+#models {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    transition: transform .25s;
+
+    figure {margin-bottom: .5em;}
+    &:not(:has(code:not(:empty))) {transform: translateX(-50%) translateY(calc(.5em + 100%));}
+}
+h1 {max-width: calc(100% - 5.8em); white-space: nowrap;}
+small {
+    margin-left: auto;
+    width: 10em;
+    font-size: .7em !important; line-height: 1.1; color: gray;
+}

@@ -45,7 +45,7 @@ Object.assign(actions, {
 const is = {
     internal: url => location.host == new URL(url).host,
     cacheable: url => is.internal(url) && !/\.json$/.test(new URL(url).pathname) 
-        || ['aeoq.github.io'].includes(new URL(url).host) 
+        || ['aeoq.github.io','beyblade-x-models.pages.dev'].includes(new URL(url).host) 
         || [/cdn\.?js/, /fonts\./].some(r => r.test(url)),
     volatile: url => is.internal(url) && /\.(?:js|css|json)$/.test(new URL(url).pathname),
     part: url => is.internal(url) && new URLPattern({pathname: '/x/img/*/*.png'}).test(url),

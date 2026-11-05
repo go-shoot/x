@@ -18,7 +18,7 @@
             "hasbro": "Suppress Superion",
             "chi": "凱旋\\超神"
         },
-        "stat": ["40="],
+        "stat": ["40=",494],
         "desc": "金屬連接至中央能提高剛性；一併持有上段大型Upper刃的攻擊性能與下段Counter刃的防禦性能。",
         "attr": ["bal","right","expand","bbb"]
     },

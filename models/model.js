@@ -8,7 +8,7 @@ class Model {
     static observer = new IntersectionObserver(entries => entries.forEach(en => 
         en.isIntersecting ? en.target.Model.render().then(M => M.onIntersect?.()) : en.target.Model.dispose()
     ), {threshold: .1});
-    #type; #initiation; #animation;
+    #type; #bey; #initiation; #animation;
     constructor(data, options = {}) {
         Object.assign(this, options);
         if (Array.isArray(data)) {
@@ -60,16 +60,15 @@ class Model {
         },
         orbital: () => {
             let y = this.setup.camera(this.bey?.group ?? this.beys?.[0].group);
-            let controls = this._controls ??= new OrbitControls(this._camera, this.canvas);
+            let controls = this._orbital ??= new OrbitControls(this._camera, this.canvas);
             controls.enableDamping = true;
-            controls.target.copy({x: this.bey ? this.beys.indexOf(this.bey) * 50 : 0, y, z: 0});
-            this.#type == 'bey' && controls.pan(0, 20);
+            this.#type == 'bey' 
+            && controls.target.copy({y, ...Model.Bey.place[this.beys.indexOf(this.bey)]}) && controls.pan(0, 20);
         },
     }
-    fetch = (code, {i, comp, color} = {}) => Model.fetch(/^.X/.test(code) ? 
-            `/x-model/${code.replace('-', '')}/${this.comp || comp}.glb` : 
-            `/x-model/hasbro/${code}.glb`
-        ).then(model => {
+    fetch = (code, {i, comp, color} = {}) => Model.fetch(`https://beyblade-x-models.pages.dev/` + (
+            /^.X/.test(code) ? `${code.replace('-', '')}/${this.comp || comp}` : `_hasbro/${code}`
+        ) + '.glb').then(model => {
             model.$comp = this.comp || comp;
             this.#prepare.for[this.#type]?.(model, i);
             this.#render(color);
@@ -125,6 +124,16 @@ class Model {
             this.#render();
         }
     }
+    get bey() {return this.#bey;}
+    set bey(i) {
+        if (!this.#bey) return this.#bey = this.beys[i];
+        if (this.#bey === this.beys[i]) return;
+        let from = Model.Bey.place[this.beys.indexOf(this.#bey)], to = Model.Bey.place[i];
+        let shift = new O(to).minus(from);
+        [this._camera.position, this._orbital.target].forEach(item => shift.each(([a, v]) => item[a] += v));
+        this.#bey = this.beys[i];
+        this.onAssemble?.();
+    }
     async render () {
         this.setup.scene();
         const {clientHeight: H} = this.canvas.parentElement ?? this.canvas;
@@ -153,7 +162,7 @@ class Model {
     }
     #animate () {
         this.#animation = requestAnimationFrame(() => this.#animate());
-        this._controls?.update();
+        this._orbital?.update();
         if (typeof this.beys?.[0].bit == 'object') {
             this.opened ??= 0;
             let delta = this.open === true && this.opened < 7 ? .2 : this.open === false && this.opened > 0 ? -.2 : 0;
@@ -168,7 +177,7 @@ class Model {
         this.#animation &&= cancelAnimationFrame(this.#animation);
         this._scene?.traverse(child => this.#dispose(child));
         this._scene?.clear();
-        this.#dispose('_controls', '_renderer');
+        this.#dispose('_orbital', '_renderer');
         Model.observer.unobserve(this.canvas);
         let old = this.canvas;
         this.setup.canvas(Array.isArray(this.code) ? E('canvas') : undefined);
@@ -229,29 +238,28 @@ Model.Bey = class {
             fetching: {value: fetching}
         });
     }
-    async replace (comp, after) {
-        typeof after == 'string' && (after = await this.#Parent.fetch(after, {comp}));
+    async replace (comp, after, props = {}) {
+        typeof after == 'string' && ([props.code, after] = [after, await this.#Parent.fetch(after, {comp})]);
         if (!after) return {};
-        after = new Model.BeyPart(this, {model: after});
+        [comp, after] = [comp.split(/\d/)[0], new Model.BeyPart(this, {model: after, ...props})];
+
         let removal = comp == 'blade' ? new Set([...Model.meta.CX]) : new Set();
-        if (comp == 'blade' && after.fused) {
-            removal.add('ratchet');
-            this.bit?.fused && removal.add('bit');
-        } else if (Model.meta.CX.has(comp)) {
+        if (Model.meta.CX.has(comp)) {
             comp == 'main' ? removal = Model.meta.CXX : Model.meta.CXX.has(comp) && removal.add('main');
             removal.add('blade');
-        } else if (comp == 'bit' && after.fused) {
-            removal.add('ratchet');
-            this.blade?.fused && removal.add('blade');
-        } else if (comp == 'ratchet') {
-            this.blade?.fused && removal.add('blade');
-            this.bit?.fused && removal.add('bit');
-        }
+        } 
+        else if (comp == 'blade' && after.fused)
+            removal.add('ratchet').add(this.bit?.fused && 'bit');
+        else if (comp == 'bit' && after.fused)
+            removal.add('ratchet').add(this.blade?.fused && 'blade');
+        else if (comp == 'ratchet')
+            removal.add(this.blade?.fused && 'blade').add(this.bit?.fused && 'bit');
         removal.add(comp).forEach(c => this[c]?.remove());
         return this[comp] = after;
     }
-    assemble (i) {
-        if (!this.bit) return;
+    assemble (i = {}) {
+        let place = this.group.position.clone();
+        if (!this.bit) return this.transform(typeof i == 'number' ? Model.Bey.place[i] : place);
         let assembly = new Model.BeyAssembly(this).stack('bit').mode().place('ratchet').stack();
         if (this.blade) {
             assembly.place('blade').mode();
@@ -259,30 +267,29 @@ Model.Bey = class {
             assembly = assembly.place('assist').stack().mode();
             (this.metal ? ['metal','over'] : ['main']).reduce((chain, c) => chain.place(c).mode(), assembly).place('chip');
         }
-        let x = this.group.position.x;
-        i !== false && this.compute();
-        this.transform({x: typeof i == 'number' ? i * 50 : x});
+        i.compute !== false && this.compute();
+        this.transform(typeof i == 'number' ? Model.Bey.place[i] : place);
         this.#Parent.onAssemble?.();
     }
-    transform ({spread = this.#Parent.opened, spin, x}) {
+    transform ({spread = this.#Parent.opened, spin, ...place}) {
         if (spread) {
             ['ratchet','blade','assist','main','metal','over','chip']
             .filter(c => this[c]?.model).forEach((c, i) => this[c].model.position.y += (i + 1) * spread);
             this.#Parent.setup.camera(this.group);
         }
         spin && (this.group.rotation.y += spin);
-        x && (this.group.position.x = x);
+        place && Object.assign(this.group.position, place);
     }
     compute () {
         let metals = [];
-        this.group.position.x = 0; //for computation
+        this.group.position.x = this.group.position.z = 0; //for computation
         this.group.updateMatrixWorld(true);
         this.group.traverse(child => 
             [child.name, child.material?.name].some(n => /^BXH14|metal/i.test(n)) && child.geometry
             && metals.push(Model.Bey.compute.gravity(child))
         );
-        let [area, moment2] = ['area', 'moment2'].map(p => Math.sumPrecise(metals.map(part => part[p])));
-        let [x, y, z] = ['x', 'y', 'z'].map(p => Math.sumPrecise(metals.map(item => item.area / area * item[p])));
+        let [area, moment2] = ['area', 'moment2'].map(p => metals.reduce((sum, part) => sum += part[p], 0));
+        let [x, y, z] = ['x', 'y', 'z'].map(p => metals.reduce((sum, item) => sum += item.area / area * item[p], 0));
         this.specs = [
             new THREE.Box3().setFromObject(this.group).getSize(new THREE.Vector3()).y,
             y, Math.hypot(x, z), Math.sqrt(moment2 / area)
@@ -306,50 +313,43 @@ Model.Bey = class {
             moment2 += (Math.pow(v[0].x + v[1].x + v[2].x, 2) + Math.pow(v[0].z + v[1].z + v[2].z, 2)) * area / 9;
         }
         center.divideScalar(totalArea);
-        return {
-            name: child.name,
-            area: totalArea,
-            moment2, ...center
-        };
+        return {name: child.name, area: totalArea, moment2, ...center};
     }}
+    static place = [{x: 0, z: 0}, {x: -27.5, z: -27.5 * Math.sqrt(3)}, {x: 27.5, z: -27.5 * Math.sqrt(3)}]
 }
 Model.BeyPart = class {
     #model; #adjust; #Bey;
     constructor(bey, {adjust, ...rest}) {
         this.#Bey = bey;
-        Object.assign(this, rest);
         this.#adjust = adjust ?? {rotation: 0};
+        Object.assign(this, rest);
     }
     get model() {return this.#model;}
     set model(model) {
         this.#model && (this.#adjust = {rotation: 0}) && this.remove(false);
         this.#Bey.group.add(this.#model = model);
+        model = model.$comp == 'bit' && Model.get.child(model, 'Bit_part01', 'Bit_parts01') || model;
+        this.fused = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y > 20;
     }
     get adjust() {return this.#adjust;}
     set adjust(adjust) {
         this.#adjust = adjust;
-        this.#Bey.assemble(adjust.mode != null);
-    }
-    get fused() {
-        let model = this.model.$comp == 'bit' && Model.get.child(this.model, 'Bit_part01', 'Bit_parts01') || this.model;
-        return new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y > 20;
+        this.#Bey.assemble({compute: adjust.mode != null});
     }
     remove (del = true) {
-        this.#Bey.group.remove(this.model) && this.model.traverse(child => Model.dispose(child));
+        this.#Bey.group.remove(this.model) && this.model.traverse?.(child => Model.dispose(child));
         if (del) delete this.#Bey[this.model.$comp];
     }
 }
 Model.BeyAssembly = class {
-    constructor(parts, adjust) {
-        this.bey = parts, this.adjust = adjust;
-        this.stackHeight = 0;
-    }
-    #model = comp => (comp ? this.comp = comp : comp = this.comp) && this.bey[comp] || {}
+    #stackHeight = 0;
+    constructor(Bey) {this.Bey = Bey;}
+    #model = comp => (comp ? this.comp = comp : comp = this.comp) && this.Bey[comp] || {}
     place (comp) {
         let {model, adjust} = this.#model(comp);
         if (!model) return this;
         model.position.y = 0; //init
-        model.position.y = this.stackHeight - new THREE.Box3().setFromObject(model).min.y;
+        model.position.y = this.#stackHeight - new THREE.Box3().setFromObject(model).min.y;
         model.position.y += ({main: .6, metal: .6, over: .6, chip: -1.3}[comp] ?? 0);
         model.rotation.y = (adjust?.rotation ?? 0) / -180 * Math.PI;
         return this;
@@ -357,29 +357,32 @@ Model.BeyAssembly = class {
     stack (comp) {
         let {model} = this.#model(comp);
         if (!model) return this;
-        this.stackHeight = new THREE.Box3().setFromObject(
+        this.#stackHeight = new THREE.Box3().setFromObject(
             comp == 'bit' && Model.get.child(model, 'Bit_part01', 'Bit_parts01') || model
         ).max.y; //evaluate only until now
-        this.stackHeight > 20 && (comp = 'ratchet');
-        this.stackHeight += ({bit: -1.7, ratchet: -4.1}[comp] ?? 0);
+        this.#stackHeight > 20 && (comp = 'ratchet');
+        this.#stackHeight += ({bit: -1.7, ratchet: -4.1}[comp] ?? 0);
         return this;
     }
     mode (comp) {
-        let {model, adjust: {abbr, mode} = {}} = this.#model(comp) ?? {};
+        let {model, code, li, adjust: {abbr, mode} = {}} = this.#model(comp);
         if (!abbr) return this;
         let param = Model.BeyAssembly.modes[this.comp]?.find(abbr);
         if (!param) return this;
+        mode = mode % (Model.BeyAssembly.robin[this.comp]?.find(abbr) ?? 2);
+        param === true ?
+            this.Bey.replace(`bit${mode || ''}`, code, {abbr, li}).then(() => this.Bey.assemble()) :
         Array.isArray(param) ?
-            [param].flat().forEach(([bone, prop, axis, amount]) => 
-                Model.get.child(model, bone)[prop][axis] += (mode ? 1 : -1) * amount
-            ) :
-            this.stackHeight += param[mode];
+            param.forEach(([bone, prop, axis, value]) => Model.get.child(model, bone)[prop][axis] += (mode ? 1 : -1) * value) :
+            this.#stackHeight += param[mode];
         delete this.#model(comp).adjust.abbr;
         return this;
     }
+    static robin = {}
     static modes = {
         bit: new O([
-            [/^T[A-Z]/, {true: -2, false: 0}]
+            [/^T[A-Z]/, {1: -2, 0: 0}],
+            [['Tr','Op'], true]
         ]),
         assist: new O([
             [['D','T'], [['AssistBlade_Mode_Bone', 'rotation', 'z', Math.PI]]]
