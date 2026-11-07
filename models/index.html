@@ -107,7 +107,8 @@ const App = {
         )}))).then(App.show.info);
     },
     serialize: bey => bey == null ? 
-        MODEL.beys.map(App.serialize) : {...new O(bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, adjust}])}
+        MODEL.beys.map(App.serialize) : 
+        {...new O(bey).map(([comp, {abbr, code, adjust}]) => [comp, {abbr, code, ...adjust.rotation === 0 ? {} : {adjust}}])}
     ,
     show: {
         info: () => {
@@ -192,9 +193,10 @@ Object.assign(App.events, {
             Object.values(MODEL.bey).forEach(part => part.remove());
             let code = ev.target.value.toUpperCase();
             if (!COLORS?.[code]) return;
+            let B = await new Search(code).then(r => new Bey(r.beys[0]));
             let results = await Promise.allSettled(COLORS[code].map(async ([comp]) => {
-                let abbr = await new Search(code).then(r => new Bey(r.beys[0])[comp].abbr);
-                return MODEL.bey.replace(comp, code, {abbr}).then(() => [comp, {code, abbr}]);
+                await MODEL.bey.replace(comp, code, {abbr: B[comp].abbr});
+                return [comp, {code, abbr: B[comp].abbr}];
             }));
             MODEL.bey.assemble();
             App.hydrate([new O(results.map(r => r.value))]);
