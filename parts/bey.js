@@ -27,6 +27,7 @@ class Bey {
         if (abbr.blade.length > 1) {
             let subs = Blade.sub[line][abbr.blade.length];
             this.blade = abbr.blade.map((b, i) => PARTS.blade[line][subs[i]][b] ?? new Blade({group: subs[i]}));
+            this.blade.forEach(P => P.abbr && (this[P.subcomp] = P));
         } else
             this.blade = PARTS.blade[abbr.blade[0]] ?? new Blade;
         this.line = line || (/^.X/.test(this.blade.group) ? this.blade.group : this.blade.abbr ? 'BX' : '');
@@ -155,7 +156,7 @@ class Search {
             beys: [beys].flat().filter(bey =>
                 this.regexp.some(r => r.test(bey.title ?? bey[2])) ||
                 typeof query == 'string' && query.length >= 2 && 
-                    this.#search.code(query.split(' '), bey.id?.split('_')[0] ?? bey[0])
+                    this.#search.code(query.split(' '), bey.id ?? bey[0])
             ),
             href: this.href || `?search=${query}`
         }));

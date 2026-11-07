@@ -165,36 +165,36 @@ Object.assign(App.events, {
     async randomize () {
         let inputs = Q('input[type=color]', []), matched = {};
         inputs.every(i => i.value == '#000000') && (inputs[0].value = color.random());
-        COLORS ??= new O(await fetch('https://beyblade-x-models.pages.dev/colors.json').then(resp => resp.json()));
-        COLORS.each(([code, part]) => part.each(([part, colors]) => {
-            let [comp, abbr] = part.split('.');
+        COLORS ??= new O(await fetch('//beyblade-x-models.pages.dev/color.json').then(resp => resp.json()));
+        COLORS.each(([code, parts]) => parts.each(([comp, colors]) => 
             Math.min(...inputs.filter(i => i.value != '#000000').map(i => 
-                Math.min(...colors.map(c => c ? color.distance(i.value, c) : 0))
-            )) < .15 && (matched[comp] ??= []).push([code, part]);
-        }));
-        let blades = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
-        if (!blades.length) return App.events.redraw();
-        let [code, part] = blades[Math.floor(Math.random() * blades.length)];
-        let [comp, abbr] = part.split('.');
-        let drawn = {[comp]: {abbr: part.split('.')[1], code}};
+                Math.min(...colors.map(c => c ? color.distance(i.value, `#${c}`) : 0))
+            )) < .15 && (matched[comp] ??= []).push([code, comp])
+        ));
+        let uppers = [...matched.blade ?? [], ...matched.main ?? [], ...matched.over ?? []];
+        if (!uppers.length) return App.events.redraw();
+        let search = (code, comp) => new Search(code).then(r => new Bey(r.beys[0])[comp].abbr);
+        let [code, comp] = uppers[Math.floor(Math.random() * uppers.length)];
+        let drawn = {[comp]: {abbr: await search(code, comp), code}};
+
         let others = {blade: [], main: ['assist', 'chip'], over: ['assist', 'metal', 'chip']};
-        for (let c of [...others[comp], 'ratchet', 'bit']) {
+        await Promise.all([...others[comp], 'ratchet', 'bit'].map(async c => {
             if (!matched[c]) return App.events.redraw();
-            let [code, part] = matched[c][Math.floor(Math.random() * matched[c].length)];
-            drawn[c] = {abbr: part.split('.')[1], code};
-        };
+            let [code] = matched[c][Math.floor(Math.random() * matched[c].length)];
+            drawn[c] = {abbr: await search(code, c), code};
+        }));
         App.load(drawn);
     },
     select: {
         async product (ev) {
             if (ev.key != 'Enter') return;
-            COLORS ??= new O(await fetch('https://beyblade-x-models.pages.dev/colors.json').then(resp => resp.json()));
+            COLORS ??= new O(await fetch('//beyblade-x-models.pages.dev/color.json').then(resp => resp.json()));
             Object.values(MODEL.bey).forEach(part => part.remove());
             let code = ev.target.value.toUpperCase();
             if (!COLORS?.[code]) return;
-            let results = await Promise.allSettled(COLORS[code].map(([k]) => {
-                let [comp, abbr] = k.split('.');
-                return MODEL.bey.replace(comp, code, {abbr}).then(() => [comp, {abbr, code}]);
+            let results = await Promise.allSettled(COLORS[code].map(async ([comp]) => {
+                let abbr = await new Search(code).then(r => new Bey(r.beys[0])[comp].abbr);
+                return MODEL.bey.replace(comp, code, {abbr}).then(() => [comp, {code, abbr}]);
             }));
             MODEL.bey.assemble();
             App.hydrate([new O(results.map(r => r.value))]);
