@@ -110,6 +110,7 @@ Object.assign(DB, {
             DB.fresh = ev.oldVersion === 0;
             let expiry = Storage('no-update')?.jsons, index = location.pathname == '/x/';
             let expired = expiry == null || Date.now() > expiry;
+            DB.prepare.tx('BLADE','rw').objectStore('BLADE').delete('BsBr');
             return DB.update({skip: {
                 all: !index && location.host == 'go-shoot.github.io' && !expired,
                 check: !index && DB.fresh
@@ -142,7 +143,7 @@ Object.assign(DB, {
         files: files => DB.indicator.update(files.length && true) && Promise.all(files.map(DB.fetch.file)),
         file: file => fetch(`/x/db/${file}.json`)
             .then(resp => Promise.allSettled([
-                file, resp.json(), DB.prepare.tx('BLADE','rw').objectStore('BLADE').delete('BsBr'), 
+                file, resp.json(), 
                 DB.fresh || file == 'part-blade-collab' && DB.delete('blade','hasbro'),
                 DB.fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
