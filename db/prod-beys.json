@@ -4,7 +4,7 @@
   ["BX-54","B","SgSp 0-70 LP"],
   ["BXG-65","B H","Vl.Vl.S 4-70 V",{"get":"A"}],
   ["BXC-21","Lm H","Kd.Hn.K 4-70 TK",{"coat":"White","get":"J"}],
-  ["BXG-71","Lm H","BsBr = DB"],["BXG-71","Lm H","BsBr = DB",{"coat":"White"}],
+  ["BXG-71","Lm H","BsVl = DB"],["BXG-71","Lm H","BsVl = DB",{"coat":"White"}],
   ["BX-53","SS H","ArPg 3-70 A","iqAR6f6sihQ",{"coat":"DodgerBlue"}],["BX-53","SS","WzAr2 4-80 B"],["BX-53","SS","KnSh2 3-80 N"],
   ["BX-52","S","LsDg 6-60 LC","9wQIBzzBAMY"],
   ["BXC-19","Lm H","Bh.Bl.B.K 1-50 I",{"coat":"Yellow","get":"J"}],

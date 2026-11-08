@@ -228,8 +228,10 @@ class Preview {
             this.model(path);
         })
     tile = ({code, path}) => PARTS.at(path).tile?.(code ? {timeout: tile => tile.act.model(null, code)} : {})
-        .then(tile => {Q('#tiles').append(tile); this.model(path);})
-
+        .then(tile => {
+            Q('#tiles').append(tile); 
+            Q('#tiles').children.length > 1 ? Preview.dialog.Q('canvas').remove() : this.model(path);
+        })
     diamond = ({code, bey}) => DB.get('product', 'keihins')
         .then(beys => beys[code] && Preview.dialog.Q('diamond-grid').append(new Keihin({code, bey, ...beys[code]})))
         
@@ -240,7 +242,8 @@ class Preview {
             ev.target.tagName == 'INPUT' && model.list.reorder(ev.target.checked ? '$color' : false);
         }
         Q('#models').append(
-            E('label.toggle', E('input', {type: 'checkbox'}), {onclick: reorder, title: ' 排序'}), E('figure>canvas') 
+            E('label.toggle', {onclick: reorder, title: ' 排序'}, E('input', {type: 'checkbox'})), 
+            E('figure>canvas') 
         );
         return new Search(path).then(({beys}) => {
             let codes = beys.map(({id, 0: code}) => id || code);

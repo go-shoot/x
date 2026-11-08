@@ -58,7 +58,7 @@
         "desc": "內藏彈簧的可動刃攻擊時回彈，以反發力特化於強烈的撞擊性能。",
         "attr": ["att","right","fused","bbb"]
     },
-   "DrSt": {
+    "DrSt": {
         "group": "BX",
         "names": {
             "jap": "ドランストライク",
@@ -69,14 +69,12 @@
         "desc": "金屬連接至中央能提高剛性；重量級的六枚刃作強烈連打攻擊。",
         "attr": ["att","right","expand"]
     },
-    "BsBr": {
+    "BsVl": {
         "group": "UX",
         "names": {
             "jap": "バイソンバロー",
-            "eng": "BisonBurrow",
-            "hasbro": "Valor Bison",
-            "chi": "",
-            "aka": "野牛"
+            "eng": "BisonValor",
+            "chi": "野牛勇猛 野牛豪勇"
         },
         "stat": ["41=",500],
         "desc": "外側三處搭載滾輪，特化於卸開對手攻擊。",

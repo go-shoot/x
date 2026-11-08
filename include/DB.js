@@ -142,9 +142,9 @@ Object.assign(DB, {
         files: files => DB.indicator.update(files.length && true) && Promise.all(files.map(DB.fetch.file)),
         file: file => fetch(`/x/db/${file}.json`)
             .then(resp => Promise.allSettled([
-                file, resp.json(), 
+                file, resp.json(), DB.prepare.tx('BLADE','rw').objectStore('BLADE').delete('BsBr'), 
                 DB.fresh || file == 'part-blade-collab' && DB.delete('blade','hasbro'),
-                DB.fresh || file == 'part-blade-divided' && (DB.delete('blade.CX','main'),DB.delete('blade.CX','hasbro')),
+                DB.fresh || file == 'part-blade-divided' && DB.delete('blade.CX','hasbro'),
             ]))
     },
     filter: {
