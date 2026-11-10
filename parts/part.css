@@ -281,7 +281,7 @@
     img {width: 6em; height: 6em; object-fit: contain;}
     span {min-width: 100%; align-self: center;}
     canvas {
-        max-width: 100%; min-height: 100%;
+        width: 100%; aspect-ratio: 1;
         z-index: 1;
         opacity: 0;
         &[data-engine] {opacity: 1;}

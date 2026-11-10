@@ -1,19 +1,14 @@
 {
   "part-bit":          "2026/11/05 22:30:00",
-  "part-blade-divided":"2026/11/05 22:30:00",
+  "part-blade-divided":"2026/11/10 22:08:00",
+  "part-blade":        "2026/11/10 22:08:00",
   "part-ratchet":      "2026/11/05 22:30:00",
-  "part-blade":        "2026/11/08 10:30:00",
   "prod-beys":         "2026/11/08 10:30:00",
   "prod-keihin":       "2026/11/08 10:30:00",
   "prod-gear":         "2026/10/08 17:30:00",
   "part-blade-collab": "2026/10/06 00:33:00",
   "meta":              "2026/09/22 16:23:00",
   "news": {
-"2026-11-05":[{
-    "code": "BXG-65 booster",
-    "bey": "Vl.Vl.S 4-70 V","ver":["ガンメタVer.","Gun-metal Ver."],
-    "desc": ["App抽獎購買品等（會員先行）"]
-}],
 "2026-11-21":[{
     "code":"BX-54 booster",
     "name":["ジークスペリオン0-70LP","Sieg Superion 0-70LP"],

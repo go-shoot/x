@@ -197,7 +197,7 @@
             "attr": ["att","right"]
         },
         "Fc": {
-            "names": {"jap":"フォース", "eng":"Force", "chi":""},
+            "names": {"jap":"フォース", "eng":"Force", "chi":"戰壓 原力"},
             "stat": ["28-",510],
             "desc": "一併持有在三處巨大及凸出的攻擊刃與圓滑的三枚防禦刃。",
             "attr": ["bal","right"]
