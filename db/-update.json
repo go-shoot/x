@@ -19,10 +19,16 @@
     "code":"CX-20 customize set","type":"bal",
     "desc":["フェニックスフォースWHM-65MT<br>Phoenix Force WHM-65MT","全身近乎Full Metal"],
     "imgs":["https://m.media-amazon.com/images/I/61551mS5dzL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61cEx4ftc0L._AC_SX679_.jpg","https://m.media-amazon.com/images/I/619hKynvsmL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61Ov376REbL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/bd398fdb-9b29-4ce2-a712-d8e9d252b2af.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/a6bda65c-7d27-43f3-ac56-18af9061a86c.__CR0,0,970,600_PT0_SX970_V1___.jpg"]
-}],"2026-12":[{
-    "code":"UX-22 starter"
+}],"2026-12-26":[{
+    "code":"UX-22 starter","name":["ベリアルシファーWW","Barrier Lucifer WW"],
+    "type":"def",
+    "imgs":["https://i.imgur.com/zv8vgK5.jpeg","https://i.imgur.com/7DzgGa3.jpeg"],
+    "desc":["高速轉動時離心力使Barrier打開，從圓形變成橢圓形"]
 },{
-    "code":"BX-55 random booster"
+    "code":"BX-55 random booster","name":["ホルスシャッター3-85MO","Horus Shatter 3-85MO"],
+    "type":"sta",
+    "imgs":["https://i.imgur.com/leP1oxs.jpeg"],
+    "desc":["金屬向下及外延伸，提高安定性"]
 }],"2027-01":[{
     "code":"UX-23 booster"
 }],"2027-02":[{
