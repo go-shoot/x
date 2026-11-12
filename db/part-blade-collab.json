@@ -38,18 +38,6 @@
         "attr": ["sta","right","BX"],
         "from": "WyGl"
     },
-    "HrSh": {
-        "group": "hasbro",
-        "names": {
-            "jap": "ホルスシャッター",
-            "eng": "HorusShatter",
-            "chi": "",
-            "aka": "荷魯斯 隼"
-        },
-        "stat": ["33=",484],
-        "desc": "(9-65GB tent.)",
-        "attr": ["sta","right","BX","expand"]
-    },
     "BtGs": {
         "group": "hasbro",
         "names": {

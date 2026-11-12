@@ -1,4 +1,27 @@
 {
+    "HrSh": {
+        "group": "BX",
+        "names": {
+            "jap": "ホルスシャッター",
+            "eng": "HorusShatter",
+            "chi": "",
+            "aka": "荷魯斯 隼"
+        },
+        "stat": ["33=",484],
+        "desc": "",
+        "attr": ["sta","right","BX","expand"]
+    },
+    "VnLc": {
+        "group": "UX",
+        "names": {
+            "jap": "バニッシュルシファー",
+            "eng": "Vanish Lucifer",
+            "chi": ""
+        },
+        "stat": [""],
+        "desc": "",
+        "attr": ["def","right","UX","fused"]
+    },
     "LsDg": {
         "group": "BX",
         "names": {
