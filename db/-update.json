@@ -24,7 +24,7 @@
     "type":"def",
     
     "imgs":["https://m.media-amazon.com/images/I/61XYai7vsSL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/612p6zyPOjL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/512KgdY6bzL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61Q3wXuteoL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/71ItlyamLrL._AC_SX679_.jpg","https://m.media-amazon.com/images/I/61VpMiEnbxL._AC_SX679_.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/0eb1cb6e-165a-4c40-93c2-4bd0c102e452.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/S/aplus-media-library-service-media/dff9bb96-d3cd-4841-92fe-df8bd82c6101.__CR0,0,970,600_PT0_SX970_V1___.jpg","https://m.media-amazon.com/images/I/417ijpxYPWL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41L6TixOvWL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41DMiCxJ9pL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51oGNDMDadL.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/51-l%2BSIAe8L.__AC_SR150,300___.jpg","https://m.media-amazon.com/images/I/41meWNy8tDL.__AC_SR150,300___.jpg","https://i.imgur.com/zv8vgK5.jpeg","https://i.imgur.com/7DzgGA3.jpeg"],
-    "desc":["高速轉動時離心力使Barrier打開，從橢圓形變成圓形"]
+    "desc":["高速轉動時離心力使Barrier打開，從橢圓形變成圓形","X Dash時使已打開的Barrier固定"]
 },{
     "code":"BX-55 random booster","name":["ホルスシャッター3-85MO","Horus Shatter 3-85MO"],
     "type":"sta",
