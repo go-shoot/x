@@ -15,8 +15,9 @@
         "group": "UX",
         "names": {
             "jap": "バニッシュルシファー",
-            "eng": "Vanish Lucifer",
-            "chi": ""
+            "eng": "VanishLucifer",
+            "chi": "",
+            "aka":"路西法"
         },
         "stat": [""],
         "desc": "搭載的機關在發射時以離心力使屏障發動，X Dash時令屏障強度再強化；特化於防禦性能。",
