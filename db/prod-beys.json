@@ -1,9 +1,9 @@
 [
-  ["BXH-?9","Lm H","/ / GF"],["BXH-?9","Lm H","/ / T"],["BXH-?9","Lm H","/ / DB"],["BXG-64","S H","Bh.Bl.B.K 1-50 I"],
+  ["BXH-?9","Lm H","/ / GF"],["BXH-?9","Lm H","/ / T"],["BXH-?9","Lm H","/ / DB"],["BXG-64","S H","Bh.Bl.B.K 1-50 I",{"coat":"black"}],
   ["BX-55","RB","HrSh 3-85 MO"],["BX-55","RB H","HrSh 1-60 BS"],["BX-55","RB","Ln.Fn.T 9-65 HT"],
   ["BX-55","RB H","Fx.Bl.R 6-70 A"],["BX-55","RB H","TrPr 4-60 DS"],["BX-55","RB H","ClMr 4-55 MO"],
   ["UX-22","S","VnLc = WW"],
-  ["CX-20","St","Ph.Fc.W.H M-65 MT",{"coat":"Crimson"}],["CX-20","St H","WzRd 8-80 HN",{"coat":"DodgerBlue"}],["CX-20","St H","ShSc 1-70 LR"],
+  ["CX-20","St","Ph.Fc.W.H M-65 MT","0P7DBd01kyc",{"coat":"Crimson"}],["CX-20","St H","WzRd 8-80 HN",{"coat":"DodgerBlue"}],["CX-20","St H","ShSc 1-70 LR"],
   ["CX-20","St","HlSc2 / K"],["CX-20","St H","/ / LO"],["CX-20","St H","/ / UF"],
   ["BX-54","B","SgSp 0-70 LP"],
   ["BXG-65","B H","Vl.Vl.S 4-70 V",{"get":"A"}],
