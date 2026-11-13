@@ -1,4 +1,19 @@
 {
+    "BXH-?9_03":{
+        "type":"g", "date":"2026-12", "note":"購物滿額贈品",
+        "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news261113.html", 
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news261113_bitDB.webp",200]
+    },
+    "BXH-?9_02":{
+        "type":"g", "date":"2026-12", "note":"購物滿額贈品",
+        "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news261113.html", 
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news261113_bitT.webp",200]
+    },
+    "BXH-?9_01":{
+        "type":"g", "date":"2026-12", "note":"購物滿額贈品",
+        "ver":["スペシャル","Special"], "link":"https://beyblade.takaratomy.co.jp/beyblade-x/news/news261113.html", 
+        "img":["https://beyblade.takaratomy.co.jp/beyblade-x/news/_image/news261113_bitGF.webp",200]
+    },
     "BXC-21":{
         "type":"m", "date":"2026-10", "note":"コロコロ雜誌應募", 
         "ver":["メタルコート：ホワイト","Metal Coat: White"], "link":"https://corocoro-news.jp/news/402790/",
