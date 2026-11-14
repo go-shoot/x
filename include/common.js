@@ -3,7 +3,9 @@ const Storage = (key, obj) => !obj ?
     localStorage[key] = Array.isArray(obj) ? JSON.stringify(obj) : typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
 
 Storage.deleteCache = which => fetch('../db/-update.json')
-.then(() => caches.delete(which == 'cache' ? 'X' : `X/${which}`)).then(() => {
+.then(() => caches.delete(which == 'cache' ? 'X' : `X/${which}`))
+.then(() => which == 'cache' ? caches.open('X').then(cache => cache.add('/x/include/head.html')) : Promise.resolve())
+.then(() => {
     let days = {cache: 30, parts: 60, models: 90}[which];
     Storage('no-update', {[which]: Date.now() + days*24*60*60*1000});
     return days;
