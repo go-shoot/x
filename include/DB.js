@@ -106,11 +106,10 @@ Object.assign(DB, {
             if (ev.type == 'success' && DB.os.parts.some(s => !DB.db.objectStoreNames.contains(s.toUpperCase())))
                 return DB.db.close().then(() => DB.open(DB.db.version + 1));
 
-            ev.type == 'upgradeneeded' && DB.setup(ev);
+            ev.type == 'upgradeneeded' ? DB.setup(ev) : DB.prepare.tx('BLADE','rw').objectStore('BLADE').delete('BsBr');
             DB.fresh = ev.oldVersion === 0;
             let expiry = Storage('no-update')?.jsons, index = location.pathname == '/x/';
             let expired = expiry == null || Date.now() > expiry;
-            DB.prepare.tx('BLADE','rw').objectStore('BLADE').delete('BsBr');
             return DB.update({skip: {
                 all: !index && location.host == 'go-shoot.github.io' && !expired,
                 check: !index && DB.fresh
