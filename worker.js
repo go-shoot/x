@@ -81,7 +81,7 @@ const Head = {
         <link rel="manifest" href='data:application/manifest+json,${JSON.stringify(manifest)}'>`;
 
         return Head.code = await caches.match(Head.url).then(resp => resp.text())
-        .then(html => new TextEncoder().encode(html + manifest));
+        .then(html => new TextEncoder().encode(html + manifest)).catch(() => '');
     },
     inject: async res => {
         const {readable, writable} = new TransformStream();
