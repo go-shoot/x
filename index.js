@@ -209,13 +209,13 @@ if (location.pathname == '/x/') {
 
     (() => {
         [['cache', 30], ['parts', 60], ['models', 90]].forEach(([item, days]) =>
-            Date.now() > Storage('no-update')?.[item] && 
-            fetch(`sw/?delete=${item}`).then(() => Storage('no-update', {[item]: Date.now() + days*24*60*60*1000}))
+            Storage('no-update')?.[item] ? 
+                Date.now() > Storage('no-update')[item] && Storage.deleteCache(item) :
+                Storage('no-update', {[item]: Date.now() + days*24*60*60*1000})
         );
-
         const reset = () => Promise.all([
             DB.discard(ev => Q('#reboot p').innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
-            caches.delete('X'), caches.delete('X/parts'), caches.delete('X/fonts'),
+            caches.delete('X'), caches.delete('X/parts'), caches.delete('X/models'),
             localStorage.clear(), sessionStorage.clear(),
             navigator.serviceWorker.getRegistrations().then(([reg]) => reg.unregister())
         ]).then(() => {

@@ -11,6 +11,13 @@
         .toggle {font-size: .8em;}
         hr {margin-top: 2em;}
     }
+    li {
+        text-align: left; line-height: 1.4;
+        button {color: var(--theme);}
+        data {font-size: .85em; margin-left: 1em;}
+        data::before {content: ' ';}
+        data::after {content: attr(value);}
+    }
     fieldset {
         margin-top: 2em;
         legend {margin-bottom: 1em; padding: 0;}
@@ -46,6 +53,15 @@
 
 <nav><menu></menu><button type="reset"> 重設</button></nav>
 <main>
+    <p>清除快取以更新：<small> 離下次自動清除尚餘日數</small></p>
+    <ul>
+        <li><button class="cache">部件資訊</button></li>
+        <li><button class="cache" id="models" title="X/models">部件模型</button><data></data></li>
+        <li><button class="cache" id="parts" title="X/parts">部件圖片</button><data></data></li>
+        <li><button class="cache" id="cache" title="X">其他資源</button><data></data></li>
+    </ul>
+    <p> 已儲存資料：<data id="stored"></data> MB</p>
+    <hr>
     <p>在本站，先按住「部件磚」或「陀螺列」再拖至角落能進行社交媒體或購物網站搜索。立即試試：</p>
     <form>
         彈出式<label class="toggle"><input type="checkbox" name="drop-popup" checked="true"></label>
@@ -63,7 +79,7 @@
     <form id="reboot">
         功能列
         <fieldset>上<label class="toggle bilateral vertical"><input type="checkbox" name="bottom"></label>下</fieldset>
-        ｜
+        ｜em dash
         <fieldset>左<label class="toggle bilateral"><input type="checkbox" name="right"></label>右</fieldset>
         連結
     </form>
@@ -78,6 +94,15 @@ Q('main').prepend(DB().then(async () => {
     let [tile, {beys}] = await Promise.all([PARTS.blade.HlNt.tile(), new Search('CX-13')]);
     forms[0].before(tile, E('table>tbody', beys.map(bey => new Bey(bey).Row)));
     Q('.toggle input').forEach(input => input.checked = Storage('pref')?.[input.name] ?? input.checked);
+    Q('#stored').innerText = ((await navigator.storage.estimate()).usage/1024/1024).toFixed(1);
+
+    let time = Storage('no-update');
+    Q('.cache', button => {
+        button.id && (button.nextSibling.value = Math.ceil((time[button.id] - new Date)/1000/60/60/24) || '—');
+        button.onclick = () => button.id ?
+            Storage.deleteCache(button.id).then(days => button.nextSibling.value = days) : 
+            (localStorage.DB = null) ?? location.reload();
+    });
 
     forms[0].onchange = ev => {
         Storage('pref', {'drop-popup': ev.target.checked});
@@ -111,7 +136,6 @@ Q('main').prepend(DB().then(async () => {
         Storage('pref', {parts: ev.target.value});
         Q('a[href*="/parts/"]', a => a.href = '/x/parts/' + ev.target.value);
     }
-
     forms[3].onchange = ev => {
         Storage('pref', {[ev.target.name]: ev.target.checked});
         ev.target.name == 'bottom' && Menu.nav.classList.toggle('bottom', ev.target.checked);

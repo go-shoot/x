@@ -2,6 +2,13 @@ const Storage = (key, obj) => !obj ?
     JSON.parse(localStorage[key] ?? 'null') : 
     localStorage[key] = Array.isArray(obj) ? JSON.stringify(obj) : typeof obj == 'object' ? JSON.stringify({...Storage(key), ...obj}) : obj;
 
+Storage.deleteCache = which => fetch('../db/-update.json')
+.then(() => caches.delete(which == 'cache' ? 'X' : `X/${which}`)).then(() => {
+    let days = {cache: 30, parts: 60, models: 90}[which];
+    Storage('no-update', {[which]: Date.now() + days*24*60*60*1000});
+    return days;
+});
+
 let LINES = {
     CX: {color: "#f42597", title: "Custom Line", divided: true},
     UX: {color: "#ee7800", title: "Unique Line"},

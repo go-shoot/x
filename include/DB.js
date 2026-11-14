@@ -126,8 +126,6 @@ Object.assign(DB, {
         DB.os.parts.map(s => DB.db.objectStoreNames.contains(s.toUpperCase()) || 
             DB.db.createObjectStore(s.toUpperCase(), {keyPath: 'abbr'}).createIndex('group', 'group'));
         DB.tx.bind(ev.target.transaction);
-        [['cache', 30], ['parts', 60]].forEach(([item, days]) => 
-            Storage('no-update', {[item]: Date.now() + days*24*60*60*1000}));
     },
     fetch: {
         aborter: new AbortController(),
