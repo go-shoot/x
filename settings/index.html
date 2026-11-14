@@ -90,14 +90,15 @@ import DB from '../include/DB.js';
 import {Bey, Search} from '../parts/bey.js';
 let forms = document.forms;
 
+let estimate = () => navigator.storage.estimate().then(({usage}) => Q('#stored').innerText = (usage/1024/1024).toFixed(1));
+estimate();
 let time = Storage('no-update');
 Q('.cache', button => {
     button.id && (button.nextSibling.value = Math.ceil((time[button.id] - new Date)/1000/60/60/24) || '—');
     button.onclick = () => button.id ?
-        Storage.deleteCache(button.id).then(days => button.nextSibling.value = days) : 
+        Storage.deleteCache(button.id).then(days => (button.nextSibling.value = days) && estimate()) : 
         (localStorage.DB = null) ?? location.reload();
 });
-navigator.storage.estimate().then(({usage}) => Q('#stored').innerText = (usage/1024/1024).toFixed(1));
 
 forms[0].onchange = ev => {
     Storage('pref', {'drop-popup': ev.target.checked});
