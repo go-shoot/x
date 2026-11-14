@@ -213,6 +213,7 @@ if (location.pathname == '/x/') {
                 Date.now() > Storage('no-update')[item] && Storage.deleteCache(item) :
                 Storage('no-update', {[item]: Date.now() + days*24*60*60*1000})
         );
+        
         const reset = () => Promise.all([
             DB.discard(ev => Q('#reboot p').innerText = ev.type == 'blocked' ? '請先關閉所有本網的分頁' : ev.type),
             caches.delete('X'), caches.delete('X/parts'), caches.delete('X/models'),
@@ -226,18 +227,16 @@ if (location.pathname == '/x/') {
             Q('#reboot p').innerText = er;
             console.error(er);
         });
-
         const PI = 'https://aeoq.github.io/pointer-interaction.mjs';
-        const distance = (Q('#reboot div').clientWidth - Q('#reboot i').clientWidth)/2;
+        const distance = Q('#reboot div').clientWidth - Q('#reboot i').clientWidth;
         import(PI).then(({default: PI}) => PI.events({
             '.scroller,#search ol': {scroll: {x: true}},
             '#reboot i': {
                 drop: {onto: 'span'},
                 drag: {x: {min: distance*-1, max: distance}, y: false},
-                lift: PI => PI.onto?.id == 'image' ? fetch('sw/?delete=parts') : PI.onto?.id == 'all' ? reset() : '',
+                lift: PI => PI.onto?.id == 'all' && reset(),
             }
-        }))
-        .catch(() => caches.open('X').then(cache => cache.delete(PI)));
+        })).catch(() => caches.open('X').then(cache => cache.delete(PI)));
 
         let swapped, sec = 1;
         Q('video', video => E(video).set({

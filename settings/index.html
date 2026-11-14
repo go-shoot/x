@@ -79,7 +79,7 @@
     <form id="reboot">
         功能列
         <fieldset>上<label class="toggle bilateral vertical"><input type="checkbox" name="bottom"></label>下</fieldset>
-        ｜em dash
+        ｜
         <fieldset>左<label class="toggle bilateral"><input type="checkbox" name="right"></label>右</fieldset>
         連結
     </form>
@@ -88,64 +88,65 @@
 <script type="module">
 import DB from '../include/DB.js';
 import {Bey, Search} from '../parts/bey.js';
+let forms = document.forms;
+
+let time = Storage('no-update');
+Q('.cache', button => {
+    button.id && (button.nextSibling.value = Math.ceil((time[button.id] - new Date)/1000/60/60/24) || '—');
+    button.onclick = () => button.id ?
+        Storage.deleteCache(button.id).then(days => button.nextSibling.value = days) : 
+        (localStorage.DB = null) ?? location.reload();
+});
+navigator.storage.estimate().then(({usage}) => Q('#stored').innerText = (usage/1024/1024).toFixed(1));
+
+forms[0].onchange = ev => {
+    Storage('pref', {'drop-popup': ev.target.checked});
+    Q('a[id|=drop]', a => a.target = ev.target.checked ? '_blank' : '');
+}
+Q('.toggle input').forEach(input => input.checked = Storage('pref')?.[input.name] ?? input.checked);
+
+let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
+Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [
+    E('dt', chi[n]), 
+    E('dd', [
+        E('select', {name: `${dl.id}-${n}-site`}, 
+            Object.keys(DropSearch.zone.href).map(p => E('option', {value: p}, p))),
+        E('select', {name: `${dl.id}-${n}-locale`}, 
+            Object.entries(DropSearch.zone.text).map(([v, t]) => E('option', {value: v}, t))),
+        E('input', {name: `${dl.id}-${n}-append`, placeholder: '外加關鍵字'})
+    ])
+])));
+let config = new O(Storage('drop-search') || DropSearch.default);
+[...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[1][n] && (forms[1][n].value = v));
+forms[1].onchange = ev => Storage('drop-search', {...new O(new FormData(forms[1])).reshape(([k]) => k.split('-'))});
+
+fetch('../sitemap.txt').then(resp => resp.text()).then(text => {
+    let pref = Storage('pref')?.parts ?? '?blade';
+    forms[2].Q('select').append(...text.split('\n').filter(url => url.includes('parts')).map(url => {
+        url = new URL(url);
+        url = url.search + url.hash;
+        return E('option', url, {selected: pref == url});
+    }));
+});
+forms[2].onchange = ev => {
+    Storage('pref', {parts: ev.target.value});
+    Q('a[href*="/parts/"]', a => a.href = '/x/parts/' + ev.target.value);
+}
+forms[3].onchange = ev => {
+    Storage('pref', {[ev.target.name]: ev.target.checked});
+    ev.target.name == 'bottom' && Menu.nav.classList.toggle('bottom', ev.target.checked);
+    ev.target.name == 'right' && Menu.nav.classList.toggle('right', ev.target.checked);
+}
+
+Q('button[type=reset]').onclick = () => {
+    localStorage.removeItem('drop-search');
+    localStorage.removeItem('pref');
+    location.reload();
+}
+
 Q('main').prepend(DB().then(async () => {
-    let forms = document.forms;
     let PARTS = await DB.get.essentials();
     let [tile, {beys}] = await Promise.all([PARTS.blade.HlNt.tile(), new Search('CX-13')]);
     forms[0].before(tile, E('table>tbody', beys.map(bey => new Bey(bey).Row)));
-    Q('.toggle input').forEach(input => input.checked = Storage('pref')?.[input.name] ?? input.checked);
-    Q('#stored').innerText = ((await navigator.storage.estimate()).usage/1024/1024).toFixed(1);
-
-    let time = Storage('no-update');
-    Q('.cache', button => {
-        button.id && (button.nextSibling.value = Math.ceil((time[button.id] - new Date)/1000/60/60/24) || '—');
-        button.onclick = () => button.id ?
-            Storage.deleteCache(button.id).then(days => button.nextSibling.value = days) : 
-            (localStorage.DB = null) ?? location.reload();
-    });
-
-    forms[0].onchange = ev => {
-        Storage('pref', {'drop-popup': ev.target.checked});
-        Q('a[id|=drop]', a => a.target = ev.target.checked ? '_blank' : '');
-    }
-
-    let chi = {tl: '左上', tr: '右上', bl: '左下', br: '右下'};
-    Q('dl', dl => dl.append(...['tl','tr','bl','br'].flatMap(n => [
-        E('dt', chi[n]), 
-        E('dd', [
-            E('select', {name: `${dl.id}-${n}-site`}, 
-                Object.keys(DropSearch.zone.href).map(p => E('option', {value: p}, p))),
-            E('select', {name: `${dl.id}-${n}-locale`}, 
-                Object.entries(DropSearch.zone.text).map(([v, t]) => E('option', {value: v}, t))),
-            E('input', {name: `${dl.id}-${n}-append`, placeholder: '外加關鍵字'})
-        ])
-    ])));
-    let config = new O(Storage('drop-search') || DropSearch.default);
-    [...config.reshape(keys => [keys.join('-')])].forEach(([n, v]) => forms[1][n] && (forms[1][n].value = v));
-    forms[1].onchange = ev => Storage('drop-search', {...new O(new FormData(forms[1])).reshape(([k]) => k.split('-'))});
-
-    fetch('../sitemap.txt').then(resp => resp.text()).then(text => {
-        let pref = Storage('pref')?.parts ?? '?blade';
-        forms[2].Q('select').append(...text.split('\n').filter(url => url.includes('parts')).map(url => {
-            url = new URL(url);
-            url = url.search + url.hash;
-            return E('option', url, {selected: pref == url});
-        }));
-    });
-    forms[2].onchange = ev => {
-        Storage('pref', {parts: ev.target.value});
-        Q('a[href*="/parts/"]', a => a.href = '/x/parts/' + ev.target.value);
-    }
-    forms[3].onchange = ev => {
-        Storage('pref', {[ev.target.name]: ev.target.checked});
-        ev.target.name == 'bottom' && Menu.nav.classList.toggle('bottom', ev.target.checked);
-        ev.target.name == 'right' && Menu.nav.classList.toggle('right', ev.target.checked);
-    }
-
-    Q('button[type=reset]').onclick = () => {
-        localStorage.removeItem('drop-search');
-        localStorage.removeItem('pref');
-        location.reload();
-    }
 }));
 </script>
