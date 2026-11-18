@@ -72,12 +72,12 @@ const Head = {
         let manifest = {
             name: "非官方資訊站",
             display: "standalone",
-            start_url: `https://${location.host}/x/`,
+            start_url: `${location.origin}/x/`,
             theme_color: "%23b0ff50",
-            icons: [{src: `https://${location.host}/x/img/blade/CX/chip/Vl.png`, type: "image/png", sizes: "512x512"}]
+            icons: [{src: `${location.origin}/x/img/blade/CX/chip/Vl.png`, type: "image/png", sizes: "512x512"}]
         };
         manifest = `
-        <link rel="icon" href="https://${location.host}/x/img/blade/CX/chip/Vl.png" type="image/png">
+        <link rel="icon" href="${location.origin}/x/img/blade/CX/chip/Vl.png" type="image/png">
         <link rel="manifest" href='data:application/manifest+json,${JSON.stringify(manifest)}'>`;
 
         return Head.code = await caches.match(Head.url).then(resp => resp.text())
